@@ -1,0 +1,77 @@
+[
+  {
+    "persona_id": "persona_priya",
+    "name": "Priya Nair",
+    "role": "sre",
+    "department": "platform",
+    "seniority": "senior",
+    "communication_style": "direct",
+    "technical_level": "expert",
+    "domain_knowledge": [
+      "deployments",
+      "incident response",
+      "observability"
+    ],
+    "common_tasks": [
+      "rollback",
+      "alert triage",
+      "canary analysis"
+    ]
+  },
+  {
+    "persona_id": "persona_diego",
+    "name": "Diego Ramos",
+    "role": "staff_engineer",
+    "department": "commerce",
+    "seniority": "staff",
+    "communication_style": "professional",
+    "technical_level": "expert",
+    "domain_knowledge": [
+      "payments",
+      "checkout",
+      "reliability patterns"
+    ],
+    "common_tasks": [
+      "code review",
+      "SLO remediation",
+      "dependency upgrades"
+    ]
+  },
+  {
+    "persona_id": "persona_mei",
+    "name": "Mei Tanaka",
+    "role": "staff_engineer",
+    "department": "growth",
+    "seniority": "staff",
+    "communication_style": "concise",
+    "technical_level": "expert",
+    "domain_knowledge": [
+      "search",
+      "frontend",
+      "feature flags"
+    ],
+    "common_tasks": [
+      "feature rollout",
+      "A/B experiments",
+      "performance tuning"
+    ]
+  },
+  {
+    "persona_id": "persona_jordan",
+    "name": "Jordan Blake",
+    "role": "engineering_manager",
+    "department": "engineering",
+    "seniority": "senior",
+    "communication_style": "supportive",
+    "technical_level": "advanced",
+    "domain_knowledge": [
+      "process",
+      "postmortems",
+      "ticket hygiene"
+    ],
+    "common_tasks": [
+      "incident review",
+      "backlog triage"
+    ]
+  }
+]

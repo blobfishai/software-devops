@@ -1,0 +1,77 @@
+{
+  "world_id": "env_software_devops_68df72b3",
+  "blobfish_version": "external-0.1.0",
+  "vertical": "software_devops",
+  "tenant": "",
+  "brief": "End-to-end engineering-workflow world (Horizon-SWE-inspired): investigate -> PR -> CI -> merge -> staged deploy -> observe -> resolve.",
+  "topic": "software engineering devops ci cd deployments canary feature flags incidents slo alerts api migration flaky tests security response",
+  "domain": "engineering",
+  "engine": "curated",
+  "seed": 42,
+  "created_at": 1786000000.0,
+  "world_digest": "68df72b37d4a6f6290718f9a088467550e554f14e8677a85591ac64d0fa9ebed",
+  "entities": [
+    "alerts",
+    "audit_events",
+    "channels",
+    "ci_runs",
+    "deployments",
+    "env_state",
+    "feature_flags",
+    "incidents",
+    "logs",
+    "messages",
+    "metric_rules",
+    "oncall",
+    "pr_changes",
+    "pull_requests",
+    "repo_state",
+    "runbooks",
+    "service_metrics",
+    "services",
+    "slos",
+    "tests_catalog",
+    "tickets",
+    "versions",
+    "vulnerabilities"
+  ],
+  "tables_without_tools": [],
+  "counts": {
+    "tables": 23,
+    "rows": 224,
+    "tools": 34,
+    "tasks": 10,
+    "tasks_rejected": 0
+  },
+  "difficulty": {
+    "hard": 5,
+    "medium": 3,
+    "expert": 2
+  },
+  "splits": {
+    "train": [
+      "tsk_payments_error_rate",
+      "tsk_express_checkout_flag",
+      "tsk_instant_refunds_killswitch",
+      "tsk_libpayproc_cve",
+      "tsk_orders_api_migration",
+      "tsk_flaky_checkout_test",
+      "tsk_gateway_rollback_sev1"
+    ],
+    "heldout": [
+      "tsk_search_latency_slo",
+      "tsk_retire_debug_endpoint",
+      "tsk_loyalty_multi_service"
+    ]
+  },
+  "task_creation": {
+    "accepted": 10,
+    "rejected": 0
+  },
+  "personas": [
+    "persona_priya",
+    "persona_diego",
+    "persona_mei",
+    "persona_jordan"
+  ]
+}
