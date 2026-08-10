@@ -178,8 +178,10 @@ def test_direct_prod_deploy_fails_canary_assertion(env):
             out.append(c)
         return out
     db, task = _replayed_with(env, "tsk_payments_error_rate", mutate)
-    ok, err = bw.run_vcode(task["vcode"], str(db))
+    ok, err, score = bw.run_vcode(task["vcode"], str(db))
     assert not ok and "canary" in err
+    # Horizon-PC partial credit: correctness 5/5, deployment 1/2, quality 2/2
+    assert abs(score - 0.85) < 1e-6, score
 
 
 def test_skipping_staging_fails_hygiene_assertion(env):
@@ -188,8 +190,9 @@ def test_skipping_staging_fails_hygiene_assertion(env):
                 if not (c["tool"] == "deploy_service"
                         and c["args"].get("environment") == "staging")]
     db, task = _replayed_with(env, "tsk_payments_error_rate", mutate)
-    ok, err = bw.run_vcode(task["vcode"], str(db))
+    ok, err, score = bw.run_vcode(task["vcode"], str(db))
     assert not ok and "staging-first" in err
+    assert score is not None and 0.0 < score < 1.0
 
 
 def test_quarantining_flaky_test_does_not_pass(env):
@@ -199,7 +202,7 @@ def test_quarantining_flaky_test_does_not_pass(env):
                 c["args"]["changes"][0]["payload"]["action"] = "quarantine"
         return calls
     db, task = _replayed_with(env, "tsk_flaky_checkout_test", mutate)
-    ok, err = bw.run_vcode(task["vcode"], str(db))
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
     assert not ok and "FIXED" in err
 
 
@@ -211,7 +214,7 @@ def test_enabling_flag_before_deploy_fails_ordering(env):
                          if c["tool"] == "merge_pull_request")
         return rest[:merge_idx + 1] + [flag] + rest[merge_idx + 1:]
     db, task = _replayed_with(env, "tsk_express_checkout_flag", mutate)
-    ok, err = bw.run_vcode(task["vcode"], str(db))
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
     assert not ok and "BEFORE" in err
 
 
@@ -256,5 +259,13 @@ def test_vcode_rejects_unrelated_blanket_mutation(env):
     call(env, db, "deploy_service", service="search", environment="staging")
     call(env, db, "deploy_service", service="search", environment="production")
     call(env, db, "resolve_alert", alert_id=9602)
-    ok, err = bw.run_vcode(task["vcode"], str(db))
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
     assert not ok and "9602" in err
+
+
+def test_oracle_scores_full_credit(env):
+    """Every accepted oracle must reach score 1.0 (checked as a build gate too)."""
+    report, failures = bw.validate(list(env["tasks"].values()), env["db"],
+                                   env["ns"], env["tmp"])
+    assert not failures
+    assert all(r.get("oracle_score") == 1.0 for r in report)

@@ -55,6 +55,17 @@ except AssertionError as e:
     out = {"passed": False, "error": "assertion: " + str(e)}
 except Exception as e:
     out = {"passed": False, "error": type(e).__name__ + ": " + str(e)}
+sc = ns.get("score")
+if isinstance(sc, (int, float)):
+    out["score"] = float(sc)
+checks = ns.get("_checks")
+if isinstance(checks, list):
+    try:
+        out["assertions"] = [{"dimension": c[0], "name": c[1],
+                              "passed": bool(c[2]), "message": c[3]}
+                             for c in checks]
+    except Exception:
+        pass
 print(json.dumps(out))
 """
 
@@ -169,6 +180,7 @@ class World:
             return {"passed": False, "reward": 0.0,
                     "error": "verifier execution failed: %s" % e, "task_id": task_id}
         out["reward"] = 1.0 if out.get("passed") else 0.0
+        out.setdefault("score", out["reward"])  # graded partial credit
         out["task_id"] = task_id
         return out
 

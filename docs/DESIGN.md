@@ -86,8 +86,11 @@ the audit-event log:
 - **Engineering quality (0.1)** — PR linked to ticket, ticket closed, status
   update posted to the right channel.
 
-`passed` = all assertions marked `required` hold; `reward` = weighted sum ∈ [0, 1].
-No LLM judge anywhere in the reward path.
+`passed` = ALL checks hold (binary — this is what blobfish rewards); each check
+is additionally tagged with its dimension and the verifier emits a weighted
+`score` ∈ [0, 1] (Horizon-SWE-PC-style partial credit, surfaced by the
+standalone server and gym-entrypoint runtimes). No LLM judge anywhere in the
+reward path.
 
 ## Sessions
 

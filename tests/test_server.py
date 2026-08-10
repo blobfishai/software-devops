@@ -85,6 +85,10 @@ def test_rest_verify_fails_on_untouched_session(server):
     out = _req(server + "/sessions/%s/verify" % sid,
                {"task_id": "tsk_instant_refunds_killswitch"})
     assert out["passed"] is False and out["reward"] == 0.0
+    # graded partial credit is reported alongside the binary reward
+    assert 0.0 <= out["score"] < 1.0
+    dims = {a["dimension"] for a in out["assertions"]}
+    assert {"correctness", "quality"} <= dims
 
 
 def test_mcp_full_killswitch_episode(server):
@@ -121,6 +125,8 @@ def test_mcp_full_killswitch_episode(server):
 
     verdict = tool("task_verify", {})
     assert verdict["passed"] is True and verdict["reward"] == 1.0, verdict
+    assert verdict["score"] == 1.0
+    assert all(a["passed"] for a in verdict["assertions"])
 
 
 def test_mcp_tool_error_rolls_back(server):

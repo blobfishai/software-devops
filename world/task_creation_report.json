@@ -6,6 +6,7 @@
       "task_id": "tsk_payments_error_rate",
       "accepted": true,
       "oracle_steps": 12,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
@@ -13,6 +14,7 @@
       "task_id": "tsk_search_latency_slo",
       "accepted": true,
       "oracle_steps": 11,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
@@ -20,6 +22,7 @@
       "task_id": "tsk_express_checkout_flag",
       "accepted": true,
       "oracle_steps": 11,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
@@ -27,6 +30,7 @@
       "task_id": "tsk_instant_refunds_killswitch",
       "accepted": true,
       "oracle_steps": 9,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
@@ -34,6 +38,7 @@
       "task_id": "tsk_libpayproc_cve",
       "accepted": true,
       "oracle_steps": 12,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
@@ -41,6 +46,7 @@
       "task_id": "tsk_retire_debug_endpoint",
       "accepted": true,
       "oracle_steps": 9,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
@@ -48,6 +54,7 @@
       "task_id": "tsk_loyalty_multi_service",
       "accepted": true,
       "oracle_steps": 20,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
@@ -55,6 +62,7 @@
       "task_id": "tsk_orders_api_migration",
       "accepted": true,
       "oracle_steps": 20,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
@@ -62,6 +70,7 @@
       "task_id": "tsk_flaky_checkout_test",
       "accepted": true,
       "oracle_steps": 11,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
@@ -69,6 +78,7 @@
       "task_id": "tsk_gateway_rollback_sev1",
       "accepted": true,
       "oracle_steps": 11,
+      "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     }

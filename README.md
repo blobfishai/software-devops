@@ -112,9 +112,18 @@ blobfish serve path/to/software-devops/world                   # stdio MCP
 - **PR changes** are typed: `config {key,value}`, `dependency
   {package,version}`, `endpoint {path,status}`, `module {name}`, `flag
   {key,description}`, `test_fix {test_name,action}`.
-- **Verification** is dialect-1 vcode: pure SQL assertions over the final
-  SQLite state plus the audit-event ordering log, executed read-only in an
-  isolated subprocess. `passed` ⇒ reward 1.0.
+- **Verification** is dialect-1 vcode: pure SQL checks over the final SQLite
+  state plus the audit-event ordering log, executed read-only in an isolated
+  subprocess. Every check is tagged with a Horizon-SWE-PC dimension —
+  **feature correctness (0.6), deployment & DevOps (0.3), engineering quality
+  (0.1)** — and the verifier emits a weighted `score` ∈ [0, 1] alongside the
+  binary verdict. `passed` (⇒ blobfish reward 1.0) requires ALL checks; the
+  graded `score` and the per-check breakdown are reported by this repo's
+  server (`/verify`, `task_verify`) and by gym-entrypoint runtimes, e.g. an
+  agent that ships the correct fix but skips the canary fails with
+  `score = 0.85`. Note the score has a nonzero floor (negative-control checks
+  pass on an untouched world), so compare scores, don't threshold them; the
+  binary `passed` is the authoritative gate.
 
 ## Repository layout
 

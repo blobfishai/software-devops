@@ -35,6 +35,27 @@ def _canaried(_svc):
     return _direct == 0 and _promoted >= 1
 def _prod_apply_seq(_svc):
     return _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND service=? AND ((tool='deploy_service' AND json_extract(detail,'$.environment')='production' AND json_extract(detail,'$.applied')=1) OR (tool='promote_canary' AND json_extract(detail,'$.environment')='production'))", _svc)
+_checks = []
+def _c(_dim, _name, _ok, _msg):
+    _checks.append((_dim, _name, bool(_ok), _msg))
+"""
+
+# Horizon-SWE-PC composite: feature correctness 0.6, deployment & devops 0.3,
+# engineering quality 0.1 (weights renormalized over the dimensions a task
+# actually uses). `score` is advisory partial credit; `passed` stays binary —
+# ALL checks must hold.
+EPILOGUE = """\
+_W = {'correctness': 0.6, 'deployment': 0.3, 'quality': 0.1}
+_dims = {}
+for _d, _n, _ok, _m in _checks:
+    _dims.setdefault(_d, []).append(_ok)
+_tw = sum(_W[_d] for _d in _dims)
+score = 0.0
+for _d, _oks in _dims.items():
+    score = score + (_W[_d] / _tw) * (sum(1 for _o in _oks if _o) / len(_oks))
+score = round(score, 4)
+_failed = [_d + '/' + _n + ' - ' + _m for _d, _n, _ok, _m in _checks if not _ok]
+assert not _failed, str(len(_failed)) + ' check(s) failed (score=' + str(score) + '): ' + '; '.join(_failed)
 """
 
 
@@ -50,7 +71,7 @@ def _task(task_id, instruction, difficulty, vcode_body, expected_calls,
         "reward_basis": "vcode",
         "required_tools": required_tools,
         "expected_calls": expected_calls,
-        "vcode": PRELUDE + vcode_body,
+        "vcode": PRELUDE + vcode_body + EPILOGUE,
     }
 
 
@@ -68,17 +89,17 @@ def make_tasks(base_seq):
         "the ticket.",
         "hard",
         """\
-assert _es('payments', 'config', 'notifications_retry_max_attempts') == '3', 'production payments must run with notifications_retry_max_attempts=3 (merged AND deployed)'
+_c('correctness', 'retry_config_deployed', _es('payments', 'config', 'notifications_retry_max_attempts') == '3', 'production payments must run with notifications_retry_max_attempts=3 (merged AND deployed)')
 _v = _metric('payments', 'error_rate_pct')
-assert _v is not None and _v <= 1.0, 'payments error_rate_pct must be within its 1.0 SLO (got ' + str(_v) + ')'
+_c('correctness', 'error_rate_within_slo', _v is not None and _v <= 1.0, 'payments error_rate_pct must be within its 1.0 SLO (got ' + str(_v) + ')')
 _pr = _one("SELECT p.number FROM pull_requests p JOIN pr_changes c ON c.pr_number=p.number WHERE p.service='payments' AND p.status='merged' AND p.ticket_key='ENG-2101' AND c.change_type='config' AND json_extract(c.payload,'$.key')='notifications_retry_max_attempts'")
-assert _pr is not None, 'a merged PR linked to ENG-2101 must carry the retry config change'
-assert _one("SELECT status FROM alerts WHERE alert_id=9601") == 'resolved', 'alert 9601 must be resolved'
-assert _staging_first('payments'), 'deployment hygiene: production deploys must be staging-first'
-assert _canaried('payments'), 'deployment hygiene: payments is tier 1 - canary at <=25% then promote_canary'
-assert _one("SELECT status FROM tickets WHERE key='ENG-2101'") == 'done', 'ticket ENG-2101 must be closed (status done)'
-assert _one("SELECT status FROM alerts WHERE alert_id=9602") != 'resolved', 'unrelated alert 9602 must not be resolved'
-assert _es('search', 'config', 'cache_enabled') == 'false', 'unrelated search production config must not change'
+_c('quality', 'pr_linked_to_ticket', _pr is not None, 'a merged PR linked to ENG-2101 must carry the retry config change')
+_c('correctness', 'alert_resolved', _one("SELECT status FROM alerts WHERE alert_id=9601") == 'resolved', 'alert 9601 must be resolved')
+_c('deployment', 'staging_first', _staging_first('payments'), 'deployment hygiene: production deploys must be staging-first')
+_c('deployment', 'canary_then_promote', _canaried('payments'), 'deployment hygiene: payments is tier 1 - canary at <=25% then promote_canary')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='ENG-2101'") == 'done', 'ticket ENG-2101 must be closed (status done)')
+_c('correctness', 'no_unrelated_alert_mutation', _one("SELECT status FROM alerts WHERE alert_id=9602") != 'resolved', 'unrelated alert 9602 must not be resolved')
+_c('correctness', 'no_unrelated_config_mutation', _es('search', 'config', 'cache_enabled') == 'false', 'unrelated search production config must not change')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "ENG-2101"}},
@@ -113,16 +134,16 @@ assert _es('search', 'config', 'cache_enabled') == 'false', 'unrelated search pr
         "metric recovered, resolve the alert, and close the ticket.",
         "medium",
         """\
-assert _es('search', 'config', 'cache_enabled') == 'true', 'production search must run with cache_enabled=true (merged AND deployed)'
+_c('correctness', 'cache_config_deployed', _es('search', 'config', 'cache_enabled') == 'true', 'production search must run with cache_enabled=true (merged AND deployed)')
 _v = _metric('search', 'latency_p99_ms')
-assert _v is not None and _v <= 300.0, 'search latency_p99_ms must be within its 300 SLO (got ' + str(_v) + ')'
+_c('correctness', 'latency_within_slo', _v is not None and _v <= 300.0, 'search latency_p99_ms must be within its 300 SLO (got ' + str(_v) + ')')
 _pr = _one("SELECT p.number FROM pull_requests p JOIN pr_changes c ON c.pr_number=p.number WHERE p.service='search' AND p.status='merged' AND p.ticket_key='ENG-2102' AND c.change_type='config' AND json_extract(c.payload,'$.key')='cache_enabled'")
-assert _pr is not None, 'a merged PR linked to ENG-2102 must carry the cache_enabled config change'
-assert _one("SELECT status FROM alerts WHERE alert_id=9602") == 'resolved', 'alert 9602 must be resolved'
-assert _staging_first('search'), 'deployment hygiene: production deploys must be staging-first'
-assert _one("SELECT status FROM tickets WHERE key='ENG-2102'") == 'done', 'ticket ENG-2102 must be closed (status done)'
-assert _one("SELECT status FROM alerts WHERE alert_id=9601") != 'resolved', 'unrelated alert 9601 must not be resolved'
-assert _es('payments', 'config', 'notifications_retry_max_attempts') == '0', 'unrelated payments production config must not change'
+_c('quality', 'pr_linked_to_ticket', _pr is not None, 'a merged PR linked to ENG-2102 must carry the cache_enabled config change')
+_c('correctness', 'alert_resolved', _one("SELECT status FROM alerts WHERE alert_id=9602") == 'resolved', 'alert 9602 must be resolved')
+_c('deployment', 'staging_first', _staging_first('search'), 'deployment hygiene: production deploys must be staging-first')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='ENG-2102'") == 'done', 'ticket ENG-2102 must be closed (status done)')
+_c('correctness', 'no_unrelated_alert_mutation', _one("SELECT status FROM alerts WHERE alert_id=9601") != 'resolved', 'unrelated alert 9601 must not be resolved')
+_c('correctness', 'no_unrelated_config_mutation', _es('payments', 'config', 'notifications_retry_max_attempts') == '0', 'unrelated payments production config must not change')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "ENG-2102"}},
@@ -158,20 +179,20 @@ assert _es('payments', 'config', 'notifications_retry_max_attempts') == '0', 'un
         "intermittent test - a failed run may pass on retry. Close the ticket when done.",
         "hard",
         """\
-assert _es('checkout', 'module', 'express_checkout') == 'present', 'the express_checkout module must be live in production'
+_c('correctness', 'module_live_in_production', _es('checkout', 'module', 'express_checkout') == 'present', 'the express_checkout module must be live in production')
 _fl = conn.execute("SELECT enabled, rollout_percent FROM feature_flags WHERE key='express_checkout' AND environment='production'").fetchone()
-assert _fl is not None, 'flag express_checkout must be defined in production'
-assert int(_fl[0]) == 1 and int(_fl[1]) == 10, 'express_checkout must be enabled at a 10% production rollout (got enabled=' + str(_fl[0]) + ', rollout=' + str(_fl[1]) + ')'
-assert conn.execute("SELECT 1 FROM feature_flags WHERE key='express_checkout' AND environment='staging'").fetchone() is not None, 'flag change must define the flag in staging too'
+_c('correctness', 'flag_defined_in_production', _fl is not None, 'flag express_checkout must be defined in production')
+_c('correctness', 'flag_enabled_at_10pct', _fl is not None and int(_fl[0]) == 1 and int(_fl[1]) == 10, 'express_checkout must be enabled at a 10% production rollout (got ' + str(tuple(_fl) if _fl else None) + ')')
+_c('correctness', 'flag_defined_in_staging', conn.execute("SELECT 1 FROM feature_flags WHERE key='express_checkout' AND environment='staging'").fetchone() is not None, 'flag change must define the flag in staging too')
 _pr = _one("SELECT p.number FROM pull_requests p JOIN pr_changes c ON c.pr_number=p.number WHERE p.service='checkout' AND p.status='merged' AND p.ticket_key='ENG-2201' AND c.change_type='flag' AND json_extract(c.payload,'$.key')='express_checkout'")
-assert _pr is not None, 'a merged PR linked to ENG-2201 must define the express_checkout flag'
+_c('quality', 'pr_linked_to_ticket', _pr is not None, 'a merged PR linked to ENG-2201 must define the express_checkout flag')
 _apply_seq = _prod_apply_seq('checkout')
 _enable_seq = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='set_feature_flag' AND json_extract(detail,'$.key')='express_checkout' AND json_extract(detail,'$.environment')='production' AND json_extract(detail,'$.enabled')=1")
-assert _apply_seq is not None and _enable_seq is not None and _apply_seq < _enable_seq, 'the guarded code must reach production BEFORE the flag is enabled there'
-assert _staging_first('checkout'), 'deployment hygiene: production deploys must be staging-first'
-assert _canaried('checkout'), 'deployment hygiene: checkout is tier 1 - canary at <=25% then promote_canary'
-assert _one("SELECT status FROM tickets WHERE key='ENG-2201'") == 'done', 'ticket ENG-2201 must be closed (status done)'
-assert _one("SELECT enabled FROM feature_flags WHERE key='instant_refunds' AND environment='production'") == 1, 'unrelated flag instant_refunds must not be touched in this task'
+_c('deployment', 'code_before_flag_enable', _apply_seq is not None and _enable_seq is not None and _apply_seq < _enable_seq, 'the guarded code must reach production BEFORE the flag is enabled there')
+_c('deployment', 'staging_first', _staging_first('checkout'), 'deployment hygiene: production deploys must be staging-first')
+_c('deployment', 'canary_then_promote', _canaried('checkout'), 'deployment hygiene: checkout is tier 1 - canary at <=25% then promote_canary')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='ENG-2201'") == 'done', 'ticket ENG-2201 must be closed (status done)')
+_c('correctness', 'no_unrelated_flag_mutation', _one("SELECT enabled FROM feature_flags WHERE key='instant_refunds' AND environment='production'") == 1, 'unrelated flag instant_refunds must not be touched in this task')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "ENG-2201"}},
@@ -209,20 +230,20 @@ assert _one("SELECT enabled FROM feature_flags WHERE key='instant_refunds' AND e
         "#incidents mentioning instant_refunds, and close the ticket.",
         "medium",
         """\
-assert _one("SELECT enabled FROM feature_flags WHERE key='instant_refunds' AND environment='production'") == 0, 'instant_refunds must be disabled in production'
-assert _one("SELECT enabled FROM feature_flags WHERE key='instant_refunds' AND environment='staging'") == 1, 'staging instant_refunds must be left as-is'
+_c('correctness', 'flag_disabled_in_production', _one("SELECT enabled FROM feature_flags WHERE key='instant_refunds' AND environment='production'") == 0, 'instant_refunds must be disabled in production')
+_c('correctness', 'staging_flag_untouched', _one("SELECT enabled FROM feature_flags WHERE key='instant_refunds' AND environment='staging'") == 1, 'staging instant_refunds must be left as-is')
 _v = _metric('checkout', 'error_rate_pct')
-assert _v is not None and _v <= 1.0, 'checkout error_rate_pct must be within its 1.0 SLO (got ' + str(_v) + ')'
-assert _one("SELECT status FROM alerts WHERE alert_id=9603") == 'resolved', 'alert 9603 must be resolved'
+_c('correctness', 'error_rate_within_slo', _v is not None and _v <= 1.0, 'checkout error_rate_pct must be within its 1.0 SLO (got ' + str(_v) + ')')
+_c('correctness', 'alert_resolved', _one("SELECT status FROM alerts WHERE alert_id=9603") == 'resolved', 'alert 9603 must be resolved')
 _ack = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='acknowledge_alert' AND json_extract(detail,'$.alert_id')=9603")
 _res = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='resolve_alert' AND json_extract(detail,'$.alert_id')=9603")
-assert _ack is not None and _res is not None and _ack < _res, 'runbook order: acknowledge the alert before resolving it'
-assert _one("SELECT status FROM incidents WHERE incident_id=9702") == 'resolved', 'incident 9702 must be resolved'
-assert _one("SELECT COUNT(*) FROM messages WHERE channel='#incidents' AND author='agent' AND body LIKE '%instant_refunds%'") >= 1, 'post an update in #incidents mentioning instant_refunds'
-assert _one("SELECT status FROM tickets WHERE key='ENG-2202'") == 'done', 'ticket ENG-2202 must be closed (status done)'
-assert _one("SELECT status FROM incidents WHERE incident_id=9701") != 'resolved', 'unrelated incident 9701 must not be resolved'
-assert _one("SELECT status FROM alerts WHERE alert_id=9604") != 'resolved', 'unrelated alert 9604 must not be resolved'
-assert _one("SELECT enabled FROM feature_flags WHERE key='new_search_ui' AND environment='production'") == 0, 'unrelated flag new_search_ui must not be touched'
+_c('deployment', 'ack_before_resolve', _ack is not None and _res is not None and _ack < _res, 'runbook order: acknowledge the alert before resolving it')
+_c('correctness', 'incident_resolved', _one("SELECT status FROM incidents WHERE incident_id=9702") == 'resolved', 'incident 9702 must be resolved')
+_c('quality', 'status_update_posted', _one("SELECT COUNT(*) FROM messages WHERE channel='#incidents' AND author='agent' AND body LIKE '%instant_refunds%'") >= 1, 'post an update in #incidents mentioning instant_refunds')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='ENG-2202'") == 'done', 'ticket ENG-2202 must be closed (status done)')
+_c('correctness', 'no_unrelated_incident_mutation', _one("SELECT status FROM incidents WHERE incident_id=9701") != 'resolved', 'unrelated incident 9701 must not be resolved')
+_c('correctness', 'no_unrelated_alert_mutation', _one("SELECT status FROM alerts WHERE alert_id=9604") != 'resolved', 'unrelated alert 9604 must not be resolved')
+_c('correctness', 'no_unrelated_flag_mutation', _one("SELECT enabled FROM feature_flags WHERE key='new_search_ui' AND environment='production'") == 0, 'unrelated flag new_search_ui must not be touched')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "ENG-2202"}},
@@ -251,16 +272,16 @@ assert _one("SELECT enabled FROM feature_flags WHERE key='new_search_ui' AND env
         "summary to #security referencing the CVE, and close the ticket.",
         "hard",
         """\
-assert _es('payments', 'dependency', 'libpayproc') == '2.4.0', 'production payments must run libpayproc 2.4.0'
-assert _one("SELECT status FROM vulnerabilities WHERE vuln_id=9801") == 'remediated', 'CVE-2026-31337 must show remediated (fixed version deployed to production)'
+_c('correctness', 'dependency_deployed', _es('payments', 'dependency', 'libpayproc') == '2.4.0', 'production payments must run libpayproc 2.4.0')
+_c('correctness', 'vulnerability_remediated', _one("SELECT status FROM vulnerabilities WHERE vuln_id=9801") == 'remediated', 'CVE-2026-31337 must show remediated (fixed version deployed to production)')
 _pr = _one("SELECT p.number FROM pull_requests p JOIN pr_changes c ON c.pr_number=p.number WHERE p.service='payments' AND p.status='merged' AND p.ticket_key='SEC-901' AND c.change_type='dependency' AND json_extract(c.payload,'$.package')='libpayproc'")
-assert _pr is not None, 'a merged PR linked to SEC-901 must carry the libpayproc upgrade'
-assert _one("SELECT COUNT(*) FROM messages WHERE channel='#security' AND author='agent' AND body LIKE '%CVE-2026-31337%'") >= 1, 'post an audit summary to #security referencing CVE-2026-31337'
-assert _staging_first('payments'), 'deployment hygiene: production deploys must be staging-first'
-assert _canaried('payments'), 'deployment hygiene: payments is tier 1 - canary at <=25% then promote_canary'
-assert _one("SELECT status FROM tickets WHERE key='SEC-901'") == 'done', 'ticket SEC-901 must be closed (status done)'
-assert _es('payments', 'dependency', 'requests') == '2.32.3', 'unrelated dependency requests must not change'
-assert _one("SELECT status FROM alerts WHERE alert_id=9601") != 'resolved', 'the payments error-rate alert belongs to ENG-2101 and must not be resolved here'
+_c('quality', 'pr_linked_to_ticket', _pr is not None, 'a merged PR linked to SEC-901 must carry the libpayproc upgrade')
+_c('quality', 'audit_note_posted', _one("SELECT COUNT(*) FROM messages WHERE channel='#security' AND author='agent' AND body LIKE '%CVE-2026-31337%'") >= 1, 'post an audit summary to #security referencing CVE-2026-31337')
+_c('deployment', 'staging_first', _staging_first('payments'), 'deployment hygiene: production deploys must be staging-first')
+_c('deployment', 'canary_then_promote', _canaried('payments'), 'deployment hygiene: payments is tier 1 - canary at <=25% then promote_canary')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='SEC-901'") == 'done', 'ticket SEC-901 must be closed (status done)')
+_c('correctness', 'no_unrelated_dependency_mutation', _es('payments', 'dependency', 'requests') == '2.32.3', 'unrelated dependency requests must not change')
+_c('correctness', 'no_unrelated_alert_mutation', _one("SELECT status FROM alerts WHERE alert_id=9601") != 'resolved', 'the payments error-rate alert belongs to ENG-2101 and must not be resolved here')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "SEC-901"}},
@@ -297,15 +318,15 @@ assert _one("SELECT status FROM alerts WHERE alert_id=9601") != 'resolved', 'the
         "endpoint is retired in production.",
         "medium",
         """\
-assert _es('api-gateway', 'endpoint', '/internal/debug') == 'retired', '/internal/debug must be retired in production'
+_c('correctness', 'endpoint_retired', _es('api-gateway', 'endpoint', '/internal/debug') == 'retired', '/internal/debug must be retired in production')
 _pr = _one("SELECT p.number FROM pull_requests p JOIN pr_changes c ON c.pr_number=p.number WHERE p.service='api-gateway' AND p.status='merged' AND p.ticket_key='SEC-902' AND c.change_type='endpoint' AND json_extract(c.payload,'$.path')='/internal/debug' AND json_extract(c.payload,'$.status')='retired'")
-assert _pr is not None, 'a merged PR linked to SEC-902 must retire /internal/debug'
-assert _staging_first('api-gateway'), 'deployment hygiene: production deploys must be staging-first'
-assert _canaried('api-gateway'), 'deployment hygiene: api-gateway is tier 1 - canary at <=25% then promote_canary'
-assert _one("SELECT status FROM tickets WHERE key='SEC-902'") == 'done', 'ticket SEC-902 must be closed (status done)'
-assert _es('api-gateway', 'endpoint', '/v1/orders') == 'active', 'unrelated endpoint /v1/orders must stay active'
-assert _es('api-gateway', 'traffic', '/v1/orders') == '100', 'unrelated traffic weights must not change'
-assert _one("SELECT status FROM alerts WHERE alert_id=9604") != 'resolved', 'the latency alert belongs to ENG-2402 and must not be resolved here'
+_c('quality', 'pr_linked_to_ticket', _pr is not None, 'a merged PR linked to SEC-902 must retire /internal/debug')
+_c('deployment', 'staging_first', _staging_first('api-gateway'), 'deployment hygiene: production deploys must be staging-first')
+_c('deployment', 'canary_then_promote', _canaried('api-gateway'), 'deployment hygiene: api-gateway is tier 1 - canary at <=25% then promote_canary')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='SEC-902'") == 'done', 'ticket SEC-902 must be closed (status done)')
+_c('correctness', 'no_unrelated_endpoint_mutation', _es('api-gateway', 'endpoint', '/v1/orders') == 'active', 'unrelated endpoint /v1/orders must stay active')
+_c('correctness', 'no_unrelated_traffic_mutation', _es('api-gateway', 'traffic', '/v1/orders') == '100', 'unrelated traffic weights must not change')
+_c('correctness', 'no_unrelated_alert_mutation', _one("SELECT status FROM alerts WHERE alert_id=9604") != 'resolved', 'the latency alert belongs to ENG-2402 and must not be resolved here')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "SEC-902"}},
@@ -339,23 +360,22 @@ assert _one("SELECT status FROM alerts WHERE alert_id=9604") != 'resolved', 'the
         "CI has a known intermittent test - retry a failed run. Close the ticket.",
         "expert",
         """\
-assert _es('catalog', 'module', 'loyalty_accrual') == 'present', 'loyalty_accrual must be live in production catalog'
-assert _es('checkout', 'module', 'loyalty_redeem') == 'present', 'loyalty_redeem must be live in production checkout'
-assert _es('storefront-web', 'module', 'loyalty_widget') == 'present', 'loyalty_widget must be live in production storefront-web'
+_c('correctness', 'catalog_module_live', _es('catalog', 'module', 'loyalty_accrual') == 'present', 'loyalty_accrual must be live in production catalog')
+_c('correctness', 'checkout_module_live', _es('checkout', 'module', 'loyalty_redeem') == 'present', 'loyalty_redeem must be live in production checkout')
+_c('correctness', 'storefront_module_live', _es('storefront-web', 'module', 'loyalty_widget') == 'present', 'loyalty_widget must be live in production storefront-web')
 for _svc, _mod in (('catalog', 'loyalty_accrual'), ('checkout', 'loyalty_redeem'), ('storefront-web', 'loyalty_widget')):
     _pr = _one("SELECT p.number FROM pull_requests p JOIN pr_changes c ON c.pr_number=p.number WHERE p.service=? AND p.status='merged' AND p.ticket_key='ENG-2301' AND c.change_type='module' AND json_extract(c.payload,'$.name')=?", _svc, _mod)
-    assert _pr is not None, 'a merged PR linked to ENG-2301 must add ' + _mod + ' to ' + _svc
+    _c('quality', 'pr_linked_' + _svc, _pr is not None, 'a merged PR linked to ENG-2301 must add ' + _mod + ' to ' + _svc)
 _a = _prod_apply_seq('catalog')
 _b = _prod_apply_seq('checkout')
-_c = _prod_apply_seq('storefront-web')
-assert _a is not None and _b is not None and _c is not None, 'all three services must reach production'
-assert _a < _b < _c, 'rollout order must be catalog -> checkout -> storefront-web (got seqs ' + str((_a, _b, _c)) + ')'
+_s = _prod_apply_seq('storefront-web')
+_c('deployment', 'rollout_order', _a is not None and _b is not None and _s is not None and _a < _b < _s, 'rollout order must be catalog -> checkout -> storefront-web in production (got seqs ' + str((_a, _b, _s)) + ')')
 for _svc in ('catalog', 'checkout', 'storefront-web'):
-    assert _staging_first(_svc), 'deployment hygiene: production deploys must be staging-first (' + _svc + ')'
-assert _canaried('checkout'), 'deployment hygiene: checkout is tier 1 - canary then promote'
-assert _canaried('storefront-web'), 'deployment hygiene: storefront-web is tier 1 - canary then promote'
-assert _one("SELECT status FROM tickets WHERE key='ENG-2301'") == 'done', 'ticket ENG-2301 must be closed (status done)'
-assert _es('api-gateway', 'endpoint', '/internal/debug') == 'active', 'unrelated api-gateway state must not change'
+    _c('deployment', 'staging_first_' + _svc, _staging_first(_svc), 'deployment hygiene: production deploys must be staging-first (' + _svc + ')')
+_c('deployment', 'canary_checkout', _canaried('checkout'), 'deployment hygiene: checkout is tier 1 - canary then promote')
+_c('deployment', 'canary_storefront', _canaried('storefront-web'), 'deployment hygiene: storefront-web is tier 1 - canary then promote')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='ENG-2301'") == 'done', 'ticket ENG-2301 must be closed (status done)')
+_c('correctness', 'no_unrelated_mutation', _es('api-gateway', 'endpoint', '/internal/debug') == 'active', 'unrelated api-gateway state must not change')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "ENG-2301"}},
@@ -404,27 +424,27 @@ assert _es('api-gateway', 'endpoint', '/internal/debug') == 'active', 'unrelated
         "ticket when v1 is retired in production.",
         "expert",
         """\
-assert _es('api-gateway', 'endpoint', '/v1/orders') == 'retired', '/v1/orders must be retired in production'
-assert _es('api-gateway', 'endpoint', '/v2/orders') == 'active', '/v2/orders must remain active'
-assert _es('api-gateway', 'traffic', '/v1/orders') == '0', '/v1/orders must serve 0% traffic'
-assert _es('api-gateway', 'traffic', '/v2/orders') == '100', '/v2/orders must serve 100% traffic'
+_c('correctness', 'v1_retired', _es('api-gateway', 'endpoint', '/v1/orders') == 'retired', '/v1/orders must be retired in production')
+_c('correctness', 'v2_active', _es('api-gateway', 'endpoint', '/v2/orders') == 'active', '/v2/orders must remain active')
+_c('correctness', 'v1_traffic_zero', _es('api-gateway', 'traffic', '/v1/orders') == '0', '/v1/orders must serve 0% traffic')
+_c('correctness', 'v2_traffic_full', _es('api-gateway', 'traffic', '/v2/orders') == '100', '/v2/orders must serve 100% traffic')
 _dep_pr = _one("SELECT p.number FROM pull_requests p JOIN pr_changes c ON c.pr_number=p.number WHERE p.service='api-gateway' AND p.status='merged' AND p.ticket_key='ENG-2302' AND c.change_type='endpoint' AND json_extract(c.payload,'$.path')='/v1/orders' AND json_extract(c.payload,'$.status')='deprecated'")
-assert _dep_pr is not None, 'a merged PR linked to ENG-2302 must deprecate /v1/orders'
+_c('quality', 'deprecation_pr_linked', _dep_pr is not None, 'a merged PR linked to ENG-2302 must deprecate /v1/orders')
 _ret_pr = _one("SELECT p.number FROM pull_requests p JOIN pr_changes c ON c.pr_number=p.number WHERE p.service='api-gateway' AND p.status='merged' AND p.ticket_key='ENG-2302' AND c.change_type='endpoint' AND json_extract(c.payload,'$.path')='/v1/orders' AND json_extract(c.payload,'$.status')='retired'")
-assert _ret_pr is not None, 'a merged PR linked to ENG-2302 must retire /v1/orders'
+_c('quality', 'retirement_pr_linked', _ret_pr is not None, 'a merged PR linked to ENG-2302 must retire /v1/orders')
 _first_shift = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='shift_endpoint_traffic' AND service='api-gateway'")
 _first_apply = _prod_apply_seq('api-gateway')
-assert _first_apply is not None and _first_shift is not None and _first_apply < _first_shift, 'deploy the deprecation to production BEFORE shifting traffic'
+_c('deployment', 'deprecate_before_shift', _first_apply is not None and _first_shift is not None and _first_apply < _first_shift, 'deploy the deprecation to production BEFORE shifting traffic')
 _big = _one("SELECT COUNT(*) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='shift_endpoint_traffic' AND service='api-gateway' AND abs(json_extract(detail,'$.to_percent') - json_extract(detail,'$.from_percent')) > 50")
-assert _big == 0, 'traffic must move in stages of at most 50 percentage points per step'
+_c('deployment', 'staged_traffic_shifts', _big == 0, 'traffic must move in stages of at most 50 percentage points per step')
 _zero = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='shift_endpoint_traffic' AND json_extract(detail,'$.path')='/v1/orders' AND json_extract(detail,'$.to_percent')=0")
 _ret_merge = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='merge_pull_request' AND json_extract(detail,'$.pr_number')=?", _ret_pr)
-assert _zero is not None and _ret_merge is not None and _zero < _ret_merge, '/v1/orders must be drained to 0% BEFORE the retirement PR merges'
-assert _staging_first('api-gateway'), 'deployment hygiene: production deploys must be staging-first'
-assert _canaried('api-gateway'), 'deployment hygiene: api-gateway is tier 1 - canary then promote'
-assert _one("SELECT status FROM tickets WHERE key='ENG-2302'") == 'done', 'ticket ENG-2302 must be closed (status done)'
-assert _es('api-gateway', 'traffic', '/v1/checkout') == '100', 'unrelated endpoint traffic must not change'
-assert _es('api-gateway', 'endpoint', '/internal/debug') == 'active', 'unrelated endpoint state must not change'
+_c('deployment', 'drain_before_retire', _zero is not None and _ret_merge is not None and _zero < _ret_merge, '/v1/orders must be drained to 0% BEFORE the retirement PR merges')
+_c('deployment', 'staging_first', _staging_first('api-gateway'), 'deployment hygiene: production deploys must be staging-first')
+_c('deployment', 'canary_then_promote', _canaried('api-gateway'), 'deployment hygiene: api-gateway is tier 1 - canary then promote')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='ENG-2302'") == 'done', 'ticket ENG-2302 must be closed (status done)')
+_c('correctness', 'no_unrelated_traffic_mutation', _es('api-gateway', 'traffic', '/v1/checkout') == '100', 'unrelated endpoint traffic must not change')
+_c('correctness', 'no_unrelated_endpoint_mutation', _es('api-gateway', 'endpoint', '/internal/debug') == 'active', 'unrelated endpoint state must not change')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "ENG-2302"}},
@@ -475,16 +495,16 @@ assert _es('api-gateway', 'endpoint', '/internal/debug') == 'active', 'unrelated
         "hard",
         """\
 _t = conn.execute("SELECT status, quarantined FROM tests_catalog WHERE service='checkout' AND name='test_checkout_idempotency'").fetchone()
-assert _t is not None and _t[0] == 'passing' and int(_t[1]) == 0, 'test_checkout_idempotency must be FIXED (status passing, not quarantined)'
+_c('correctness', 'test_fixed_not_quarantined', _t is not None and _t[0] == 'passing' and int(_t[1]) == 0, 'test_checkout_idempotency must be FIXED (status passing, not quarantined)')
 _pr = _one("SELECT p.number FROM pull_requests p JOIN pr_changes c ON c.pr_number=p.number WHERE p.service='checkout' AND p.status='merged' AND p.ticket_key='ENG-2401' AND c.change_type='test_fix' AND json_extract(c.payload,'$.test_name')='test_checkout_idempotency' AND json_extract(c.payload,'$.action')='fix'")
-assert _pr is not None, "a merged PR linked to ENG-2401 must carry the test_fix change with action 'fix'"
+_c('quality', 'pr_linked_to_ticket', _pr is not None, "a merged PR linked to ENG-2401 must carry the test_fix change with action 'fix'")
 _last_pr_run = _one('SELECT MAX(run_id) FROM ci_runs WHERE pr_number=?', _pr)
-assert _last_pr_run is not None, 'the fix PR must have gone through CI'
+_c('correctness', 'fix_went_through_ci', _last_pr_run is not None, 'the fix PR must have gone through CI')
 _greens = _one("SELECT COUNT(*) FROM ci_runs WHERE service='checkout' AND pr_number IS NULL AND run_id > ? AND status='passed'", _last_pr_run)
 _reds = _one("SELECT COUNT(*) FROM ci_runs WHERE service='checkout' AND pr_number IS NULL AND run_id > ? AND status != 'passed'", _last_pr_run)
-assert _greens >= 3 and _reds == 0, 'prove stability: at least 3 green main-branch runs after the fix, with no failures (got ' + str(_greens) + ' green, ' + str(_reds) + ' red)'
-assert _one("SELECT status FROM tickets WHERE key='ENG-2401'") == 'done', 'ticket ENG-2401 must be closed (status done)'
-assert _one("SELECT status FROM tests_catalog WHERE service='checkout' AND name='test_cart_totals'") == 'passing', 'unrelated tests must not change'
+_c('correctness', 'three_green_main_runs', _last_pr_run is not None and _greens >= 3 and _reds == 0, 'prove stability: at least 3 green main-branch runs after the fix, with no failures (got ' + str(_greens) + ' green, ' + str(_reds) + ' red)')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='ENG-2401'") == 'done', 'ticket ENG-2401 must be closed (status done)')
+_c('correctness', 'no_unrelated_test_mutation', _one("SELECT status FROM tests_catalog WHERE service='checkout' AND name='test_cart_totals'") == 'passing', 'unrelated tests must not change')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "ENG-2401"}},
@@ -519,24 +539,24 @@ assert _one("SELECT status FROM tests_catalog WHERE service='checkout' AND name=
         "ticket.",
         "hard",
         """\
-assert _es('api-gateway', 'version', 'current') == 'v5.0.9', 'production api-gateway must be rolled back to v5.0.9'
-assert _one("SELECT COUNT(*) FROM deployments WHERE service='api-gateway' AND environment='production' AND version='v5.1.0' AND status='rolled_back'") >= 1, 'the v5.1.0 production deployment must be marked rolled_back'
+_c('correctness', 'rolled_back_to_good_version', _es('api-gateway', 'version', 'current') == 'v5.0.9', 'production api-gateway must be rolled back to v5.0.9')
+_c('correctness', 'bad_deploy_marked_rolled_back', _one("SELECT COUNT(*) FROM deployments WHERE service='api-gateway' AND environment='production' AND version='v5.1.0' AND status='rolled_back'") >= 1, 'the v5.1.0 production deployment must be marked rolled_back')
 _rb = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='rollback_deployment' AND service='api-gateway' AND json_extract(detail,'$.environment')='production'")
-assert _rb is not None, 'use rollback_deployment for the mitigation'
+_c('deployment', 'rollback_tool_used', _rb is not None, 'use rollback_deployment for the mitigation')
 _v = _metric('api-gateway', 'latency_p99_ms')
-assert _v is not None and _v <= 250.0, 'api-gateway latency_p99_ms must be within its 250 SLO (got ' + str(_v) + ')'
-assert _one("SELECT status FROM alerts WHERE alert_id=9604") == 'resolved', 'alert 9604 must be resolved'
+_c('correctness', 'latency_within_slo', _v is not None and _v <= 250.0, 'api-gateway latency_p99_ms must be within its 250 SLO (got ' + str(_v) + ')')
+_c('correctness', 'alert_resolved', _one("SELECT status FROM alerts WHERE alert_id=9604") == 'resolved', 'alert 9604 must be resolved')
 _ack = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='acknowledge_alert' AND json_extract(detail,'$.alert_id')=9604")
 _res = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='resolve_alert' AND json_extract(detail,'$.alert_id')=9604")
-assert _ack is not None and _res is not None and _ack < _res, 'runbook order: acknowledge the alert before resolving it'
-assert _one("SELECT status FROM incidents WHERE incident_id=9701") == 'resolved', 'incident 9701 must be resolved'
+_c('deployment', 'ack_before_resolve', _ack is not None and _res is not None and _ack < _res, 'runbook order: acknowledge the alert before resolving it')
+_c('correctness', 'incident_resolved', _one("SELECT status FROM incidents WHERE incident_id=9701") == 'resolved', 'incident 9701 must be resolved')
 _pm = _one("SELECT COUNT(*) FROM tickets WHERE type='postmortem' AND service='api-gateway' AND (title LIKE '%v5.1.0%' OR description LIKE '%v5.1.0%')")
-assert _pm >= 1, "file a postmortem ticket (type 'postmortem', service api-gateway, mentioning v5.1.0)"
-assert _one("SELECT COUNT(*) FROM messages WHERE channel='#incidents' AND author='agent'") >= 1, 'post an update in #incidents'
-assert _one("SELECT status FROM tickets WHERE key='ENG-2402'") == 'done', 'ticket ENG-2402 must be closed (status done)'
-assert _one("SELECT status FROM incidents WHERE incident_id=9702") != 'resolved', 'unrelated incident 9702 must not be resolved'
-assert _one("SELECT status FROM alerts WHERE alert_id=9603") != 'resolved', 'unrelated alert 9603 must not be resolved'
-assert _one("SELECT value FROM env_state WHERE service='api-gateway' AND environment='staging' AND kind='version' AND key='current'") == 'v5.1.0', 'staging must be left as-is'
+_c('quality', 'postmortem_filed', _pm >= 1, "file a postmortem ticket (type 'postmortem', service api-gateway, mentioning v5.1.0)")
+_c('quality', 'status_update_posted', _one("SELECT COUNT(*) FROM messages WHERE channel='#incidents' AND author='agent'") >= 1, 'post an update in #incidents')
+_c('quality', 'ticket_closed', _one("SELECT status FROM tickets WHERE key='ENG-2402'") == 'done', 'ticket ENG-2402 must be closed (status done)')
+_c('correctness', 'no_unrelated_incident_mutation', _one("SELECT status FROM incidents WHERE incident_id=9702") != 'resolved', 'unrelated incident 9702 must not be resolved')
+_c('correctness', 'no_unrelated_alert_mutation', _one("SELECT status FROM alerts WHERE alert_id=9603") != 'resolved', 'unrelated alert 9603 must not be resolved')
+_c('correctness', 'staging_untouched', _one("SELECT value FROM env_state WHERE service='api-gateway' AND environment='staging' AND kind='version' AND key='current'") == 'v5.1.0', 'staging must be left as-is')
 """,
         [
             {"tool": "get_ticket", "args": {"key": "ENG-2402"}},

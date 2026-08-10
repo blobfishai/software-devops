@@ -194,15 +194,17 @@ def run_vcode(vcode, db_path, final_answer=""):
     ns = {"conn": conn, "sqlite3": sqlite3, "json": json, "get_db": get_db,
           "db_path": db_path, "DB_PATH": db_path,
           "final_answer": final_answer, "answer": final_answer}
+    ok, err = True, None
     try:
         exec(compile(vcode, "<vcode>", "exec"), ns)
-        return True, None
     except AssertionError as e:
-        return False, "assertion: %s" % e
+        ok, err = False, "assertion: %s" % e
     except Exception as e:  # noqa: BLE001
-        return False, "%s: %s" % (type(e).__name__, e)
+        ok, err = False, "%s: %s" % (type(e).__name__, e)
     finally:
         conn.close()
+    score = ns.get("score")
+    return ok, err, (float(score) if isinstance(score, (int, float)) else None)
 
 
 def replay_oracle(task, pristine_db, tool_ns, workdir):
@@ -226,7 +228,7 @@ def validate(tasks, pristine_db, tool_ns, workdir):
     failures = []
     for task in tasks:
         tid = task["task_id"]
-        ok_pristine, _ = run_vcode(task["vcode"], str(pristine_db))
+        ok_pristine, _, _ = run_vcode(task["vcode"], str(pristine_db))
         if ok_pristine:
             failures.append("%s: vcode PASSES on the pristine seed (free reward)" % tid)
             report.append({"task_id": tid, "accepted": False, "reason": "non-discriminating vcode"})
@@ -236,13 +238,20 @@ def validate(tasks, pristine_db, tool_ns, workdir):
             failures.append("%s: oracle replay failed: %s" % (tid, err))
             report.append({"task_id": tid, "accepted": False, "reason": err})
             continue
-        ok_after, verr = run_vcode(task["vcode"], str(replay_db))
+        ok_after, verr, score_after = run_vcode(task["vcode"], str(replay_db))
         if not ok_after:
             failures.append("%s: vcode fails after oracle replay: %s" % (tid, verr))
             report.append({"task_id": tid, "accepted": False, "reason": "oracle does not satisfy vcode: %s" % verr})
             continue
+        if score_after is None or score_after < 1.0:
+            failures.append("%s: oracle passes but partial-credit score is %s (dimension bookkeeping bug)"
+                            % (tid, score_after))
+            report.append({"task_id": tid, "accepted": False,
+                           "reason": "oracle score %s != 1.0" % score_after})
+            continue
         report.append({"task_id": tid, "accepted": True,
                        "oracle_steps": len(task["expected_calls"]),
+                       "oracle_score": score_after,
                        "discriminating_vcode": True, "oracle_replay_passed": True})
     return report, failures
 
