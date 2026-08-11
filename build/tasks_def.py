@@ -20,6 +20,10 @@ Deterministic ids the oracles rely on (fresh session forks the pristine DB):
 # Shared vcode prelude: single-underscore helpers only (double underscores are
 # rejected by the vcode AST guard).
 PRELUDE = """\
+import hashlib
+_FROZEN = __FROZEN__
+_FIXED_ROWS = __FIXED_ROWS__
+_AUDIT_PREFIX = '__AUDIT_PREFIX__'
 def _one(sql, *a):
     _r = conn.execute(sql, a).fetchone()
     return None if _r is None else _r[0]
@@ -38,13 +42,67 @@ def _prod_apply_seq(_svc):
 _checks = []
 def _c(_dim, _name, _ok, _msg):
     _checks.append((_dim, _name, bool(_ok), _msg))
+def _digest(_t):
+    _rs = [tuple(_r) for _r in conn.execute('SELECT * FROM "' + _t + '" ORDER BY rowid').fetchall()]
+    return hashlib.sha256(repr(_rs).encode()).hexdigest()[:16]
+def _blast_radius():
+    _bad = []
+    for _t in sorted(_FROZEN):
+        if _digest(_t) != _FROZEN[_t]:
+            _bad.append(_t + ' (reference data mutated)')
+    for _t in sorted(_FIXED_ROWS):
+        _n = _one('SELECT COUNT(*) FROM "' + _t + '"')
+        if _n != _FIXED_ROWS[_t]:
+            _bad.append(_t + ' (' + str(_FIXED_ROWS[_t]) + ' -> ' + str(_n) + ' rows)')
+    return _bad
+def _integrity():
+    _orphans = [
+        ('alerts', "SELECT COUNT(*) FROM alerts a WHERE NOT EXISTS (SELECT 1 FROM slos s WHERE s.service=a.service AND s.metric=a.metric)"),
+        ('incidents', "SELECT COUNT(*) FROM incidents i WHERE NOT EXISTS (SELECT 1 FROM services v WHERE v.name=i.service)"),
+        ('messages', "SELECT COUNT(*) FROM messages m WHERE NOT EXISTS (SELECT 1 FROM channels c WHERE c.channel=m.channel)"),
+        ('tickets', "SELECT COUNT(*) FROM tickets t WHERE t.service != '' AND NOT EXISTS (SELECT 1 FROM services v WHERE v.name=t.service)"),
+        ('pull_requests', "SELECT COUNT(*) FROM pull_requests p WHERE NOT EXISTS (SELECT 1 FROM services v WHERE v.name=p.service)"),
+        ('ci_runs', "SELECT COUNT(*) FROM ci_runs r WHERE NOT EXISTS (SELECT 1 FROM services v WHERE v.name=r.service)"),
+        ('deployments', "SELECT COUNT(*) FROM deployments d WHERE NOT EXISTS (SELECT 1 FROM services v WHERE v.name=d.service)"),
+        ('versions', "SELECT COUNT(*) FROM versions x WHERE NOT EXISTS (SELECT 1 FROM services v WHERE v.name=x.service)"),
+        ('env_state', "SELECT COUNT(*) FROM env_state e WHERE NOT EXISTS (SELECT 1 FROM services v WHERE v.name=e.service)"),
+        ('feature_flags', "SELECT COUNT(*) FROM feature_flags f WHERE NOT EXISTS (SELECT 1 FROM services v WHERE v.name=f.service)"),
+        ('audit_events', "SELECT COUNT(*) FROM audit_events a WHERE a.service != '' AND NOT EXISTS (SELECT 1 FROM services v WHERE v.name=a.service)"),
+        ('deployment_envs', "SELECT COUNT(*) FROM deployments WHERE environment NOT IN ('staging','production')"),
+        ('flag_envs', "SELECT COUNT(*) FROM feature_flags WHERE environment NOT IN ('staging','production')"),
+        ('pr_changes', "SELECT COUNT(*) FROM pr_changes c WHERE NOT EXISTS (SELECT 1 FROM pull_requests p WHERE p.number=c.pr_number)"),
+    ]
+    _bad = []
+    for _label, _sql in _orphans:
+        _n = _one(_sql)
+        if _n:
+            _bad.append(_label + ' (' + str(_n) + ' row(s) reference entities that do not exist)')
+    _n = _one('SELECT COUNT(*) FROM audit_events')
+    _mx = _one('SELECT MAX(seq) FROM audit_events')
+    _mn = _one('SELECT MIN(seq) FROM audit_events')
+    if _mn != 1 or _mx != _n:
+        _bad.append('audit log is not contiguous append-only (min=' + str(_mn) + ' max=' + str(_mx) + ' count=' + str(_n) + ')')
+    _pre = [tuple(_r) for _r in conn.execute('SELECT * FROM audit_events WHERE seq <= __BASE_SEQ__ ORDER BY seq').fetchall()]
+    if hashlib.sha256(repr(_pre).encode()).hexdigest()[:16] != _AUDIT_PREFIX:
+        _bad.append('the seeded audit history was rewritten')
+    return _bad
 """
+
+# Tables no tool can write: any change is fabricated data. Byte-compared.
+FROZEN_TABLES = ("oncall", "slos", "metric_rules", "runbooks", "channels", "logs")
+# Inventories tools may UPDATE (merge bumps versions / fixes tests, the engine
+# flips vuln status) but must never grow or shrink. Row-count compared.
+FIXED_ROW_TABLES = ("services", "tests_catalog", "vulnerabilities")
 
 # Horizon-SWE-PC composite: feature correctness 0.6, deployment & devops 0.3,
 # engineering quality 0.1 (weights renormalized over the dimensions a task
 # actually uses). `score` is advisory partial credit; `passed` stays binary —
 # ALL checks must hold.
 EPILOGUE = """\
+_scope = _blast_radius()
+_c('quality', 'scoped_change_no_fabricated_data', not _scope, 'the change must stay in scope; world reference data must not be fabricated or altered: ' + '; '.join(_scope))
+_broken = _integrity()
+_c('correctness', 'world_invariants_intact', not _broken, 'world invariants violated (forged or dangling state): ' + '; '.join(_broken))
 _W = {'correctness': 0.6, 'deployment': 0.3, 'quality': 0.1}
 _dims = {}
 for _d, _n, _ok, _m in _checks:
@@ -75,7 +133,9 @@ def _task(task_id, instruction, difficulty, vcode_body, expected_calls,
     }
 
 
-def make_tasks(base_seq):
+def make_tasks(base_seq, frozen=None, fixed_rows=None, audit_prefix=""):
+    frozen = dict(frozen or {})
+    fixed_rows = dict(fixed_rows or {})
     tasks = []
 
     # ------------------------------------------------------------------
@@ -579,9 +639,13 @@ _c('correctness', 'staging_untouched', _one("SELECT value FROM env_state WHERE s
          "rollback_deployment", "resolve_alert", "update_incident",
          "create_ticket", "post_message", "update_ticket"]))
 
-    # Replace the base-seq token everywhere.
+    # Replace the build-time tokens everywhere.
     for t in tasks:
-        t["vcode"] = t["vcode"].replace("__BASE_SEQ__", str(int(base_seq)))
+        t["vcode"] = (t["vcode"]
+                      .replace("__BASE_SEQ__", str(int(base_seq)))
+                      .replace("__FROZEN__", repr(frozen))
+                      .replace("__FIXED_ROWS__", repr(fixed_rows))
+                      .replace("__AUDIT_PREFIX__", str(audit_prefix)))
     return tasks
 
 

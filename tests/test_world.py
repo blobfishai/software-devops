@@ -30,7 +30,8 @@ def env(tmp_path_factory):
     base_seq = bw.build_db(str(db))
     tools = make_tools()
     _, ns = bw.load_tools_module(tools)
-    tasks = tasks_def.make_tasks(base_seq)
+    frozen, fixed_rows, audit_prefix = bw.reference_baselines(str(db))
+    tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix)
     return {"tmp": tmp, "db": db, "tools": tools, "ns": ns,
             "tasks": {t["task_id"]: t for t in tasks}}
 
@@ -261,6 +262,64 @@ def test_vcode_rejects_unrelated_blanket_mutation(env):
     call(env, db, "resolve_alert", alert_id=9602)
     ok, err, _ = bw.run_vcode(task["vcode"], str(db))
     assert not ok and "9602" in err
+
+
+def test_fabricated_reference_data_is_rejected(env):
+    """Solving the task but also inventing world data (the platform's
+    `over_repair` corruption) must lose the reward."""
+    task = env["tasks"]["tsk_payments_error_rate"]
+    db = fork(env, "adv_fabricate")
+    run_calls(env, db, copy.deepcopy(task["expected_calls"]))
+    ok, _, _ = bw.run_vcode(task["vcode"], str(db))
+    assert ok, "clean oracle must pass before corrupting"
+    conn = sqlite3.connect(db)
+    conn.execute("INSERT INTO services(name, team, tier, language, description, "
+                 "repo_version) VALUES ('ghost-svc','platform',3,'go','','v1.0.0')")
+    conn.commit()
+    conn.close()
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "scope" in err
+
+
+def test_mutated_runbook_is_rejected(env):
+    """Rewriting a runbook to match a shortcut must not be rewarded."""
+    task = env["tasks"]["tsk_payments_error_rate"]
+    db = fork(env, "adv_runbook")
+    run_calls(env, db, copy.deepcopy(task["expected_calls"]))
+    conn = sqlite3.connect(db)
+    conn.execute("UPDATE runbooks SET body='no policy' WHERE runbook_id=9952")
+    conn.commit()
+    conn.close()
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "reference data" in err
+
+
+def test_tampered_audit_log_is_rejected(env):
+    """Forging the append-only audit trail (how an agent would fake workflow
+    ordering) must lose the reward."""
+    task = env["tasks"]["tsk_loyalty_multi_service"]
+    db = fork(env, "adv_audit")
+    run_calls(env, db, copy.deepcopy(task["expected_calls"]))
+    ok, _, _ = bw.run_vcode(task["vcode"], str(db))
+    assert ok, "clean oracle must pass before tampering"
+    conn = sqlite3.connect(db)
+    conn.execute("UPDATE audit_events SET seq = seq + 7919")
+    conn.commit()
+    conn.close()
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "audit log" in err
+
+
+def test_rewritten_audit_history_is_rejected(env):
+    task = env["tasks"]["tsk_payments_error_rate"]
+    db = fork(env, "adv_history")
+    run_calls(env, db, copy.deepcopy(task["expected_calls"]))
+    conn = sqlite3.connect(db)
+    conn.execute("UPDATE audit_events SET detail='{}' WHERE seq=1")
+    conn.commit()
+    conn.close()
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "rewritten" in err
 
 
 def test_oracle_scores_full_credit(env):

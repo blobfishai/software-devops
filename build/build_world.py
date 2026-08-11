@@ -165,6 +165,24 @@ def build_db(db_path):
 # validation harness (same gates blobfish enforces for curated tasks)
 # ---------------------------------------------------------------------------
 
+def reference_baselines(db_path):
+    """Digests/counts of tables the agent must not fabricate. Must use the
+    exact same algorithm as the `_digest` helper compiled into every vcode."""
+    conn = sqlite3.connect(db_path)
+    frozen = {}
+    for t in tasks_def.FROZEN_TABLES:
+        rows = [tuple(r) for r in
+                conn.execute('SELECT * FROM "%s" ORDER BY rowid' % t).fetchall()]
+        frozen[t] = hashlib.sha256(repr(rows).encode()).hexdigest()[:16]
+    fixed = {t: conn.execute('SELECT COUNT(*) FROM "%s"' % t).fetchone()[0]
+             for t in tasks_def.FIXED_ROW_TABLES}
+    prefix = [tuple(r) for r in
+              conn.execute("SELECT * FROM audit_events ORDER BY seq").fetchall()]
+    audit_prefix = hashlib.sha256(repr(prefix).encode()).hexdigest()[:16]
+    conn.close()
+    return frozen, fixed, audit_prefix
+
+
 def load_tools_module(tools):
     src = "\n\n".join(t["source_code"] for t in tools)
     compile(src, "tools_combined.py", "exec")
@@ -305,7 +323,8 @@ def main():
 
     tools = make_tools()
     combined_src, tool_ns = load_tools_module(tools)
-    tasks = tasks_def.make_tasks(base_seq)
+    frozen, fixed_rows, audit_prefix = reference_baselines(str(db_path))
+    tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix)
 
     report, failures = validate(tasks, db_path, tool_ns, tmp)
     for r in report:
