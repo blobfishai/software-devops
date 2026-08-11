@@ -127,9 +127,10 @@ Every number reported so far measures the *environment*, not model difficulty:
 
 | evidence | what it actually shows |
 |---|---|
-| oracle 1.0 (1120/1120 tool calls) | the tasks are solvable and the verifiers accept a correct solution |
+| oracle PF 100% (82/82) | the tasks are solvable and the verifiers accept a correct solution |
 | random 0.0 | the verifiers reject noise |
 | verify-accuracy 1.000 / 1.000 / 0.000 over 5 corruption families | the verifiers reject *near-misses*, not just noise |
+| harbor self-test 82/82, free-reward 0 | the shipped package grades correctly outside this repository |
 | policy-blind baseline: 0% on every change category | the deployment dimension is load-bearing |
 
 None of that is a model score. The calibration loop has never seen a cloud model,
@@ -148,14 +149,14 @@ policy actually perturbs**:
 | `merged_only` — a merged pull request is the finish line | 44 | **0.0%** | caught every time |
 | `shortcut` — quarantine the flaky test, blame the alarmed service | 7 | **0.0%** | caught every time |
 | `naive` — no knowledge base, no staging, no canary, no comms | 54 | 16.7% | caught 45 of 54 |
-| `no_verify` — ships the right change, never closes the loop | 76 | **85.5%** | caught 11 of 76 |
+| `no_verify` — ships the right change, never closes the loop | 82 | **86.6%** | caught 11 of 82 |
 
 The last row is the honest weak spot, and its cause is structural rather than a
-bug. Under `no_verify` the world raises **162 quality failures against 15
-correctness and 11 deployment** — every one of the 76 tasks fails `ticket_closed`
+bug. Under `no_verify` the world raises **174 quality failures against 15
+correctness and 11 deployment** — every one of the 82 tasks fails `ticket_closed`
 and `closed_after_the_work`. But PF is binary over correctness and deployment
 only, exactly as the source spec defines it, so loop-closure discipline is worth
-0.1 weight in PC (93.4 against the oracle's 100.0) and nothing at all in PF.
+0.1 weight in PC and nothing at all in PF.
 
 So: **PF measures whether the right change reached production. It does not
 measure whether anyone was told.** PC measures the latter, weakly and by design.
@@ -163,7 +164,7 @@ That is inherited from the metric being reproduced, and it is stated here rather
 than quietly repaired, because re-weighting would make these numbers
 incomparable to the spec they mirror. A lab wanting closure discipline to be
 load-bearing should raise the quality weight and re-run; the checks already exist
-and already fire on all 76 tasks.
+and already fire on all 82 tasks.
 
 ## The one command
 
@@ -224,8 +225,8 @@ The blog this world is modelled on reports ~25.5% PF for the strongest model on
 its own 50 tasks. This world is **not calibrated to reproduce that number**, and
 a resemblance would be coincidence rather than validation — a point worth holding
 onto when the first results arrive. The `naive` policy — technically correct
-fixes with every documented procedure stripped out — scores PF 40.8% across all
-76 tasks and 16.7% across the 54 it actually changes, bracketing that figure for
+fixes with every documented procedure stripped out — scores 16.7% across the 54 tasks it
+actually changes, bracketing that figure for
 entirely unrelated reasons.
 
 ## A fourth thing that would count as proof, learned the hard way
