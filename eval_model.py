@@ -526,9 +526,13 @@ def main():
                "seconds": round(time.time() - started, 1),
                "error": err or verdict.get("error")}
         trials.setdefault(tid, []).append(bool(rec["passed"]))
-        if trial > 0:
-            continue
+        # Every episode is a row. Previously only the first trial was recorded, so
+        # under --trials 3 the headline pass rate was computed from a third of the
+        # evidence while pass^1 used all of it, and the two could disagree.
+        rec["trial"] = trial
         records.append(rec)
+        if trial > 0:
+            continue                       # ...but only the first is printed
         mark = "PASS" if rec["passed"] else "FAIL"
         extra = ""
         if rec.get("steps_to_answer"):
@@ -581,9 +585,13 @@ def main():
                       % (cat.split("_")[1], label,
                          sum(r["steps_to_answer"] for r in g) / len(g), len(g)))
     if args.trials > 1:
-        n = args.trials
-        print("\n  tau-bench reliability over %d trials per task:" % n)
-        for k in range(1, n + 1):
+        # NOT `n`: that is the episode count, and rebinding it here corrupted both
+        # the reported pass_rate (which went above 1.0 under --trials) and the
+        # oracle self-check exit code, so `--policy oracle --trials 3` reported a
+        # broken world for a world that was fine.
+        k_max = args.trials
+        print("\n  tau-bench reliability over %d trials per task:" % k_max)
+        for k in range(1, k_max + 1):
             vals = [pass_hat_k(sum(v), len(v), k) for v in trials.values()]
             vals = [v for v in vals if v is not None]
             if vals:

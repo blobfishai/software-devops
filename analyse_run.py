@@ -42,9 +42,13 @@ def load(paths):
     seen, tasks = set(), []
     for r in runs:
         for t in r["tasks"]:
-            if t["task_id"] in seen:
-                continue          # a task evaluated twice would be counted twice
-            seen.add(t["task_id"])
+            # Key on (task, trial): repeated trials of one task are distinct
+            # episodes and all of them count, but the same episode appearing in
+            # two shards must not be counted twice.
+            key = (t["task_id"], t.get("trial", 0))
+            if key in seen:
+                continue
+            seen.add(key)
             tasks.append(t)
     merged["tasks"] = tasks
     return merged

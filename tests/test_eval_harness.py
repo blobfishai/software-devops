@@ -358,3 +358,31 @@ def test_the_shipped_package_matches_the_built_world():
     assert len(verifiers) == world["counts"]["tasks"], \
         "every task must ship a verifier: %d tasks, %d verifiers" % (
             world["counts"]["tasks"], len(verifiers))
+
+
+def test_pass_hat_k_is_computed_and_degrades_with_k(tmp_path):
+    """tau-bench's reliability metric: pass^k is the probability that all k
+    independent attempts succeed. A model at 60% on one attempt and 20% at k=4 is
+    unreliable in a way a single pass rate hides completely, so this is one of the
+    three things that would count as evidence the world measures capability rather
+    than luck. It had never been exercised.
+
+    A deterministic policy must give 1.000 at every k - anything else means the
+    metric is reading noise from the harness.
+    """
+    out = tmp_path / "pk.json"
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "eval_model.py"), "--policy", "oracle",
+         "--trials", "3", "--limit", "4", "--out", str(out)],
+        capture_output=True, text=True, timeout=900)
+    assert proc.returncode == 0, proc.stderr
+    report = json.loads(out.read_text())
+    assert report["trials"] == 3
+    phk = report["pass_hat_k"]
+    assert {str(k) for k in (1, 2, 3)} <= set(phk), phk
+    assert all(abs(v - 1.0) < 1e-9 for v in phk.values()), \
+        "a deterministic policy must be perfectly reliable at every k: %s" % phk
+    # pass^k can never increase with k: it is the chance ALL k attempts succeed
+    vals = [phk[str(k)] for k in (1, 2, 3)]
+    assert all(a >= b - 1e-9 for a, b in zip(vals, vals[1:])), \
+        "pass^k increased with k, which is impossible: %s" % phk
