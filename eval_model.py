@@ -532,7 +532,21 @@ def main():
         # getting the engineering wrong or getting the procedure wrong.
         failed_checks = [{"dimension": a["dimension"], "name": a["name"]}
                          for a in (verdict.get("assertions") or []) if not a["passed"]]
-        rec = {"outcome": outcome, "failed_checks": failed_checks,
+        # Why this outcome, recorded at the moment it is decided. A later reader
+        # cannot recompute it: the transcript is not in the report, so an episode
+        # marked `harness` because of a provider error is indistinguishable from
+        # one marked `harness` by a bad marker - which is exactly the ambiguity
+        # that made repairing the "API " misattribution delicate.
+        reason = {"resolved": "passed", "capped": "turn budget exhausted",
+                  "agent": "the agent got it wrong"}.get(outcome)
+        if reason is None:
+            hay = "%s %s" % (err or verdict.get("error") or "",
+                             stats.get("transcript", ""))
+            hit = next((m for m in HARNESS_MARKERS + HARNESS_TRANSCRIPT_MARKERS
+                        + ENVIRONMENT_MARKERS + CALLER_DEPENDENT_MARKERS if m in hay), "?")
+            reason = "matched %r" % hit
+        rec = {"outcome": outcome, "outcome_reason": reason,
+               "failed_checks": failed_checks,
                "task_id": tid, "category": task.get("category"),
                "difficulty": task.get("difficulty"),
                "passed": bool(verdict.get("passed")), "score": pc,

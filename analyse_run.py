@@ -45,6 +45,10 @@ def repair_attribution(tasks):
     for t in tasks:
         if t.get("outcome") != "harness":
             continue
+        if t.get("outcome_reason"):
+            # Written by a version that records WHY, so it is not the buggy one
+            # and its attribution is trustworthy as it stands.
+            continue
         err = str(t.get("error") or "")
         if any(m in err for m in HARNESS_MARKERS):
             continue                                   # genuinely our infrastructure

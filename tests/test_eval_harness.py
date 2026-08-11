@@ -543,3 +543,27 @@ def test_a_sharded_run_reports_incomplete_coverage(tmp_path):
     import analyse_run
     short = analyse_run.load([str(out)], expected=sorted(want) + ["tsk_never_ran"])
     assert short["incomplete"] == ["tsk_never_ran"]
+
+
+def test_repair_leaves_correctly_attributed_reports_alone():
+    """The repair pass rewrites `harness` episodes whose recorded error carries no
+    harness symptom. That was right for reports from the buggy version, and wrong
+    for anything newer: a provider outage is recorded in the transcript, which is
+    not in the report, so a legitimate harness episode looks identical to a
+    misattributed one from the outside.
+
+    Reports now record WHY an outcome was chosen at the moment it was chosen, and
+    repair skips any record carrying that field.
+    """
+    sys.path.insert(0, str(ROOT))
+    import analyse_run
+
+    old_style = [{"task_id": "a", "outcome": "harness", "passed": False, "turns": 5,
+                  "error": "assertion: correctness/legacy_retired"}]
+    assert analyse_run.repair_attribution(old_style)[0]["outcome"] == "agent"
+
+    new_style = [{"task_id": "b", "outcome": "harness", "passed": False, "turns": 5,
+                  "error": "assertion: correctness/legacy_retired",
+                  "outcome_reason": "matched 'HARNESS: provider error'"}]
+    assert analyse_run.repair_attribution(new_style)[0]["outcome"] == "harness", \
+        "a self-describing report was second-guessed by the repair pass"
