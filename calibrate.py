@@ -122,6 +122,10 @@ def main():
                          "PF should fall from guided to standard - if it does not, the world "
                          "is testing instruction-following rather than judgement")
     ap.add_argument("--attempts", type=int, default=3)
+    ap.add_argument("--all-attempts", action="store_true",
+                    help="run every attempt even after a first-try pass. Costs more and "
+                         "is the only way to see a FLAKY band, since a task that passes "
+                         "once and fails twice exits early as TOO_EASY otherwise")
     ap.add_argument("--max-turns", type=int, default=50)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--out", default="research/calibration.json")
@@ -174,8 +178,12 @@ def main():
                 caller = ("model" if args.policy in ("model", "local", "deepseek", "openai")
                           else "scripted")
                 envs += looks_environmental(stats.get("transcript", ""), verdict, caller)
-            if passed and len(trials) == 1:
-                break                      # first-try pass is already conclusive
+            if passed and len(trials) == 1 and not args.all_attempts:
+                # A first-try pass is conclusive for "not too hard" and says nothing
+                # at all about flakiness. When probing the boundary that is exactly
+                # backwards: a task that passes once and fails twice is the result
+                # you are hunting, and stopping at the first pass hides it.
+                break
         n_pass = sum(t["passed"] for t in trials)
         # vivaria treats a budget exhaustion as 'usageLimits' - a distinct outcome,
         # never a failure. cline and OpenHands agree: capped maps to cancelled.
