@@ -220,7 +220,20 @@ python3 eval_model.py --policy oracle
 # evaluate a model end to end (needs ANTHROPIC_API_KEY)
 python3 eval_model.py --model claude-sonnet-5 --split heldout
 python3 eval_model.py --model claude-fable-5 --category security_incident -v
+
+# any OpenAI-compatible provider, via native tool calling
+export DEEPSEEK_API_KEY=...
+python3 eval_model.py --policy deepseek --model deepseek-v4-pro
+python3 calibrate.py  --policy deepseek --model deepseek-v4-pro --attempts 3
 ```
+
+The `deepseek` and `openai` policies hand the model all 84 tools as JSON Schema
+function definitions and let it call them through the provider's own tool-calling
+API — the harness a frontier model actually runs under. The `local` policy drives
+a locally cached model through `mlx_lm` with no credential at all, asking for
+tool calls as JSON; that protocol is a real difference and it dominated the small
+model's results, so its numbers are a floor on protocol handling rather than an
+estimate of task difficulty.
 
 Each task runs in its own session fork and is graded by the world's executable
 verifier, reporting both Horizon-style numbers:
