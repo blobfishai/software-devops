@@ -407,6 +407,10 @@ CREATE TABLE tickets (
     assignee TEXT NOT NULL DEFAULT '',
     service TEXT NOT NULL DEFAULT ''
 );
+CREATE TABLE tool_calls (
+    call_seq INTEGER PRIMARY KEY AUTOINCREMENT,
+    tool TEXT NOT NULL
+);
 CREATE TABLE traffic_profile (
     route_id INTEGER PRIMARY KEY,
     service TEXT NOT NULL,

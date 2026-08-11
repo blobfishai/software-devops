@@ -8,6 +8,10 @@ def list_services(db_path=None, team=None, tier=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_services',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM services'
         conds, args = [], []
         if team:
@@ -40,6 +44,10 @@ def get_service(db_path=None, service=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_service',)); conn.commit()
+        except Exception:
+            pass
         if service is None:
             return {'ok': False, 'error': 'missing required parameter: service'}
         row = conn.execute('SELECT * FROM services WHERE name=?', (service,)).fetchone()
@@ -68,6 +76,10 @@ def list_infra(db_path=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_infra',)); conn.commit()
+        except Exception:
+            pass
         return [dict(r) for r in conn.execute('SELECT * FROM infra_components ORDER BY component_id').fetchall()]
     finally:
         conn.close()
@@ -83,6 +95,10 @@ def list_files(db_path=None, service=None, path_contains=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_files',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT file_id, service, path, language, owner, loc FROM repo_files'
         conds, args = [], []
         if service:
@@ -106,6 +122,10 @@ def read_file(db_path=None, path=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('read_file',)); conn.commit()
+        except Exception:
+            pass
         if path is None:
             return {'ok': False, 'error': 'missing required parameter: path'}
         row = conn.execute('SELECT * FROM repo_files WHERE path=?', (path,)).fetchone()
@@ -126,6 +146,10 @@ def search_code(db_path=None, query=None, service=None, limit=20):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('search_code',)); conn.commit()
+        except Exception:
+            pass
         if query is None:
             return {'ok': False, 'error': 'missing required parameter: query'}
         sql = 'SELECT service, path, content FROM repo_files WHERE content LIKE ?'
@@ -154,6 +178,10 @@ def list_commits(db_path=None, service=None, query=None, path=None, limit=20):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_commits',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT sha, service, author, day, message, files, additions, deletions FROM commits'
         conds, args = [], []
         if service:
@@ -179,6 +207,10 @@ def search_docs(db_path=None, query='', kind=None, service=None, limit=10):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('search_docs',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT doc_id, kind, title, service, author, day FROM documents'
         conds, args = [], []
         if query:
@@ -204,6 +236,10 @@ def get_document(db_path=None, doc_id=None, title=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_document',)); conn.commit()
+        except Exception:
+            pass
         row = None
         if doc_id is not None:
             row = conn.execute('SELECT * FROM documents WHERE doc_id=?', (int(doc_id),)).fetchone()
@@ -230,6 +266,10 @@ def list_tickets(db_path=None, status=None, service=None, ticket_type=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_tickets',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM tickets'
         conds, args = [], []
         if status:
@@ -255,6 +295,10 @@ def get_ticket(db_path=None, key=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_ticket',)); conn.commit()
+        except Exception:
+            pass
         if key is None:
             return {'ok': False, 'error': 'missing required parameter: key'}
         row = conn.execute('SELECT * FROM tickets WHERE key=?', (key,)).fetchone()
@@ -275,6 +319,10 @@ def list_pull_requests(db_path=None, service=None, status=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_pull_requests',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM pull_requests'
         conds, args = [], []
         if service:
@@ -298,6 +346,10 @@ def get_pull_request(db_path=None, pr_number=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_pull_request',)); conn.commit()
+        except Exception:
+            pass
         if pr_number is None:
             return {'ok': False, 'error': 'missing required parameter: pr_number'}
         row = conn.execute('SELECT * FROM pull_requests WHERE number=?', (int(pr_number),)).fetchone()
@@ -322,6 +374,10 @@ def list_ci_runs(db_path=None, service=None, pr_number=None, limit=20):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_ci_runs',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM ci_runs'
         conds, args = [], []
         if service:
@@ -345,6 +401,10 @@ def get_ci_run(db_path=None, run_id=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_ci_run',)); conn.commit()
+        except Exception:
+            pass
         if run_id is None:
             return {'ok': False, 'error': 'missing required parameter: run_id'}
         row = conn.execute('SELECT * FROM ci_runs WHERE run_id=?', (int(run_id),)).fetchone()
@@ -367,6 +427,10 @@ def list_deployments(db_path=None, service=None, environment=None, limit=20):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_deployments',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM deployments'
         conds, args = [], []
         if service:
@@ -390,6 +454,10 @@ def list_migrations(db_path=None, service=None, environment=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_migrations',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM migrations'
         conds, args = [], []
         if service:
@@ -415,6 +483,10 @@ def query_metrics(db_path=None, service=None, metric=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('query_metrics',)); conn.commit()
+        except Exception:
+            pass
         sql = "SELECT * FROM service_metrics WHERE environment='production'"
         args = []
         if service:
@@ -436,6 +508,10 @@ def get_traffic_stats(db_path=None, service=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_traffic_stats',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM traffic_profile'
         args = []
         if service:
@@ -464,6 +540,10 @@ def get_slo_status(db_path=None, service=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_slo_status',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM slos'
         args = []
         if service:
@@ -490,6 +570,10 @@ def list_alerts(db_path=None, status=None, service=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_alerts',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM alerts'
         conds, args = [], []
         if status:
@@ -513,6 +597,10 @@ def list_error_events(db_path=None, service=None, status=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_error_events',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM error_events'
         conds, args = [], []
         if service:
@@ -536,6 +624,10 @@ def search_logs(db_path=None, service=None, query='', level=None, limit=20):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('search_logs',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM logs'
         conds, args = [], []
         if service:
@@ -561,6 +653,10 @@ def list_feature_flags(db_path=None, service=None, environment=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_feature_flags',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM feature_flags'
         conds, args = [], []
         if service:
@@ -584,6 +680,10 @@ def list_packages(db_path=None, service=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_packages',)); conn.commit()
+        except Exception:
+            pass
         sql = "SELECT service, key, value FROM repo_state WHERE kind='dependency'"
         args = []
         if service:
@@ -608,6 +708,10 @@ def list_vulnerabilities(db_path=None, status=None, service=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_vulnerabilities',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM vulnerabilities'
         conds, args = [], []
         if status:
@@ -631,6 +735,10 @@ def list_api_endpoints(db_path=None, service=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_api_endpoints',)); conn.commit()
+        except Exception:
+            pass
         sql = "SELECT service, key, value FROM repo_state WHERE kind='endpoint'"
         args = []
         if service:
@@ -657,6 +765,10 @@ def list_tests(db_path=None, service=None, status=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_tests',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM tests_catalog'
         conds, args = [], []
         if service:
@@ -680,6 +792,10 @@ def list_incidents(db_path=None, status=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_incidents',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM incidents'
         args = []
         if status:
@@ -699,6 +815,10 @@ def get_status_page(db_path=None, limit=10):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_status_page',)); conn.commit()
+        except Exception:
+            pass
         return [dict(r) for r in conn.execute('SELECT * FROM status_page ORDER BY post_id DESC LIMIT ?', (int(limit),)).fetchall()]
     finally:
         conn.close()
@@ -714,6 +834,10 @@ def list_messages(db_path=None, channel=None, limit=20):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_messages',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM messages'
         args = []
         if channel:
@@ -733,6 +857,10 @@ def create_ticket(db_path=None, title=None, description='', ticket_type='task', 
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('create_ticket',)); conn.commit()
+        except Exception:
+            pass
         if title is None:
             return {'ok': False, 'error': 'missing required parameter: title'}
         def _audit(conn, _tool, _svc, _detail):
@@ -763,6 +891,10 @@ def update_ticket(db_path=None, key=None, status=None, assignee=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('update_ticket',)); conn.commit()
+        except Exception:
+            pass
         if key is None:
             return {'ok': False, 'error': 'missing required parameter: key'}
         def _audit(conn, _tool, _svc, _detail):
@@ -794,6 +926,10 @@ def open_pull_request(db_path=None, service=None, title=None, body='', ticket_ke
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('open_pull_request',)); conn.commit()
+        except Exception:
+            pass
         if service is None:
             return {'ok': False, 'error': 'missing required parameter: service'}
         if title is None:
@@ -902,6 +1038,10 @@ def run_ci(db_path=None, pr_number=None, service=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('run_ci',)); conn.commit()
+        except Exception:
+            pass
         def _audit(conn, _tool, _svc, _detail):
             conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
         if pr_number is None and not service:
@@ -1008,6 +1148,10 @@ def merge_pull_request(db_path=None, pr_number=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('merge_pull_request',)); conn.commit()
+        except Exception:
+            pass
         if pr_number is None:
             return {'ok': False, 'error': 'missing required parameter: pr_number'}
         def _audit(conn, _tool, _svc, _detail):
@@ -1082,6 +1226,10 @@ def apply_migration(db_path=None, service=None, name=None, environment=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('apply_migration',)); conn.commit()
+        except Exception:
+            pass
         if service is None:
             return {'ok': False, 'error': 'missing required parameter: service'}
         if name is None:
@@ -1116,6 +1264,10 @@ def deploy_service(db_path=None, service=None, environment=None, version=None, c
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('deploy_service',)); conn.commit()
+        except Exception:
+            pass
         if service is None:
             return {'ok': False, 'error': 'missing required parameter: service'}
         if environment is None:
@@ -1237,6 +1389,10 @@ def assess_canary(db_path=None, service=None, environment='production'):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('assess_canary',)); conn.commit()
+        except Exception:
+            pass
         if service is None:
             return {'ok': False, 'error': 'missing required parameter: service'}
         def _apply(conn, _svc, _env, _version):
@@ -1342,6 +1498,10 @@ def promote_canary(db_path=None, service=None, environment='production'):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('promote_canary',)); conn.commit()
+        except Exception:
+            pass
         if service is None:
             return {'ok': False, 'error': 'missing required parameter: service'}
         def _apply(conn, _svc, _env, _version):
@@ -1438,6 +1598,10 @@ def rollback_deployment(db_path=None, service=None, environment='production'):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('rollback_deployment',)); conn.commit()
+        except Exception:
+            pass
         if service is None:
             return {'ok': False, 'error': 'missing required parameter: service'}
         def _apply(conn, _svc, _env, _version):
@@ -1531,6 +1695,10 @@ def set_feature_flag(db_path=None, key=None, environment=None, enabled=None, rol
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('set_feature_flag',)); conn.commit()
+        except Exception:
+            pass
         if key is None:
             return {'ok': False, 'error': 'missing required parameter: key'}
         if environment is None:
@@ -1623,6 +1791,10 @@ def shift_endpoint_traffic(db_path=None, service=None, path=None, traffic_percen
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('shift_endpoint_traffic',)); conn.commit()
+        except Exception:
+            pass
         if service is None:
             return {'ok': False, 'error': 'missing required parameter: service'}
         if path is None:
@@ -1657,6 +1829,10 @@ def acknowledge_alert(db_path=None, alert_id=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('acknowledge_alert',)); conn.commit()
+        except Exception:
+            pass
         if alert_id is None:
             return {'ok': False, 'error': 'missing required parameter: alert_id'}
         def _audit(conn, _tool, _svc, _detail):
@@ -1685,6 +1861,10 @@ def resolve_alert(db_path=None, alert_id=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('resolve_alert',)); conn.commit()
+        except Exception:
+            pass
         if alert_id is None:
             return {'ok': False, 'error': 'missing required parameter: alert_id'}
         def _audit(conn, _tool, _svc, _detail):
@@ -1718,6 +1898,10 @@ def resolve_error_event(db_path=None, fingerprint=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('resolve_error_event',)); conn.commit()
+        except Exception:
+            pass
         if fingerprint is None:
             return {'ok': False, 'error': 'missing required parameter: fingerprint'}
         def _recompute(conn):
@@ -1799,6 +1983,10 @@ def create_incident(db_path=None, title=None, service=None, severity=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('create_incident',)); conn.commit()
+        except Exception:
+            pass
         if title is None:
             return {'ok': False, 'error': 'missing required parameter: title'}
         if service is None:
@@ -1830,6 +2018,10 @@ def update_incident(db_path=None, incident_id=None, status=None, commander=None)
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('update_incident',)); conn.commit()
+        except Exception:
+            pass
         if incident_id is None:
             return {'ok': False, 'error': 'missing required parameter: incident_id'}
         def _audit(conn, _tool, _svc, _detail):
@@ -1862,6 +2054,10 @@ def publish_status_update(db_path=None, state=None, title=None, body=''):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('publish_status_update',)); conn.commit()
+        except Exception:
+            pass
         if state is None:
             return {'ok': False, 'error': 'missing required parameter: state'}
         if title is None:
@@ -1888,6 +2084,10 @@ def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', 
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('submit_diagnosis',)); conn.commit()
+        except Exception:
+            pass
         if scope is None:
             return {'ok': False, 'error': 'missing required parameter: scope'}
         if fault_detected is None:
@@ -1929,6 +2129,10 @@ def post_message(db_path=None, channel=None, body=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('post_message',)); conn.commit()
+        except Exception:
+            pass
         if channel is None:
             return {'ok': False, 'error': 'missing required parameter: channel'}
         if body is None:
@@ -1958,6 +2162,10 @@ def jira_search(db_path=None, project=None, status=None, issue_type=None, compon
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('jira_search',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM jira_issues'
         conds, args = [], []
         for col, val in (('project', project), ('status', status), ('issue_type', issue_type),
@@ -1981,6 +2189,10 @@ def jira_get_issue(db_path=None, key=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('jira_get_issue',)); conn.commit()
+        except Exception:
+            pass
         if key is None:
             return {'ok': False, 'error': 'missing required parameter: key'}
         row = conn.execute('SELECT * FROM jira_issues WHERE key=?', (key,)).fetchone()
@@ -2004,6 +2216,10 @@ def linear_list_issues(db_path=None, team=None, state=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('linear_list_issues',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM linear_issues'
         conds, args = [], []
         if team:
@@ -2027,6 +2243,10 @@ def github_list_issues(db_path=None, repo=None, state=None, label=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('github_list_issues',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM github_issues'
         conds, args = [], []
         if repo:
@@ -2052,6 +2272,10 @@ def list_issue_links(db_path=None, source=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_issue_links',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM issue_links'
         args = []
         if source:
@@ -2071,6 +2295,10 @@ def query_prometheus(db_path=None, metric=None, label_service=None, label_env=No
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('query_prometheus',)); conn.commit()
+        except Exception:
+            pass
         if metric is None:
             return {'ok': False, 'error': 'missing required parameter: metric'}
         sql = 'SELECT * FROM prom_series WHERE metric=?'
@@ -2098,6 +2326,10 @@ def list_prometheus_label_values(db_path=None, label='label_service'):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_prometheus_label_values',)); conn.commit()
+        except Exception:
+            pass
         col = 'label_service' if str(label).endswith('service') else 'label_env'
         return [r[0] for r in conn.execute(
             'SELECT DISTINCT ' + col + ' FROM prom_series ORDER BY 1').fetchall()]
@@ -2115,6 +2347,10 @@ def sentry_search_issues(db_path=None, project_slug=None, status=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('sentry_search_issues',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM sentry_issues'
         conds, args = [], []
         if project_slug:
@@ -2138,6 +2374,10 @@ def sentry_list_projects(db_path=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('sentry_list_projects',)); conn.commit()
+        except Exception:
+            pass
         return [dict(r) for r in conn.execute('SELECT * FROM sentry_projects ORDER BY slug').fetchall()]
     finally:
         conn.close()
@@ -2153,6 +2393,10 @@ def pd_list_incidents(db_path=None, since_day=None, until_day=None, urgency=None
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('pd_list_incidents',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM pd_incidents'
         conds, args = [], []
         if since_day is not None:
@@ -2180,6 +2424,10 @@ def pd_list_services(db_path=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('pd_list_services',)); conn.commit()
+        except Exception:
+            pass
         return [dict(r) for r in conn.execute('SELECT * FROM pd_services ORDER BY pd_service_id').fetchall()]
     finally:
         conn.close()
@@ -2195,6 +2443,10 @@ def pd_list_oncalls(db_path=None, day=None, escalation_policy=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('pd_list_oncalls',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM pd_oncall'
         conds, args = [], []
         if day is not None:
@@ -2218,6 +2470,10 @@ def pd_list_change_events(db_path=None, pd_service_id=None, since_day=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('pd_list_change_events',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM pd_change_events'
         conds, args = [], []
         if pd_service_id:
@@ -2241,6 +2497,10 @@ def list_status_page_posts(db_path=None, since_day=None, impact=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_status_page_posts',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM status_page_posts'
         conds, args = [], []
         if since_day is not None:
@@ -2264,6 +2524,10 @@ def confluence_search(db_path=None, query='', space=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('confluence_search',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT page_id, space, title, last_updated_day, stale FROM confluence_pages'
         conds, args = [], []
         if query:
@@ -2287,6 +2551,10 @@ def confluence_get_page(db_path=None, page_id=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('confluence_get_page',)); conn.commit()
+        except Exception:
+            pass
         if page_id is None:
             return {'ok': False, 'error': 'missing required parameter: page_id'}
         row = conn.execute('SELECT * FROM confluence_pages WHERE page_id=?', (int(page_id),)).fetchone()
@@ -2307,6 +2575,10 @@ def read_owner_spreadsheet(db_path=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('read_owner_spreadsheet',)); conn.commit()
+        except Exception:
+            pass
         return [dict(r) for r in conn.execute('SELECT * FROM owner_spreadsheet ORDER BY row_id').fetchall()]
     finally:
         conn.close()
@@ -2322,6 +2594,10 @@ def query_local_deploy_log(db_path=None, service=None, environment=None, since_d
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('query_local_deploy_log',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM local_deploy_log'
         conds, args = [], []
         if service:
@@ -2349,6 +2625,10 @@ def resolve_service_alias(db_path=None, name=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('resolve_service_alias',)); conn.commit()
+        except Exception:
+            pass
         if name is None:
             return {'ok': False, 'error': 'missing required parameter: name'}
         row = conn.execute('SELECT canonical FROM service_aliases WHERE alias=? OR canonical=? LIMIT 1',
@@ -2375,6 +2655,10 @@ def list_service_aliases(db_path=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_service_aliases',)); conn.commit()
+        except Exception:
+            pass
         return [dict(r) for r in conn.execute(
             'SELECT canonical, alias, system FROM service_aliases ORDER BY canonical, system').fetchall()]
     finally:
@@ -2391,6 +2675,10 @@ def k8s_events_list(db_path=None, namespace=None, pod=None, reason=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('k8s_events_list',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM k8s_events'
         conds, args = [], []
         for col, val in (('namespace', namespace), ('pod', pod), ('reason', reason)):
@@ -2413,6 +2701,10 @@ def k8s_pods_list(db_path=None, namespace=None, service=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('k8s_pods_list',)); conn.commit()
+        except Exception:
+            pass
         sql = 'SELECT * FROM k8s_pods'
         conds, args = [], []
         if namespace:
@@ -2436,6 +2728,10 @@ def submit_answer(db_path=None, question_id=None, answer=None, sources=None, ass
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('submit_answer',)); conn.commit()
+        except Exception:
+            pass
         if question_id is None:
             return {'ok': False, 'error': 'missing required parameter: question_id'}
         if answer is None:

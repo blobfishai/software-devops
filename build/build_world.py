@@ -418,8 +418,12 @@ def main():
 
     tools = make_tools() + make_vendor_tools()
     combined_src, tool_ns = load_tools_module(tools)
+    reads_map = {}
+    for t in tools:
+        for tb in t.get("read_tables", []):
+            reads_map.setdefault(tb, []).append(t["name"])
     tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix, n_secret,
-                                 secret_lit or "pk_live_none")
+                                 secret_lit or "pk_live_none", reads_map)
 
     report, failures = validate(tasks, db_path, tool_ns, tmp)
     by_cat = {}

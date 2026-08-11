@@ -32,8 +32,12 @@ def env(tmp_path_factory):
     tools = make_tools() + make_vendor_tools()
     _, ns = bw.load_tools_module(tools)
     frozen, fixed_rows, audit_prefix, n_secret, secret_lit = bw.reference_baselines(str(db))
+    reads_map = {}
+    for t in tools:
+        for tb in t.get("read_tables", []):
+            reads_map.setdefault(tb, []).append(t["name"])
     tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix, n_secret,
-                                 secret_lit or "pk_live_none")
+                                 secret_lit or "pk_live_none", reads_map)
     return {"tmp": tmp, "db": db, "tools": tools, "ns": ns,
             "tasks": {t["task_id"]: t for t in tasks}}
 
@@ -625,3 +629,30 @@ def test_sentry_and_prometheus_disagree_for_a_documented_reason(env):
     prom = call(env, db, "query_prometheus", metric="http_errors_total:rate5m",
                 label_service="checkout_service", label_env="production")
     assert any(r["counter_reset"] for r in prom), "the reset must be present and flagged"
+
+
+def test_declared_sources_must_match_the_trace(env):
+    """A verifier must never accept a self-report as evidence. An agent that
+    submits the right answer while naming a system it never queried fails."""
+    task = env["tasks"]["tsk_rcn_customer_facing_incidents"]
+    db = fork(env, "liar")
+    call(env, db, "get_ticket", key="OPS-201")
+    call(env, db, "pd_list_incidents", since_day=414, until_day=420)
+    call(env, db, "submit_answer", question_id="Q-CFI-7D", answer="2",
+         sources=["pd_incidents", "status_page_posts"],
+         assumptions="claimed the status page without ever querying it")
+    call(env, db, "update_ticket", key="OPS-201", status="done")
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "consulted_status_page_posts" in err
+
+
+def test_documentation_counts_match_the_built_world(tmp_path):
+    """Stale documentation is a hazard the research documents in four benchmark
+    repos. Our own README must not drift from world.json."""
+    import re as _re
+    world = json.loads((ROOT / "world" / "world.json").read_text())
+    readme = (ROOT / "README.md").read_text()
+    n = world["counts"]["tasks"]
+    wrong = [m for m in _re.findall(r"\b(\d+) tasks\b", readme)
+             if m.isdigit() and int(m) not in (n, 8, 7, 6, 5, 4, 3, 2, 1)]
+    assert not wrong, "README claims task counts %s but the world has %d" % (wrong, n)

@@ -18,6 +18,13 @@ inside the world. Nothing here is hidden - it is contradictory.
 """
 
 SCHEMA_SQL = """
+-- Every tool call, read or write. Verifiers that ask "did you actually consult
+-- X" must derive that from the trace, never from what the agent says it did.
+CREATE TABLE tool_calls (
+    call_seq INTEGER PRIMARY KEY AUTOINCREMENT,
+    tool TEXT NOT NULL
+);
+
 -- answers submitted by the agent for reconciliation questions
 CREATE TABLE answers (
     answer_id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_8b9d74de",
+  "world_id": "env_software_devops_696e2703",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "8b9d74de37b1c5747739860586fa936e8a7fb8893f94c6591b3e48749ddb17c7",
+  "world_digest": "696e27032917628e719344a1810de3f091e45d2a56e3f8272ea4561e8cf1f432",
   "entities": [
     "alerts",
     "answers",
@@ -63,13 +63,14 @@
     "status_page_posts",
     "tests_catalog",
     "tickets",
+    "tool_calls",
     "traffic_profile",
     "versions",
     "vulnerabilities"
   ],
   "tables_without_tools": [],
   "counts": {
-    "tables": 55,
+    "tables": 56,
     "rows": 1193,
     "tools": 74,
     "tasks": 70,

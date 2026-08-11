@@ -110,7 +110,7 @@ def _mk(name, description, params, body, *, reads, writes, returns="dict",
     src_lines.append('    """%s"""' % description)
     src_lines.append(textwrap.indent(CONN_PREAMBLE.rstrip(), "    "))
     src_lines.append("    try:")
-    inner = []
+    inner = ["try:\n    conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', (%r,)); conn.commit()\nexcept Exception:\n    pass" % name]
     for p in params:
         if p.get("required"):
             inner.append("if %s is None:\n    return {'ok': False, 'error': 'missing required parameter: %s'}"

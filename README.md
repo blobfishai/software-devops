@@ -19,7 +19,7 @@ Agents solve long-horizon workflows: **investigate → PR → CI (build · unit 
 integration · regression) → merge → migrate → staging → canary → promote →
 observe → resolve → close the ticket.**
 
-**50 tasks across the benchmark's seven categories**, graded on both
+**70 tasks**, graded on both
 Horizon-SWE-PF (binary) and Horizon-SWE-PC (composite).
 
 The same world also hosts a second suite that reproduces the use case of
@@ -59,7 +59,7 @@ See [docs/AIOPSLAB.md](docs/AIOPSLAB.md).
   corruption families (no-op, wrong-target, partial-completion, over-repair,
   zero-tool-call) at 1.000 recall.
 
-## The 50 tasks
+## The 70 tasks
 
 | Category | Tasks | Examples |
 |---|---|---|
@@ -82,7 +82,7 @@ rule, "fix don't quarantine", the audit-note and status-page requirements — is
 never in the prompt. It lives in the knowledge base, and the agent has to go
 find it. Deviating from a policy it never read still fails the verifier.
 
-Measured across all 62 tasks, the default prompt contains the exact config key
+Measured across all 70 tasks, the default prompt contains the exact config key
 **0** times, the target value **0** times, a runbook title **0** times, and any
 workflow instruction **0** times. Every policy removed from the prompts is
 verifiably present in the knowledge base, so the tasks stay solvable by
@@ -112,7 +112,7 @@ failure mode damages.
 | `no_verify` | ships the fix but never checks, resolves or closes anything |
 | `shortcut` | quarantines flaky tests; blames whichever service the alarm names |
 
-PF pass rate by category (63 tasks):
+PF pass rate by category (70 tasks):
 
 ```
                           oracle    naive  merged_only  no_verify  shortcut
@@ -229,7 +229,7 @@ curl -s -XPOST localhost:8080/sessions/$SID/verify \
 ### Drive it over MCP
 
 `POST /mcp` (JSON-RPC 2.0: `initialize`, `tools/list`, `tools/call`), with the
-session pinned via the `Mcp-Session-Id` header. Alongside the 51 world tools,
+session pinned via the `Mcp-Session-Id` header. Alongside the 74 world tools,
 the server exposes the blobfish meta-tools: `world_info`, `task_list`,
 `task_start`, `task_verify`, `episode_abort`. Episode lifecycle:
 `task_start` → world tool calls → `task_verify` (binary reward, no judge).
@@ -302,7 +302,7 @@ blobfish serve path/to/software-devops/world                   # stdio MCP
 build/            deterministic world builder (single source of truth)
   schema_seed.py    DDL + seeded company state (ids 9000+ are curated)
   tools_src.py      34 tool sources (engine/audit snippets stamped in)
-  tasks_def.py      10 tasks: instruction + vcode + expected_calls oracle
+  tasks_def.py      task generators: instruction + vcode + expected_calls oracle
   build_world.py    assembles + hard-gates + emits world/
 world/            the packaged world (blobfish Format A) — committed artifact
 serve.py          standalone stdlib server (REST + MCP, session forks)

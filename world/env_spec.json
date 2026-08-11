@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_8b9d74de",
+  "env_id": "env_software_devops_696e2703",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -20,10 +20,10 @@
   },
   "database": {
     "snapshot_ref": "environment.db",
-    "schema_hash": "1cf539b26fe7ee8abca778fcf2d58fa758525d89139345b0243ccd9006019180",
+    "schema_hash": "71e470e4f0532ca27f57ff35d28c6225257c85dbb74612500c34201795a1508e",
     "seed": 42,
     "engine": "sqlite",
-    "table_count": 55,
+    "table_count": 56,
     "row_count": 1193,
     "complexification_rounds": 0
   },
