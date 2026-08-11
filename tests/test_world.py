@@ -1066,3 +1066,31 @@ def test_no_hidden_test_checks_behaviour_the_spec_never_states():
                 problems.append("%s/%s: cites %r, which is not in the spec"
                                 % (ex["id"], name, ref[:50]))
     assert not problems, problems
+
+
+def test_the_parity_report_does_not_drift_from_the_generated_corpus_map():
+    """parity.py states what this world reproduces from each downloaded repo. That
+    number is written by hand and the corpus map is generated, so they drift - and
+    a parity claim that is wrong in the optimistic direction is worse than no
+    claim at all."""
+    import subprocess
+    # The map documents AIOpsLab AND TheAgentCompany families in one file, so a raw
+    # marker count conflates them. The generator prints the authoritative figure.
+    gen = subprocess.run([sys.executable, str(ROOT / "import_corpus_tasks.py")],
+                         capture_output=True, text=True, timeout=300, cwd=str(ROOT))
+    assert gen.returncode == 0, gen.stderr
+    m = re.search(r"AIOpsLab: .*?-> (\d+) covered", gen.stdout)
+    assert m, "import_corpus_tasks no longer reports an AIOpsLab figure:\n" + gen.stdout
+    covered = int(m.group(1))
+
+    src = (ROOT / "parity.py").read_text()
+    claim = re.search(r'"microsoft__AIOpsLab": \((\d+),', src)
+    assert claim, "parity.py no longer states an AIOpsLab figure"
+    assert int(claim.group(1)) == covered, (
+        "parity.py claims %s AIOpsLab families covered; the generator counts %d"
+        % (claim.group(1), covered))
+
+    proc = subprocess.run([sys.executable, str(ROOT / "parity.py")],
+                          capture_output=True, text=True, timeout=300, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stderr
+    assert "IN SCOPE" in proc.stdout and "OUT OF SCOPE" in proc.stdout

@@ -103,7 +103,7 @@ INVENTORY = {
 # Deliberately conservative: "reproduced" means a task in this world exercises the
 # same capability against the same kind of evidence, not that it looks similar.
 REPRODUCED = {
-    "microsoft__AIOpsLab": (14, "fault families covered, 4 partial, 15 not "
+    "microsoft__AIOpsLab": (16, "fault families covered, 10 partial, 5 not "
                                 "(research/02-CORPUS-MAP.md, generated)"),
     "sierra-research__tau-bench": (2, "both patterns adopted rather than the domains: "
                                       "pass^k reliability, and policy that lives in a "
