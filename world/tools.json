@@ -2642,5 +2642,958 @@
         ]
       }
     }
+  },
+  {
+    "tool_id": "tool_jira_search",
+    "name": "jira_search",
+    "description": "Search Jira issues. Jira status is a per-project workflow, not open/closed: a resolved issue has status='Done' AND a resolution set. Filter by project, status, issue_type, component or priority.",
+    "source_code": "def jira_search(db_path=None, project=None, status=None, issue_type=None, component=None, limit=50):\n    \"\"\"Search Jira issues. Jira status is a per-project workflow, not open/closed: a resolved issue has status='Done' AND a resolution set. Filter by project, status, issue_type, component or priority.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM jira_issues'\n        conds, args = [], []\n        for col, val in (('project', project), ('status', status), ('issue_type', issue_type),\n                         ('component', component)):\n            if val:\n                conds.append(col + '=?'); args.append(val)\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY key LIMIT ?', args + [int(limit)]).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "project",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "project"
+      },
+      {
+        "name": "status",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "status"
+      },
+      {
+        "name": "issue_type",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "issue_type"
+      },
+      {
+        "name": "component",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "component"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "required": false,
+        "default": "50",
+        "description": "limit"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "jira_issues"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "jira_search",
+      "description": "Search Jira issues. Jira status is a per-project workflow, not open/closed: a resolved issue has status='Done' AND a resolution set. Filter by project, status, issue_type, component or priority.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "description": "project"
+          },
+          "status": {
+            "type": "string",
+            "description": "status"
+          },
+          "issue_type": {
+            "type": "string",
+            "description": "issue_type"
+          },
+          "component": {
+            "type": "string",
+            "description": "component"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "limit"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_jira_get_issue",
+    "name": "jira_get_issue",
+    "description": "Fetch one Jira issue by key, including any links to issues in other trackers.",
+    "source_code": "def jira_get_issue(db_path=None, key=None):\n    \"\"\"Fetch one Jira issue by key, including any links to issues in other trackers.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        if key is None:\n            return {'ok': False, 'error': 'missing required parameter: key'}\n        row = conn.execute('SELECT * FROM jira_issues WHERE key=?', (key,)).fetchone()\n        if row is None:\n            return {'ok': False, 'error': 'no such issue: ' + str(key)}\n        d = dict(row)\n        d['links'] = [dict(r) for r in conn.execute(\n            'SELECT target, kind FROM issue_links WHERE source=?', (key,)).fetchall()]\n        return d\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "key",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "key"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [
+      "issue_links",
+      "jira_issues"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "jira_get_issue",
+      "description": "Fetch one Jira issue by key, including any links to issues in other trackers.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "key"
+          }
+        },
+        "required": [
+          "key"
+        ]
+      }
+    }
+  },
+  {
+    "tool_id": "tool_linear_list_issues",
+    "name": "linear_list_issues",
+    "description": "List Linear issues. Linear priority is numeric: 0=none, 1=urgent, 2=high, 3=normal, 4=low - it does not map cleanly onto Jira priority names.",
+    "source_code": "def linear_list_issues(db_path=None, team=None, state=None):\n    \"\"\"List Linear issues. Linear priority is numeric: 0=none, 1=urgent, 2=high, 3=normal, 4=low - it does not map cleanly onto Jira priority names.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM linear_issues'\n        conds, args = [], []\n        if team:\n            conds.append('team=?'); args.append(team)\n        if state:\n            conds.append('state=?'); args.append(state)\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY identifier', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "team",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "team"
+      },
+      {
+        "name": "state",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "state"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "linear_issues"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "linear_list_issues",
+      "description": "List Linear issues. Linear priority is numeric: 0=none, 1=urgent, 2=high, 3=normal, 4=low - it does not map cleanly onto Jira priority names.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "team": {
+            "type": "string",
+            "description": "team"
+          },
+          "state": {
+            "type": "string",
+            "description": "state"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_github_list_issues",
+    "name": "github_list_issues",
+    "description": "List GitHub issues. GitHub has only state=open|closed; severity lives in labels if anywhere.",
+    "source_code": "def github_list_issues(db_path=None, repo=None, state=None, label=None):\n    \"\"\"List GitHub issues. GitHub has only state=open|closed; severity lives in labels if anywhere.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM github_issues'\n        conds, args = [], []\n        if repo:\n            conds.append('repo=?'); args.append(repo)\n        if state:\n            conds.append('state=?'); args.append(state)\n        if label:\n            conds.append('labels LIKE ?'); args.append('%' + str(label) + '%')\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY number', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "repo",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "repo"
+      },
+      {
+        "name": "state",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "state"
+      },
+      {
+        "name": "label",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "label"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "github_issues"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "github_list_issues",
+      "description": "List GitHub issues. GitHub has only state=open|closed; severity lives in labels if anywhere.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "repo": {
+            "type": "string",
+            "description": "repo"
+          },
+          "state": {
+            "type": "string",
+            "description": "state"
+          },
+          "label": {
+            "type": "string",
+            "description": "label"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_list_issue_links",
+    "name": "list_issue_links",
+    "description": "List known cross-tracker links (duplicates/relates/implements). This is the only place the trackers are reconciled; neither tracker knows about it.",
+    "source_code": "def list_issue_links(db_path=None, source=None):\n    \"\"\"List known cross-tracker links (duplicates/relates/implements). This is the only place the trackers are reconciled; neither tracker knows about it.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM issue_links'\n        args = []\n        if source:\n            sql += ' WHERE source=? OR target=?'; args = [source, source]\n        return [dict(r) for r in conn.execute(sql, args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "source",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "source"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "issue_links"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "list_issue_links",
+      "description": "List known cross-tracker links (duplicates/relates/implements). This is the only place the trackers are reconciled; neither tracker knows about it.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "source"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_query_prometheus",
+    "name": "query_prometheus",
+    "description": "Query a Prometheus series by metric and label selectors. Note the label spelling is Prometheus's own (e.g. checkout_service), and counter resets are flagged: a rate() over a reset under-reports.",
+    "source_code": "def query_prometheus(db_path=None, metric=None, label_service=None, label_env=None, day_from=None, day_to=None):\n    \"\"\"Query a Prometheus series by metric and label selectors. Note the label spelling is Prometheus's own (e.g. checkout_service), and counter resets are flagged: a rate() over a reset under-reports.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        if metric is None:\n            return {'ok': False, 'error': 'missing required parameter: metric'}\n        sql = 'SELECT * FROM prom_series WHERE metric=?'\n        args = [metric]\n        if label_service:\n            sql += ' AND label_service=?'; args.append(label_service)\n        if label_env:\n            sql += ' AND label_env=?'; args.append(label_env)\n        if day_from is not None:\n            sql += ' AND day >= ?'; args.append(int(day_from))\n        if day_to is not None:\n            sql += ' AND day <= ?'; args.append(int(day_to))\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY day', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "metric",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "metric"
+      },
+      {
+        "name": "label_service",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "label_service"
+      },
+      {
+        "name": "label_env",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "label_env"
+      },
+      {
+        "name": "day_from",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "day_from"
+      },
+      {
+        "name": "day_to",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "day_to"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "prom_series"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "query_prometheus",
+      "description": "Query a Prometheus series by metric and label selectors. Note the label spelling is Prometheus's own (e.g. checkout_service), and counter resets are flagged: a rate() over a reset under-reports.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "metric": {
+            "type": "string",
+            "description": "metric"
+          },
+          "label_service": {
+            "type": "string",
+            "description": "label_service"
+          },
+          "label_env": {
+            "type": "string",
+            "description": "label_env"
+          },
+          "day_from": {
+            "type": "integer",
+            "description": "day_from"
+          },
+          "day_to": {
+            "type": "integer",
+            "description": "day_to"
+          }
+        },
+        "required": [
+          "metric"
+        ]
+      }
+    }
+  },
+  {
+    "tool_id": "tool_list_prometheus_label_values",
+    "name": "list_prometheus_label_values",
+    "description": "List the values a Prometheus label actually takes. Use this when you are not sure how a service is spelled in metrics.",
+    "source_code": "def list_prometheus_label_values(db_path=None, label='label_service'):\n    \"\"\"List the values a Prometheus label actually takes. Use this when you are not sure how a service is spelled in metrics.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        col = 'label_service' if str(label).endswith('service') else 'label_env'\n        return [r[0] for r in conn.execute(\n            'SELECT DISTINCT ' + col + ' FROM prom_series ORDER BY 1').fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "label",
+        "type": "str",
+        "required": false,
+        "default": "label_service",
+        "description": "label"
+      }
+    ],
+    "return_type": "list[str]",
+    "read_tables": [
+      "prom_series"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "list_prometheus_label_values",
+      "description": "List the values a Prometheus label actually takes. Use this when you are not sure how a service is spelled in metrics.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "label"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_sentry_search_issues",
+    "name": "sentry_search_issues",
+    "description": "Search Sentry issues (grouped exceptions). Event counts are SAMPLED at the project's sample_rate - see sentry_list_projects - so they are a fraction of the true volume and are not comparable to Prometheus counters.",
+    "source_code": "def sentry_search_issues(db_path=None, project_slug=None, status=None):\n    \"\"\"Search Sentry issues (grouped exceptions). Event counts are SAMPLED at the project's sample_rate - see sentry_list_projects - so they are a fraction of the true volume and are not comparable to Prometheus counters.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM sentry_issues'\n        conds, args = [], []\n        if project_slug:\n            conds.append('project_slug=?'); args.append(project_slug)\n        if status:\n            conds.append('status=?'); args.append(status)\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY events DESC', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "project_slug",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "project_slug"
+      },
+      {
+        "name": "status",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "status"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "sentry_issues"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "sentry_search_issues",
+      "description": "Search Sentry issues (grouped exceptions). Event counts are SAMPLED at the project's sample_rate - see sentry_list_projects - so they are a fraction of the true volume and are not comparable to Prometheus counters.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "project_slug": {
+            "type": "string",
+            "description": "project_slug"
+          },
+          "status": {
+            "type": "string",
+            "description": "status"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_sentry_list_projects",
+    "name": "sentry_list_projects",
+    "description": "List Sentry projects with their event sample rates.",
+    "source_code": "def sentry_list_projects(db_path=None):\n    \"\"\"List Sentry projects with their event sample rates.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        return [dict(r) for r in conn.execute('SELECT * FROM sentry_projects ORDER BY slug').fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "sentry_projects"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "sentry_list_projects",
+      "description": "List Sentry projects with their event sample rates.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_pd_list_incidents",
+    "name": "pd_list_incidents",
+    "description": "List PagerDuty incidents in a day range. urgency (high|low) and priority (P1..P4) are separate vocabularies; neither records whether customers saw it.",
+    "source_code": "def pd_list_incidents(db_path=None, since_day=None, until_day=None, urgency=None, status=None):\n    \"\"\"List PagerDuty incidents in a day range. urgency (high|low) and priority (P1..P4) are separate vocabularies; neither records whether customers saw it.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM pd_incidents'\n        conds, args = [], []\n        if since_day is not None:\n            conds.append('created_day >= ?'); args.append(int(since_day))\n        if until_day is not None:\n            conds.append('created_day <= ?'); args.append(int(until_day))\n        if urgency:\n            conds.append('urgency=?'); args.append(urgency)\n        if status:\n            conds.append('status=?'); args.append(status)\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY incident_number', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "since_day",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "since_day"
+      },
+      {
+        "name": "until_day",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "until_day"
+      },
+      {
+        "name": "urgency",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "urgency"
+      },
+      {
+        "name": "status",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "status"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "pd_incidents"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "pd_list_incidents",
+      "description": "List PagerDuty incidents in a day range. urgency (high|low) and priority (P1..P4) are separate vocabularies; neither records whether customers saw it.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "since_day": {
+            "type": "integer",
+            "description": "since_day"
+          },
+          "until_day": {
+            "type": "integer",
+            "description": "until_day"
+          },
+          "urgency": {
+            "type": "string",
+            "description": "urgency"
+          },
+          "status": {
+            "type": "string",
+            "description": "status"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_pd_list_services",
+    "name": "pd_list_services",
+    "description": "List PagerDuty technical services and escalation policies.",
+    "source_code": "def pd_list_services(db_path=None):\n    \"\"\"List PagerDuty technical services and escalation policies.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        return [dict(r) for r in conn.execute('SELECT * FROM pd_services ORDER BY pd_service_id').fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "pd_services"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "pd_list_services",
+      "description": "List PagerDuty technical services and escalation policies.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_pd_list_oncalls",
+    "name": "pd_list_oncalls",
+    "description": "Who is on call, by day and escalation policy.",
+    "source_code": "def pd_list_oncalls(db_path=None, day=None, escalation_policy=None):\n    \"\"\"Who is on call, by day and escalation policy.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM pd_oncall'\n        conds, args = [], []\n        if day is not None:\n            conds.append('day=?'); args.append(int(day))\n        if escalation_policy:\n            conds.append('escalation_policy=?'); args.append(escalation_policy)\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY schedule_id', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "day",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "day"
+      },
+      {
+        "name": "escalation_policy",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "escalation_policy"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "pd_oncall"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "pd_list_oncalls",
+      "description": "Who is on call, by day and escalation policy.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "integer",
+            "description": "day"
+          },
+          "escalation_policy": {
+            "type": "string",
+            "description": "escalation_policy"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_pd_list_change_events",
+    "name": "pd_list_change_events",
+    "description": "Change events recorded against a PagerDuty service. These exist only where someone wired the integration.",
+    "source_code": "def pd_list_change_events(db_path=None, pd_service_id=None, since_day=None):\n    \"\"\"Change events recorded against a PagerDuty service. These exist only where someone wired the integration.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM pd_change_events'\n        conds, args = [], []\n        if pd_service_id:\n            conds.append('pd_service_id=?'); args.append(pd_service_id)\n        if since_day is not None:\n            conds.append('day >= ?'); args.append(int(since_day))\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY day', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "pd_service_id",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "pd_service_id"
+      },
+      {
+        "name": "since_day",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "since_day"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "pd_change_events"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "pd_list_change_events",
+      "description": "Change events recorded against a PagerDuty service. These exist only where someone wired the integration.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "pd_service_id": {
+            "type": "string",
+            "description": "pd_service_id"
+          },
+          "since_day": {
+            "type": "integer",
+            "description": "since_day"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_list_status_page_posts",
+    "name": "list_status_page_posts",
+    "description": "Public status-page posts. This is the ONLY system that records customer impact; incidents do not carry it. The status page also lags internal state.",
+    "source_code": "def list_status_page_posts(db_path=None, since_day=None, impact=None):\n    \"\"\"Public status-page posts. This is the ONLY system that records customer impact; incidents do not carry it. The status page also lags internal state.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM status_page_posts'\n        conds, args = [], []\n        if since_day is not None:\n            conds.append('published_day >= ?'); args.append(int(since_day))\n        if impact:\n            conds.append('impact=?'); args.append(impact)\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY post_id', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "since_day",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "since_day"
+      },
+      {
+        "name": "impact",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "impact"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "status_page_posts"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "list_status_page_posts",
+      "description": "Public status-page posts. This is the ONLY system that records customer impact; incidents do not carry it. The status page also lags internal state.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "since_day": {
+            "type": "integer",
+            "description": "since_day"
+          },
+          "impact": {
+            "type": "string",
+            "description": "impact"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_confluence_search",
+    "name": "confluence_search",
+    "description": "Search the Confluence wiki. Pages carry a last_updated_day; some are stale.",
+    "source_code": "def confluence_search(db_path=None, query='', space=None):\n    \"\"\"Search the Confluence wiki. Pages carry a last_updated_day; some are stale.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT page_id, space, title, last_updated_day, stale FROM confluence_pages'\n        conds, args = [], []\n        if query:\n            conds.append('(title LIKE ? OR body LIKE ?)'); args += ['%' + str(query) + '%'] * 2\n        if space:\n            conds.append('space=?'); args.append(space)\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY page_id', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "query",
+        "type": "str",
+        "required": false,
+        "default": "",
+        "description": "query"
+      },
+      {
+        "name": "space",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "space"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "confluence_pages"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "confluence_search",
+      "description": "Search the Confluence wiki. Pages carry a last_updated_day; some are stale.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "query"
+          },
+          "space": {
+            "type": "string",
+            "description": "space"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_confluence_get_page",
+    "name": "confluence_get_page",
+    "description": "Read one Confluence page in full.",
+    "source_code": "def confluence_get_page(db_path=None, page_id=None):\n    \"\"\"Read one Confluence page in full.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        if page_id is None:\n            return {'ok': False, 'error': 'missing required parameter: page_id'}\n        row = conn.execute('SELECT * FROM confluence_pages WHERE page_id=?', (int(page_id),)).fetchone()\n        if row is None:\n            return {'ok': False, 'error': 'no such page: ' + str(page_id)}\n        return dict(row)\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "page_id",
+        "type": "int",
+        "required": true,
+        "default": null,
+        "description": "page_id"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [
+      "confluence_pages"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "confluence_get_page",
+      "description": "Read one Confluence page in full.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "page_id": {
+            "type": "integer",
+            "description": "page_id"
+          }
+        },
+        "required": [
+          "page_id"
+        ]
+      }
+    }
+  },
+  {
+    "tool_id": "tool_read_owner_spreadsheet",
+    "name": "read_owner_spreadsheet",
+    "description": "Read the hand-maintained service-owner spreadsheet. Note last_reviewed_day: rows drift as teams reorganise, and the sheet uses its own week convention.",
+    "source_code": "def read_owner_spreadsheet(db_path=None):\n    \"\"\"Read the hand-maintained service-owner spreadsheet. Note last_reviewed_day: rows drift as teams reorganise, and the sheet uses its own week convention.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        return [dict(r) for r in conn.execute('SELECT * FROM owner_spreadsheet ORDER BY row_id').fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "owner_spreadsheet"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "read_owner_spreadsheet",
+      "description": "Read the hand-maintained service-owner spreadsheet. Note last_reviewed_day: rows drift as teams reorganise, and the sheet uses its own week convention.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_query_local_deploy_log",
+    "name": "query_local_deploy_log",
+    "description": "Query a team's local deploy log (a SQLite file kept because the central one is slow). Environment strings are free text and include 'nonprod-*' spellings; rollbacks are flagged separately.",
+    "source_code": "def query_local_deploy_log(db_path=None, service=None, environment=None, since_day=None, include_rollbacks=True):\n    \"\"\"Query a team's local deploy log (a SQLite file kept because the central one is slow). Environment strings are free text and include 'nonprod-*' spellings; rollbacks are flagged separately.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM local_deploy_log'\n        conds, args = [], []\n        if service:\n            conds.append('service=?'); args.append(service)\n        if environment:\n            conds.append('environment=?'); args.append(environment)\n        if since_day is not None:\n            conds.append('day >= ?'); args.append(int(since_day))\n        if str(include_rollbacks).lower() in ('0', 'false', 'no'):\n            conds.append('was_rollback=0')\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY day', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "service",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "service"
+      },
+      {
+        "name": "environment",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "environment"
+      },
+      {
+        "name": "since_day",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "since_day"
+      },
+      {
+        "name": "include_rollbacks",
+        "type": "bool",
+        "required": false,
+        "default": "True",
+        "description": "include_rollbacks"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "local_deploy_log"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "query_local_deploy_log",
+      "description": "Query a team's local deploy log (a SQLite file kept because the central one is slow). Environment strings are free text and include 'nonprod-*' spellings; rollbacks are flagged separately.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "service"
+          },
+          "environment": {
+            "type": "string",
+            "description": "environment"
+          },
+          "since_day": {
+            "type": "integer",
+            "description": "since_day"
+          },
+          "include_rollbacks": {
+            "type": "boolean",
+            "description": "include_rollbacks"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_resolve_service_alias",
+    "name": "resolve_service_alias",
+    "description": "Resolve any spelling of a service to its canonical name, and list every spelling it has across systems. Use this before comparing data from two tools.",
+    "source_code": "def resolve_service_alias(db_path=None, name=None):\n    \"\"\"Resolve any spelling of a service to its canonical name, and list every spelling it has across systems. Use this before comparing data from two tools.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        if name is None:\n            return {'ok': False, 'error': 'missing required parameter: name'}\n        row = conn.execute('SELECT canonical FROM service_aliases WHERE alias=? OR canonical=? LIMIT 1',\n                           (name, name)).fetchone()\n        if row is None:\n            return {'ok': False, 'error': 'no service matches ' + str(name) +\n                    '; try list_service_aliases()'}\n        canon = row[0]\n        return {'canonical': canon,\n                'aliases': [dict(r) for r in conn.execute(\n                    'SELECT alias, system FROM service_aliases WHERE canonical=? ORDER BY system',\n                    (canon,)).fetchall()]}\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "name",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "name"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [
+      "service_aliases"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "resolve_service_alias",
+      "description": "Resolve any spelling of a service to its canonical name, and list every spelling it has across systems. Use this before comparing data from two tools.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "name"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    }
+  },
+  {
+    "tool_id": "tool_list_service_aliases",
+    "name": "list_service_aliases",
+    "description": "Every known service-name spelling, by system.",
+    "source_code": "def list_service_aliases(db_path=None):\n    \"\"\"Every known service-name spelling, by system.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        return [dict(r) for r in conn.execute(\n            'SELECT canonical, alias, system FROM service_aliases ORDER BY canonical, system').fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "service_aliases"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "list_service_aliases",
+      "description": "Every known service-name spelling, by system.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_submit_answer",
+    "name": "submit_answer",
+    "description": "Submit the answer to a reconciliation question. `sources` must list every system you actually consulted (e.g. pd_incidents, status_page_posts). `assumptions` is where you record any judgement you had to make - a week boundary, whether rollbacks count, which of two disagreeing numbers you trusted and why. An answer with no stated assumption on an ambiguous question is not a complete answer.",
+    "source_code": "def submit_answer(db_path=None, question_id=None, answer=None, sources=None, assumptions=''):\n    \"\"\"Submit the answer to a reconciliation question. `sources` must list every system you actually consulted (e.g. pd_incidents, status_page_posts). `assumptions` is where you record any judgement you had to make - a week boundary, whether rollbacks count, which of two disagreeing numbers you trusted and why. An answer with no stated assumption on an ambiguous question is not a complete answer.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        if question_id is None:\n            return {'ok': False, 'error': 'missing required parameter: question_id'}\n        if answer is None:\n            return {'ok': False, 'error': 'missing required parameter: answer'}\n        def _audit(conn, _tool, _svc, _detail):\n            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))\n        if isinstance(sources, str):\n            try:\n                sources = _json.loads(sources)\n            except Exception:\n                sources = [x.strip() for x in sources.split(',') if x.strip()]\n        sources = sources or []\n        if not isinstance(sources, list):\n            return {'ok': False, 'error': 'sources must be a list of system names'}\n        cur = conn.execute('INSERT INTO answers(question_id, answer, sources, assumptions) '\n                           'VALUES (?,?,?,?)',\n                           (str(question_id), str(answer), _json.dumps(sorted(str(x) for x in sources)),\n                            str(assumptions or '')))\n        _audit(conn, 'submit_answer', '', {'question_id': str(question_id), 'answer': str(answer),\n                                           'source_count': len(sources)})\n        conn.commit()\n        return {'ok': True, 'answer_id': cur.lastrowid, 'question_id': str(question_id),\n                'answer': str(answer), 'sources': sorted(str(x) for x in sources)}\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "question_id",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "question_id"
+      },
+      {
+        "name": "answer",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "answer"
+      },
+      {
+        "name": "sources",
+        "type": "list",
+        "required": false,
+        "default": "None",
+        "description": "systems consulted"
+      },
+      {
+        "name": "assumptions",
+        "type": "str",
+        "required": false,
+        "default": "",
+        "description": "assumptions"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [],
+    "write_tables": [
+      "answers",
+      "audit_events"
+    ],
+    "json_schema": {
+      "name": "submit_answer",
+      "description": "Submit the answer to a reconciliation question. `sources` must list every system you actually consulted (e.g. pd_incidents, status_page_posts). `assumptions` is where you record any judgement you had to make - a week boundary, whether rollbacks count, which of two disagreeing numbers you trusted and why. An answer with no stated assumption on an ambiguous question is not a complete answer.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "description": "question_id"
+          },
+          "answer": {
+            "type": "string",
+            "description": "answer"
+          },
+          "sources": {
+            "type": "array",
+            "description": "systems consulted",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assumptions": {
+            "type": "string",
+            "description": "assumptions"
+          }
+        },
+        "required": [
+          "question_id",
+          "answer"
+        ]
+      }
+    }
   }
 ]

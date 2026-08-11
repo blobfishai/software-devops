@@ -653,7 +653,7 @@ async def receive(req: Request, x_anthropic_signature: str = Header()):
 
 - `permission_mode="plan"` — `/Users/samuelchien/dev/software-devops/research/repos/automation/anthropics__anthropic-cookbook/claude_agent_sdk/01_The_chief_of_staff_agent.ipynb`: *"Plan mode instructs the agent to create a detailed execution plan without performing any actions. The agent analyzes requirements, proposes solutions, and outlines steps, but doesn't modify files, execute commands, or make changes."* With a documented caveat: *"the agent will try calling its `ExitPlanMode()` tool, which is only relevant in the interactive mode. In this case, you can send up a follow-up query with `continue_conversation=True` for the agent to execute its plan in context."*
 - Allow-rule vs. approval distinction — `/Users/samuelchien/dev/software-devops/research/repos/automation/anthropics__anthropic-cookbook/claude_agent_sdk/04_migrating_from_openai_agents_sdk.ipynb:172`: *"`allowed_tools` is an allow-rule — it makes the tool available to the agent. Whether the agent can call it without user approval depends on `permission_mode`. Read-only custom tools like `check_policy` run freely by default; tools that write files or run shell commands will prompt unless you set `permission_mode="acceptEdits"` or `"bypassPermissions"`."*
-- **Not present in this repo**: `can_use_tool`, `PermissionResultDeny`, `PermissionResultAllow`. Grepped across all `.py`/`.ts`/`.md`/`.json`/`.ipynb` — zero hits. Denial is expressed here through `disallowed_tools`, `permission_mode`, and non-zero-exit `PreToolUse` hooks.
+- **Not present in this repo**: `can_use_tool` / `canUseTool`, `PermissionResultDeny`, `PermissionResultAllow` — `grep -rn` across the whole worktree (excluding `.git/`) returns **zero** hits; the only related string anywhere is `"bypassPermissions"` mentioned in prose in `claude_agent_sdk/04_migrating_from_openai_agents_sdk.ipynb:220`. Denial in this repo is expressed exclusively through `disallowed_tools`, `permission_mode`, per-tool `permission_policy` on `agent_toolset_20260401`, and non-zero-exit `PreToolUse` hooks.
 
 ---
 
@@ -802,7 +802,7 @@ Categories are a **closed enum** of 14 values. Observed distribution: Tools 24, 
 
 ### 7b. `CLAUDE.md`
 
-`/Users/samuelchien/dev/software-devops/research/repos/automation/anthropics__anthropic-cookbook/CLAUDE.md` (111 lines) is the machine-readable contributor contract: Quick Start (`uv sync --all-extras`, `uv run pre-commit install`), Development Commands (`make format|lint|check|fix|test`), Code Style (100 cols, double quotes, ruff; notebooks relaxed for `E402, F811, N803, N806`), Git Workflow (`<username>/<feature-description>`, conventional commits), 5 Key Rules, the slash-command list, a Project Structure block, and:
+`/Users/samuelchien/dev/software-devops/research/repos/automation/anthropics__anthropic-cookbook/CLAUDE.md` (111 lines): Quick Start (`uv sync --all-extras`, `uv run pre-commit install`), Development Commands (`make format|lint|check|fix|test`), Code Style (100 cols, double quotes, ruff; notebooks relaxed for `E402, F811, N803, N806`), Git Workflow (`<username>/<feature-description>`, conventional commits), 5 Key Rules, the slash-command list, a Project Structure block, and:
 
 ```
 ## Adding a New Cookbook

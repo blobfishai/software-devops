@@ -419,6 +419,135 @@ _add("aiops_analysis", "analysis", id="rca_inventory_pool", scope="inventory-err
      ticket=("OPS-124", "high", "Root cause: inventory reservation failures"))
 
 
+# ==========================================================================
+# Reconciliation suite — questions no single system can answer, over data that
+# disagrees. Every scenario cites research/notes/domain/F_chaos_scenarios.md.
+# ==========================================================================
+_add("reconciliation", "reconcile", id="rcn_customer_facing_incidents",
+     question_id="Q-CFI-7D", difficulty="expert",
+     ticket=("OPS-201", "high", "How many customer-facing incidents in the last 7 days?"),
+     question="Leadership wants the number of customer-facing incidents over the last 7 "
+              "days (today is day 420, so days 414-420 inclusive).",
+     expected=2, tolerance=0.001,
+     why="only incidents with a published status-page post are customer-facing; two "
+         "qualify in the window (posts 7002 and 7003)",
+     ambiguity="what makes an incident customer-facing, and where the week boundary falls",
+     required_sources=["pd_incidents", "status_page_posts"],
+     oracle_reads=[
+         {"tool": "confluence_search", "args": {"query": "severity"}},
+         {"tool": "confluence_get_page", "args": {"page_id": 8004}},
+         {"tool": "pd_list_incidents", "args": {"since_day": 414, "until_day": 420}},
+         {"tool": "list_status_page_posts", "args": {"since_day": 414}}],
+     oracle_answer="2",
+     oracle_assumption="Customer impact is recorded only on the public status page, not on "
+                       "the incident object (per the severity-ladder page). Of the five "
+                       "incidents opened in days 414-420, only 5102 and 5103 have a "
+                       "published status-page post. Incident 5106 looks customer-visible but "
+                       "no post was published, so by the documented definition it does not "
+                       "count - flagging it as a probable reporting gap.")
+
+_add("reconciliation", "reconcile", id="rcn_checkout_error_rate",
+     question_id="Q-CER", difficulty="expert",
+     ticket=("OPS-202", "high", "What is checkout's production error rate?"),
+     question="The commerce lead is asking for checkout's current production error rate as "
+              "a percentage. Sentry and Prometheus give very different numbers.",
+     expected=5.5, tolerance=0.2,
+     why="Prometheus rate on day 419 gives 7.8 errors / 141 requests = 5.5%; day 420 is "
+         "unusable because the counter reset, and Sentry's counts are sampled at 25%",
+     ambiguity="which of the two disagreeing sources to trust, and why",
+     required_sources=["prom_series"],
+     oracle_reads=[
+         {"tool": "resolve_service_alias", "args": {"name": "checkout"}},
+         {"tool": "list_prometheus_label_values", "args": {"label": "label_service"}},
+         {"tool": "query_prometheus", "args": {"metric": "http_errors_total:rate5m",
+                                               "label_service": "checkout_service",
+                                               "label_env": "production"}},
+         {"tool": "query_prometheus", "args": {"metric": "http_requests_total:rate5m",
+                                               "label_service": "checkout_service",
+                                               "label_env": "production"}},
+         {"tool": "sentry_list_projects", "args": {}},
+         {"tool": "sentry_search_issues", "args": {"project_slug": "checkout-web"}}],
+     oracle_answer="5.5%",
+     oracle_assumption="Used Prometheus, not Sentry: the checkout-web Sentry project samples "
+                       "at 0.25 so its event counts are a quarter of reality and are not "
+                       "comparable to request counters. Within Prometheus I used day 419 "
+                       "(7.8/141 = 5.5%) rather than day 420, because day 420 is flagged "
+                       "counter_reset and a rate across a reset under-reports. Excluded the "
+                       "nonprod-staging series despite it matching a naive 'prod' filter.")
+
+_add("reconciliation", "reconcile", id="rcn_distinct_checkout_bugs",
+     question_id="Q-DCB", difficulty="hard",
+     ticket=("OPS-203", "medium", "How many distinct open checkout bugs do we have?"),
+     question="The commerce lead wants to know how many genuinely distinct open checkout "
+              "bugs exist. Bugs get filed in more than one tracker.",
+     expected=1, tolerance=0.001,
+     why="ENG-3001, GRW-88 and GitHub 4412 are the same defect, linked as duplicates; "
+         "deduplicated that is one distinct open checkout bug",
+     ambiguity="that the three trackers hold duplicates of one defect",
+     required_sources=["jira_issues", "linear_issues", "github_issues", "issue_links"],
+     oracle_reads=[
+         {"tool": "jira_search", "args": {"project": "ENG", "component": "checkout"}},
+         {"tool": "linear_list_issues", "args": {"team": "Growth"}},
+         {"tool": "github_list_issues", "args": {"state": "open", "label": "bug"}},
+         {"tool": "list_issue_links", "args": {}},
+         {"tool": "jira_get_issue", "args": {"key": "ENG-3001"}}],
+     oracle_answer="1",
+     oracle_assumption="ENG-3001 (Jira, Medium), GRW-88 (Linear, priority 1 urgent) and "
+                       "GitHub 4412 are linked as duplicates of one defect, so they count "
+                       "once. Their severities disagree across trackers - Jira Medium vs "
+                       "Linear urgent - and I took neither as authoritative for the count. "
+                       "ENG-3004 is resolved Won't Do and GRW-97 is media, not checkout.")
+
+_add("reconciliation", "reconcile", id="rcn_production_deploys",
+     question_id="Q-PD-7D", difficulty="hard",
+     ticket=("OPS-204", "medium", "How many production deployments in the last 7 days?"),
+     question="For the weekly delivery report: how many deployments reached production in "
+              "days 414-420, excluding rollbacks?",
+     expected=2, tolerance=0.001,
+     why="only search v3.0.5 (day 414) and api-gateway v5.1.0 (day 416) qualify; the day "
+         "417 entry is a rollback and the nonprod-staging entry is not production",
+     ambiguity="that 'nonprod-staging' contains the substring 'prod', and that rollbacks "
+               "are excluded by the question",
+     required_sources=["local_deploy_log"],
+     oracle_reads=[
+         {"tool": "query_local_deploy_log", "args": {"since_day": 414}},
+         {"tool": "query_local_deploy_log", "args": {"environment": "production",
+                                                     "since_day": 414,
+                                                     "include_rollbacks": False}}],
+     oracle_answer="2",
+     oracle_assumption="Matched the environment exactly rather than by substring: "
+                       "'nonprod-staging' contains 'prod' and would be wrongly included by "
+                       "a LIKE filter. Excluded the day-417 api-gateway entry because it is "
+                       "flagged was_rollback, per the question. That leaves search v3.0.5 "
+                       "on day 414 and api-gateway v5.1.0 on day 416.")
+
+_add("reconciliation", "reconcile", id="rcn_gateway_owner",
+     question_id="Q-OWN", difficulty="hard",
+     ticket=("OPS-205", "high", "Who owns the API gateway right now?"),
+     question="A gateway alarm needs an owner and the wiki and the spreadsheet disagree. "
+              "Who should actually be paged? Answer with the number of the escalation "
+              "policy's current on-call day, and name the team in your assumptions.",
+     expected=419, tolerance=0.001,
+     why="PagerDuty is the live routing system: edge-gateway maps to EP-Platform, whose "
+         "on-call record is day 419; the spreadsheet and wiki both name a dissolved team",
+     ambiguity="that two written sources are stale and the live system disagrees",
+     required_sources=["pd_services", "pd_oncall", "owner_spreadsheet"],
+     oracle_reads=[
+         {"tool": "resolve_service_alias", "args": {"name": "api-gateway"}},
+         {"tool": "read_owner_spreadsheet", "args": {}},
+         {"tool": "confluence_search", "args": {"query": "gateway"}},
+         {"tool": "confluence_get_page", "args": {"page_id": 8002}},
+         {"tool": "pd_list_services", "args": {}},
+         {"tool": "pd_list_oncalls", "args": {"escalation_policy": "EP-Platform"}}],
+     oracle_answer="419",
+     oracle_assumption="The spreadsheet (last reviewed day 180) and the gateway runbook "
+                       "(last updated day 181, flagged stale) both name the Edge Team, which "
+                       "no longer exists. PagerDuty is the system that actually routes pages: "
+                       "api-gateway is 'edge-gateway' there, on escalation policy EP-Platform, "
+                       "whose on-call record is Priya Nair on day 419. Trusted the live "
+                       "routing system over the two written sources.")
+
+
 def all_specs():
     return list(SPECS)
 
@@ -440,7 +569,7 @@ def _ticket_type(s):
             "flag_ship": "feature", "flag_cleanup": "task",
             "api_migration": "task", "multi_service": "feature",
             "detection": "incident", "localization": "incident",
-            "analysis": "incident"}[s["generator"]]
+            "analysis": "incident", "reconcile": "task"}[s["generator"]]
 
 
 def _ticket_service(s):
@@ -484,6 +613,8 @@ def _ticket_desc(s):
     if g == "localization":
         return "Alarm %s is firing. Identify the responsible service and report the finding " \
                "with submit_diagnosis. Read-only investigation." % s["scope"]
+    if g == "reconcile":
+        return s["question"]
     if g == "analysis":
         return "Perform a root-cause analysis for %s and report service, fault type and the " \
                "offending key with submit_diagnosis. Read-only investigation." % s["scope"]

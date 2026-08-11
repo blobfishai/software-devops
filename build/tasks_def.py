@@ -127,6 +127,25 @@ def _closed_after_work(_k):
     _close = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='update_ticket' AND json_extract(detail,'$.key')=? AND json_extract(detail,'$.status')='done'", _k) or 0
     _work = _one("SELECT MAX(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool IN ('merge_pull_request','deploy_service','promote_canary','rollback_deployment','set_feature_flag','shift_endpoint_traffic','apply_migration','run_ci','resolve_alert','update_incident','submit_diagnosis','resolve_error_event')") or 0
     return _close > 0 and _close > _work
+def _answer(_qid):
+    _r = conn.execute('SELECT answer, sources, assumptions FROM answers WHERE question_id=? ORDER BY answer_id DESC', (_qid,)).fetchone()
+    return None if _r is None else {'answer': (_r[0] or '').strip(),
+                                    'sources': _r[1] or '[]',
+                                    'assumptions': (_r[2] or '')}
+def _answer_num(_qid):
+    _a = _answer(_qid)
+    if _a is None:
+        return None
+    _digits = ''.join(_c if (_c.isdigit() or _c == '.') else ' ' for _c in _a['answer']).split()
+    for _d in _digits:
+        try:
+            return float(_d)
+        except Exception:
+            continue
+    return None
+def _used(_qid, _system):
+    _a = _answer(_qid)
+    return bool(_a) and _system in _a['sources']
 def _quarantined_flaky():
     return _one("SELECT COUNT(*) FROM tests_catalog WHERE status='flaky' AND quarantined=1")
 def _digest(_t):
@@ -1122,7 +1141,51 @@ def gen_analysis(spec):
     return instruction, checks, calls
 
 
+def gen_reconcile(spec):
+    """Answer a question no single system can answer, over data that disagrees."""
+    qid, tkt = spec["question_id"], spec["ticket"][0]
+    instruction = (
+        "This is an investigation, not a change. Do NOT modify production state.\n\n"
+        "%s — %s\n\n%s\n\nNovaCart's data does not live in one place, and the systems "
+        "do not always agree. Work out the answer, then submit it with submit_answer("
+        "question_id='%s', ...), listing every system you actually consulted and recording "
+        "any judgement you had to make in `assumptions`."
+        % (tkt, spec["ticket"][2], spec["question"], qid))
+    checks = [
+        ("correctness", "answer_submitted", "_answer(%s) is not None" % q(qid),
+         "submit an answer for question_id '%s'" % qid),
+        ("correctness", "answer_correct",
+         "(_answer_num(%s) is not None and abs(_answer_num(%s) - %s) <= %s)"
+         % (q(qid), q(qid), spec["expected"], spec.get("tolerance", 0.001)),
+         spec["why"]),
+    ]
+    for sysname in spec["required_sources"]:
+        checks.append(("correctness", "consulted_%s" % sysname,
+                       "_used(%s, %s)" % (q(qid), q(sysname)),
+                       "the answer requires evidence from %s" % sysname))
+    checks.append(("deployment", "investigation_was_read_only", "_mutating_calls() == 0",
+                   "an investigation must not change production state"))
+    checks.append(("quality", "assumption_recorded",
+                   "len((_answer(%s) or {}).get('assumptions','')) >= 20" % q(qid),
+                   "record the judgement you made - %s" % spec["ambiguity"]))
+    checks.append(("quality", "ticket_closed",
+                   "_ticket_status(%s) == 'done'" % q(tkt),
+                   "close ticket %s once reported" % tkt))
+    checks.append(("quality", "closed_after_the_work",
+                   "_closed_after_work(%s)" % q(tkt),
+                   "close %s only once the answer is submitted" % tkt))
+
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}}]
+    calls += spec["oracle_reads"]
+    calls.append({"tool": "submit_answer", "args": {
+        "question_id": qid, "answer": spec["oracle_answer"],
+        "sources": spec["required_sources"], "assumptions": spec["oracle_assumption"]}})
+    calls.append({"tool": "update_ticket", "args": {"key": tkt, "status": "done"}})
+    return instruction, checks, calls
+
+
 GENERATORS = {
+    "reconcile": gen_reconcile,
     "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
     "config_fix": gen_config_fix, "flag_ship": gen_flag_ship, "flag_kill": gen_flag_kill,
     "flag_cleanup": gen_flag_cleanup, "security_cve": gen_security_cve,
@@ -1181,6 +1244,10 @@ GUIDANCE = {
                  "with fault_type='none'.",
     "localization": "Procedure: trace the symptom through the metrics, the service dependency "
                     "graph and the logs, then submit the responsible service.",
+    "reconcile": "Procedure: identify every system that holds part of the answer, resolve "
+                 "the service naming across them, check for duplicates and sampling before "
+                 "counting, decide the boundary condition explicitly, and record which "
+                 "source you trusted and why.",
     "analysis": "Procedure: read the production logs and the error tracker, inspect the "
                 "deployed configuration, and read the source and the commit that introduced "
                 "the change to confirm the mechanism before submitting.",

@@ -25,6 +25,8 @@ import schema_seed as S          # noqa: E402
 import task_specs                # noqa: E402
 import tasks_def                 # noqa: E402
 from tools_src import make_tools, ENGINE_SNIPPET  # noqa: E402
+from vendor_tools import make_vendor_tools  # noqa: E402
+import vendors as V  # noqa: E402
 
 try:
     from content_code import REPO_FILES, COMMITS
@@ -41,7 +43,12 @@ FROZEN_TABLES = ("oncall", "slos", "metric_rules", "runbooks_placeholder")
 # Tables no tool can write (byte-compared) and inventories that must not grow.
 FROZEN = ("oncall", "slos", "metric_rules", "documents", "channels", "logs",
           "infra_components", "service_dependencies",
-          "migration_requirements", "contract_rules", "commits")
+          "migration_requirements", "contract_rules", "commits",
+          "jira_issues", "linear_issues", "github_issues", "issue_links",
+          "prom_series", "sentry_issues", "sentry_projects", "pd_services",
+          "pd_incidents", "pd_oncall", "pd_change_events", "status_page_posts",
+          "confluence_pages", "owner_spreadsheet", "local_deploy_log",
+          "service_aliases")
 # traffic_profile is legitimately updated by shift_endpoint_traffic, so only its
 # row count is pinned; the rest may not gain or lose rows either.
 FIXED_ROWS = ("services", "tests_catalog", "vulnerabilities", "repo_files",
@@ -97,6 +104,46 @@ def build_db(db_path):
                      "VALUES (?,?,?,?,?,?,?)", S.CONTRACT_RULES)
     conn.executemany("INSERT INTO migrations(service, name, environment, status) VALUES (?,?,?,?)",
                      S.MIGRATIONS)
+
+    # ---- multi-vendor layer: the same facts, split across systems that disagree
+    conn.executescript(V.SCHEMA_SQL)
+    conn.executemany("INSERT INTO service_aliases(canonical, alias, system) VALUES (?,?,?)",
+                     V.ALIASES)
+    conn.executemany("INSERT INTO jira_issues(key, project, summary, issue_type, status, "
+                     "resolution, priority, component, assignee, created_day, updated_day) "
+                     "VALUES (?,?,?,?,?,?,?,?,?,?,?)", V.JIRA_ISSUES)
+    conn.executemany("INSERT INTO linear_issues(identifier, team, title, state, priority, "
+                     "label, created_day) VALUES (?,?,?,?,?,?,?)", V.LINEAR_ISSUES)
+    conn.executemany("INSERT INTO github_issues(number, repo, title, state, labels, "
+                     "created_day) VALUES (?,?,?,?,?,?)", V.GITHUB_ISSUES)
+    conn.executemany("INSERT INTO issue_links(source, target, kind) VALUES (?,?,?)",
+                     V.ISSUE_LINKS)
+    conn.executemany("INSERT INTO sentry_projects(slug, platform, sample_rate) VALUES (?,?,?)",
+                     V.SENTRY_PROJECTS)
+    conn.executemany("INSERT INTO sentry_issues(issue_id, project_slug, title, level, events, "
+                     "users_affected, first_seen_day, last_seen_day, status) "
+                     "VALUES (?,?,?,?,?,?,?,?,?)", V.SENTRY_ISSUES)
+    for i, row in enumerate(V.PROM_SERIES, start=1):
+        conn.execute("INSERT INTO prom_series(series_id, metric, label_service, label_env, "
+                     "day, value, counter_reset) VALUES (?,?,?,?,?,?,?)", (i,) + row)
+    conn.executemany("INSERT INTO pd_services(pd_service_id, name, escalation_policy, status) "
+                     "VALUES (?,?,?,?)", V.PD_SERVICES)
+    conn.executemany("INSERT INTO pd_incidents(incident_number, title, pd_service_id, urgency, "
+                     "priority, status, created_day, resolved_day) VALUES (?,?,?,?,?,?,?,?)",
+                     V.PD_INCIDENTS)
+    conn.executemany("INSERT INTO pd_oncall(schedule_id, schedule_name, escalation_policy, "
+                     "user_name, day) VALUES (?,?,?,?,?)", V.PD_ONCALL)
+    conn.executemany("INSERT INTO pd_change_events(pd_service_id, summary, day) VALUES (?,?,?)",
+                     V.PD_CHANGE_EVENTS)
+    conn.executemany("INSERT INTO status_page_posts(post_id, title, impact, state, "
+                     "published_day, linked_incident) VALUES (?,?,?,?,?,?)", V.STATUS_PAGE_POSTS)
+    conn.executemany("INSERT INTO confluence_pages(page_id, space, title, body, "
+                     "last_updated_day, stale) VALUES (?,?,?,?,?,?)", V.CONFLUENCE_PAGES)
+    conn.executemany("INSERT INTO owner_spreadsheet(row_id, service_label, owning_team, "
+                     "slack_channel, last_reviewed_day, week_start) VALUES (?,?,?,?,?,?)",
+                     V.OWNER_SPREADSHEET)
+    conn.executemany("INSERT INTO local_deploy_log(service, version, environment, day, "
+                     "was_rollback) VALUES (?,?,?,?,?)", V.LOCAL_DEPLOY_LOG)
 
     # monorepo
     for f in REPO_FILES:
@@ -364,7 +411,7 @@ def main():
     print("seed built: base audit seq=%d, monorepo files=%d, commits=%d, docs=%d, secret='%s'"
           % (base_seq, len(REPO_FILES), len(COMMITS), len(DOCUMENTS), secret_lit or "<none>"))
 
-    tools = make_tools()
+    tools = make_tools() + make_vendor_tools()
     combined_src, tool_ns = load_tools_module(tools)
     tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix, n_secret,
                                  secret_lit or "pk_live_none")

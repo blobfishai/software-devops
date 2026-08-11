@@ -33,13 +33,24 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import eval_model as EM              # noqa: E402
 from serve import World              # noqa: E402
 
-# A tool result that means "the world is broken", not "the agent was wrong".
-# Policy refusals are legitimate world behaviour and must NOT appear here.
-SYSTEM_FAULT_MARKERS = (
+# Attribution follows METR/vivaria, which is the only benchmark in the research
+# corpus that models this properly: ErrorSource = agent | server | task |
+# serverOrTask | user | usageLimits, derived in SQL so it cannot drift, and an
+# agent is never permitted to claim 'server'
+# (research/notes/evals/METR__vivaria.md, shared/src/types.ts:430-441).
+#
+# The corpus's collective blind spot is that everyone else *collects* a rich
+# failure vocabulary and then discards it at scoring time
+# (research/notes/evals/_CROSS_CUTTING.md). We keep it.
+#
+# 'task' here means our world is broken; 'agent' means the model was wrong.
+# A policy refusal is emphatically an agent outcome, not a task fault.
+TASK_FAULT_MARKERS = (
     "unknown tool", "missing required parameter", "bad arguments for",
     "Traceback", "InternalError", "no such table", "database is locked",
     "verifier execution failed",
 )
+SYSTEM_FAULT_MARKERS = TASK_FAULT_MARKERS      # backwards-compatible alias
 
 
 def looks_environmental(transcript, verdict):
@@ -119,10 +130,13 @@ def main():
             if passed and len(trials) == 1:
                 break                      # first-try pass is already conclusive
         n_pass = sum(t["passed"] for t in trials)
+        # vivaria treats a budget exhaustion as 'usageLimits' - a distinct outcome,
+        # never a failure. cline and OpenHands agree: capped maps to cancelled.
+        capped = all(t["tool_calls"] >= args.max_turns for t in trials if not t["passed"])
         if n_pass == len(trials) and trials[0]["passed"]:
             bucket = "TOO_EASY"
         elif n_pass == 0:
-            bucket = "SUSPECT_ENV" if envs else "TOO_HARD"
+            bucket = "TASK_FAULT" if envs else ("BUDGET_CAPPED" if capped else "TOO_HARD")
         else:
             bucket = "FLAKY"
         buckets[bucket] += 1
@@ -143,9 +157,12 @@ def main():
                                    ", ".join(k for k, _ in common.most_common(2))))
 
     print("\n  %s" % "  ".join("%s=%d" % (k, v) for k, v in buckets.most_common()))
-    if buckets["SUSPECT_ENV"]:
-        print("  !! %d task(s) failed with world-side symptoms - fix the environment "
-              "before calling them hard" % buckets["SUSPECT_ENV"])
+    if buckets["TASK_FAULT"]:
+        print("  !! %d task(s) failed with world-side symptoms - our bug, not difficulty; "
+              "fix the environment before calling them hard" % buckets["TASK_FAULT"])
+    if buckets["BUDGET_CAPPED"]:
+        print("  ~~ %d task(s) hit the turn budget - cancelled, not failed"
+              % buckets["BUDGET_CAPPED"])
     if buckets["FLAKY"]:
         print("  ** %d flaky task(s): the capability boundary, keep and study these"
               % buckets["FLAKY"])

@@ -6,6 +6,13 @@ CREATE TABLE alerts (
     status TEXT NOT NULL DEFAULT 'firing',
     message TEXT NOT NULL DEFAULT ''
 );
+CREATE TABLE answers (
+    answer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    question_id TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    sources TEXT NOT NULL DEFAULT '[]',
+    assumptions TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE audit_events (
     seq INTEGER PRIMARY KEY AUTOINCREMENT,
     tool TEXT NOT NULL,
@@ -47,6 +54,14 @@ CREATE TABLE commits (
     files TEXT NOT NULL DEFAULT '',
     additions INTEGER NOT NULL DEFAULT 0,
     deletions INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE confluence_pages (
+    page_id INTEGER PRIMARY KEY,
+    space TEXT NOT NULL,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    last_updated_day INTEGER NOT NULL,
+    stale INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE contract_rules (
     rule_id INTEGER PRIMARY KEY,
@@ -110,6 +125,14 @@ CREATE TABLE feature_flags (
     rollout_percent INTEGER NOT NULL DEFAULT 0,
     UNIQUE (key, environment)
 );
+CREATE TABLE github_issues (
+    number INTEGER PRIMARY KEY,
+    repo TEXT NOT NULL,
+    title TEXT NOT NULL,
+    state TEXT NOT NULL,           -- only open|closed exists
+    labels TEXT NOT NULL DEFAULT '',
+    created_day INTEGER NOT NULL
+);
 CREATE TABLE incidents (
     incident_id INTEGER PRIMARY KEY AUTOINCREMENT,
     severity TEXT NOT NULL,
@@ -124,6 +147,42 @@ CREATE TABLE infra_components (
     kind TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'healthy',
     detail TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE issue_links (
+    source TEXT NOT NULL,
+    target TEXT NOT NULL,
+    kind TEXT NOT NULL,            -- duplicates | relates | implements
+    PRIMARY KEY (source, target)
+);
+CREATE TABLE jira_issues (
+    key TEXT PRIMARY KEY,
+    project TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    issue_type TEXT NOT NULL,
+    status TEXT NOT NULL,          -- per-project workflow, NOT open/closed
+    resolution TEXT NOT NULL DEFAULT '',
+    priority TEXT NOT NULL,
+    component TEXT NOT NULL DEFAULT '',
+    assignee TEXT NOT NULL DEFAULT '',
+    created_day INTEGER NOT NULL,
+    updated_day INTEGER NOT NULL
+);
+CREATE TABLE linear_issues (
+    identifier TEXT PRIMARY KEY,
+    team TEXT NOT NULL,
+    title TEXT NOT NULL,
+    state TEXT NOT NULL,
+    priority INTEGER NOT NULL,     -- 0=none 1=urgent 2=high 3=normal 4=low
+    label TEXT NOT NULL DEFAULT '',
+    created_day INTEGER NOT NULL
+);
+CREATE TABLE local_deploy_log (
+    row_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    service TEXT NOT NULL,
+    version TEXT NOT NULL,
+    environment TEXT NOT NULL,     -- CS-07: includes 'nonprod-*' spellings
+    day INTEGER NOT NULL,
+    was_rollback INTEGER NOT NULL DEFAULT 0   -- CS-26: do rollbacks count?
 );
 CREATE TABLE logs (
     log_id INTEGER PRIMARY KEY,
@@ -165,11 +224,58 @@ CREATE TABLE oncall (
     team TEXT PRIMARY KEY,
     engineer TEXT NOT NULL
 );
+CREATE TABLE owner_spreadsheet (
+    row_id INTEGER PRIMARY KEY,
+    service_label TEXT NOT NULL,   -- CS-01: yet another spelling
+    owning_team TEXT NOT NULL,
+    slack_channel TEXT NOT NULL DEFAULT '',
+    last_reviewed_day INTEGER NOT NULL,
+    week_start TEXT NOT NULL DEFAULT 'sunday'  -- CS-24: its own week convention
+);
+CREATE TABLE pd_change_events (
+    change_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pd_service_id TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    day INTEGER NOT NULL
+);
+CREATE TABLE pd_incidents (
+    incident_number INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    pd_service_id TEXT NOT NULL,
+    urgency TEXT NOT NULL,         -- high|low  (NOT the same as priority)
+    priority TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL,
+    created_day INTEGER NOT NULL,
+    resolved_day INTEGER
+);
+CREATE TABLE pd_oncall (
+    schedule_id TEXT NOT NULL,
+    schedule_name TEXT NOT NULL,
+    escalation_policy TEXT NOT NULL,
+    user_name TEXT NOT NULL,
+    day INTEGER NOT NULL,
+    PRIMARY KEY (schedule_id, day)
+);
+CREATE TABLE pd_services (
+    pd_service_id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,            -- CS-01: a THIRD spelling of the service
+    escalation_policy TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active'
+);
 CREATE TABLE pr_changes (
     change_id INTEGER PRIMARY KEY AUTOINCREMENT,
     pr_number INTEGER NOT NULL,
     change_type TEXT NOT NULL,
     payload TEXT NOT NULL
+);
+CREATE TABLE prom_series (
+    series_id INTEGER PRIMARY KEY,
+    metric TEXT NOT NULL,
+    label_service TEXT NOT NULL,   -- Prometheus label spelling
+    label_env TEXT NOT NULL,
+    day INTEGER NOT NULL,
+    value REAL NOT NULL,
+    counter_reset INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE pull_requests (
     number INTEGER PRIMARY KEY,
@@ -196,6 +302,28 @@ CREATE TABLE repo_state (
     key TEXT NOT NULL,
     value TEXT NOT NULL,
     PRIMARY KEY (service, kind, key)
+);
+CREATE TABLE sentry_issues (
+    issue_id TEXT PRIMARY KEY,
+    project_slug TEXT NOT NULL,    -- Sentry's own naming
+    title TEXT NOT NULL,
+    level TEXT NOT NULL,
+    events INTEGER NOT NULL,       -- sampled
+    users_affected INTEGER NOT NULL DEFAULT 0,
+    first_seen_day INTEGER NOT NULL,
+    last_seen_day INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'unresolved'
+);
+CREATE TABLE sentry_projects (
+    slug TEXT PRIMARY KEY,
+    platform TEXT NOT NULL,
+    sample_rate REAL NOT NULL      -- why Sentry counts < Prometheus counts
+);
+CREATE TABLE service_aliases (
+    canonical TEXT NOT NULL,
+    alias TEXT NOT NULL,
+    system TEXT NOT NULL,
+    PRIMARY KEY (alias, system)
 );
 CREATE TABLE service_dependencies (
     service TEXT NOT NULL,
@@ -232,6 +360,14 @@ CREATE TABLE status_page (
     state TEXT NOT NULL,
     title TEXT NOT NULL,
     body TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE status_page_posts (
+    post_id INTEGER PRIMARY KEY,
+    title TEXT NOT NULL,
+    impact TEXT NOT NULL,          -- none|minor|major|critical
+    state TEXT NOT NULL,
+    published_day INTEGER NOT NULL,
+    linked_incident INTEGER
 );
 CREATE TABLE tests_catalog (
     test_id INTEGER PRIMARY KEY,

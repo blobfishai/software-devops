@@ -19,6 +19,7 @@ import pytest
 import build_world as bw
 import tasks_def
 from tools_src import make_tools
+from vendor_tools import make_vendor_tools
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -28,7 +29,7 @@ def env(tmp_path_factory):
     tmp = tmp_path_factory.mktemp("world_build")
     db = tmp / "environment.db"
     base_seq = bw.build_db(str(db))
-    tools = make_tools()
+    tools = make_tools() + make_vendor_tools()
     _, ns = bw.load_tools_module(tools)
     frozen, fixed_rows, audit_prefix, n_secret, secret_lit = bw.reference_baselines(str(db))
     tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix, n_secret,
@@ -553,3 +554,74 @@ def test_cascade_metric_is_actually_cross_service(env):
                          "environment='production' AND metric='latency_p99_ms'").fetchone()[0]
     conn.close()
     assert after == 180.0, "a payments config change must move checkout's p99: %s" % after
+
+
+# ---------------------------------------------------------------------------
+# Multi-vendor reconciliation (research/notes/domain/F_chaos_scenarios.md)
+# ---------------------------------------------------------------------------
+
+NAIVE_ANSWERS = {
+    # task -> (question_id, the answer a single-source agent would give, sources)
+    "tsk_rcn_customer_facing_incidents": ("Q-CFI-7D", "5", ["pd_incidents"]),
+    "tsk_rcn_checkout_error_rate": ("Q-CER", "2.1%", ["prom_series"]),
+    "tsk_rcn_distinct_checkout_bugs": ("Q-DCB", "3",
+                                       ["jira_issues", "linear_issues", "github_issues",
+                                        "issue_links"]),
+    "tsk_rcn_production_deploys": ("Q-PD-7D", "3", ["local_deploy_log"]),
+    "tsk_rcn_gateway_owner": ("Q-OWN", "180",
+                              ["pd_services", "pd_oncall", "owner_spreadsheet"]),
+}
+
+
+@pytest.mark.parametrize("tid", sorted(NAIVE_ANSWERS))
+def test_single_source_answer_is_rejected(env, tid):
+    """Each reconciliation task must punish the obvious single-source answer:
+    counting every incident, trusting the latest metric sample across a counter
+    reset, summing three trackers that hold duplicates, matching 'prod' as a
+    substring, or believing a stale spreadsheet."""
+    qid, naive, sources = NAIVE_ANSWERS[tid]
+    task = env["tasks"][tid]
+    db = fork(env, "rcn_" + tid)
+    for c in copy.deepcopy(task["expected_calls"]):
+        if c["tool"] == "submit_answer":
+            c = {"tool": "submit_answer",
+                 "args": {"question_id": qid, "answer": naive, "sources": sources,
+                          "assumptions": "took the first source at face value"}}
+        call(env, db, c["tool"], **c.get("args", {}))
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "answer_correct" in err
+
+
+def test_service_naming_chaos_is_resolvable_not_cruel(env):
+    """F5: chaos is legitimate only when the resolution is discoverable from
+    inside the world. Every alias must map back to a canonical service."""
+    db = fork(env, "aliases")
+    for spelling in ("checkout-api", "checkout_service", "checkout-web",
+                     "Checkout Platform", "edge-gateway", "payments_service"):
+        r = call(env, db, "resolve_service_alias", name=spelling)
+        assert r.get("canonical"), "%s does not resolve: chaos would be cruel" % spelling
+    conn = sqlite3.connect(db)
+    n = conn.execute("SELECT COUNT(DISTINCT alias) FROM service_aliases").fetchone()[0]
+    conn.close()
+    assert n >= 15
+
+
+def test_nonprod_matches_a_naive_prod_filter(env):
+    """CS-06/07: the trap only exists if 'nonprod' really is in the data."""
+    db = fork(env, "nonprod")
+    rows = call(env, db, "query_local_deploy_log", since_day=414)
+    envs = {r["environment"] for r in rows}
+    assert any(e.startswith("nonprod") for e in envs), envs
+    naive = [r for r in rows if "prod" in r["environment"] and not r["was_rollback"]]
+    exact = [r for r in rows if r["environment"] == "production" and not r["was_rollback"]]
+    assert len(naive) > len(exact), "the substring trap must actually bite"
+
+
+def test_sentry_and_prometheus_disagree_for_a_documented_reason(env):
+    """CS-08/09: two correct numbers. Sentry samples; Prometheus counts."""
+    db = fork(env, "metric_conflict")
+    projects = {p["slug"]: p for p in call(env, db, "sentry_list_projects")}
+    assert projects["checkout-web"]["sample_rate"] < 1.0
+    prom = call(env, db, "query_prometheus", metric="http_errors_total:rate5m",
+                label_service="checkout_service", label_env="production")
+    assert any(r["counter_reset"] for r in prom), "the reset must be present and flagged"
