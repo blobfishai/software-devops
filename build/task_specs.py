@@ -524,6 +524,69 @@ _add("aiops_analysis", "analysis", id="rca_checkout_unschedulable_replicas",
                   {"tool": "k8s_nodes_list", "args": {}}],
      ticket=("OPS-129", "high", "Root cause: checkout is running at a fraction of capacity"))
 
+# ==========================================================================
+# The last five AIOpsLab families. Each needs evidence that does not exist in a
+# service's own metrics: a grant, a runtime, or a transport-layer path.
+# ==========================================================================
+_add("aiops_analysis", "analysis", id="rca_analytics_revoked_grant",
+     scope="analytics-cannot-read-replica", service="analytics-worker",
+     fault_type="misconfig", offending_key="analytics_ro", difficulty="expert", budget=14,
+     evidence="the analytics_ro role on pg-replica was dropped during the day-418 "
+              "credential rotation, but the running analytics-worker pods were never "
+              "restarted and still present it; the database is healthy and so is the "
+              "service, and the grant between them is not",
+     extra_reads=[{"tool": "list_db_grants", "args": {"broken_only": True}},
+                  {"tool": "list_infra", "args": {}}],
+     ticket=("OPS-160", "critical",
+             "Root cause: analytics cannot read the replica since the rotation"))
+
+_add("aiops_analysis", "analysis", id="rca_inventory_missing_role",
+     scope="inventory-report-never-ran", service="inventory", fault_type="misconfig",
+     offending_key="inventory_ro", difficulty="expert", budget=14,
+     evidence="there is no inventory_ro role on pg-replica and there never has been, so "
+              "the nightly reporting job has failed to connect since the day it was "
+              "added; nothing regressed because nothing ever worked",
+     extra_reads=[{"tool": "list_db_grants", "args": {"service": "inventory"}},
+                  {"tool": "search_logs", "args": {"service": "inventory"}}],
+     ticket=("OPS-161", "high",
+             "Root cause: the inventory report has never produced output"))
+
+_add("aiops_analysis", "analysis", id="rca_catalog_gc_thrash",
+     scope="catalog-latency-sawtooth", service="catalog",
+     fault_type="resource_exhaustion", offending_key="heap_used_pct",
+     difficulty="expert", budget=14,
+     evidence="the catalog runtime is at 94% heap with a p99 GC pause of 780ms and 41 "
+              "collections a minute: it is spending its time collecting rather than "
+              "serving, which from request latency alone is indistinguishable from slow "
+              "work",
+     extra_reads=[{"tool": "get_runtime_stats", "args": {"service": "catalog"}},
+                  {"tool": "query_metrics", "args": {"service": "catalog"}}],
+     ticket=("OPS-162", "high", "Root cause: catalog latency comes in waves"))
+
+_add("aiops_analysis", "analysis", id="rca_analytics_egress_blocked",
+     scope="analytics-connection-refused", service="analytics-worker",
+     fault_type="misconfig", offending_key="pg-replica", difficulty="expert", budget=14,
+     evidence="the path from analytics-worker to pg-replica is REFUSED at the transport "
+              "layer rather than timing out, so this is a network policy applied on day "
+              "418 and not a capacity problem; a timeout would look like load and a "
+              "refusal cannot",
+     extra_reads=[{"tool": "check_network_path", "args": {"blocked_only": True}},
+                  {"tool": "search_logs", "args": {"service": "analytics-worker"}}],
+     ticket=("OPS-163", "critical",
+             "Root cause: analytics connections are refused, not slow"))
+
+_add("aiops_analysis", "analysis", id="rca_storefront_traffic_flood",
+     scope="storefront-homepage-flood", service="storefront-web",
+     fault_type="resource_exhaustion", offending_key="rps", difficulty="hard", budget=12,
+     evidence="the homepage route is taking a multiple of its usual request rate while "
+              "every other route is normal and no deploy or config change precedes it; "
+              "the service is not degraded, it is being asked for more than it was "
+              "provisioned for",
+     extra_reads=[{"tool": "get_traffic_stats", "args": {}},
+                  {"tool": "list_deployments", "args": {"service": "storefront-web",
+                                                        "environment": "production"}}],
+     ticket=("OPS-164", "high", "Root cause: the homepage is taking unusual load"))
+
 _add("aiops_analysis", "analysis", id="rca_analytics_untolerated_taint",
      scope="analytics-recon-never-runs", service="analytics-worker", fault_type="misconfig",
      offending_key="workload=batch:NoSchedule", difficulty="expert", budget=14,

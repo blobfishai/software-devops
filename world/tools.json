@@ -4102,6 +4102,141 @@
     }
   },
   {
+    "tool_id": "tool_list_db_grants",
+    "name": "list_db_grants",
+    "description": "List which services are permitted to reach which datastores, with the role each uses and whether that grant is active, revoked or was never created. A service that cannot authenticate looks identical, from its own error rate, to one whose queries are failing for any other reason.",
+    "source_code": "def list_db_grants(db_path=None, service=None, component=None, broken_only=False):\n    \"\"\"List which services are permitted to reach which datastores, with the role each uses and whether that grant is active, revoked or was never created. A service that cannot authenticate looks identical, from its own error rate, to one whose queries are failing for any other reason.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_db_grants',)); conn.commit()\n        except Exception:\n            pass\n        sql = 'SELECT * FROM db_grants'\n        conds, args = [], []\n        if service:\n            conds.append('service=?'); args.append(service)\n        if component:\n            conds.append('component=?'); args.append(component)\n        if str(broken_only).lower() in ('1', 'true', 'yes', 'on'):\n            conds.append(\"state != 'active'\")\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY service, component', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "service",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "service"
+      },
+      {
+        "name": "component",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "component"
+      },
+      {
+        "name": "broken_only",
+        "type": "bool",
+        "required": false,
+        "default": "False",
+        "description": "broken_only"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "db_grants"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "list_db_grants",
+      "description": "List which services are permitted to reach which datastores, with the role each uses and whether that grant is active, revoked or was never created. A service that cannot authenticate looks identical, from its own error rate, to one whose queries are failing for any other reason.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "service"
+          },
+          "component": {
+            "type": "string",
+            "description": "component"
+          },
+          "broken_only": {
+            "type": "boolean",
+            "description": "broken_only"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_get_runtime_stats",
+    "name": "get_runtime_stats",
+    "description": "Heap use, garbage-collection pause time and collection frequency per service. A runtime spending its time collecting garbage is indistinguishable, from request latency alone, from one doing slow work.",
+    "source_code": "def get_runtime_stats(db_path=None, service=None):\n    \"\"\"Heap use, garbage-collection pause time and collection frequency per service. A runtime spending its time collecting garbage is indistinguishable, from request latency alone, from one doing slow work.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_runtime_stats',)); conn.commit()\n        except Exception:\n            pass\n        sql = 'SELECT * FROM runtime_stats'\n        args = []\n        if service:\n            sql += ' WHERE service=?'; args.append(service)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY service', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "service",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "service"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "runtime_stats"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "get_runtime_stats",
+      "description": "Heap use, garbage-collection pause time and collection frequency per service. A runtime spending its time collecting garbage is indistinguishable, from request latency alone, from one doing slow work.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "service"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_check_network_path",
+    "name": "check_network_path",
+    "description": "Whether a service can reach a target at the transport layer: open, refused or timing out. The distinction matters - a timeout looks like load and a refusal does not, so a refused path is a policy or firewall change rather than a capacity problem.",
+    "source_code": "def check_network_path(db_path=None, from_service=None, blocked_only=False):\n    \"\"\"Whether a service can reach a target at the transport layer: open, refused or timing out. The distinction matters - a timeout looks like load and a refusal does not, so a refused path is a policy or firewall change rather than a capacity problem.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('check_network_path',)); conn.commit()\n        except Exception:\n            pass\n        sql = 'SELECT * FROM network_paths'\n        conds, args = [], []\n        if from_service:\n            conds.append('from_service=?'); args.append(from_service)\n        if str(blocked_only).lower() in ('1', 'true', 'yes', 'on'):\n            conds.append(\"state != 'open'\")\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY from_service, to_target', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "from_service",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "from_service"
+      },
+      {
+        "name": "blocked_only",
+        "type": "bool",
+        "required": false,
+        "default": "False",
+        "description": "blocked_only"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "network_paths"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "check_network_path",
+      "description": "Whether a service can reach a target at the transport layer: open, refused or timing out. The distinction matters - a timeout looks like load and a refusal does not, so a refused path is a policy or firewall change rather than a capacity problem.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "from_service": {
+            "type": "string",
+            "description": "from_service"
+          },
+          "blocked_only": {
+            "type": "boolean",
+            "description": "blocked_only"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
     "tool_id": "tool_read_exercise",
     "name": "read_exercise",
     "description": "Read a code exercise: its specification, the current contents of the file, and the visible tests. There are also hidden tests, which this never returns - an implementation that satisfies only the visible ones is not finished.",

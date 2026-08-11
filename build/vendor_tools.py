@@ -540,6 +540,60 @@ if conds:
 return [dict(r) for r in conn.execute(sql + ' ORDER BY service', args).fetchall()]""",
           reads=["k8s_deployments"], writes=[], returns="list[dict]"))
 
+    T(_mk("list_db_grants",
+          "List which services are permitted to reach which datastores, with the role "
+          "each uses and whether that grant is active, revoked or was never created. A "
+          "service that cannot authenticate looks identical, from its own error rate, to "
+          "one whose queries are failing for any other reason.",
+          [{"name": "service", "type": "str", "default": None},
+           {"name": "component", "type": "str", "default": None},
+           {"name": "broken_only", "type": "bool", "default": False}],
+          """\
+sql = 'SELECT * FROM db_grants'
+conds, args = [], []
+if service:
+    conds.append('service=?'); args.append(service)
+if component:
+    conds.append('component=?'); args.append(component)
+if str(broken_only).lower() in ('1', 'true', 'yes', 'on'):
+    conds.append("state != 'active'")
+if conds:
+    sql += ' WHERE ' + ' AND '.join(conds)
+return [dict(r) for r in conn.execute(sql + ' ORDER BY service, component', args).fetchall()]""",
+          reads=["db_grants"], writes=[], returns="list[dict]"))
+
+    T(_mk("get_runtime_stats",
+          "Heap use, garbage-collection pause time and collection frequency per service. "
+          "A runtime spending its time collecting garbage is indistinguishable, from "
+          "request latency alone, from one doing slow work.",
+          [{"name": "service", "type": "str", "default": None}],
+          """\
+sql = 'SELECT * FROM runtime_stats'
+args = []
+if service:
+    sql += ' WHERE service=?'; args.append(service)
+return [dict(r) for r in conn.execute(sql + ' ORDER BY service', args).fetchall()]""",
+          reads=["runtime_stats"], writes=[], returns="list[dict]"))
+
+    T(_mk("check_network_path",
+          "Whether a service can reach a target at the transport layer: open, refused or "
+          "timing out. The distinction matters - a timeout looks like load and a refusal "
+          "does not, so a refused path is a policy or firewall change rather than a "
+          "capacity problem.",
+          [{"name": "from_service", "type": "str", "default": None},
+           {"name": "blocked_only", "type": "bool", "default": False}],
+          """\
+sql = 'SELECT * FROM network_paths'
+conds, args = [], []
+if from_service:
+    conds.append('from_service=?'); args.append(from_service)
+if str(blocked_only).lower() in ('1', 'true', 'yes', 'on'):
+    conds.append("state != 'open'")
+if conds:
+    sql += ' WHERE ' + ' AND '.join(conds)
+return [dict(r) for r in conn.execute(sql + ' ORDER BY from_service, to_target', args).fetchall()]""",
+          reads=["network_paths"], writes=[], returns="list[dict]"))
+
     T(_mk("read_exercise",
           "Read a code exercise: its specification, the current contents of the file, and "
           "the visible tests. There are also hidden tests, which this never returns - an "

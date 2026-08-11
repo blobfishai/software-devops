@@ -320,6 +320,34 @@ CREATE TABLE code_submissions (
     hidden_total INTEGER NOT NULL DEFAULT 0,
     detail TEXT NOT NULL DEFAULT ''
 );
+-- AIOpsLab's remaining families need three kinds of evidence this world had no
+-- table for: who is allowed to talk to a datastore, what a runtime is doing
+-- between requests, and whether a path between two components is open at all.
+-- Each is invisible from a service's own error rate, which is the point.
+CREATE TABLE db_grants (
+    grant_id INTEGER PRIMARY KEY,
+    service TEXT NOT NULL,
+    component TEXT NOT NULL,       -- an infra_components name
+    role TEXT NOT NULL,
+    state TEXT NOT NULL,           -- active | revoked | missing
+    changed_day INTEGER NOT NULL,
+    note TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE runtime_stats (
+    service TEXT PRIMARY KEY,
+    heap_used_pct INTEGER NOT NULL,
+    gc_pause_p99_ms INTEGER NOT NULL,
+    gc_collections_per_min INTEGER NOT NULL,
+    threads INTEGER NOT NULL
+);
+CREATE TABLE network_paths (
+    path_id INTEGER PRIMARY KEY,
+    from_service TEXT NOT NULL,
+    to_target TEXT NOT NULL,
+    state TEXT NOT NULL,           -- open | refused | timeout
+    observed_day INTEGER NOT NULL,
+    note TEXT NOT NULL DEFAULT ''
+);
 -- the mapping that makes the naming chaos SOLVABLE rather than cruel (F5)
 CREATE TABLE service_aliases (
     canonical TEXT NOT NULL,
@@ -772,4 +800,57 @@ LOCAL_DEPLOY_LOG = [
     ("search", "v3.0.5", "production", 414, 0),
     ("payments", "v2.7.0", "production", 410, 0),
     ("api-gateway", "v5.1.0", "nonprod-staging", 415, 0),
+]
+
+
+# --- AIOpsLab revoke_auth_mongodb / user_unregistered_mongodb -----------------
+# The service is healthy, the datastore is healthy, and the grant between them
+# is not. Nothing in either component's own metrics shows it.
+DB_GRANTS = [
+    (9901, 'payments', 'pg-primary', 'payments_rw', 'active', 390, ''),
+    (9902, 'checkout', 'pg-primary', 'checkout_rw', 'active', 390, ''),
+    (9903, 'catalog', 'pg-replica', 'catalog_ro', 'active', 390, ''),
+    (9904, 'search', 'pg-replica', 'search_ro', 'active', 390, ''),
+    # revoke_auth: the credential was rotated on day 418 and the grant for the
+    # OLD role was dropped, but analytics-worker still authenticates with it.
+    (9905, 'analytics-worker', 'pg-replica', 'analytics_ro', 'revoked', 418,
+     'role dropped during the day-418 credential rotation; the running pods were '
+     'never restarted and still present the old role'),
+    # user_unregistered: the role was never created for this service at all. It
+    # has never worked, and nobody noticed because the job is nightly.
+    (9906, 'inventory', 'pg-replica', 'inventory_ro', 'missing', 0,
+     'no such role on pg-replica; the reporting job has never successfully '
+     'connected since it was added'),
+    (9907, 'notifications', 'rabbitmq', 'notify_pub', 'active', 390, ''),
+    (9908, 'analytics-worker', 'rabbitmq', 'analytics_sub', 'active', 390, ''),
+]
+
+# --- AIOpsLab astronomy_shop_ad_service_manual_gc -----------------------------
+# A runtime spending its time collecting garbage looks, from outside, exactly
+# like a slow service. catalog is the JVM service here.
+RUNTIME_STATS = [
+    ('storefront-web', 41, 12, 3, 48),
+    ('api-gateway', 55, 18, 5, 120),
+    ('checkout', 47, 22, 6, 96),
+    ('payments', 38, 15, 4, 80),
+    ('catalog', 94, 780, 41, 64),     # heap nearly full, long pauses, constant GC
+    ('search', 61, 25, 7, 72),
+    ('inventory', 52, 31, 8, 60),
+    ('media-service', 44, 19, 5, 56),
+    ('notifications', 35, 14, 4, 40),
+    ('analytics-worker', 88, 120, 22, 32),
+]
+
+# --- AIOpsLab astronomy_shop_payment_service_unreachable ----------------------
+# The path is refused, not slow. A timeout looks like load; a refusal does not.
+NETWORK_PATHS = [
+    (9951, 'checkout', 'payments', 'open', 419, ''),
+    (9952, 'checkout', 'inventory', 'open', 419, ''),
+    (9953, 'api-gateway', 'checkout', 'open', 419, ''),
+    (9954, 'api-gateway', 'search', 'open', 419, ''),
+    (9955, 'notifications', 'rabbitmq', 'open', 419, ''),
+    (9956, 'analytics-worker', 'pg-replica', 'refused', 419,
+     'connection refused at the transport layer, not a timeout: a network policy '
+     'applied on day 418 drops egress from the analytics namespace to the replica'),
+    (9957, 'media-service', 's3-assets', 'open', 419, ''),
 ]

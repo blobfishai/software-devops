@@ -132,6 +132,15 @@ CREATE TABLE contract_rules (
     consumer_required_value TEXT NOT NULL,
     message TEXT NOT NULL
 );
+CREATE TABLE db_grants (
+    grant_id INTEGER PRIMARY KEY,
+    service TEXT NOT NULL,
+    component TEXT NOT NULL,       -- an infra_components name
+    role TEXT NOT NULL,
+    state TEXT NOT NULL,           -- active | revoked | missing
+    changed_day INTEGER NOT NULL,
+    note TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE deployments (
     deployment_id INTEGER PRIMARY KEY AUTOINCREMENT,
     service TEXT NOT NULL,
@@ -319,6 +328,14 @@ CREATE TABLE migrations (
     status TEXT NOT NULL DEFAULT 'pending',
     UNIQUE (service, name, environment)
 );
+CREATE TABLE network_paths (
+    path_id INTEGER PRIMARY KEY,
+    from_service TEXT NOT NULL,
+    to_target TEXT NOT NULL,
+    state TEXT NOT NULL,           -- open | refused | timeout
+    observed_day INTEGER NOT NULL,
+    note TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE oncall (
     team TEXT PRIMARY KEY,
     engineer TEXT NOT NULL
@@ -408,6 +425,13 @@ CREATE TABLE repo_state (
     key TEXT NOT NULL,
     value TEXT NOT NULL,
     PRIMARY KEY (service, kind, key)
+);
+CREATE TABLE runtime_stats (
+    service TEXT PRIMARY KEY,
+    heap_used_pct INTEGER NOT NULL,
+    gc_pause_p99_ms INTEGER NOT NULL,
+    gc_collections_per_min INTEGER NOT NULL,
+    threads INTEGER NOT NULL
 );
 CREATE TABLE sentry_issues (
     issue_id TEXT PRIMARY KEY,

@@ -3008,6 +3008,85 @@ def k8s_deployments_list(db_path=None, service=None, degraded_only=False):
         conn.close()
 
 
+def list_db_grants(db_path=None, service=None, component=None, broken_only=False):
+    """List which services are permitted to reach which datastores, with the role each uses and whether that grant is active, revoked or was never created. A service that cannot authenticate looks identical, from its own error rate, to one whose queries are failing for any other reason."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_db_grants',)); conn.commit()
+        except Exception:
+            pass
+        sql = 'SELECT * FROM db_grants'
+        conds, args = [], []
+        if service:
+            conds.append('service=?'); args.append(service)
+        if component:
+            conds.append('component=?'); args.append(component)
+        if str(broken_only).lower() in ('1', 'true', 'yes', 'on'):
+            conds.append("state != 'active'")
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY service, component', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def get_runtime_stats(db_path=None, service=None):
+    """Heap use, garbage-collection pause time and collection frequency per service. A runtime spending its time collecting garbage is indistinguishable, from request latency alone, from one doing slow work."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('get_runtime_stats',)); conn.commit()
+        except Exception:
+            pass
+        sql = 'SELECT * FROM runtime_stats'
+        args = []
+        if service:
+            sql += ' WHERE service=?'; args.append(service)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY service', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def check_network_path(db_path=None, from_service=None, blocked_only=False):
+    """Whether a service can reach a target at the transport layer: open, refused or timing out. The distinction matters - a timeout looks like load and a refusal does not, so a refused path is a policy or firewall change rather than a capacity problem."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('check_network_path',)); conn.commit()
+        except Exception:
+            pass
+        sql = 'SELECT * FROM network_paths'
+        conds, args = [], []
+        if from_service:
+            conds.append('from_service=?'); args.append(from_service)
+        if str(blocked_only).lower() in ('1', 'true', 'yes', 'on'):
+            conds.append("state != 'open'")
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY from_service, to_target', args).fetchall()]
+    finally:
+        conn.close()
+
+
 def read_exercise(db_path=None, path=None):
     """Read a code exercise: its specification, the current contents of the file, and the visible tests. There are also hidden tests, which this never returns - an implementation that satisfies only the visible ones is not finished."""
     import sqlite3 as _sq

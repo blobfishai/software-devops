@@ -134,6 +134,26 @@ FAMILY_MAP = {
         "a migrator pod stuck in CreateContainerConfigError because the image runs as root "
         "while the pod requires runAsNonRoot: the workload never started, so nothing "
         "crashed and no alarm fired", ["tsk_rca_inventory_migrator_security_context"]),
+    "revoke_auth_mongodb": ("COVERED",
+        "a datastore role dropped during a credential rotation while the running pods "
+        "still present it: service healthy, database healthy, grant between them not",
+        ["tsk_rca_analytics_revoked_grant"]),
+    "user_unregistered_mongodb": ("COVERED",
+        "a role that was never created, so the job has failed since the day it was "
+        "added - nothing regressed because nothing ever worked",
+        ["tsk_rca_inventory_missing_role"]),
+    "astronomy_shop_ad_service_manual_gc": ("COVERED",
+        "a runtime at 94% heap with 780ms GC pauses and 41 collections a minute, which "
+        "from request latency alone is indistinguishable from slow work",
+        ["tsk_rca_catalog_gc_thrash"]),
+    "astronomy_shop_payment_service_unreachable": ("COVERED",
+        "a path REFUSED at the transport layer rather than timing out, so a network "
+        "policy rather than capacity - a timeout looks like load and a refusal does not",
+        ["tsk_rca_analytics_egress_blocked"]),
+    "astronomy_shop_loadgenerator_flood_homepage": ("COVERED",
+        "one route taking a multiple of its usual rate while every other route is normal "
+        "and no deploy precedes it: not degraded, just asked for more than provisioned",
+        ["tsk_rca_storefront_traffic_flood"]),
     "operator_invalid_affinity_toleration": ("COVERED",
         "a pod pinned by affinity to the one node that carries a taint it does not "
         "tolerate: the node is Ready, the workload is fine, and only the spec is wrong",

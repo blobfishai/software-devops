@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_b25d8b3f",
+  "env_id": "env_software_devops_7bdc14bd",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -20,17 +20,17 @@
   },
   "database": {
     "snapshot_ref": "environment.db",
-    "schema_hash": "1d8f2f6c1122dcdac2fb1a0199ed4dd9f6556e611e384f7579a70464ced93e67",
+    "schema_hash": "85aebbcaa255ec26ba390cbbbee102c074e7578e88799dbe4e20c4781db9807e",
     "seed": 42,
     "engine": "sqlite",
-    "table_count": 66,
-    "row_count": 1363,
+    "table_count": 69,
+    "row_count": 1393,
     "complexification_rounds": 0
   },
   "tools": {
     "manifest_ref": "",
     "tests_ref": "",
-    "tool_count": 87,
+    "tool_count": 90,
     "survival_rate": 1.0,
     "valid_tool_ids": [
       "tool_list_services",
@@ -116,6 +116,9 @@
       "tool_k8s_pods_list",
       "tool_k8s_nodes_list",
       "tool_k8s_deployments_list",
+      "tool_list_db_grants",
+      "tool_get_runtime_stats",
+      "tool_check_network_path",
       "tool_read_exercise",
       "tool_write_implementation",
       "tool_run_exercise_tests",
@@ -207,6 +210,9 @@
       "tool_k8s_pods_list",
       "tool_k8s_nodes_list",
       "tool_k8s_deployments_list",
+      "tool_list_db_grants",
+      "tool_get_runtime_stats",
+      "tool_check_network_path",
       "tool_read_exercise",
       "tool_write_implementation",
       "tool_run_exercise_tests",
@@ -287,6 +293,11 @@
     "tsk_rca_notifications_node_deadlock",
     "tsk_rca_inventory_migrator_security_context",
     "tsk_rca_checkout_unschedulable_replicas",
+    "tsk_rca_analytics_revoked_grant",
+    "tsk_rca_inventory_missing_role",
+    "tsk_rca_catalog_gc_thrash",
+    "tsk_rca_analytics_egress_blocked",
+    "tsk_rca_storefront_traffic_flood",
     "tsk_rca_analytics_untolerated_taint",
     "tsk_rca_media_recreate_strategy",
     "tsk_rca_inventory_unbound_storage",
@@ -366,8 +377,8 @@
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 143,
-    "accepted_task_count": 143,
+    "task_count": 148,
+    "accepted_task_count": 148,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -377,8 +388,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 143,
-    "discriminating_vcode_tasks": 143,
+    "total_tasks": 148,
+    "discriminating_vcode_tasks": 148,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,
