@@ -509,7 +509,12 @@ def main():
         outcome = classify_outcome(bool(verdict.get("passed")), err,
                                    stats.get("transcript", ""), verdict,
                                    stats.get("turns", 0), args.max_turns, caller)
-        rec = {"outcome": outcome,
+        # WHICH checks failed, not just how many. A pass rate says a model cleared
+        # the bar; only the named checks say which bar, and whether the failure was
+        # getting the engineering wrong or getting the procedure wrong.
+        failed_checks = [{"dimension": a["dimension"], "name": a["name"]}
+                         for a in (verdict.get("assertions") or []) if not a["passed"]]
+        rec = {"outcome": outcome, "failed_checks": failed_checks,
                "task_id": tid, "category": task.get("category"),
                "difficulty": task.get("difficulty"),
                "passed": bool(verdict.get("passed")), "score": pc,
