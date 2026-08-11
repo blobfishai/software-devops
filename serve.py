@@ -87,6 +87,14 @@ class World:
         self.task_by_id = {t["task_id"]: t for t in self.tasks}
         self.runtime = pathlib.Path(runtime_dir)
         self.runtime.mkdir(parents=True, exist_ok=True)
+        # Sessions fork from a private copy taken at load, not from world/ itself.
+        # tools.json and tasks.json are read once into memory, so a rebuild while
+        # a long run is in flight would otherwise leave the run executing the old
+        # task set against the new database - a silently mixed world whose results
+        # look plausible and mean nothing. A multi-hour calibration sweep was lost
+        # to exactly that before this existed.
+        self.fork_src = self.runtime / "pristine.db"
+        shutil.copyfile(self.db_path, self.fork_src)
         self.sessions = {}
         self.lock = threading.Lock()
 
@@ -94,7 +102,7 @@ class World:
     def create_session(self, session_id=None):
         sid = session_id or ("sess_" + uuid.uuid4().hex[:12])
         db = self.runtime / (sid + ".db")
-        shutil.copyfile(self.db_path, db)
+        shutil.copyfile(self.fork_src, db)
         with self.lock:
             self.sessions[sid] = {"db": db, "task_id": None,
                                   "lock": threading.Lock()}
@@ -115,7 +123,7 @@ class World:
         if sess is None:
             return None
         with sess["lock"]:
-            shutil.copyfile(self.db_path, sess["db"])
+            shutil.copyfile(self.fork_src, sess["db"])
             sess["task_id"] = None
         return sid
 

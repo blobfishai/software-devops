@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_13b94ab7",
+  "world_id": "env_software_devops_7f15a0d1",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "13b94ab7853e86b0c076d3861558044deb39fcaf2fd44de04035eb0af2072850",
+  "world_digest": "7f15a0d1111dc8e4f6b661bb9c3927a124ac32f31f50c3fb48ffbc23d38d6c6a",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -38,6 +38,7 @@
     "issue_links",
     "jira_issues",
     "k8s_events",
+    "k8s_nodes",
     "k8s_pods",
     "linear_issues",
     "local_deploy_log",
@@ -76,10 +77,10 @@
   ],
   "tables_without_tools": [],
   "counts": {
-    "tables": 62,
-    "rows": 1253,
-    "tools": 82,
-    "tasks": 76,
+    "tables": 63,
+    "rows": 1270,
+    "tools": 83,
+    "tasks": 80,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
@@ -88,7 +89,7 @@
   "difficulty": {
     "hard": 26,
     "medium": 29,
-    "expert": 19,
+    "expert": 23,
     "easy": 2
   },
   "categories": {
@@ -101,7 +102,7 @@
     "multi_service_rollout": 7,
     "aiops_detection": 4,
     "aiops_localization": 6,
-    "aiops_analysis": 4,
+    "aiops_analysis": 8,
     "reconciliation": 7,
     "judgement": 4,
     "human_gated": 1
@@ -154,8 +155,11 @@
       "tsk_payments_notify_timeout",
       "tsk_payments_retry",
       "tsk_rca_catalog_n_plus_one",
+      "tsk_rca_inventory_migrator_security_context",
       "tsk_rca_inventory_pool",
+      "tsk_rca_notifications_node_deadlock",
       "tsk_rca_notifications_timeout",
+      "tsk_rca_payments_retry",
       "tsk_rcn_alerts_for_incident",
       "tsk_rcn_checkout_error_rate",
       "tsk_rcn_customer_facing_incidents",
@@ -183,13 +187,14 @@
       "tsk_media_pipeline",
       "tsk_media_v1_to_v2",
       "tsk_payments_retry_from_code",
-      "tsk_rca_payments_retry",
+      "tsk_rca_media_disk_pressure",
+      "tsk_rca_search_unscheduled_reindex",
       "tsk_rcn_distinct_checkout_bugs",
       "tsk_search_shards"
     ]
   },
   "task_creation": {
-    "accepted": 76,
+    "accepted": 80,
     "rejected": 0
   },
   "personas": [

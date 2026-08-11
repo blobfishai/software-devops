@@ -56,7 +56,9 @@ def server(tmp_path_factory):
 
 def test_rest_surface(server):
     health = _req(server + "/healthz")
-    assert health["status"] == "ok" and health["tools"] == 82 and health["tasks"] == 76
+    counts = json.loads((ROOT / "world" / "world.json").read_text())["counts"]
+    assert health["status"] == "ok"
+    assert health["tools"] == counts["tools"] and health["tasks"] == counts["tasks"]
 
     tasks = _req(server + "/tasks")
     assert {t["task_id"] for t in tasks} >= {"tsk_payments_retry",
@@ -150,3 +152,33 @@ def test_mcp_tool_error_rolls_back(server):
     alerts, _ = tool("list_alerts", {"status": "firing"})
     ids = {a["alert_id"] for a in alerts["rows"]}
     assert 9603 in ids  # still firing, nothing half-committed
+
+
+def test_a_rebuild_mid_run_cannot_change_a_live_world():
+    """tools.json and tasks.json are read into memory once, so if sessions forked
+    from world/environment.db directly, rebuilding the world during a long run
+    would leave it executing the old task set against the new database - a mixed
+    world whose results look plausible and are meaningless. A multi-hour
+    calibration sweep was lost to exactly that."""
+    import shutil
+    import sqlite3
+    import tempfile
+    sys.path.insert(0, str(ROOT))
+    from serve import World
+
+    staging = pathlib.Path(tempfile.mkdtemp(prefix="worldcopy_"))
+    shutil.copytree(ROOT / "world", staging / "world")
+    world = World(staging / "world", tempfile.mkdtemp(prefix="forkguard_"))
+
+    before = world.call_tool(world.create_session(), "list_services", {})["count"]
+
+    # a rebuild lands: the on-disk database is replaced while the run is live
+    victim = sqlite3.connect(staging / "world" / "environment.db")
+    victim.execute("DELETE FROM services")
+    victim.commit()
+    victim.close()
+
+    after = world.call_tool(world.create_session(), "list_services", {})["count"]
+    assert after == before, (
+        "a session created after an on-disk rebuild saw %d services instead of %d - "
+        "sessions are forking from world/ rather than from the load-time snapshot" % (after, before))

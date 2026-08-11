@@ -20,7 +20,10 @@ def test_oracle_policy_scores_perfect(tmp_path):
     report = json.loads(out.read_text())
     assert report["pass_rate"] == 1.0
     assert report["mean_score"] == 1.0
-    assert len(report["tasks"]) == 76
+    # read the count rather than restate it: a hard-coded number turns every
+    # legitimate addition to the world into a spurious test failure
+    counts = json.loads((ROOT / "world" / "world.json").read_text())["counts"]
+    assert len(report["tasks"]) == counts["tasks"]
     for t in report["tasks"]:
         assert t["passed"] and t["score"] == 1.0
         assert "correctness" in t["dimensions"]
@@ -34,7 +37,10 @@ def test_split_selection_and_missing_key(tmp_path):
          "--split", "heldout", "--out", str(out)],
         capture_output=True, text=True, timeout=300)
     assert proc.returncode == 0, proc.stderr
-    assert len(json.loads(out.read_text())["tasks"]) == 14
+    splits = json.loads((ROOT / "world" / "world.json").read_text())["splits"]
+    assert len(json.loads(out.read_text())["tasks"]) == len(splits["heldout"])
+    assert splits["heldout"], "the heldout split is empty"
+    assert not (set(splits["heldout"]) & set(splits["train"])), "splits overlap"
 
     env_no_key = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin"}
     proc = subprocess.run(

@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_13b94ab7",
+  "env_id": "env_software_devops_7f15a0d1",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -20,17 +20,17 @@
   },
   "database": {
     "snapshot_ref": "environment.db",
-    "schema_hash": "1d447fecec35b62801565c0ae2f00c9ffcd92ff01622f1f39db7ad9873fff81d",
+    "schema_hash": "e2b1e652ae961110dbc29682964a278c9bf8cb52b273323bc9ab270d518dd39c",
     "seed": 42,
     "engine": "sqlite",
-    "table_count": 62,
-    "row_count": 1253,
+    "table_count": 63,
+    "row_count": 1270,
     "complexification_rounds": 0
   },
   "tools": {
     "manifest_ref": "",
     "tests_ref": "",
-    "tool_count": 82,
+    "tool_count": 83,
     "survival_rate": 1.0,
     "valid_tool_ids": [
       "tool_list_services",
@@ -114,6 +114,7 @@
       "tool_jira_transition_issue",
       "tool_k8s_events_list",
       "tool_k8s_pods_list",
+      "tool_k8s_nodes_list",
       "tool_submit_answer"
     ]
   },
@@ -200,6 +201,7 @@
       "tool_jira_transition_issue",
       "tool_k8s_events_list",
       "tool_k8s_pods_list",
+      "tool_k8s_nodes_list",
       "tool_submit_answer"
     ],
     "edges": [],
@@ -271,6 +273,10 @@
     "tsk_rca_catalog_n_plus_one",
     "tsk_rca_notifications_timeout",
     "tsk_rca_inventory_pool",
+    "tsk_rca_media_disk_pressure",
+    "tsk_rca_search_unscheduled_reindex",
+    "tsk_rca_notifications_node_deadlock",
+    "tsk_rca_inventory_migrator_security_context",
     "tsk_localize_analytics_crashloop",
     "tsk_rcn_running_version",
     "tsk_rcn_customer_facing_incidents",
@@ -289,8 +295,8 @@
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 76,
-    "accepted_task_count": 76,
+    "task_count": 80,
+    "accepted_task_count": 80,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -300,8 +306,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 76,
-    "discriminating_vcode_tasks": 76,
+    "total_tasks": 80,
+    "discriminating_vcode_tasks": 80,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,

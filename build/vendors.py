@@ -258,7 +258,26 @@ CREATE TABLE k8s_pods (
     phase TEXT NOT NULL,
     restarts INTEGER NOT NULL DEFAULT 0,
     memory_limit_mb INTEGER NOT NULL,
-    memory_usage_mb INTEGER NOT NULL
+    memory_usage_mb INTEGER NOT NULL,
+    node TEXT NOT NULL DEFAULT '',       -- '' when the pod was never scheduled
+    pending_reason TEXT NOT NULL DEFAULT ''
+);
+-- AIOpsLab's fault catalogue is largely NODE-level - assign_to_non_existent_node,
+-- disk_woreout, kernel_fault, high_cpu, operator_security_context - and none of
+-- them are visible from a service's own metrics or logs. A service whose node has
+-- DiskPressure looks, from the service's side, exactly like a slow service. The
+-- point of this table is that the evidence separating the two exists but lives
+-- one layer down, so localizing it requires looking there.
+-- (research/02-CORPUS-MAP.md, AIOpsLab fault families)
+CREATE TABLE k8s_nodes (
+    node TEXT PRIMARY KEY,
+    ready TEXT NOT NULL,           -- True | False | Unknown
+    condition TEXT NOT NULL,       -- Ready | DiskPressure | MemoryPressure | KernelDeadlock
+    message TEXT NOT NULL,
+    cpu_used_pct INTEGER NOT NULL,
+    disk_used_pct INTEGER NOT NULL,
+    labels TEXT NOT NULL DEFAULT '',
+    kernel_version TEXT NOT NULL DEFAULT ''
 );
 -- the mapping that makes the naming chaos SOLVABLE rather than cruel (F5)
 CREATE TABLE service_aliases (
@@ -444,15 +463,52 @@ PD_CHANGE_EVENTS = [
 # before the SDK can flush. An agent that starts from Sentry finds nothing.
 # --------------------------------------------------------------------------
 K8S_PODS = [
-    ("analytics-worker-7d9f-x2k1", "production", "analytics-worker", "v2.1.7",
-     "CrashLoopBackOff", 47, 512, 511),
-    ("analytics-worker-7d9f-m4p8", "production", "analytics-worker", "v2.1.7",
-     "Running", 39, 512, 498),
-    ("checkout-5b8c-aa10", "production", "checkout", "v2.6.3", "Running", 0, 2048, 890),
-    ("payments-6c1d-bb22", "production", "payments", "v2.7.0", "Running", 0, 2048, 1120),
-    # CS: the running image tag disagrees with what the release systems report
-    ("api-gateway-9f2e-cc33", "production", "api-gateway", "v5.0.9", "Running", 1, 1024, 610),
-    ("search-3a7b-dd44", "production", "search", "v3.0.5", "Running", 0, 1024, 700),
+    # pod, namespace, service, image_tag, phase, restarts, mem_limit, mem_used, node, pending_reason
+    ('analytics-worker-7d9f-x2k1', 'production', 'analytics-worker', 'v2.1.7', 'CrashLoopBackOff', 47, 512, 511, 'node-a1', ''),
+    ('analytics-worker-7d9f-m4p8', 'production', 'analytics-worker', 'v2.1.7', 'Running', 39, 512, 498, 'node-a1', ''),
+    ('checkout-5b8c-aa10', 'production', 'checkout', 'v2.6.3', 'Running', 0, 2048, 890, 'node-a1', ''),
+    ('payments-6c1d-bb22', 'production', 'payments', 'v2.7.0', 'Running', 0, 2048, 1120, 'node-a2', ''),
+    ('api-gateway-9f2e-cc33', 'production', 'api-gateway', 'v5.0.9', 'Running', 1, 1024, 610, 'node-a2', ''),
+    ('search-3a7b-dd44', 'production', 'search', 'v3.0.5', 'Running', 0, 1024, 700, 'node-a2', ''),
+
+    # --- AIOpsLab disk_woreout: every media-service replica landed on node-b3,
+    # whose disk is at 97%. The pods are Running and their own metrics look
+    # ordinary; the writes are what block.
+    ('media-service-2e4f-ee55', 'production', 'media-service', 'v1.4.2', 'Running', 0, 1024, 480, 'node-b3', ''),
+    ('media-service-2e4f-ff66', 'production', 'media-service', 'v1.4.2', 'Running', 0, 1024, 505, 'node-b3', ''),
+
+    # --- AIOpsLab assign_to_non_existent_node: the reindex job requires a node
+    # label no node in the cluster carries, so it has never once been scheduled.
+    # Nothing has failed - it simply never ran, and the index quietly went stale.
+    ('search-reindex-8c2a-gg77', 'production', 'search', 'v3.0.5', 'Pending', 0, 2048, 0, '',
+     "0/4 nodes are available: 4 node(s) didn't match Pod's node affinity/selector (accelerator=gpu-a100)"),
+
+    # --- AIOpsLab kernel_fault: node-c1 is NotReady on a soft lockup. Its pods
+    # still report Running because the kubelet stopped reporting, not the pod.
+    ('notifications-1b7d-hh88', 'production', 'notifications', 'v1.9.4', 'Running', 0, 512, 300, 'node-c1', ''),
+
+    # --- AIOpsLab operator_security_context_fault: the migrator image runs as
+    # root while the pod requires runAsNonRoot, so the container is never created
+    # and the schema migration silently never ran.
+    ('inventory-migrator-4d9e-ii99', 'production', 'inventory', 'v4.2.1', 'CreateContainerConfigError', 0, 512, 0, 'node-a2',
+     'container has runAsNonRoot and image will run as root'),
+]
+
+# node, ready, condition, message, cpu_used_pct, disk_used_pct, labels, kernel_version
+K8S_NODES = [
+    # node-a1 is genuinely hot. It is NOT the cause of anything here, and it is
+    # seeded precisely so that "find the unhealthy node" is not the same task as
+    # "find the worst-looking number" (F5: chaos must be solvable, not cruel).
+    ('node-a1', 'True', 'Ready', 'kubelet is posting ready status', 91, 44,
+     'zone=us-east-1a', '5.15.0-91-generic'),
+    ('node-a2', 'True', 'Ready', 'kubelet is posting ready status', 38, 51,
+     'zone=us-east-1a', '5.15.0-91-generic'),
+    ('node-b3', 'True', 'DiskPressure',
+     'kubelet has disk pressure: ephemeral storage 97% of 200Gi used', 40, 97,
+     'zone=us-east-1b', '5.15.0-91-generic'),
+    ('node-c1', 'Unknown', 'KernelDeadlock',
+     'kernel: BUG: soft lockup - CPU#3 stuck for 23s; kubelet stopped posting node status 14m ago',
+     12, 33, 'zone=us-east-1c', '5.15.0-88-generic'),
 ]
 K8S_EVENTS = [
     (9001, "production", "analytics-worker-7d9f-x2k1", "OOMKilled",
@@ -463,6 +519,16 @@ K8S_EVENTS = [
      "Container analytics exceeded its memory limit of 512Mi and was killed", 39, 420),
     (9004, "production", "api-gateway-9f2e-cc33", "Killing",
      "Stopping container gateway for rollout", 1, 417),
+    # node-level faults surface here and nowhere else: the affected services'
+    # own logs and metrics show only the symptom.
+    (9005, 'production', 'media-service-2e4f-ee55', 'Evicted',
+     'The node was low on resource: ephemeral-storage. Container media was using 4Gi', 3, 420),
+    (9006, 'production', 'search-reindex-8c2a-gg77', 'FailedScheduling',
+     "0/4 nodes are available: 4 node(s) didn't match Pod's node affinity/selector", 214, 419),
+    (9007, 'production', 'notifications-1b7d-hh88', 'NodeNotReady',
+     'Node node-c1 status is now: NodeNotReady', 1, 420),
+    (9008, 'production', 'inventory-migrator-4d9e-ii99', 'Failed',
+     'Error: container has runAsNonRoot and image will run as root', 96, 418),
 ]
 
 # Which acts a human must sign off on. Drawn from the corpus rule that the

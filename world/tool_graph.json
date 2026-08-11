@@ -81,6 +81,7 @@
     "tool_jira_transition_issue",
     "tool_k8s_events_list",
     "tool_k8s_pods_list",
+    "tool_k8s_nodes_list",
     "tool_submit_answer"
   ],
   "edges": [],

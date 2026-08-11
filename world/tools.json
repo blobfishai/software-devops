@@ -2537,8 +2537,8 @@
   {
     "tool_id": "tool_submit_diagnosis",
     "name": "submit_diagnosis",
-    "description": "Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, none. offending_key is the specific config key, flag key or version responsible.",
-    "source_code": "def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', fault_type='none', offending_key='', evidence=''):\n    \"\"\"Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, none. offending_key is the specific config key, flag key or version responsible.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('submit_diagnosis',)); conn.commit()\n        except Exception:\n            pass\n        if scope is None:\n            return {'ok': False, 'error': 'missing required parameter: scope'}\n        if fault_detected is None:\n            return {'ok': False, 'error': 'missing required parameter: fault_detected'}\n        def _audit(conn, _tool, _svc, _detail):\n            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))\n        kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion',\n                 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass',\n                 'bad_release', 'feature_flag_regression', 'none')\n        if fault_type not in kinds:\n            return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}\n        _t, _f = ('1', 'true', 'yes', 'on'), ('0', 'false', 'no', 'off')\n        _v = str(fault_detected).lower()\n        if _v not in _t + _f:\n            return {'ok': False, 'error': 'fault_detected must be true or false, not ' + repr(fault_detected)}\n        det = 1 if _v in _t else 0\n        if service and conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:\n            return {'ok': False, 'error': 'unknown service: ' + str(service)}\n        if det and fault_type == 'none':\n            return {'ok': False, 'error': \"fault_detected=true requires a specific fault_type\"}\n        if not det and fault_type != 'none':\n            return {'ok': False, 'error': \"fault_detected=false requires fault_type='none'\"}\n        cur = conn.execute('INSERT INTO diagnoses(scope, fault_detected, service, fault_type, offending_key, evidence) VALUES (?,?,?,?,?,?)',\n                           (str(scope), det, service or '', fault_type, offending_key or '', evidence or ''))\n        _audit(conn, 'submit_diagnosis', service or '', {'scope': str(scope), 'fault_detected': det,\n                                                         'fault_type': fault_type,\n                                                         'offending_key': offending_key or ''})\n        conn.commit()\n        return {'ok': True, 'diagnosis_id': cur.lastrowid, 'scope': str(scope),\n                'fault_detected': bool(det), 'service': service or '', 'fault_type': fault_type,\n                'offending_key': offending_key or ''}\n    finally:\n        conn.close()\n",
+    "description": "Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, node_unhealthy, none. Use node_unhealthy when the cause is the node a service runs on rather than the service's own code or config. offending_key is the specific config key, flag key, node name or version responsible.",
+    "source_code": "def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', fault_type='none', offending_key='', evidence=''):\n    \"\"\"Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, node_unhealthy, none. Use node_unhealthy when the cause is the node a service runs on rather than the service's own code or config. offending_key is the specific config key, flag key, node name or version responsible.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('submit_diagnosis',)); conn.commit()\n        except Exception:\n            pass\n        if scope is None:\n            return {'ok': False, 'error': 'missing required parameter: scope'}\n        if fault_detected is None:\n            return {'ok': False, 'error': 'missing required parameter: fault_detected'}\n        def _audit(conn, _tool, _svc, _detail):\n            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))\n        kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion', 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass', 'bad_release', 'feature_flag_regression', 'node_unhealthy', 'none')\n        if fault_type not in kinds:\n            return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}\n        _t, _f = ('1', 'true', 'yes', 'on'), ('0', 'false', 'no', 'off')\n        _v = str(fault_detected).lower()\n        if _v not in _t + _f:\n            return {'ok': False, 'error': 'fault_detected must be true or false, not ' + repr(fault_detected)}\n        det = 1 if _v in _t else 0\n        if service and conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:\n            return {'ok': False, 'error': 'unknown service: ' + str(service)}\n        if det and fault_type == 'none':\n            return {'ok': False, 'error': \"fault_detected=true requires a specific fault_type\"}\n        if not det and fault_type != 'none':\n            return {'ok': False, 'error': \"fault_detected=false requires fault_type='none'\"}\n        cur = conn.execute('INSERT INTO diagnoses(scope, fault_detected, service, fault_type, offending_key, evidence) VALUES (?,?,?,?,?,?)',\n                           (str(scope), det, service or '', fault_type, offending_key or '', evidence or ''))\n        _audit(conn, 'submit_diagnosis', service or '', {'scope': str(scope), 'fault_detected': det,\n                                                         'fault_type': fault_type,\n                                                         'offending_key': offending_key or ''})\n        conn.commit()\n        return {'ok': True, 'diagnosis_id': cur.lastrowid, 'scope': str(scope),\n                'fault_detected': bool(det), 'service': service or '', 'fault_type': fault_type,\n                'offending_key': offending_key or ''}\n    finally:\n        conn.close()\n",
     "parameters": [
       {
         "name": "scope",
@@ -2593,7 +2593,7 @@
     ],
     "json_schema": {
       "name": "submit_diagnosis",
-      "description": "Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, none. offending_key is the specific config key, flag key or version responsible.",
+      "description": "Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, node_unhealthy, none. Use node_unhealthy when the cause is the node a service runs on rather than the service's own code or config. offending_key is the specific config key, flag key, node name or version responsible.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -2623,6 +2623,7 @@
               "cdn_bypass",
               "bad_release",
               "feature_flag_regression",
+              "node_unhealthy",
               "none"
             ]
           },
@@ -4003,6 +4004,51 @@
           "service": {
             "type": "string",
             "description": "service"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_k8s_nodes_list",
+    "name": "k8s_nodes_list",
+    "description": "List cluster nodes with their Ready status, active condition, CPU and disk utilisation, labels and kernel version. A service whose node has DiskPressure, a kernel deadlock, or no node matching its selector looks - from the service's own metrics and logs - exactly like a slow or broken service. This is the only place that difference is visible.",
+    "source_code": "def k8s_nodes_list(db_path=None, node=None, unhealthy_only=False):\n    \"\"\"List cluster nodes with their Ready status, active condition, CPU and disk utilisation, labels and kernel version. A service whose node has DiskPressure, a kernel deadlock, or no node matching its selector looks - from the service's own metrics and logs - exactly like a slow or broken service. This is the only place that difference is visible.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('k8s_nodes_list',)); conn.commit()\n        except Exception:\n            pass\n        sql = 'SELECT * FROM k8s_nodes'\n        conds, args = [], []\n        if node:\n            conds.append('node=?'); args.append(node)\n        if str(unhealthy_only).lower() in ('1', 'true', 'yes', 'on'):\n            conds.append(\"(ready != 'True' OR condition != 'Ready')\")\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY node', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "node",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "node"
+      },
+      {
+        "name": "unhealthy_only",
+        "type": "bool",
+        "required": false,
+        "default": "False",
+        "description": "unhealthy_only"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "k8s_nodes"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "k8s_nodes_list",
+      "description": "List cluster nodes with their Ready status, active condition, CPU and disk utilisation, labels and kernel version. A service whose node has DiskPressure, a kernel deadlock, or no node matching its selector looks - from the service's own metrics and logs - exactly like a slow or broken service. This is the only place that difference is visible.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "node": {
+            "type": "string",
+            "description": "node"
+          },
+          "unhealthy_only": {
+            "type": "boolean",
+            "description": "unhealthy_only"
           }
         },
         "required": []

@@ -2075,7 +2075,7 @@ def publish_status_update(db_path=None, state=None, title=None, body=''):
 
 
 def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', fault_type='none', offending_key='', evidence=''):
-    """Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, none. offending_key is the specific config key, flag key or version responsible."""
+    """Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, node_unhealthy, none. Use node_unhealthy when the cause is the node a service runs on rather than the service's own code or config. offending_key is the specific config key, flag key, node name or version responsible."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -2094,9 +2094,7 @@ def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', 
             return {'ok': False, 'error': 'missing required parameter: fault_detected'}
         def _audit(conn, _tool, _svc, _detail):
             conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
-        kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion',
-                 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass',
-                 'bad_release', 'feature_flag_regression', 'none')
+        kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion', 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass', 'bad_release', 'feature_flag_regression', 'node_unhealthy', 'none')
         if fault_type not in kinds:
             return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}
         _t, _f = ('1', 'true', 'yes', 'on'), ('0', 'false', 'no', 'off')
@@ -2952,6 +2950,33 @@ def k8s_pods_list(db_path=None, namespace=None, service=None):
         if conds:
             sql += ' WHERE ' + ' AND '.join(conds)
         return [dict(r) for r in conn.execute(sql + ' ORDER BY pod', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def k8s_nodes_list(db_path=None, node=None, unhealthy_only=False):
+    """List cluster nodes with their Ready status, active condition, CPU and disk utilisation, labels and kernel version. A service whose node has DiskPressure, a kernel deadlock, or no node matching its selector looks - from the service's own metrics and logs - exactly like a slow or broken service. This is the only place that difference is visible."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('k8s_nodes_list',)); conn.commit()
+        except Exception:
+            pass
+        sql = 'SELECT * FROM k8s_nodes'
+        conds, args = [], []
+        if node:
+            conds.append('node=?'); args.append(node)
+        if str(unhealthy_only).lower() in ('1', 'true', 'yes', 'on'):
+            conds.append("(ready != 'True' OR condition != 'Ready')")
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY node', args).fetchall()]
     finally:
         conn.close()
 

@@ -500,6 +500,26 @@ if conds:
 return [dict(r) for r in conn.execute(sql + ' ORDER BY pod', args).fetchall()]""",
           reads=["k8s_pods"], writes=[], returns="list[dict]"))
 
+    T(_mk("k8s_nodes_list",
+          "List cluster nodes with their Ready status, active condition, CPU and disk "
+          "utilisation, labels and kernel version. A service whose node has DiskPressure, "
+          "a kernel deadlock, or no node matching its selector looks - from the service's "
+          "own metrics and logs - exactly like a slow or broken service. This is the only "
+          "place that difference is visible.",
+          [{"name": "node", "type": "str", "default": None},
+           {"name": "unhealthy_only", "type": "bool", "default": False}],
+          """\
+sql = 'SELECT * FROM k8s_nodes'
+conds, args = [], []
+if node:
+    conds.append('node=?'); args.append(node)
+if str(unhealthy_only).lower() in ('1', 'true', 'yes', 'on'):
+    conds.append("(ready != 'True' OR condition != 'Ready')")
+if conds:
+    sql += ' WHERE ' + ' AND '.join(conds)
+return [dict(r) for r in conn.execute(sql + ' ORDER BY node', args).fetchall()]""",
+          reads=["k8s_nodes"], writes=[], returns="list[dict]"))
+
     T(_mk("submit_answer",
           "Submit the answer to a reconciliation question. `sources` must list every "
           "system you actually consulted (e.g. pd_incidents, status_page_posts). "

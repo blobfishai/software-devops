@@ -420,6 +420,67 @@ _add("aiops_analysis", "analysis", id="rca_inventory_pool", scope="inventory-err
 
 
 # ==========================================================================
+# Node-level faults — AIOpsLab's fault catalogue is mostly infrastructure, and
+# none of it is visible from a service's own metrics, logs or source. Each of
+# these reads identically to "the service is slow/broken" until the cluster
+# layer is consulted. Families closed here: disk_woreout,
+# assign_to_non_existent_node_social_net, kernel_fault_hotel_reservation,
+# operator_security_context_fault (research/02-CORPUS-MAP.md).
+#
+# node-a1 sits at 91% CPU throughout and causes none of them. It is seeded so
+# that "find the unhealthy node" cannot be solved by "find the worst number"
+# (research/notes/domain/F_chaos_scenarios.md, F5).
+# ==========================================================================
+_add("aiops_analysis", "analysis", id="rca_media_disk_pressure", scope="media-upload-stalls",
+     service="media-service", fault_type="node_unhealthy", offending_key="node-b3",
+     difficulty="expert", budget=14,
+     evidence="both media-service replicas are scheduled on node-b3, whose kubelet reports "
+              "DiskPressure at 97% of 200Gi ephemeral storage, and one replica has already "
+              "been Evicted for ephemeral-storage three times; the pods themselves are "
+              "Running with normal memory and the service's own code is unchanged",
+     extra_reads=[{"tool": "k8s_pods_list", "args": {"service": "media-service"}},
+                  {"tool": "k8s_nodes_list", "args": {"unhealthy_only": True}},
+                  {"tool": "k8s_events_list", "args": {"reason": "Evicted"}}],
+     ticket=("OPS-125", "high", "Root cause: media uploads stalling"))
+
+_add("aiops_analysis", "analysis", id="rca_search_unscheduled_reindex",
+     scope="search-stale-index", service="search", fault_type="misconfig",
+     offending_key="accelerator=gpu-a100", difficulty="expert", budget=14,
+     evidence="search-reindex-8c2a-gg77 has been Pending since day 419 with 214 "
+              "FailedScheduling events reading 0/4 nodes available: no node matches the "
+              "pod's accelerator=gpu-a100 selector, and no node in the cluster carries that "
+              "label; the reindex has therefore never run once and the index is stale",
+     extra_reads=[{"tool": "k8s_pods_list", "args": {"service": "search"}},
+                  {"tool": "k8s_events_list", "args": {"reason": "FailedScheduling"}},
+                  {"tool": "k8s_nodes_list", "args": {}}],
+     ticket=("OPS-126", "high", "Root cause: search results are stale"))
+
+_add("aiops_analysis", "analysis", id="rca_notifications_node_deadlock",
+     scope="notifications-unreachable", service="notifications", fault_type="node_unhealthy",
+     offending_key="node-c1", difficulty="expert", budget=14,
+     evidence="node-c1 is Ready=Unknown with a kernel soft lockup on CPU#3 and stopped "
+              "posting node status 14 minutes ago; notifications-1b7d-hh88 still reports "
+              "Running because the kubelet stopped reporting, not the pod, so pod phase "
+              "alone says the service is healthy while it is unreachable",
+     extra_reads=[{"tool": "k8s_pods_list", "args": {"service": "notifications"}},
+                  {"tool": "k8s_nodes_list", "args": {"node": "node-c1"}},
+                  {"tool": "k8s_events_list", "args": {"reason": "NodeNotReady"}}],
+     ticket=("OPS-127", "critical", "Root cause: notifications are not being delivered"))
+
+_add("aiops_analysis", "analysis", id="rca_inventory_migrator_security_context",
+     scope="inventory-schema-drift", service="inventory", fault_type="misconfig",
+     offending_key="runAsNonRoot", difficulty="expert", budget=14,
+     evidence="inventory-migrator-4d9e-ii99 has been in CreateContainerConfigError since day "
+              "418 with 96 Failed events reading 'container has runAsNonRoot and image will "
+              "run as root', so the container is never created and the migration it carries "
+              "has never executed; nothing crashed and no alarm fired because the workload "
+              "never started",
+     extra_reads=[{"tool": "k8s_pods_list", "args": {"service": "inventory"}},
+                  {"tool": "k8s_events_list", "args": {"reason": "Failed"}}],
+     ticket=("OPS-128", "high", "Root cause: inventory counts disagree with the database"))
+
+
+# ==========================================================================
 # Reconciliation suite — questions no single system can answer, over data that
 # disagrees. Every scenario cites research/notes/domain/F_chaos_scenarios.md.
 # ==========================================================================

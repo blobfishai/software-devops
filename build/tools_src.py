@@ -98,6 +98,15 @@ def _audit(conn, _tool, _svc, _detail):
 """
 
 
+# The diagnostic vocabulary, defined once. The description text, the JSON schema
+# enum and the runtime check are all generated from this tuple, because a
+# vocabulary that exists in three hand-maintained copies drifts, and a model that
+# cannot satisfy the vocabulary edits its answer rather than its argument.
+FAULT_KINDS = ("misconfig", "missing_retry", "missing_timeout", "resource_exhaustion",
+               "unbounded_prefetch", "cache_disabled", "n_plus_one_query", "cdn_bypass",
+               "bad_release", "feature_flag_regression", "node_unhealthy", "none")
+
+
 def _mk(name, description, params, body, *, reads, writes, returns="dict",
         snippets=(), extra_schema=None):
     sig_parts = ["db_path=None"]
@@ -1289,25 +1298,23 @@ return {'ok': True, 'post_id': cur.lastrowid, 'state': state}""",
     T(_mk("submit_diagnosis",
           "Submit a diagnostic finding for an investigation. `scope` is what you were asked to "
           "investigate (a service name or alarm id). Set fault_detected=false with "
-          "fault_type='none' when the scope is healthy. fault_type is one of: misconfig, "
-          "missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, "
-          "cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, "
-          "none. offending_key is the specific config key, flag key or version responsible.",
+          "fault_type='none' when the scope is healthy. fault_type is one of: "
+          + ", ".join(FAULT_KINDS) +
+          ". Use node_unhealthy when the cause is the node a service runs on rather than the "
+          "service's own code or config. offending_key is the specific config key, flag key, "
+          "node name or version responsible.",
           [{"name": "scope", "type": "str", "required": True,
             "description": "the service or alarm id you were asked to investigate"},
            {"name": "fault_detected", "type": "bool", "required": True},
            {"name": "service", "type": "str", "default": "",
             "description": "the service responsible (localization)"},
            {"name": "fault_type", "type": "str", "default": "none",
-            "choices": ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion', 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass', 'bad_release', 'feature_flag_regression', 'none')},
+            "choices": FAULT_KINDS},
            {"name": "offending_key", "type": "str", "default": "",
             "description": "config key, flag key or version at fault"},
            {"name": "evidence", "type": "str", "default": "",
             "description": "what you observed that supports this finding"}],
-          """\
-kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion',
-         'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass',
-         'bad_release', 'feature_flag_regression', 'none')
+          "kinds = %r\n" % (FAULT_KINDS,) + """\
 if fault_type not in kinds:
     return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}
 _t, _f = ('1', 'true', 'yes', 'on'), ('0', 'false', 'no', 'off')

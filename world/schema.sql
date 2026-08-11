@@ -216,6 +216,16 @@ CREATE TABLE k8s_events (
     count INTEGER NOT NULL DEFAULT 1,
     day INTEGER NOT NULL
 );
+CREATE TABLE k8s_nodes (
+    node TEXT PRIMARY KEY,
+    ready TEXT NOT NULL,           -- True | False | Unknown
+    condition TEXT NOT NULL,       -- Ready | DiskPressure | MemoryPressure | KernelDeadlock
+    message TEXT NOT NULL,
+    cpu_used_pct INTEGER NOT NULL,
+    disk_used_pct INTEGER NOT NULL,
+    labels TEXT NOT NULL DEFAULT '',
+    kernel_version TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE k8s_pods (
     pod TEXT PRIMARY KEY,
     namespace TEXT NOT NULL,
@@ -224,7 +234,9 @@ CREATE TABLE k8s_pods (
     phase TEXT NOT NULL,
     restarts INTEGER NOT NULL DEFAULT 0,
     memory_limit_mb INTEGER NOT NULL,
-    memory_usage_mb INTEGER NOT NULL
+    memory_usage_mb INTEGER NOT NULL,
+    node TEXT NOT NULL DEFAULT '',       -- '' when the pod was never scheduled
+    pending_reason TEXT NOT NULL DEFAULT ''
 );
 CREATE TABLE linear_issues (
     identifier TEXT PRIMARY KEY,

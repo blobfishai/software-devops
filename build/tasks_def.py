@@ -1158,6 +1158,9 @@ def gen_analysis(spec):
     if spec.get("code_path"):
         calls.append({"tool": "read_file", "args": {"path": spec["code_path"]}})
         calls.append({"tool": "list_commits", "args": {"service": spec["service"], "limit": 5}})
+    # A node-level fault leaves no trace in the service's own code, metrics or
+    # logs, so those tasks name the reads that do carry the evidence.
+    calls += list(spec.get("extra_reads", []))
     calls += [{"tool": "submit_diagnosis", "args": {
                   "scope": scope, "fault_detected": True, "service": spec["service"],
                   "fault_type": spec["fault_type"], "offending_key": spec["offending_key"],

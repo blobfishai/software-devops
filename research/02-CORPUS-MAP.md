@@ -19,9 +19,9 @@ families crossed with detection / localization / analysis / mitigation.
 
 | fault family | its task types | status | world mechanism | world tasks |
 |---|---|---|---|---|
-| `assign_to_non_existent_node_social_net` | analysis, detection, localization, mitigation | **NOT COVERED** | scheduling/placement fault | — |
+| `assign_to_non_existent_node_social_net` | analysis, detection, localization, mitigation | **COVERED** | a Pending pod whose nodeSelector (`accelerator=gpu-a100`) matches no node in the cluster, so the reindex has never run and the failure is an absence rather than an error | `tsk_rca_search_unscheduled_reindex` |
 | `astronomy_shop_ad_service_failure` | detection, localization | **NOT COVERED** | not modelled | — |
-| `astronomy_shop_ad_service_high_cpu` | detection, localization | **NOT COVERED** | not modelled | — |
+| `astronomy_shop_ad_service_high_cpu` | detection, localization | **PARTIAL** | node-a1 runs at 91% CPU as a *distractor*: it is the worst-looking number in the cluster and causes none of the seeded faults, so node tasks cannot be solved by picking the largest metric | seeded state, no task |
 | `astronomy_shop_ad_service_manual_gc` | detection, localization | **NOT COVERED** | not modelled | — |
 | `astronomy_shop_cart_service_failure` | detection, localization | **NOT COVERED** | not modelled | — |
 | `astronomy_shop_image_slow_load` | detection, localization | **NOT COVERED** | not modelled | — |
@@ -33,18 +33,18 @@ families crossed with detection / localization / analysis / mitigation.
 | `astronomy_shop_recommendation_service_cache_failure` | detection, localization | **NOT COVERED** | not modelled | — |
 | `auth_miss_mongodb` | analysis, detection, localization, mitigation | **PARTIAL** | auth/credential fault modelled as the hardcoded secret task, not a database auth revocation | `tsk_checkout_hardcoded_secret` |
 | `container_kill` | detection, localization | **COVERED** | OOMKill/CrashLoopBackOff via k8s_events and k8s_pods; the error tracker is structurally blind to it | `tsk_localize_analytics_crashloop` |
-| `disk_woreout` | detection, localization | **NOT COVERED** | not modelled | — |
+| `disk_woreout` | detection, localization | **COVERED** | node-b3 at DiskPressure 97%, with both media-service replicas scheduled on it and one already Evicted for ephemeral-storage; the pods look healthy from their own metrics | `tsk_rca_media_disk_pressure` |
 | `flower_model_misconfig` | detection | **NOT COVERED** | not modelled | — |
 | `flower_node_stop` | detection | **NOT COVERED** | not modelled | — |
 | `k8s_target_port-misconfig` | analysis, detection, localization, mitigation | **COVERED** | config misconfiguration on a deployed service | `tsk_search_cache`, `tsk_media_cdn`, `tsk_rca_catalog_n_plus_one` |
-| `kernel_fault_hotel_reservation` | detection, localization | **NOT COVERED** | not modelled | — |
+| `kernel_fault_hotel_reservation` | detection, localization | **COVERED** | node-c1 Ready=Unknown on a CPU#3 soft lockup; its pod still reports Running because the kubelet stopped reporting rather than the pod, so pod phase alone says healthy | `tsk_rca_notifications_node_deadlock` |
 | `misconfig_app_hotel_res` | analysis, detection, localization, mitigation | **COVERED** | application config misconfiguration | `tsk_catalog_batch_pricing`, `tsk_gateway_pool_reuse` |
 | `network_delay_hotel_res` | detection, localization | **COVERED** | downstream latency propagating upstream | `tsk_localize_checkout_latency` |
 | `network_loss_hotel_res` | detection, localization | **PARTIAL** | network fault modelled as timeout/retry faults | `tsk_payments_retry`, `tsk_notifications_timeout` |
 | `operator_invalid_affinity_toleration` | detection, localization | **NOT COVERED** | not modelled | — |
 | `operator_non_existent_storage` | detection, localization | **NOT COVERED** | not modelled | — |
 | `operator_overload_replicas` | detection, localization | **NOT COVERED** | not modelled | — |
-| `operator_security_context_fault` | detection, localization | **NOT COVERED** | not modelled | — |
+| `operator_security_context_fault` | detection, localization | **COVERED** | a migrator pod stuck in CreateContainerConfigError because the image runs as root while the pod requires runAsNonRoot: the workload never started, so nothing crashed and no alarm fired | `tsk_rca_inventory_migrator_security_context` |
 | `operator_wrong_update_strategy` | detection, localization | **NOT COVERED** | not modelled | — |
 | `pod_failure_hotel_res` | detection, localization | **COVERED** | pod phase CrashLoopBackOff with restart counts | `tsk_localize_analytics_crashloop` |
 | `pod_kill_hotel_res` | detection, localization | **COVERED** | kubelet Killing/OOMKilled events | `tsk_localize_analytics_crashloop` |
