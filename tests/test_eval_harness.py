@@ -206,3 +206,20 @@ def test_bad_argument_errors_say_what_is_accepted():
     assert "fault_detected" in out["accepts"]["required"]
     assert "evidence" in out["accepts"]["optional"]
     assert out["hint"].startswith("submit_diagnosis(")
+
+
+def test_the_harbor_package_works_outside_this_repo():
+    """The deliverable is dist/harbor, and it has to work for someone who does not
+    have this repository. harbor_selftest.py copies the package and the world to a
+    temp directory, then runs each shipped verifier as a subprocess with no repo on
+    sys.path, no repo in cwd and a stripped environment - checking both halves:
+    an untouched world is rejected, and the reference solution is accepted.
+
+    Run over a sample here so the suite stays fast; the full 82-task sweep is
+    `python3 harbor_selftest.py`.
+    """
+    proc = subprocess.run([sys.executable, str(ROOT / "harbor_selftest.py"), "--limit", "6"],
+                          capture_output=True, text=True, timeout=900, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "free-reward 0" in proc.stdout, proc.stdout
+    assert "failures 0, missing 0" in proc.stdout, proc.stdout

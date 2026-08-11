@@ -59,6 +59,24 @@ See [docs/AIOPSLAB.md](docs/AIOPSLAB.md).
   corruption families (no-op, wrong-target, partial-completion, over-repair,
   zero-tool-call) at 1.000 recall.
 
+## Delivering it
+
+The package a consumer receives is `dist/harbor`. `harbor_selftest.py` copies
+that package and the world to a temporary directory and runs every shipped
+verifier as a subprocess with no repo on `sys.path`, no repo in `cwd` and a
+stripped environment, checking both halves of what a verifier is for:
+
+```
+$ python3 harbor_selftest.py
+harbor standalone self-test: 82/82 verifiers accept the reference solution
+and reject an untouched world
+  failures 0, missing 0, free-reward 0
+```
+
+An untouched world must be **rejected** — a verifier that passes before anyone
+does anything is a free reward, not a grader. The reference solution must be
+**accepted**. All 82 do both, outside the repository that built them.
+
 ## The 82 tasks
 
 | Category | Tasks | Examples |
