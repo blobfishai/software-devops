@@ -33,10 +33,17 @@ promote → observe → resolve → close the ticket.**
   rollback (the regression is in every version ≥ v5.1.0).
 - **Negative controls.** Each verifier asserts that unrelated alerts, flags,
   configs, and incidents were *not* touched — blanket mutation loses.
-- **No free rewards.** Every verifier provably fails on the pristine seed, the
-  blobfish random-policy eval scores 0.0, and every task ships an
-  `expected_calls` oracle that replays through the real tools to reward 1.0
-  (`blobfish eval --policy oracle` → pass rate 1.0).
+- **No free rewards, and no forged ones.** Every verifier provably fails on the
+  pristine seed; the blobfish random-policy eval scores 0.0; every task ships an
+  `expected_calls` oracle that replays through the real tools to reward 1.0.
+  Verifiers also enforce world invariants — reference data no tool can write
+  must be byte-identical, every row must reference entities that exist, and
+  `audit_events` must remain a contiguous append-only log with its seeded
+  prefix intact — so fabricating state or tampering with the audit trail loses.
+  The platform's adversarial audit (`blobfish verify-accuracy`) scores the
+  verifiers **precision 1.000 · recall 1.000 · FPR 0.000**, rejecting all five
+  corruption families (no-op, wrong-target, partial-completion, over-repair,
+  zero-tool-call) at 1.000 recall.
 
 ## The 10 tasks (all seven Horizon-SWE categories)
 
@@ -66,6 +73,27 @@ make test
 make serve            # or: make docker-run
 ```
 
+### Test a model on it
+
+```bash
+# sanity-check the harness — no API key, no tokens spent
+python3 eval_model.py --policy oracle
+
+# evaluate a model end to end (needs ANTHROPIC_API_KEY)
+python3 eval_model.py --model claude-sonnet-5 --split heldout
+python3 eval_model.py --model claude-fable-5 --task tsk_gateway_rollback_sev1 -v
+```
+
+Each task runs in its own session fork and is graded by the world's executable
+verifier, reporting both Horizon-style numbers:
+
+```
+  tsk_payments_error_rate    hard   PASS  score=1.00  corr 6/6 depl 2/2 qual 3/3  calls=12
+  ...
+  PF  strict pass rate : 100.0%  (10/10)
+  PC  partial credit   : 100.0  (0.6 correctness / 0.3 deployment / 0.1 quality)
+```
+
 ### Drive it over REST
 
 ```bash
@@ -84,6 +112,19 @@ session pinned via the `Mcp-Session-Id` header. Alongside the 34 world tools,
 the server exposes the blobfish meta-tools: `world_info`, `task_list`,
 `task_start`, `task_verify`, `episode_abort`. Episode lifecycle:
 `task_start` → world tool calls → `task_verify` (binary reward, no judge).
+
+### Other runtimes it converts into
+
+Because it is a standard Format-A package, the world converts mechanically into
+the platform's other deployment shapes — both verified working end to end:
+
+```bash
+# FastAPI gym (reset/step/verify on :8080; PORT env var overrides the port)
+python -c "from fleet_harness import GymBuilder; GymBuilder().build_gym_directory('world','gym')"
+
+# zero-dependency HTTP-MCP Docker context (stdlib only, :8000)
+blobfish mirror package world --out dist --name software-devops
+```
 
 ### Evaluate a model with the blobfish CLI
 
@@ -135,7 +176,8 @@ build/            deterministic world builder (single source of truth)
   build_world.py    assembles + hard-gates + emits world/
 world/            the packaged world (blobfish Format A) — committed artifact
 serve.py          standalone stdlib server (REST + MCP, session forks)
-tests/            gates, guardrails, adversarial rollouts, server e2e
+eval_model.py     model-eval harness (PF/PC scoring, oracle self-test)
+tests/            gates, guardrails, adversarial rollouts, server + harness e2e
 docs/DESIGN.md    design rationale
 ```
 
