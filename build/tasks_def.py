@@ -1121,13 +1121,20 @@ def gen_localization(spec):
 
 def gen_analysis(spec):
     scope, tkt = spec["scope"], spec["ticket"][0]
+    # A fault in a service's own code is confirmed by reading that code. A fault
+    # in the cluster underneath it is not in any file, and telling an engineer to
+    # "confirm it in the source" sends them to read a service that is innocent.
+    confirm = ("Confirm it in the source rather than inferring it from the symptom alone."
+               if spec.get("code_path") else
+               "The service's own code is not necessarily where this lives — confirm it "
+               "against the state of the system rather than inferring it from the symptom "
+               "alone.")
     instruction = (
         AIOPS_INTRO +
         "%s — %s\n\nGet to the bottom of %s: not just which service, but the mechanism and the "
-        "exact setting responsible. Confirm it in the source rather than inferring it from the "
-        "symptom alone. Submit your finding under scope '%s' with the responsible service, the "
-        "fault type, the offending key, and your evidence."
-        % (tkt, spec["ticket"][2], scope, scope))
+        "exact setting responsible. %s Submit your finding under scope '%s' with the "
+        "responsible service, the fault type, the offending key, and your evidence."
+        % (tkt, spec["ticket"][2], scope, confirm, scope))
     checks = [
         ("correctness", "diagnosis_submitted",
          "_diagnosis(%s) is not None" % q(scope),
