@@ -310,6 +310,23 @@ Boundary candidates re-run 3 times each against deepseek-v4-pro, with `--all-att
 
 **3 of 6 candidates are FLAKY** — the same model, the same task, the same prompt, passing on some attempts and failing on others. That band is the point: a task nobody can pass measures nothing, a task everybody passes measures nothing, and a task that goes both ways is measuring exactly where capability runs out.
 
+
+### The guidance ladder
+
+Every task carries two prompts: `instruction` states the outcome, `instruction_guided` also states the procedure. Same tasks, same model, measured both ways across aiops_analysis.
+
+| prompt | PF | PC |
+|---|---|---|
+| outcome only | 30.0% (3/10) | 75.7 |
+| procedure stated | 50.0% (5/10) | 82.0 |
+| **delta** | **+20.0 points** | |
+
+2 task(s) changed side: `tsk_rca_payments_retry`, `tsk_rca_inventory_unbound_storage`.
+
+On 10 tasks a +20.0-point move is 2 task(s) flipping, which is suggestive rather than conclusive, and `tsk_rca_inventory_unbound_storage` is independently known to be FLAKY, so at least one flip may be variance rather than the prompt.
+
+Read plainly: stating the procedure helps, so procedural knowledge is part of what these tasks demand — but it does not carry the model over the line, so the rest is judgement about evidence rather than recall of steps.
+
 <!-- results:end -->
 
 ## What would count as proof

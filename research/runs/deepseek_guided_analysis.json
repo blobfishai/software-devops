@@ -1,0 +1,477 @@
+{
+  "world_id": "env_software_devops_f5737631",
+  "policy": "deepseek",
+  "model": "deepseek-v4-pro",
+  "split": "all",
+  "guidance": "guided",
+  "pass_rate": 0.5,
+  "mean_score": 0.75,
+  "trials": 1,
+  "outcomes": {
+    "resolved": 1,
+    "capped": 1
+  },
+  "attributable_episodes": 2,
+  "spend": {
+    "prompt_tokens": 896056,
+    "completion_tokens": 19663,
+    "episodes": 2
+  },
+  "pass_hat_k": {
+    "1": 0.5
+  },
+  "tasks": [
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 210944,
+      "completion_tokens": 7424,
+      "task_id": "tsk_rca_payments_retry",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 30,
+      "turns": 13,
+      "steps_to_answer": 30,
+      "seconds": 104.1,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "capped",
+      "outcome_reason": "turn budget exhausted",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "diagnosis_submitted"
+        },
+        {
+          "dimension": "correctness",
+          "name": "service_localized"
+        },
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "efficient_investigation"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 685112,
+      "completion_tokens": 12239,
+      "task_id": "tsk_rca_search_unscheduled_reindex",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.5333,
+      "dimension_fractions": {
+        "correctness": 0.333,
+        "deployment": 1.0,
+        "quality": 0.333
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/6",
+        "deployment": "1/1",
+        "quality": "2/6"
+      },
+      "tool_calls": 72,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 195.1,
+      "error": "assertion: 4 verifier(s) failed (PC score=0.5333): correctness/diagnosis_submitted - submit a root-cause result for scope 'search-stale-index'; correctness/service_localized - the responsible service is search; correctness/fault_type_correct - the root cause is a misconfig fault; correctness/offending_key_correct - the offending key is accelerator=gpu-a100 | quality also flagged: quality/evidence_recorded, quality/efficient_investigation, quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 296975,
+      "completion_tokens": 6396,
+      "task_id": "tsk_rca_catalog_n_plus_one",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 35,
+      "turns": 18,
+      "steps_to_answer": 35,
+      "seconds": 106.1,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 141170,
+      "completion_tokens": 5714,
+      "task_id": "tsk_rca_notifications_node_deadlock",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.7667,
+      "dimension_fractions": {
+        "correctness": 0.667,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 24,
+      "turns": 10,
+      "steps_to_answer": 24,
+      "seconds": 89.0,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.7667): correctness/fault_type_correct - the root cause is a node_unhealthy fault; correctness/offending_key_correct - the offending key is node-c1 | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 196809,
+      "completion_tokens": 5050,
+      "task_id": "tsk_rca_notifications_timeout",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 26,
+      "turns": 14,
+      "steps_to_answer": 26,
+      "seconds": 76.0,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "capped",
+      "outcome_reason": "turn budget exhausted",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "diagnosis_submitted"
+        },
+        {
+          "dimension": "correctness",
+          "name": "service_localized"
+        },
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "efficient_investigation"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 689524,
+      "completion_tokens": 16471,
+      "task_id": "tsk_rca_inventory_migrator_security_context",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.5333,
+      "dimension_fractions": {
+        "correctness": 0.333,
+        "deployment": 1.0,
+        "quality": 0.333
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/6",
+        "deployment": "1/1",
+        "quality": "2/6"
+      },
+      "tool_calls": 82,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 270.2,
+      "error": "assertion: 4 verifier(s) failed (PC score=0.5333): correctness/diagnosis_submitted - submit a root-cause result for scope 'inventory-schema-drift'; correctness/service_localized - the responsible service is inventory; correctness/fault_type_correct - the root cause is a misconfig fault; correctness/offending_key_correct - the offending key is runAsNonRoot | quality also flagged: quality/evidence_recorded, quality/efficient_investigation, quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 211011,
+      "completion_tokens": 6542,
+      "task_id": "tsk_rca_inventory_pool",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 27,
+      "turns": 13,
+      "steps_to_answer": 27,
+      "seconds": 101.3,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 705902,
+      "completion_tokens": 17978,
+      "task_id": "tsk_rca_checkout_unschedulable_replicas",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.7667,
+      "dimension_fractions": {
+        "correctness": 0.667,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 78,
+      "turns": 29,
+      "steps_to_answer": 78,
+      "seconds": 272.8,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.7667): correctness/fault_type_correct - the root cause is a misconfig fault; correctness/offending_key_correct - the offending key is desired_replicas | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 340847,
+      "completion_tokens": 8982,
+      "task_id": "tsk_rca_media_disk_pressure",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.7667,
+      "dimension_fractions": {
+        "correctness": 0.667,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 50,
+      "turns": 20,
+      "steps_to_answer": 50,
+      "seconds": 138.1,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.7667): correctness/fault_type_correct - the root cause is a node_unhealthy fault; correctness/offending_key_correct - the offending key is node-b3 | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 139878,
+      "completion_tokens": 4250,
+      "task_id": "tsk_rca_inventory_unbound_storage",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 28,
+      "turns": 11,
+      "steps_to_answer": 28,
+      "seconds": 65.4,
+      "error": null,
+      "trial": 0
+    }
+  ]
+}

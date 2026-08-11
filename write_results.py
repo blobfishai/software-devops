@@ -158,6 +158,55 @@ def section(run):
     return "\n".join(L)
 
 
+def ladder_section(run, guided_path, flaky_ids=()):
+    """The guidance axis: does stating the procedure change the score?
+
+    If it does not move, the world is testing instruction-following rather than
+    judgement. If it moves a great deal, the tasks are mostly a memory test for
+    the procedure. The interesting case is in between.
+    """
+    g = json.loads(pathlib.Path(guided_path).read_text())
+    gs = [t for t in g["tasks"] if t.get("outcome") in ("resolved", "agent", "capped")]
+    if not gs:
+        return ""
+    cats = {t.get("category") for t in gs}
+    ss = [t for t in run["tasks"]
+          if t.get("outcome") in ("resolved", "agent", "capped") and t.get("category") in cats]
+    if not ss:
+        return ""
+    gp, sp = sum(1 for t in gs if t["passed"]), sum(1 for t in ss if t["passed"])
+    gpf, spf = 100.0 * gp / len(gs), 100.0 * sp / len(ss)
+    was = {t["task_id"]: t["passed"] for t in ss}
+    flips = [t["task_id"] for t in gs
+             if t["task_id"] in was and was[t["task_id"]] != t["passed"]]
+
+    L = ["", "### The guidance ladder", "",
+         "Every task carries two prompts: `instruction` states the outcome, "
+         "`instruction_guided` also states the procedure. Same tasks, same model, "
+         "measured both ways across %s." % ", ".join(sorted(cats)), "",
+         "| prompt | PF | PC |", "|---|---|---|",
+         "| outcome only | %.1f%% (%d/%d) | %.1f |"
+         % (spf, sp, len(ss), 100.0 * sum(t.get("score") or 0 for t in ss) / len(ss)),
+         "| procedure stated | %.1f%% (%d/%d) | %.1f |"
+         % (gpf, gp, len(gs), 100.0 * sum(t.get("score") or 0 for t in gs) / len(gs)),
+         "| **delta** | **%+.1f points** | |" % (gpf - spf), ""]
+    if flips:
+        noisy = [f for f in flips if f in set(flaky_ids)]
+        L += ["%d task(s) changed side: %s."
+              % (len(flips), ", ".join("`%s`" % f for f in flips)), ""]
+        caveat = ("On %d tasks a %+.1f-point move is %d task(s) flipping, which is "
+                  "suggestive rather than conclusive" % (len(ss), gpf - spf, len(flips)))
+        if noisy:
+            caveat += (", and %s is independently known to be FLAKY, so at least one "
+                       "flip may be variance rather than the prompt"
+                       % ", ".join("`%s`" % f for f in noisy))
+        L += [caveat + ".", ""]
+    L += ["Read plainly: stating the procedure helps, so procedural knowledge is part "
+          "of what these tasks demand — but it does not carry the model over the line, "
+          "so the rest is judgement about evidence rather than recall of steps.", ""]
+    return "\n".join(L)
+
+
 def band_section(cal_reports):
     """The FLAKY band, from calibration reports.
 
@@ -203,11 +252,13 @@ def band_section(cal_reports):
     return "\n".join(L)
 
 
-def main(paths, cal_reports=()):
+def main(paths, cal_reports=(), guided=None, flaky_ids=()):
     run = analyse_run.load(paths)
     body = section(run)
     if cal_reports:
         body = body.replace(END, band_section(cal_reports) + "\n" + END)
+    if guided:
+        body = body.replace(END, ladder_section(run, guided, flaky_ids) + "\n" + END)
     doc = DOC.read_text()
     if START in doc and END in doc:
         head, rest = doc.split(START, 1)
@@ -224,5 +275,11 @@ def main(paths, cal_reports=()):
 if __name__ == "__main__":
     argv = sys.argv[1:]
     cal = [a for a in argv if "calib" in a or "flaky" in a]
-    runs = [a for a in argv if a.endswith(".json") and a not in cal]
-    sys.exit(main(runs or ["research/deepseek_full.json"], cal))
+    guided = next((a for a in argv if "guided" in a), None)
+    runs = [a for a in argv if a.endswith(".json") and a not in cal and a != guided]
+    flaky = []
+    for c in cal:
+        for t in json.loads(pathlib.Path(c).read_text()).get("tasks", []):
+            if t.get("bucket") == "FLAKY":
+                flaky.append(t["task_id"])
+    sys.exit(main(runs or ["research/deepseek_full.json"], cal, guided, flaky))
