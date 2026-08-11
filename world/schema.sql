@@ -251,7 +251,8 @@ CREATE TABLE k8s_nodes (
     cpu_used_pct INTEGER NOT NULL,
     disk_used_pct INTEGER NOT NULL,
     labels TEXT NOT NULL DEFAULT '',
-    kernel_version TEXT NOT NULL DEFAULT ''
+    kernel_version TEXT NOT NULL DEFAULT '',
+    taints TEXT NOT NULL DEFAULT ''
 );
 CREATE TABLE k8s_pods (
     pod TEXT PRIMARY KEY,

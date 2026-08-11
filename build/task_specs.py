@@ -524,6 +524,31 @@ _add("aiops_analysis", "analysis", id="rca_checkout_unschedulable_replicas",
                   {"tool": "k8s_nodes_list", "args": {}}],
      ticket=("OPS-129", "high", "Root cause: checkout is running at a fraction of capacity"))
 
+_add("aiops_analysis", "analysis", id="rca_analytics_untolerated_taint",
+     scope="analytics-recon-never-runs", service="analytics-worker", fault_type="misconfig",
+     offending_key="workload=batch:NoSchedule", difficulty="expert", budget=14,
+     evidence="analytics-recon-6a1b-jj10 has been Pending since it was created: its "
+              "affinity pins it to node-a2, which carries the taint "
+              "workload=batch:NoSchedule, and the pod spec has no matching toleration. "
+              "The node is Ready and healthy and the other three nodes are excluded by "
+              "the affinity rule, so nothing is broken except the spec",
+     extra_reads=[{"tool": "k8s_pods_list", "args": {"service": "analytics-worker"}},
+                  {"tool": "k8s_nodes_list", "args": {}}],
+     ticket=("OPS-151", "high", "Root cause: the nightly reconciliation never runs"))
+
+_add("aiops_analysis", "analysis", id="rca_media_recreate_strategy",
+     scope="media-release-outages", service="media-service", fault_type="misconfig",
+     offending_key="Recreate", difficulty="hard", budget=12,
+     evidence="the media-service deployment uses the Recreate update strategy, which "
+              "terminates every replica before starting any new one, so each release is "
+              "a full outage window rather than a rollout; every other service uses "
+              "RollingUpdate and nothing is failing between releases",
+     extra_reads=[{"tool": "k8s_deployments_list", "args": {}},
+                  {"tool": "list_deployments", "args": {"service": "media-service",
+                                                        "environment": "production"}}],
+     ticket=("OPS-152", "medium",
+             "Root cause: media-service is briefly unavailable on every release"))
+
 _add("aiops_analysis", "analysis", id="rca_inventory_unbound_storage",
      scope="inventory-replica-missing", service="inventory", fault_type="misconfig",
      offending_key="fast-ssd-gp4", difficulty="expert", budget=14,
@@ -558,6 +583,51 @@ _add("code_implementation", "implement", id="impl_cachekey", path='src/search/ca
 _add("code_implementation", "implement", id="impl_ratelimit",
      path='src/gateway/token_bucket.py', difficulty='expert', reference=CODE['ratelimit'],
      ticket=('OPS-143', 'high', 'Implement per-client rate limiting at the edge'))
+
+# ==========================================================================
+# Attribution — several faults at once, and the cheap strategy fails.
+#
+# Built from an observed failure. Asked why media uploads were stalling, a
+# frontier model listed media-service's pods, then wandered into api-gateway's
+# source, found the connection leak genuinely seeded there for a different alarm,
+# and reported it as the cause. The right evidence was two calls away: an Evicted
+# event saying "the node was low on resource: ephemeral-storage", and a node at
+# DiskPressure 97%.
+# ==========================================================================
+_add("attribution", "attribution", id="attr_three_at_once", difficulty="expert",
+     ticket=("OPS-150", "critical",
+             "Three alarms in twenty minutes - is this one incident or three?"),
+     items=[
+         {"scope": "media-upload-stalls",
+          "symptom": "media uploads are stalling for customers",
+          "service": "media-service", "fault_type": "node_unhealthy",
+          "offending_key": "node-b3",
+          "evidence": "both media-service replicas are scheduled on node-b3, which reports "
+                      "DiskPressure at 97% of its ephemeral storage, and one replica has "
+                      "already been Evicted for ephemeral-storage",
+          "reads": [{"tool": "k8s_pods_list", "args": {"service": "media-service"}},
+                    {"tool": "k8s_events_list", "args": {"reason": "Evicted"}},
+                    {"tool": "k8s_nodes_list", "args": {"node": "node-b3"}}]},
+         {"scope": "gateway-latency-surge",
+          "symptom": "api-gateway p99 is 1030ms against a 250ms SLO",
+          "service": "api-gateway", "fault_type": "bad_release",
+          "offending_key": "v5.1.0",
+          "evidence": "p99 moved when v5.1.0 was promoted; that release opens an upstream "
+                      "connection per request without releasing it, so the leak is in every "
+                      "version at or above v5.1.0 and only a rollback recovers it",
+          "reads": [{"tool": "list_deployments",
+                     "args": {"service": "api-gateway", "environment": "production"}},
+                    {"tool": "search_logs", "args": {"service": "api-gateway"}}]},
+         {"scope": "checkout-error-spike",
+          "symptom": "checkout error rate is 5.5% against a 1.0% SLO",
+          "service": "checkout", "fault_type": "feature_flag_regression",
+          "offending_key": "instant_refunds",
+          "evidence": "checkout errors track the instant_refunds rollout rather than any "
+                      "deploy, and disabling the flag returns the error rate to baseline",
+          "reads": [{"tool": "list_feature_flags", "args": {"environment": "production"}},
+                    {"tool": "query_metrics", "args": {"service": "checkout"}}]},
+     ])
+
 
 # ==========================================================================
 # Reconciliation suite — questions no single system can answer, over data that
@@ -878,7 +948,7 @@ def _ticket_type(s):
             "detection": "incident", "localization": "incident",
             "analysis": "incident", "reconcile": "task",
             "judgement": "incident", "gated": "security",
-            "implement": "feature"}[s["generator"]]
+            "implement": "feature", "attribution": "incident"}[s["generator"]]
 
 
 def _ticket_service(s):

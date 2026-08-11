@@ -277,7 +277,8 @@ CREATE TABLE k8s_nodes (
     cpu_used_pct INTEGER NOT NULL,
     disk_used_pct INTEGER NOT NULL,
     labels TEXT NOT NULL DEFAULT '',
-    kernel_version TEXT NOT NULL DEFAULT ''
+    kernel_version TEXT NOT NULL DEFAULT '',
+    taints TEXT NOT NULL DEFAULT ''
 );
 -- AIOpsLab's operator_misoperation family is a declared spec that the cluster
 -- cannot satisfy: replicas: 100000, or a storageClassName that does not exist
@@ -542,6 +543,13 @@ K8S_PODS = [
     # the storage class in the spec does not exist in the cluster.
     ('inventory-7f3c-cc42', 'production', 'inventory', 'v4.2.1', 'Pending', 0, 1024, 0, '',
      "pod has unbound immediate PersistentVolumeClaims: storageclass.storage.k8s.io 'fast-ssd-gp4' not found"),
+
+    # --- AIOpsLab operator_invalid_affinity_toleration: the nightly reconciliation
+    # job is pinned to node-a2 by affinity but does not tolerate the taint that
+    # node carries, so it has never been admitted. Node healthy, pod spec wrong.
+    ('analytics-recon-6a1b-jj10', 'production', 'analytics-worker', 'v2.1.7', 'Pending', 0, 512, 0, '',
+     '0/4 nodes are available: 1 node(s) had untolerated taint {workload: batch}, '
+     '3 node(s) didn\'t match Pod\'s node affinity/selector'),
 ]
 
 # node, ready, condition, message, cpu_used_pct, disk_used_pct, labels, kernel_version
@@ -550,15 +558,18 @@ K8S_NODES = [
     # seeded precisely so that "find the unhealthy node" is not the same task as
     # "find the worst-looking number" (F5: chaos must be solvable, not cruel).
     ('node-a1', 'True', 'Ready', 'kubelet is posting ready status', 91, 44,
-     'zone=us-east-1a', '5.15.0-91-generic'),
+     'zone=us-east-1a', '5.15.0-91-generic', ''),
     ('node-a2', 'True', 'Ready', 'kubelet is posting ready status', 38, 51,
-     'zone=us-east-1a', '5.15.0-91-generic'),
+     'zone=us-east-1a', '5.15.0-91-generic',
+     # AIOpsLab operator_invalid_affinity_toleration: the node is fine and the
+     # workload is fine; the spec simply does not tolerate what the node carries.
+     'workload=batch:NoSchedule'),
     ('node-b3', 'True', 'DiskPressure',
      'kubelet has disk pressure: ephemeral storage 97% of 200Gi used', 40, 97,
-     'zone=us-east-1b', '5.15.0-91-generic'),
+     'zone=us-east-1b', '5.15.0-91-generic', ''),
     ('node-c1', 'Unknown', 'KernelDeadlock',
      'kernel: BUG: soft lockup - CPU#3 stuck for 23s; kubelet stopped posting node status 14m ago',
-     12, 33, 'zone=us-east-1c', '5.15.0-88-generic'),
+     12, 33, 'zone=us-east-1c', '5.15.0-88-generic', ''),
 ]
 
 # service, desired_replicas, ready_replicas, strategy, storage_class
@@ -573,7 +584,10 @@ K8S_DEPLOYMENTS = [
     # --- AIOpsLab operator_non_existent_storage: storageClassName names a class
     # that does not exist, so the claim never binds and the pod never schedules.
     ('inventory', 2, 1, 'RollingUpdate', 'fast-ssd-gp4'),
-    ('media-service', 2, 2, 'RollingUpdate', 'standard'),
+    # --- AIOpsLab operator_wrong_update_strategy: Recreate tears every replica
+    # down before starting the new ones, so each release is a full outage
+    # window rather than a rollout. Nothing is failing right now.
+    ('media-service', 2, 2, 'Recreate', 'standard'),
     ('notifications', 2, 2, 'RollingUpdate', 'standard'),
     ('payments', 3, 3, 'RollingUpdate', 'standard'),
     ('search', 3, 3, 'RollingUpdate', 'standard'),

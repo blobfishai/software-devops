@@ -134,6 +134,45 @@ FAMILY_MAP = {
         "a migrator pod stuck in CreateContainerConfigError because the image runs as root "
         "while the pod requires runAsNonRoot: the workload never started, so nothing "
         "crashed and no alarm fired", ["tsk_rca_inventory_migrator_security_context"]),
+    "operator_invalid_affinity_toleration": ("COVERED",
+        "a pod pinned by affinity to the one node that carries a taint it does not "
+        "tolerate: the node is Ready, the workload is fine, and only the spec is wrong",
+        ["tsk_rca_analytics_untolerated_taint"]),
+    "operator_wrong_update_strategy": ("COVERED",
+        "a deployment shipping with Recreate rather than RollingUpdate, so every release "
+        "is a full outage window and nothing is failing in between",
+        ["tsk_rca_media_recreate_strategy"]),
+    # AIOpsLab injects all nine astronomy-shop faults through OpenTelemetry demo
+    # FEATURE FLAGS - inject_fault("imageSlowLoad"), inject_fault("adFailure"),
+    # inject_fault("recommendationCacheFailure"). That shared mechanism, a flag
+    # that turns a fault on and which the agent must find and disable, is exactly
+    # this world's feature_flag family. The mechanism transfers; the specific
+    # services and symptoms do not, so these are PARTIAL rather than covered -
+    # claiming nine families for one mechanism would be inflation.
+    "astronomy_shop_ad_service_failure": ("PARTIAL",
+        "flag-injected fault; the mechanism is the feature_flag family, the service is not",
+        ["tsk_instant_refunds_killswitch"]),
+    "astronomy_shop_cart_service_failure": ("PARTIAL",
+        "flag-injected fault; mechanism covered, service not",
+        ["tsk_instant_refunds_killswitch"]),
+    "astronomy_shop_payment_service_failure": ("PARTIAL",
+        "flag-injected fault; mechanism covered, service not",
+        ["tsk_instant_refunds_killswitch"]),
+    "astronomy_shop_product_catalog_service_failure": ("PARTIAL",
+        "flag-injected fault; mechanism covered, service not",
+        ["tsk_instant_refunds_killswitch"]),
+    "astronomy_shop_image_slow_load": ("PARTIAL",
+        "flag-injected latency; this world has a cdn_bypass latency fault and a flag "
+        "mechanism, but not the two combined on an image path",
+        ["tsk_media_cdn"]),
+    "astronomy_shop_recommendation_service_cache_failure": ("PARTIAL",
+        "flag-injected cache failure; this world has a cache_disabled fault and a flag "
+        "mechanism, but not the two combined",
+        ["tsk_search_cache"]),
+    "flower_model_misconfig": ("OUT OF DOMAIN",
+        "federated-learning training config; nothing in an SRE world corresponds", []),
+    "flower_node_stop": ("OUT OF DOMAIN",
+        "federated-learning client dropout; nothing in an SRE world corresponds", []),
     "operator_overload_replicas": ("COVERED",
         "a deployment declaring 64 replicas with 6 ready, the remainder Pending on "
         "Insufficient cpu: the deployment reports no error of its own and the shortfall "

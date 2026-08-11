@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_091afb41",
+  "env_id": "env_software_devops_b868bf88",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -20,11 +20,11 @@
   },
   "database": {
     "snapshot_ref": "environment.db",
-    "schema_hash": "d36e34841cfb2c5136b8b4fd9b55b3af5811666ce8db0c5e919e98f3dafeeb47",
+    "schema_hash": "1d8f2f6c1122dcdac2fb1a0199ed4dd9f6556e611e384f7579a70464ced93e67",
     "seed": 42,
     "engine": "sqlite",
     "table_count": 66,
-    "row_count": 1297,
+    "row_count": 1301,
     "complexification_rounds": 0
   },
   "tools": {
@@ -287,11 +287,14 @@
     "tsk_rca_notifications_node_deadlock",
     "tsk_rca_inventory_migrator_security_context",
     "tsk_rca_checkout_unschedulable_replicas",
+    "tsk_rca_analytics_untolerated_taint",
+    "tsk_rca_media_recreate_strategy",
     "tsk_rca_inventory_unbound_storage",
     "tsk_impl_backoff",
     "tsk_impl_chunk",
     "tsk_impl_cachekey",
     "tsk_impl_ratelimit",
+    "tsk_attr_three_at_once",
     "tsk_localize_analytics_crashloop",
     "tsk_rcn_running_version",
     "tsk_rcn_customer_facing_incidents",
@@ -310,8 +313,8 @@
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 87,
-    "accepted_task_count": 87,
+    "task_count": 90,
+    "accepted_task_count": 90,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -321,8 +324,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 87,
-    "discriminating_vcode_tasks": 87,
+    "total_tasks": 90,
+    "discriminating_vcode_tasks": 90,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,

@@ -1050,6 +1050,75 @@ def _aiops_common(checks, scope, steps_budget):
                    "reach a conclusion within %d tool calls" % steps_budget))
 
 
+def gen_attribution(spec):
+    """Several things are wrong at once. Attribute each to its own cause.
+
+    Built from an observed failure rather than imagined: asked why media uploads
+    were stalling, a frontier model read media-service's pods, then wandered into
+    api-gateway's source, found the connection leak that is genuinely seeded there
+    for a different alarm, and confidently reported it as the cause. The evidence
+    for the real answer was two calls away.
+
+    Every other diagnostic family here presents one symptom. This one presents
+    several, and the cheap strategy - find the most dramatic thing in the estate
+    and attribute everything to it - fails all but one of them.
+    """
+    tkt = spec["ticket"][0]
+    items = spec["items"]
+    lines = "\n".join("  - %s" % i["symptom"] for i in items)
+    instruction = (
+        AIOPS_INTRO +
+        "%s — %s\n\n%d things are wrong at once this morning:\n\n%s\n\n"
+        "Ops would like to treat this as a single incident with a single cause, "
+        "because that is one rollback instead of three investigations. Work out "
+        "whether that is true. Submit one diagnosis per scope listed above — the "
+        "scope strings are %s — each naming the service, the fault type and the "
+        "specific setting or version responsible.\n\n"
+        "They may share a cause and they may not. Deciding that is the task; do not "
+        "assume either way, and do not attribute a symptom to a fault you happened "
+        "to find while looking at something else."
+        % (tkt, spec["ticket"][2], len(items), lines,
+           ", ".join("'%s'" % i["scope"] for i in items)))
+    checks = []
+    for i in items:
+        sc = i["scope"]
+        checks.append(("correctness", "attributed_%s" % sc.replace("-", "_"),
+                       "(_diagnosis(%s) or {}).get('service') == %s and "
+                       "(_diagnosis(%s) or {}).get('fault_type') == %s"
+                       % (q(sc), q(i["service"]), q(sc), q(i["fault_type"])),
+                       "%s is a %s in %s" % (sc, i["fault_type"], i["service"])))
+        checks.append(("correctness", "key_for_%s" % sc.replace("-", "_"),
+                       "(_diagnosis(%s) or {}).get('offending_key') == %s"
+                       % (q(sc), q(i["offending_key"])),
+                       "the setting responsible for %s is %s" % (sc, i["offending_key"])))
+    # The whole point: attributing everything to one cause must fail, even when
+    # that one cause is genuinely present somewhere in the estate.
+    checks.append(("correctness", "causes_are_distinct",
+                   "len({(_diagnosis(_s) or {}).get('service') for _s in %r}) == %d"
+                   % ([i["scope"] for i in items], len({i["service"] for i in items})),
+                   "these symptoms do not share a cause; each has its own"))
+    checks.append(("deployment", "investigation_was_read_only", "_mutating_calls() == 0",
+                   "an investigation must not change production state"))
+    checks.append(("quality", "evidence_recorded",
+                   " and ".join("(_diagnosis(%s) or {}).get('evidence', '') != ''" % q(i["scope"])
+                                for i in items),
+                   "record the evidence behind each attribution"))
+    checks.append(("quality", "ticket_closed", "_ticket_status(%s) == 'done'" % q(tkt),
+                   "close ticket %s once every symptom is attributed" % tkt))
+    checks.append(("quality", "closed_after_the_work", "_closed_after_work(%s)" % q(tkt),
+                   "close %s only once the findings are submitted" % tkt))
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}},
+             {"tool": "list_alerts", "args": {"status": "firing"}}]
+    for i in items:
+        calls += list(i.get("reads", []))
+        calls.append({"tool": "submit_diagnosis", "args": {
+            "scope": i["scope"], "fault_detected": True, "service": i["service"],
+            "fault_type": i["fault_type"], "offending_key": i["offending_key"],
+            "evidence": i["evidence"]}})
+    calls.append({"tool": "update_ticket", "args": {"key": tkt, "status": "done"}})
+    return instruction, checks, calls
+
+
 def gen_implement(spec):
     """A task the world cannot grade without running the code.
 
@@ -1418,7 +1487,7 @@ GENERATORS = {
     "gated": gen_gated,
     "judgement": gen_judgement,
     "reconcile": gen_reconcile,
-    "implement": gen_implement, "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
+    "attribution": gen_attribution, "implement": gen_implement, "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
     "config_fix": gen_config_fix, "flag_ship": gen_flag_ship, "flag_kill": gen_flag_kill,
     "flag_cleanup": gen_flag_cleanup, "security_cve": gen_security_cve,
     "security_endpoint": gen_security_endpoint, "security_secret": gen_security_secret,
@@ -1508,6 +1577,10 @@ GUIDANCE = {
                  "the service naming across them, check for duplicates and sampling before "
                  "counting, decide the boundary condition explicitly, and record which "
                  "source you trusted and why.",
+    "attribution": "Procedure: take each symptom on its own. For each, follow the "
+                   "evidence from the affected service down through its pods, its node "
+                   "and its events before looking anywhere else, and only then decide "
+                   "whether any two share a cause.",
     "implement": "Procedure: read the specification, write the implementation, run the "
                  "visible tests, and re-read the specification for the cases the visible "
                  "tests do not cover before you finish.",

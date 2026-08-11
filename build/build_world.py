@@ -157,7 +157,7 @@ def build_db(db_path):
                      "restarts, memory_limit_mb, memory_usage_mb, node, pending_reason) "
                      "VALUES (?,?,?,?,?,?,?,?,?,?)", V.K8S_PODS)
     conn.executemany("INSERT INTO k8s_nodes(node, ready, condition, message, cpu_used_pct, "
-                     "disk_used_pct, labels, kernel_version) VALUES (?,?,?,?,?,?,?,?)",
+                     "disk_used_pct, labels, kernel_version, taints) VALUES (?,?,?,?,?,?,?,?,?)",
                      V.K8S_NODES)
     conn.executemany("INSERT INTO k8s_deployments(service, desired_replicas, ready_replicas, "
                      "strategy, storage_class) VALUES (?,?,?,?,?)", V.K8S_DEPLOYMENTS)
