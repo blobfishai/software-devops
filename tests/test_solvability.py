@@ -107,7 +107,12 @@ def test_documented_policies_are_all_discoverable(db):
     body = " ".join(r[0] + " " + r[1] for r in db.execute("SELECT title, body FROM documents"))
     required = ["staging", "canary", "promote_canary", "apply_migration", "test_fix",
                 "3 consecutive green", "50 percentage", "use_secret_manager",
-                "#security", "postmortem", "status page"]
+                "#security", "postmortem", "status page",
+                # deployment/ack_before_resolve is the single most common failure a
+                # frontier model produces here, so whether the rule is findable is
+                # load-bearing for reading that result: a documented rule ignored is
+                # a discipline failure, an undocumented one is our trap.
+                "Acknowledge the firing alert"]
     missing = [k for k in required if k not in body]
     assert not missing, "policies enforced but not documented anywhere: %s" % missing
 
