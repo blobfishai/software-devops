@@ -571,15 +571,27 @@ tau-bench's `pass^k` (sampling without replacement), the corpus's own recommenda
 
 Ranked by how much it would matter to a lab deciding whether to adopt the world.
 
-**7.1 No real code execution — the corpus's one consensus task is simulated.**
+**7.1 Code execution: now real for one family, simulated everywhere else.**
 Eight of nine benchmark repos share exactly one task: fix a real repository and prove
-it with its own tests in a container. The world's CI is a SQL rule engine over
-`pr_changes`; its "repo" is 38 files totalling 84 KB; its changes are seven
-structured `change_type` payloads, never a diff. Consequences: code synthesis is
-unmeasurable here; the reward-hacking surfaces that matter most for coding agents
-(test tampering, hardcoding expected values — ImpossibleBench, EvilGenie) cannot
-occur *and therefore cannot be tested for*; and SWE-bench-style transfer claims are
-not supportable. A lab evaluating coding ability should use this world alongside
+it with its own tests in a container. This was previously absent altogether — CI is a
+SQL rule engine over `pr_changes` and a `change_type` payload is never a diff.
+
+**Partially closed.** The `code_implementation` family (3 tasks) is genuinely
+executed: `write_implementation` stores source, `run_exercise_tests` runs it in a
+fresh interpreter under a timeout, and the verifier reads what happened against
+tests the agent never sees. The world cannot grade these without running them,
+which is different in kind from every other check here. The visible tests are
+deliberately insufficient — each is satisfied by a plausible wrong implementation
+that the hidden tests reject, pinned by
+`test_the_world_actually_executes_code_it_cannot_otherwise_grade`.
+
+**Still missing.** Three tasks are a family, not a benchmark. The exercises are
+single stdlib functions rather than a repository, there is no container, no
+dependency resolution and no build; execution is a subprocess with a stripped
+environment, which is containment enough for a local eval and not enough for
+untrusted code at scale. Test tampering remains impossible because the agent
+cannot write the tests — that removes a reward-hacking surface rather than
+testing it. A lab evaluating coding ability should still use this world alongside
 SWE-bench, never instead of it.
 
 **7.2 No simulated human, and therefore three whole failure modes are untestable.**

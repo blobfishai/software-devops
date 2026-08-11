@@ -83,6 +83,9 @@
     "tool_k8s_pods_list",
     "tool_k8s_nodes_list",
     "tool_k8s_deployments_list",
+    "tool_read_exercise",
+    "tool_write_implementation",
+    "tool_run_exercise_tests",
     "tool_submit_answer"
   ],
   "edges": [],

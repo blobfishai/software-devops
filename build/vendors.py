@@ -291,6 +291,34 @@ CREATE TABLE k8s_deployments (
     strategy TEXT NOT NULL DEFAULT 'RollingUpdate',
     storage_class TEXT NOT NULL DEFAULT ''
 );
+-- Modules the world EXECUTES rather than inspects.
+--
+-- Every other check here is a rule over declared state. Those cannot catch a
+-- logic error, because nothing runs. An exercise carries a specification, a
+-- visible test the agent may run as often as it likes, and a hidden test it
+-- never sees - so the world does not know whether an implementation is correct
+-- until it executes it.
+CREATE TABLE code_exercises (
+    exercise_id INTEGER PRIMARY KEY,
+    service TEXT NOT NULL,
+    path TEXT NOT NULL UNIQUE,
+    func TEXT NOT NULL,
+    spec TEXT NOT NULL,
+    starter TEXT NOT NULL,
+    visible_tests TEXT NOT NULL,   -- json [[name, body], ...]
+    hidden_tests TEXT NOT NULL     -- json, never returned by any read tool
+);
+-- What the agent has written, and what happened when it was run.
+CREATE TABLE code_submissions (
+    submission_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    path TEXT NOT NULL,
+    content TEXT NOT NULL,
+    visible_passed INTEGER NOT NULL DEFAULT 0,
+    visible_total INTEGER NOT NULL DEFAULT 0,
+    hidden_passed INTEGER NOT NULL DEFAULT 0,
+    hidden_total INTEGER NOT NULL DEFAULT 0,
+    detail TEXT NOT NULL DEFAULT ''
+);
 -- the mapping that makes the naming chaos SOLVABLE rather than cruel (F5)
 CREATE TABLE service_aliases (
     canonical TEXT NOT NULL,

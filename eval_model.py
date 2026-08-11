@@ -135,7 +135,12 @@ def run_model_episode(world, task, sid, api_key, model, max_turns, verbose):
 
 POLICY_STEPS = {"search_docs", "get_document", "acknowledge_alert", "post_message",
                 "publish_status_update", "assess_canary", "promote_canary", "list_migrations",
-                "get_ci_run", "get_traffic_stats"}
+                "get_ci_run", "get_traffic_stats",
+                # "run it before you call it done" is discipline, not the work. An
+                # agent that writes correct code and never executes it has done the
+                # engineering and skipped the procedure - which is the same failure
+                # the deployment dimension exists to catch everywhere else.
+                "run_exercise_tests"}
 
 
 def naive_calls(task):

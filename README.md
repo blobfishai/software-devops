@@ -19,7 +19,7 @@ Agents solve long-horizon workflows: **investigate → PR → CI (build · unit 
 integration · regression) → merge → migrate → staging → canary → promote →
 observe → resolve → close the ticket.**
 
-**83 tasks**, graded on both
+**86 tasks**, graded on both
 Horizon-SWE-PF (binary) and Horizon-SWE-PC (composite).
 
 The same world also hosts a second suite that reproduces the use case of
@@ -68,7 +68,7 @@ stripped environment, checking both halves of what a verifier is for:
 
 ```
 $ python3 harbor_selftest.py
-harbor standalone self-test: 83/83 verifiers accept the reference solution
+harbor standalone self-test: 86/86 verifiers accept the reference solution
 and reject an untouched world
   failures 0, missing 0, free-reward 0
 ```
@@ -77,7 +77,7 @@ An untouched world must be **rejected** — a verifier that passes before anyone
 does anything is a free reward, not a grader. The reference solution must be
 **accepted**. All 82 do both, outside the repository that built them.
 
-## The 83 tasks
+## The 86 tasks
 
 | Category | Tasks | Examples |
 |---|---|---|
@@ -94,8 +94,9 @@ does anything is a free reward, not a grader. The reference solution must be
 | detection | 5 | is this service violating an SLO? one is healthy, and saying so is the pass |
 | judgement | 4 | choose between four plausible remediations, three of which treat the symptom |
 | human-gated | 1 | the change needs an approval that is not granted on request |
+| code implementation | 3 | write a function the world actually executes against tests you cannot see |
 
-68 train / 15 heldout, split per category. Difficulty: 2 easy, 29 medium, 26 hard, 26 expert.
+71 train / 15 heldout, split per category. Difficulty: 2 easy, 30 medium, 28 hard, 26 expert.
 
 ## Instruction design: outcomes, not procedure
 
@@ -106,7 +107,7 @@ rule, "fix don't quarantine", the audit-note and status-page requirements — is
 never in the prompt. It lives in the knowledge base, and the agent has to go
 find it. Deviating from a policy it never read still fails the verifier.
 
-Measured across all 83 tasks, the default prompt contains the exact config key
+Measured across all 86 tasks, the default prompt contains the exact config key
 **0** times, the target value **0** times, a runbook title **0** times, and any
 workflow instruction **0** times. Every policy removed from the prompts is
 verifiably present in the knowledge base, so the tasks stay solvable by
@@ -136,7 +137,7 @@ failure mode damages.
 | `no_verify` | ships the fix but never checks, resolves or closes anything |
 | `shortcut` | quarantines flaky tests; blames whichever service the alarm names |
 
-PF pass rate by category (83 tasks):
+PF pass rate by category (86 tasks):
 
 ```
                           oracle    naive  merged_only  no_verify  shortcut
@@ -262,7 +263,7 @@ verifier, reporting both Horizon-style numbers:
 ```
   tsk_payments_retry     hard   PASS  score=1.00  corr 7/7 depl 4/4 qual 5/5  calls=14
   ...
-  Horizon-SWE-PF  (pass rate, correctness+deployment must be perfect) : 100.0%  (83/83)
+  Horizon-SWE-PF  (pass rate, correctness+deployment must be perfect) : 100.0%  (86/86)
   Horizon-SWE-PC  (0.6 correctness / 0.3 deployment / 0.1 quality)     : 100.0
 
   by category:
@@ -287,7 +288,7 @@ curl -s -XPOST localhost:8080/sessions/$SID/verify \
 ### Drive it over MCP
 
 `POST /mcp` (JSON-RPC 2.0: `initialize`, `tools/list`, `tools/call`), with the
-session pinned via the `Mcp-Session-Id` header. Alongside the 84 world tools,
+session pinned via the `Mcp-Session-Id` header. Alongside the 87 world tools,
 the server exposes the blobfish meta-tools: `world_info`, `task_list`,
 `task_start`, `task_verify`, `episode_abort`. Episode lifecycle:
 `task_start` → world tool calls → `task_verify` (binary reward, no judge).

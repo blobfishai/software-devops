@@ -84,6 +84,26 @@ CREATE TABLE ci_stages (
     status TEXT NOT NULL,
     detail TEXT NOT NULL DEFAULT ''
 );
+CREATE TABLE code_exercises (
+    exercise_id INTEGER PRIMARY KEY,
+    service TEXT NOT NULL,
+    path TEXT NOT NULL UNIQUE,
+    func TEXT NOT NULL,
+    spec TEXT NOT NULL,
+    starter TEXT NOT NULL,
+    visible_tests TEXT NOT NULL,   -- json [[name, body], ...]
+    hidden_tests TEXT NOT NULL     -- json, never returned by any read tool
+);
+CREATE TABLE code_submissions (
+    submission_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    path TEXT NOT NULL,
+    content TEXT NOT NULL,
+    visible_passed INTEGER NOT NULL DEFAULT 0,
+    visible_total INTEGER NOT NULL DEFAULT 0,
+    hidden_passed INTEGER NOT NULL DEFAULT 0,
+    hidden_total INTEGER NOT NULL DEFAULT 0,
+    detail TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE commits (
     commit_id INTEGER PRIMARY KEY AUTOINCREMENT,
     sha TEXT UNIQUE NOT NULL,

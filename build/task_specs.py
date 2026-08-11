@@ -9,6 +9,12 @@ Ticket tuple = (key, priority, title).
 SPECS = []
 
 
+from code_exercises import EXERCISES as _EX
+
+# Reference implementations, so the oracle can replay a task whose answer is code.
+CODE = {e["id"]: e["reference"] for e in _EX}
+
+
 def _add(category, generator, **kw):
     kw["category"] = category
     kw["generator"] = generator
@@ -531,6 +537,25 @@ _add("aiops_analysis", "analysis", id="rca_inventory_unbound_storage",
 
 
 # ==========================================================================
+# Code implementation — the only family here the world cannot grade without
+# running the code. Every other check is a rule over declared state; these have
+# no answer key, only a specification, a visible test and a hidden test the agent
+# never sees. See build/code_exercises.py for the design rules.
+# ==========================================================================
+
+_add("code_implementation", "implement", id="impl_backoff", path='src/payments/backoff.py',
+     difficulty='hard', reference=CODE['backoff'],
+     ticket=('OPS-140', 'high', 'Implement the payments retry backoff schedule'))
+
+_add("code_implementation", "implement", id="impl_chunk", path='src/payments/chunking.py',
+     difficulty='medium', reference=CODE['chunk'],
+     ticket=('OPS-141', 'medium', 'Implement settlement batch chunking'))
+
+_add("code_implementation", "implement", id="impl_cachekey", path='src/search/cache_key.py',
+     difficulty='hard', reference=CODE['cachekey'],
+     ticket=('OPS-142', 'high', 'Implement the search cache key'))
+
+# ==========================================================================
 # Reconciliation suite — questions no single system can answer, over data that
 # disagrees. Every scenario cites research/notes/domain/F_chaos_scenarios.md.
 # ==========================================================================
@@ -848,7 +873,8 @@ def _ticket_type(s):
             "api_migration": "task", "multi_service": "feature",
             "detection": "incident", "localization": "incident",
             "analysis": "incident", "reconcile": "task",
-            "judgement": "incident", "gated": "security"}[s["generator"]]
+            "judgement": "incident", "gated": "security",
+            "implement": "feature"}[s["generator"]]
 
 
 def _ticket_service(s):

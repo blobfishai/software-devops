@@ -147,6 +147,16 @@ def _answer_num(_qid):
 def _jira(_key):
     _r = conn.execute('SELECT status, resolution FROM jira_issues WHERE key=?', (_key,)).fetchone()
     return None if _r is None else (_r[0], _r[1] or '')
+def _submission(_path):
+    # The most recent implementation written for an exercise, with what happened
+    # when the world ran it. The agent can never read this - run_exercise_tests
+    # returns only the visible outcome - so the hidden result is a fact about the
+    # code rather than a target the agent can iterate against.
+    _r = conn.execute('SELECT * FROM code_submissions WHERE path=? '
+                      'ORDER BY submission_id DESC LIMIT 1', (_path,)).fetchone()
+    return dict(_r) if _r else None
+
+
 def _called(_tool):
     return (_one('SELECT COUNT(*) FROM tool_calls WHERE tool=?', _tool) or 0) > 0
 def _used(_qid, _system):
@@ -1040,6 +1050,57 @@ def _aiops_common(checks, scope, steps_budget):
                    "reach a conclusion within %d tool calls" % steps_budget))
 
 
+def gen_implement(spec):
+    """A task the world cannot grade without running the code.
+
+    Every other family here checks declared state. This one has no answer key: the
+    verifier reads what happened when the implementation was executed against tests
+    the agent never saw.
+    """
+    path, tkt = spec["path"], spec["ticket"][0]
+    instruction = (
+        "%s — %s\n\n%s is not implemented. Read the specification with "
+        "read_exercise('%s'), write your implementation with write_implementation, and "
+        "run it with run_exercise_tests until the visible tests pass.\n\n"
+        "The visible tests are not the whole specification. Other tests run at grading "
+        "time and are not shown to you, so satisfying what you can see is necessary and "
+        "not sufficient — read the specification and implement what it actually says."
+        % (tkt, spec["ticket"][2], path, path))
+    checks = [
+        ("correctness", "implementation_written",
+         "_submission(%s) is not None" % q(path),
+         "write an implementation for %s" % path),
+        ("correctness", "visible_tests_pass",
+         "(_submission(%s) or {}).get('visible_total', 0) > 0 and "
+         "(_submission(%s) or {}).get('visible_passed') == "
+         "(_submission(%s) or {}).get('visible_total')" % (q(path), q(path), q(path)),
+         "every visible test must pass"),
+        ("correctness", "hidden_tests_pass",
+         "(_submission(%s) or {}).get('hidden_total', 0) > 0 and "
+         "(_submission(%s) or {}).get('hidden_passed') == "
+         "(_submission(%s) or {}).get('hidden_total')" % (q(path), q(path), q(path)),
+         "the implementation must satisfy the whole specification, not only the "
+         "tests you were shown"),
+        # You do not ship code you never ran. This is the deployment discipline for
+        # a code change, and it is the one check here an agent can fail while being
+        # completely correct.
+        ("deployment", "executed_before_finishing",
+         "_called('run_exercise_tests')",
+         "run the tests before calling the work done"),
+        ("quality", "ticket_closed", "_ticket_status(%s) == 'done'" % q(tkt),
+         "close ticket %s once the implementation is green" % tkt),
+        ("quality", "closed_after_the_work", "_closed_after_work(%s)" % q(tkt),
+         "close %s only once the implementation passes, not before" % tkt),
+    ]
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}},
+             {"tool": "read_exercise", "args": {"path": path}},
+             {"tool": "write_implementation", "args": {"path": path,
+                                                       "content": spec["reference"]}},
+             {"tool": "run_exercise_tests", "args": {"path": path}},
+             {"tool": "update_ticket", "args": {"key": tkt, "status": "done"}}]
+    return instruction, checks, calls
+
+
 def gen_detection(spec):
     scope, tkt = spec["scope"], spec["ticket"][0]
     faulty = spec["fault_detected"]
@@ -1357,7 +1418,7 @@ GENERATORS = {
     "gated": gen_gated,
     "judgement": gen_judgement,
     "reconcile": gen_reconcile,
-    "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
+    "implement": gen_implement, "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
     "config_fix": gen_config_fix, "flag_ship": gen_flag_ship, "flag_kill": gen_flag_kill,
     "flag_cleanup": gen_flag_cleanup, "security_cve": gen_security_cve,
     "security_endpoint": gen_security_endpoint, "security_secret": gen_security_secret,
@@ -1447,6 +1508,9 @@ GUIDANCE = {
                  "the service naming across them, check for duplicates and sampling before "
                  "counting, decide the boundary condition explicitly, and record which "
                  "source you trusted and why.",
+    "implement": "Procedure: read the specification, write the implementation, run the "
+                 "visible tests, and re-read the specification for the cases the visible "
+                 "tests do not cover before you finish.",
     "analysis": "Procedure: read the production logs and the error tracker, inspect the "
                 "deployed configuration, and read the source and the commit that introduced "
                 "the change to confirm the mechanism before submitting.",

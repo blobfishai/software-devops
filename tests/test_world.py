@@ -941,3 +941,85 @@ def test_the_guided_procedure_never_points_where_the_answer_is_not():
         proc = proc[proc.index("Procedure:"):]
         assert "read the source and the commit" not in proc, (
             "%s tells the agent to confirm a cluster fault in the source" % t["task_id"])
+
+
+def test_the_world_actually_executes_code_it_cannot_otherwise_grade(env):
+    """Every other check in this world is a rule over declared state, and no rule
+    catches a logic error. The implementation family has no answer key: the
+    verifier reads what happened when the code was RUN against tests the agent
+    never saw.
+
+    The property that matters is that satisfying the visible tests is necessary
+    and not sufficient. If a plausible wrong implementation passed the hidden
+    tests too, running would be theatre.
+    """
+    import tempfile
+    sys.path.insert(0, str(ROOT))
+    sys.path.insert(0, str(ROOT / "build"))
+    from serve import World
+    from code_exercises import EXERCISES
+
+    world = World(ROOT / "world", tempfile.mkdtemp(prefix="codeexec_"))
+    wrong = {
+        "backoff": "def next_delay_ms(attempt, base_ms, max_ms):\n"
+                   "    return base_ms * (2 ** attempt)\n",
+        "chunk": "def chunk(items, size):\n"
+                 "    return [items[i:i+size] for i in range(0, len(items), size)]\n",
+        "cachekey": "def cache_key(params):\n"
+                    "    return ''.join('%s%s' % (k, v) for k, v in sorted(params.items()))\n",
+    }
+    for ex in EXERCISES:
+        sid = world.create_session()
+        # the reference must satisfy everything
+        world.call_tool(sid, "write_implementation",
+                        {"path": ex["path"], "content": ex["reference"]})
+        good = world.call_tool(sid, "run_exercise_tests", {"path": ex["path"]})
+        assert good["passed"] == good["total"], (ex["id"], good)
+
+        sid = world.create_session()
+        world.call_tool(sid, "write_implementation",
+                        {"path": ex["path"], "content": wrong[ex["id"]]})
+        bad = world.call_tool(sid, "run_exercise_tests", {"path": ex["path"]})
+        assert bad["passed"] == bad["total"], (
+            "%s: the visible tests already reject this implementation, so running "
+            "them settles the task and the hidden tests prove nothing" % ex["id"])
+
+        import sqlite3 as _sq
+        conn = _sq.connect(world.sessions[sid]["db"])
+        h = conn.execute("SELECT hidden_passed, hidden_total FROM code_submissions "
+                         "WHERE path=? ORDER BY submission_id DESC LIMIT 1",
+                         (ex["path"],)).fetchone()
+        conn.close()
+        assert h[0] < h[1], "%s: hidden tests do not catch the wrong implementation" % ex["id"]
+
+
+def test_hidden_tests_are_never_returned_to_the_agent(env):
+    """An agent that can read the hidden tests can satisfy them without satisfying
+    the specification, which is the same reward hack as reading the answer key."""
+    import tempfile
+    sys.path.insert(0, str(ROOT))
+    from serve import World
+    world = World(ROOT / "world", tempfile.mkdtemp(prefix="hidden_"))
+    sid = world.create_session()
+
+    conn = sqlite3.connect("file:%s?mode=ro" % (ROOT / "world" / "environment.db"), uri=True)
+    rows = conn.execute("SELECT path, hidden_tests FROM code_exercises").fetchall()
+    conn.close()
+    assert rows
+
+    for path, hidden in rows:
+        for tool in ("read_exercise", "run_exercise_tests", "read_file"):
+            args = {"path": path}
+            out = json.dumps(world.call_tool(sid, tool, args))
+            for _, body in json.loads(hidden):
+                probe = body.splitlines()[0][:40]
+                assert probe not in out, \
+                    "%s leaks a hidden test through %s" % (path, tool)
+
+    # and no read tool may reach the table at all
+    tools = json.loads((ROOT / "world" / "tools.json").read_text())
+    leaky = [t["name"] for t in tools
+             if "code_exercises" in t.get("read_tables", [])
+             and "hidden" in t["source_code"] and "hidden_tests'" in t["source_code"]
+             and "return" in t["source_code"].split("hidden_tests'")[-1][:200]]
+    assert not leaky, "tool(s) return hidden tests: %s" % leaky

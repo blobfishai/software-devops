@@ -4102,6 +4102,136 @@
     }
   },
   {
+    "tool_id": "tool_read_exercise",
+    "name": "read_exercise",
+    "description": "Read a code exercise: its specification, the current contents of the file, and the visible tests. There are also hidden tests, which this never returns - an implementation that satisfies only the visible ones is not finished.",
+    "source_code": "def read_exercise(db_path=None, path=None):\n    \"\"\"Read a code exercise: its specification, the current contents of the file, and the visible tests. There are also hidden tests, which this never returns - an implementation that satisfies only the visible ones is not finished.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('read_exercise',)); conn.commit()\n        except Exception:\n            pass\n        if path is None:\n            return {'ok': False, 'error': 'missing required parameter: path'}\n        row = conn.execute('SELECT * FROM code_exercises WHERE path=?', (path,)).fetchone()\n        if row is None:\n            return {'ok': False, 'error': 'no exercise at ' + str(path)}\n        cur = conn.execute('SELECT content FROM code_submissions WHERE path=? ORDER BY submission_id DESC LIMIT 1', (path,)).fetchone()\n        src = conn.execute('SELECT content FROM repo_files WHERE path=?', (path,)).fetchone()\n        return {'path': row['path'], 'service': row['service'], 'function': row['func'],\n                'spec': row['spec'],\n                'current_content': cur['content'] if cur else (src['content'] if src else ''),\n                'visible_tests': [t[0] for t in _json.loads(row['visible_tests'])],\n                'note': 'hidden tests also run at verification time and are not shown'}\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "path",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "path"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [
+      "code_exercises",
+      "code_submissions",
+      "repo_files"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "read_exercise",
+      "description": "Read a code exercise: its specification, the current contents of the file, and the visible tests. There are also hidden tests, which this never returns - an implementation that satisfies only the visible ones is not finished.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "path"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      }
+    }
+  },
+  {
+    "tool_id": "tool_write_implementation",
+    "name": "write_implementation",
+    "description": "Replace the contents of an exercise file with your implementation. This only stores the code - it does not run it. Use run_exercise_tests to find out whether it works.",
+    "source_code": "def write_implementation(db_path=None, path=None, content=None):\n    \"\"\"Replace the contents of an exercise file with your implementation. This only stores the code - it does not run it. Use run_exercise_tests to find out whether it works.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('write_implementation',)); conn.commit()\n        except Exception:\n            pass\n        if path is None:\n            return {'ok': False, 'error': 'missing required parameter: path'}\n        if content is None:\n            return {'ok': False, 'error': 'missing required parameter: content'}\n        def _audit(conn, _tool, _svc, _detail):\n            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))\n        row = conn.execute('SELECT 1 FROM code_exercises WHERE path=?', (path,)).fetchone()\n        if row is None:\n            return {'ok': False, 'error': 'no exercise at ' + str(path)}\n        if not str(content).strip():\n            return {'ok': False, 'error': 'content is empty'}\n        if len(str(content)) > 20000:\n            return {'ok': False, 'error': 'implementation is too large (20000 char limit)'}\n        conn.execute('INSERT INTO code_submissions(path, content) VALUES (?,?)', (path, str(content)))\n        conn.execute('UPDATE repo_files SET content=?, loc=? WHERE path=?',\n                     (str(content), len(str(content).splitlines()), path))\n        _audit(conn, 'write_implementation', '', {'path': path, 'chars': len(str(content))})\n        conn.commit()\n        return {'ok': True, 'path': path, 'chars': len(str(content)),\n                'next': 'run_exercise_tests to execute it'}\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "path",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "path"
+      },
+      {
+        "name": "content",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "content"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [
+      "code_exercises"
+    ],
+    "write_tables": [
+      "audit_events",
+      "code_submissions",
+      "repo_files"
+    ],
+    "json_schema": {
+      "name": "write_implementation",
+      "description": "Replace the contents of an exercise file with your implementation. This only stores the code - it does not run it. Use run_exercise_tests to find out whether it works.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "path"
+          },
+          "content": {
+            "type": "string",
+            "description": "content"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ]
+      }
+    }
+  },
+  {
+    "tool_id": "tool_run_exercise_tests",
+    "name": "run_exercise_tests",
+    "description": "Execute the implementation written for a code exercise against its visible tests and report which passed. The hidden tests run at the same time; their result is recorded for grading and is not returned, so passing everything shown here does not mean you are done.",
+    "source_code": "def run_exercise_tests(db_path=None, path=None):\n    \"\"\"Execute the implementation written for a code exercise against its visible tests and report which passed. The hidden tests run at the same time; their result is recorded for grading and is not returned, so passing everything shown here does not mean you are done.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('run_exercise_tests',)); conn.commit()\n        except Exception:\n            pass\n        if path is None:\n            return {'ok': False, 'error': 'missing required parameter: path'}\n        def _audit(conn, _tool, _svc, _detail):\n            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))\n        import subprocess as _sp, tempfile as _tf, sys as _sys, os as _os\n        row = conn.execute('SELECT * FROM code_exercises WHERE path=?', (path,)).fetchone()\n        if row is None:\n            return {'ok': False, 'error': 'no exercise at ' + str(path)}\n        sub = conn.execute('SELECT * FROM code_submissions WHERE path=? ORDER BY submission_id DESC LIMIT 1', (path,)).fetchone()\n        if sub is None:\n            return {'ok': False, 'error': 'nothing written to ' + str(path) + ' yet; use write_implementation first'}\n\n        def _exec(_impl, _tests):\n            # Model-written code, so: a fresh interpreter, a temp cwd, a stripped\n            # environment and a hard timeout. A production deployment should run this in\n            # a container; that containment is the operator's, not this tool's.\n            _runner = (\n                'import json, sys, traceback\\n'\n                'src = open(sys.argv[1]).read()\\n'\n                'tests = json.load(open(sys.argv[2]))\\n'\n                'ns = {}\\n'\n                'out = []\\n'\n                'try:\\n'\n                '    exec(compile(src, \"impl.py\", \"exec\"), ns)\\n'\n                'except Exception as e:\\n'\n                '    print(json.dumps([[t[0], False, \"module did not import: %s\" % e] for t in tests]))\\n'\n                '    sys.exit(0)\\n'\n                'for name, body in tests:\\n'\n                '    local = dict(ns)\\n'\n                '    try:\\n'\n                '        exec(compile(body, \"test.py\", \"exec\"), local)\\n'\n                '        out.append([name, True, \"\"])\\n'\n                '    except Exception as e:\\n'\n                '        out.append([name, False, \"%s: %s\" % (type(e).__name__, e)])\\n'\n                'print(json.dumps(out))\\n')\n            _d = _tf.mkdtemp(prefix='exercise_')\n            _ip = _os.path.join(_d, 'impl.py'); open(_ip, 'w').write(_impl)\n            _tp = _os.path.join(_d, 'tests.json'); open(_tp, 'w').write(_json.dumps(_tests))\n            _rp = _os.path.join(_d, 'runner.py'); open(_rp, 'w').write(_runner)\n            try:\n                _p = _sp.run([_sys.executable, _rp, _ip, _tp], capture_output=True, text=True,\n                             timeout=15, cwd=_d, env={'PATH': '/usr/bin:/bin'})\n            except _sp.TimeoutExpired:\n                return [[t[0], False, 'timed out after 15s'] for t in _tests]\n            try:\n                return _json.loads(_p.stdout.strip().splitlines()[-1])\n            except Exception:\n                return [[t[0], False, 'runner produced no result: ' + (_p.stderr or '')[-160:]]\n                        for t in _tests]\n\n        _vis = _json.loads(row['visible_tests'])\n        _hid = _json.loads(row['hidden_tests'])\n        _vr = _exec(sub['content'], _vis)\n        _hr = _exec(sub['content'], _hid)\n        _vp = sum(1 for r in _vr if r[1])\n        _hp = sum(1 for r in _hr if r[1])\n        conn.execute('UPDATE code_submissions SET visible_passed=?, visible_total=?, '\n                     'hidden_passed=?, hidden_total=?, detail=? WHERE submission_id=?',\n                     (_vp, len(_vr), _hp, len(_hr), _json.dumps(_vr), sub['submission_id']))\n        _audit(conn, 'run_exercise_tests', row['service'],\n               {'path': path, 'visible': '%d/%d' % (_vp, len(_vr))})\n        conn.commit()\n        return {'ok': True, 'path': path,\n                'passed': _vp, 'total': len(_vr),\n                'tests': [{'name': r[0], 'passed': bool(r[1]), 'error': r[2]} for r in _vr],\n                'note': ('all visible tests pass; hidden tests also ran and are not shown'\n                         if _vp == len(_vr) else 'fix the failures above and run again')}\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "path",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "path"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [
+      "code_exercises",
+      "code_submissions"
+    ],
+    "write_tables": [
+      "audit_events",
+      "code_submissions"
+    ],
+    "json_schema": {
+      "name": "run_exercise_tests",
+      "description": "Execute the implementation written for a code exercise against its visible tests and report which passed. The hidden tests run at the same time; their result is recorded for grading and is not returned, so passing everything shown here does not mean you are done.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "path"
+          }
+        },
+        "required": [
+          "path"
+        ]
+      }
+    }
+  },
+  {
     "tool_id": "tool_submit_answer",
     "name": "submit_answer",
     "description": "Submit the answer to a reconciliation question. `sources` must list every system you actually consulted (e.g. pd_incidents, status_page_posts). `assumptions` is where you record any judgement you had to make - a week boundary, whether rollbacks count, which of two disagreeing numbers you trusted and why. An answer with no stated assumption on an ambiguous question is not a complete answer.",
