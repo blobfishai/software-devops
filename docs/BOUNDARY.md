@@ -165,10 +165,14 @@ policy actually perturbs**:
 
 | deviation | tasks it perturbs | PF on that subset | reads as |
 |---|---|---|---|
-| `merged_only` — a merged pull request is the finish line | 44 | **0.0%** | caught every time |
-| `shortcut` — quarantine the flaky test, blame the alarmed service | 7 | **0.0%** | caught every time |
-| `naive` — no knowledge base, no staging, no canary, no comms | 54 | 16.7% | caught 45 of 54 |
-| `no_verify` — ships the right change, never closes the loop | 82 | **86.6%** | caught 11 of 82 |
+| `merged_only` — a merged pull request is the finish line | 45 | **0.0%** | caught every time |
+| `shortcut` — quarantine the flaky test, blame the alarmed service | 14 | **0.0%** | caught every time |
+| `naive` — no knowledge base, no staging, no canary, no comms | 77 | 13.0% | caught 67 of 77 |
+| `no_verify` — ships the right change, never closes the loop | 181 | **84.0%** | caught 29 of 181 |
+
+Re-measured at 181 tasks. `shortcut` doubled its reach, 7 to 14, as the flaky and
+localization families grew; `naive` tightened from 16.7% to 13.0%, so the newer
+change families are more policy-sensitive than the older ones rather than less.
 
 The last row is the honest weak spot, and its cause is structural rather than a
 bug. Under `no_verify` the world raises **174 quality failures against 15
@@ -183,7 +187,7 @@ That is inherited from the metric being reproduced, and it is stated here rather
 than quietly repaired, because re-weighting would make these numbers
 incomparable to the spec they mirror. A lab wanting closure discipline to be
 load-bearing should raise the quality weight and re-run; the checks already exist
-and already fire on all 82 tasks.
+and already fire on all 181 tasks.
 
 ## The one command
 
