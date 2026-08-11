@@ -114,7 +114,7 @@ def extract_call(text):
 
 
 def run_episode(world, task, sid, model_id, max_turns, verbose=False,
-                max_tokens=220, tool_limit=None):
+                max_tokens=220, tool_limit=None, guidance="standard"):
     """Drive one episode with a local model. Returns the same shape as the cloud
     path in eval_model.py so calibrate.py consumes it unchanged."""
     from mlx_lm import generate
@@ -123,9 +123,14 @@ def run_episode(world, task, sid, model_id, max_turns, verbose=False,
     transcript, calls = [], 0
     turn, nudges = 0, 0
     seen = {}
+    # The guidance axis: `standard` states the outcome, `guided` also states the
+    # procedure. Measuring both against the same model is what distinguishes a
+    # world that tests judgement from one that tests instruction-following.
+    prompt_text = (task.get("instruction_guided") if guidance == "guided"
+                   else None) or task["instruction"]
     history = [
         {"role": "system", "content": SYSTEM + "\n\nTOOLS:\n" + menu},
-        {"role": "user", "content": task["instruction"]},
+        {"role": "user", "content": prompt_text},
     ]
     for turn in range(max_turns):
         prompt = tok.apply_chat_template(history, add_generation_prompt=True,
@@ -141,7 +146,7 @@ def run_episode(world, task, sid, model_id, max_turns, verbose=False,
             continue
         if "done" in call and "tool" not in call:
             required = next((tool for marker, tool in REQUIRED_SUBMIT
-                             if marker in task["instruction"]), None)
+                             if marker in prompt_text), None)
             if required and not any(l.startswith(required + "(") for l in transcript) \
                     and nudges < MAX_NUDGES:
                 nudges += 1

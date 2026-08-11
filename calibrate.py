@@ -85,11 +85,12 @@ def failure_signature(verdict):
     return [(a["dimension"], a["name"]) for a in failed]
 
 
-def run_trial(world, task, policy, api_key, model, max_turns, verbose):
+def run_trial(world, task, policy, api_key, model, max_turns, verbose, guidance="standard"):
     sid = world.create_session()
     if policy == "local":
         import local_backend
-        stats = local_backend.run_episode(world, task, sid, model, max_turns, verbose)
+        stats = local_backend.run_episode(world, task, sid, model, max_turns, verbose,
+                                          guidance=guidance)
     elif policy == "model":
         stats = EM.run_model_episode(world, task, sid, api_key, model, max_turns, verbose)
     else:
@@ -107,6 +108,10 @@ def main():
                          "scripted policy to dry-run the loop for free")
     ap.add_argument("--category", action="append", default=None)
     ap.add_argument("--task", action="append", default=None)
+    ap.add_argument("--guidance", choices=["standard", "guided"], default="standard",
+                    help="standard states the outcome; guided also states the procedure. "
+                         "PF should fall from guided to standard - if it does not, the world "
+                         "is testing instruction-following rather than judgement")
     ap.add_argument("--attempts", type=int, default=3)
     ap.add_argument("--max-turns", type=int, default=50)
     ap.add_argument("--limit", type=int, default=None)
@@ -132,8 +137,8 @@ def main():
         return 2
 
     label = args.model if args.policy in ("model", "local") else "policy=" + args.policy
-    print("calibrating %d task(s) against %s, %d attempts each\n"
-          % (len(tasks), label, args.attempts))
+    print("calibrating %d task(s) against %s, %d attempts each, guidance=%s\n"
+          % (len(tasks), label, args.attempts, args.guidance))
 
     records, buckets = [], collections.Counter()
     for task in tasks:
@@ -143,7 +148,7 @@ def main():
         started = time.time()
         for _ in range(args.attempts):
             stats, verdict = run_trial(world, task, args.policy, api_key, args.model,
-                                       args.max_turns, args.verbose)
+                                       args.max_turns, args.verbose, args.guidance)
             passed = bool(verdict.get("passed"))
             trials.append({"passed": passed, "score": verdict.get("score"),
                            "tool_calls": stats["tool_calls"],
@@ -199,6 +204,7 @@ def main():
     # being rebuilt underneath it, and nothing in the report would have said so.
     out = {"model": args.model if args.policy in ("model", "local") else None,
            "policy": args.policy, "attempts": args.attempts, "max_turns": args.max_turns,
+           "guidance": args.guidance,
            "world_id": world.meta.get("world_id"),
            "world_counts": world.meta.get("counts"),
            "tasks_evaluated": len(tasks),

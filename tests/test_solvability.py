@@ -110,3 +110,47 @@ def test_documented_policies_are_all_discoverable(db):
                 "#security", "postmortem", "status page"]
     missing = [k for k in required if k not in body]
     assert not missing, "policies enforced but not documented anywhere: %s" % missing
+
+
+def test_every_cluster_service_reference_resolves(db):
+    """The k8s layer names services too, and a pod or deployment attributed to a
+    name nothing resolves cannot be reasoned about at all."""
+    canon, alias = resolvable(db)
+    problems = []
+    for table in ("k8s_pods", "k8s_deployments"):
+        for r in db.execute("SELECT service FROM %s" % table):
+            if r[0] and r[0] not in canon and r[0] not in alias:
+                problems.append("%s.service=%r" % (table, r[0]))
+    assert not problems, "cluster rows naming services nothing resolves: %s" % problems
+
+
+def test_every_pod_is_either_scheduled_or_says_why_not(db):
+    """A Pending pod with no pending_reason is withheld data: the agent can see
+    that something did not start and has no way to find out why. That is the line
+    between realistic chaos and cruel chaos (F_chaos_scenarios.md, F5)."""
+    mute = [r[0] for r in db.execute(
+        "SELECT pod FROM k8s_pods WHERE node='' AND TRIM(pending_reason)=''")]
+    assert not mute, "unscheduled pods that never say why: %s" % mute
+
+    orphan = [r[0] for r in db.execute(
+        "SELECT p.pod FROM k8s_pods p LEFT JOIN k8s_nodes n ON p.node = n.node "
+        "WHERE p.node != '' AND n.node IS NULL")]
+    assert not orphan, "pods placed on nodes that do not exist: %s" % orphan
+
+
+def test_every_node_fault_is_reachable_by_a_read_tool(db):
+    """Each seeded node-level fault must be visible through at least one tool, or
+    the tasks built on it are unsolvable by construction."""
+    tools = json.loads((ROOT / "world" / "tools.json").read_text())
+    readable = set()
+    for t in tools:
+        readable.update(t.get("read_tables", []))
+    for table in ("k8s_nodes", "k8s_deployments", "k8s_pods", "k8s_events"):
+        assert table in readable, "%s is seeded but no tool can read it" % table
+
+    unhealthy = db.execute(
+        "SELECT COUNT(*) FROM k8s_nodes WHERE ready != 'True' OR condition != 'Ready'").fetchone()[0]
+    assert unhealthy >= 2, "the node layer has no faults to find"
+    degraded = db.execute(
+        "SELECT COUNT(*) FROM k8s_deployments WHERE ready_replicas < desired_replicas").fetchone()[0]
+    assert degraded >= 2, "the deployment layer has no faults to find"
