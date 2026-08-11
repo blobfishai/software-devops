@@ -1196,12 +1196,41 @@ def make_tasks(base_seq, frozen=None, fixed_rows=None, audit_prefix="", secret_f
             instruction, checks, calls = GENERATORS[gen](spec, secret_literal)
         else:
             instruction, checks, calls = GENERATORS[gen](spec)
+        # The oracle must model the discovery the instruction now demands: the
+        # policies were removed from the prompt, so the reference solution reads
+        # them out of the knowledge base.
+        needs_deploy_policy = any(c[1] in ("staging_first", "canary_then_promote")
+                                  or c[1].startswith("staging_first_")
+                                  or c[1].startswith("canary_") for c in
+                                  [(x[0], x[1]) for x in checks])
+        needs_migration_policy = any(c["tool"] == "apply_migration" for c in calls)
+        is_flaky = any(c["tool"] == "run_ci" and "service" in c.get("args", {}) for c in calls)
+        is_latency = any(c[1] == "metric_within_slo" for c in [(x[0], x[1]) for x in checks]) \
+            and any("latency" in str(x[3]) for x in checks)
+        pre = []
+        if needs_deploy_policy:
+            pre.append({"tool": "get_document", "args": {"title": "Deployment policy"}})
+        if needs_migration_policy:
+            pre.append({"tool": "get_document", "args": {"title": "Database migration policy"}})
+            pre.append({"tool": "list_migrations", "args": {"service": calls[
+                next(i for i, c in enumerate(calls)
+                     if c["tool"] == "apply_migration")]["args"]["service"]}})
+        if pre:
+            at = 1 if calls and calls[0]["tool"] == "get_ticket" else 0
+            calls = calls[:at] + pre + calls[at:]
+        if is_latency:
+            at = 1 if calls and calls[0]["tool"] == "get_ticket" else 0
+            calls = calls[:at] + [{"tool": "get_traffic_stats", "args": {}}] + calls[at:]
         discovered = []
         for c in calls:
             if c["tool"] == "get_document" and c.get("args", {}).get("title"):
                 discovered.append({"tool": "search_docs",
                                    "args": {"query": c["args"]["title"].split()[0].lower()}})
             discovered.append(c)
+            # after a red CI run, a real engineer opens the run to read the stages
+            if c["tool"] == "run_ci" and is_flaky and not any(
+                    x["tool"] == "get_ci_run" for x in discovered):
+                discovered.append({"tool": "get_ci_run", "args": {"run_id": 13}})
         calls = discovered
         tasks.append({
             "task_id": "tsk_" + spec["id"],

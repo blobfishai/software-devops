@@ -132,6 +132,48 @@ def run_model_episode(world, task, sid, api_key, model, max_turns, verbose):
     return {"turns": turn + 1, "tool_calls": calls, "transcript": "\n".join(log)}
 
 
+POLICY_STEPS = {"search_docs", "get_document", "acknowledge_alert", "post_message",
+                "publish_status_update", "assess_canary", "promote_canary", "list_migrations",
+                "get_ci_run", "get_traffic_stats"}
+
+
+def naive_calls(task):
+    """Strip the policy-driven work out of the reference solution: no knowledge-base
+    lookup, no staging rehearsal, no canary, no comms, no alarm acknowledgement, and
+    traffic moved in one jump. What survives is the technically-correct fix."""
+    out = []
+    for c in task.get("expected_calls", []):
+        t, a = c["tool"], dict(c.get("args", {}))
+        if t in POLICY_STEPS:
+            continue
+        if t in ("deploy_service", "apply_migration") and a.get("environment") == "staging":
+            continue
+        if t == "deploy_service":
+            a.pop("canary_percent", None)          # straight to 100% in production
+        out.append({"tool": t, "args": a})
+    # collapse staged traffic shifts into a single move per endpoint
+    last = {}
+    for i, c in enumerate(out):
+        if c["tool"] == "shift_endpoint_traffic":
+            last[(c["args"]["service"], c["args"]["path"])] = i
+    keep = [i for i, c in enumerate(out)
+            if c["tool"] != "shift_endpoint_traffic"
+            or last[(c["args"]["service"], c["args"]["path"])] == i]
+    return [out[i] for i in keep]
+
+
+def run_naive_episode(world, task, sid, verbose):
+    calls = 0
+    log = []
+    for c in naive_calls(task):
+        out = world.call_tool(sid, c["tool"], c.get("args", {}))
+        calls += 1
+        if verbose:
+            print("      → %s %s" % (c["tool"], json.dumps(out)[:80]))
+        log.append("%s(%s)" % (c["tool"], json.dumps(c.get("args", {}))[:160]))
+    return {"turns": 0, "tool_calls": calls, "transcript": "\n".join(log)}
+
+
 def run_oracle_episode(world, task, sid, verbose):
     calls = 0
     log = []
@@ -227,7 +269,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--world", default=str(pathlib.Path(__file__).parent / "world"))
     ap.add_argument("--model", default="claude-sonnet-5")
-    ap.add_argument("--policy", choices=["model", "oracle"], default="model")
+    ap.add_argument("--policy", choices=["model", "oracle", "naive"], default="model",
+                    help="naive = a scripted agent that makes the right technical fix but "
+                         "ignores every documented policy; a free lower-bound difficulty signal")
     ap.add_argument("--split", choices=["train", "heldout", "all"], default="all")
     ap.add_argument("--category", action="append", default=None,
                     help="restrict to these Horizon-SWE categories (repeatable)")
@@ -242,6 +286,10 @@ def main():
     ap.add_argument("--task", action="append", default=None,
                     help="run only these task ids (repeatable)")
     ap.add_argument("--max-turns", type=int, default=50)
+    ap.add_argument("--limit", type=int, default=None,
+                    help="evaluate only the first N selected tasks (cheap smoke test)")
+    ap.add_argument("--estimate", action="store_true",
+                    help="estimate the token cost of this run and exit without calling the API")
     ap.add_argument("--out", default=None, help="write a JSON report here")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args()
@@ -261,9 +309,32 @@ def main():
     elif args.split != "all" and splits.get(args.split):
         wanted = set(splits[args.split])
         tasks = [t for t in tasks if t["task_id"] in wanted]
+    if args.limit:
+        tasks = tasks[:args.limit]
     if not tasks:
         print("no tasks selected", file=sys.stderr)
         return 2
+
+    if args.estimate:
+        tool_tokens = len(json.dumps(anthropic_tools(world))) / 3.6
+        sys_tokens = len(SYSTEM_PROMPT) / 3.6
+        steps = {t["task_id"]: len(t.get("expected_calls", [])) for t in world.tasks}
+        turns = [min(args.max_turns, max(6, int(steps.get(t["task_id"], 10) * 1.6)))
+                 for t in tasks]
+        # each turn resends system + tools + the conversation so far
+        in_tok = sum(int((sys_tokens + tool_tokens) * n + 700 * n * (n + 1) / 2)
+                     for n in turns)
+        out_tok = sum(260 * n for n in turns)
+        print("cost estimate for %d task%s (policy=model, guidance=%s, max-turns=%d)"
+              % (len(tasks), "" if len(tasks) == 1 else "s", args.guidance, args.max_turns))
+        print("  tool schemas   ~%6.1fk tokens resent every turn" % (tool_tokens / 1000))
+        print("  projected      ~%6.1fM input tokens, ~%5.0fk output tokens"
+              % (in_tok / 1e6, out_tok / 1000))
+        print("  assumes ~1.6 turns per oracle step, capped at --max-turns; a model that "
+              "flails costs more")
+        print("\n  multiply by your model's per-token price. To sanity-check cheaply first:")
+        print("    python3 eval_model.py --model <id> --limit 2 --category aiops_detection")
+        return 0
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if args.policy == "model" and not api_key:
@@ -271,7 +342,7 @@ def main():
               "the harness without an API key.", file=sys.stderr)
         return 2
 
-    label = args.model if args.policy == "model" else "oracle"
+    label = args.model if args.policy == "model" else args.policy
     print("evaluating %s on %s (%d task%s, split=%s)\n"
           % (label, world.summary()["world_id"], len(tasks),
              "" if len(tasks) == 1 else "s", args.split))
@@ -286,10 +357,11 @@ def main():
         sid = world.create_session()
         started = time.time()
         try:
-            if args.policy == "oracle":
+            if args.policy in ("oracle", "naive"):
                 if args.verbose:
                     print()
-                stats = run_oracle_episode(world, task, sid, args.verbose)
+                runner = run_oracle_episode if args.policy == "oracle" else run_naive_episode
+                stats = runner(world, task, sid, args.verbose)
             else:
                 if args.verbose:
                     print()
@@ -391,7 +463,7 @@ def main():
                  for k in range(1, args.trials + 1)},
              "tasks": records}, indent=2) + "\n")
         print("  report: %s" % args.out)
-    return 0 if passed == n or args.policy == "model" else 1
+    return 0 if passed == n or args.policy in ("model", "naive") else 1
 
 
 if __name__ == "__main__":

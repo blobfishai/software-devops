@@ -97,6 +97,48 @@ python3 eval_model.py --model claude-sonnet-5 --guidance standard   # default
 python3 eval_model.py --model claude-sonnet-5 --guidance guided     # procedure spelled out
 ```
 
+## How hard is it? A free difficulty signal
+
+No model has been run against this world yet, so task difficulty is uncalibrated.
+What *is* measured is a **policy-blind baseline** (`--policy naive`): a scripted
+agent that makes the correct technical fix but ignores every documented policy —
+no knowledge-base lookup, no staging rehearsal, no canary, no alarm
+acknowledgement, no comms, traffic moved in one jump.
+
+```
+  Horizon-SWE-PF : 29.0%  (18/62)
+  Horizon-SWE-PC : 87.1
+
+    error_rate_reduction   PF   0%    api_migration          PF   0%
+    latency_optimization   PF   0%    multi_service_rollout  PF   0%
+    feature_flag           PF   0%    security_incident      PF   0%
+    flaky_test             PF 100%    aiops_* (diagnostics)  PF 100%
+```
+
+Two things worth reading off this. **Every category that ships a change scores
+PF 0%** — the deployment dimension is load-bearing, and getting the technically
+right answer buys you nothing if you ignore the process. And **PC stays at 87.1**,
+because feature correctness is 60% of the composite and this agent gets it
+right; PC is a generous metric by construction.
+
+The categories at PF 100% are the ones with no deployment policy to violate:
+flaky-test work involves no deploy, and the diagnostics are read-only. Their
+difficulty lives entirely in the correctness dimension.
+
+`tests/test_eval_harness.py` pins this as a **difficulty guard** — if a future
+change lets the policy-blind agent start passing change tasks, the tests fail.
+
+> The 29% is *not* a calibration against the blog's reported ~25.5% for a real
+> model. A scripted baseline and a language model fail in completely different
+> ways; the resemblance is a coincidence, not evidence.
+
+### Estimating the real calibration run
+
+```bash
+python3 eval_model.py --estimate                       # ~26M input tokens for all 62
+python3 eval_model.py --model <id> --limit 2 --category aiops_detection   # cheap smoke test
+```
+
 ## Browsing tasks and traces
 
 Every task's assignment, its executable verifier checks, and the complete oracle
