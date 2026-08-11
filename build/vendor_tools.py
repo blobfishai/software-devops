@@ -442,7 +442,8 @@ return [dict(r) for r in rows]""",
           "issue to 'Done' does NOT by itself mean it was fixed - a completed issue also "
           "carries a resolution (e.g. 'Fixed'). Set both.",
           [{"name": "key", "type": "str", "required": True},
-           {"name": "status", "type": "str", "required": True},
+           {"name": "status", "type": "str", "required": True,
+            "choices": ("Backlog", "In Progress", "In Review", "Blocked", "Done")},
            {"name": "resolution", "type": "str", "default": ""}],
           """\
 row = conn.execute('SELECT * FROM jira_issues WHERE key=?', (key,)).fetchone()

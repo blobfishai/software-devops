@@ -5,6 +5,7 @@ import json
 import pathlib
 import subprocess
 import sys
+import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -156,3 +157,46 @@ def test_fault_attribution_depends_on_who_made_the_call():
         assert looks_environmental(t, {}, "model")
         assert looks_environmental(t, {}, "scripted")
     assert looks_environmental("", {"error": "verifier execution failed: boom"}, "model")
+
+
+def test_the_model_can_see_every_tool_its_task_requires():
+    """A harness that hides tools scores its own blind spot as task difficulty.
+
+    The first calibration sweep showed only the first 48 of 82 tools, which hid
+    both submission tools and the whole vendor layer from the model - 40 of 76
+    tasks needed at least one tool that was never on the menu. The model was
+    instructed to call `submit_diagnosis`, could not see its schema, and looped
+    guessing argument names until the turn budget ran out. That is a harness
+    defect, and it was being reported as TOO_HARD.
+    """
+    sys.path.insert(0, str(ROOT))
+    import local_backend
+    tools = json.loads((ROOT / "world" / "tools.json").read_text())
+    tasks = json.loads((ROOT / "world" / "tasks.json").read_text())
+    menu = local_backend._tool_digest(tools)
+
+    required = {c["tool"] for t in tasks for c in t.get("expected_calls", [])}
+    unlisted = sorted(n for n in required if (n + "(") not in menu)
+    assert not unlisted, "tools a reference solution needs but the model never sees: %s" % unlisted
+
+    # argument names must survive verbatim: they are what the model must reproduce
+    by_name = {t["name"]: t for t in tools}
+    for name in ("submit_diagnosis", "submit_answer"):
+        line = next(l for l in menu.splitlines() if l.startswith(name + "("))
+        props = by_name[name].get("json_schema", {}).get("parameters", {}).get("properties", {})
+        missing = [p for p in props if p not in line]
+        assert not missing, "%s hides arguments %s from the model" % (name, missing)
+
+
+def test_bad_argument_errors_say_what_is_accepted():
+    """An error that names only what was wrong makes a model guess. The runtime
+    returns the accepted signature so a wrong call is recoverable in one turn."""
+    sys.path.insert(0, str(ROOT))
+    from serve import World
+    w = World(ROOT / "world", tempfile.mkdtemp(prefix="argerr_"))
+    out = w.call_tool(w.create_session(), "submit_diagnosis",
+                      {"scope": "payments", "finding": "slo breach"})
+    assert out["ok"] is False
+    assert "fault_detected" in out["accepts"]["required"]
+    assert "evidence" in out["accepts"]["optional"]
+    assert out["hint"].startswith("submit_diagnosis(")

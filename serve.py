@@ -136,7 +136,15 @@ class World:
                 result = fn(db_path=str(sess["db"]), **arguments)
             except TypeError as e:
                 shutil.copyfile(snapshot, sess["db"])
-                return {"ok": False, "error": "bad arguments for %s: %s" % (name, e)}
+                spec = self.by_name.get(name, {})
+                params = spec.get("parameters", [])
+                req = [p["name"] for p in params if p.get("required")]
+                opt = [p["name"] for p in params if not p.get("required")]
+                return {"ok": False,
+                        "error": "bad arguments for %s: %s" % (name, e),
+                        "accepts": {"required": req, "optional": opt},
+                        "hint": "%s(%s)" % (name, ", ".join(
+                            req + ["%s?" % o for o in opt]))}
             except Exception as e:  # noqa: BLE001
                 shutil.copyfile(snapshot, sess["db"])
                 return {"ok": False, "error": "%s: %s" % (type(e).__name__, e)}

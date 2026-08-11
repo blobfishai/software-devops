@@ -2099,7 +2099,11 @@ def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', 
                  'bad_release', 'feature_flag_regression', 'none')
         if fault_type not in kinds:
             return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}
-        det = 1 if str(fault_detected).lower() in ('1', 'true', 'yes', 'on') else 0
+        _t, _f = ('1', 'true', 'yes', 'on'), ('0', 'false', 'no', 'off')
+        _v = str(fault_detected).lower()
+        if _v not in _t + _f:
+            return {'ok': False, 'error': 'fault_detected must be true or false, not ' + repr(fault_detected)}
+        det = 1 if _v in _t else 0
         if service and conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
             return {'ok': False, 'error': 'unknown service: ' + str(service)}
         if det and fault_type == 'none':

@@ -130,6 +130,12 @@ def _mk(name, description, params, body, *, reads, writes, returns="dict",
     for p in params:
         schema = {"type": type_map.get(p["type"], "string"),
                   "description": p.get("description", p["name"])}
+        # A controlled vocabulary that lives only in prose is invisible to a
+        # native tool-calling API, which constrains generation against `enum`.
+        # Leaving it out let a model emit fault_type="SLO Breach", get rejected,
+        # and then flip its own answer to something the tool would accept.
+        if p.get("choices"):
+            schema["enum"] = list(p["choices"])
         if extra_schema and p["name"] in extra_schema:
             schema.update(extra_schema[p["name"]])
         props[p["name"]] = schema
@@ -637,6 +643,7 @@ return [dict(r) for r in conn.execute(sql + ' ORDER BY message_id DESC LIMIT ?',
           [{"name": "title", "type": "str", "required": True},
            {"name": "description", "type": "str", "default": ""},
            {"name": "ticket_type", "type": "str", "default": "task",
+            "choices": ("task", "bug", "feature", "security", "incident", "postmortem"),
             "description": "task|bug|feature|security|incident|postmortem"},
            {"name": "service", "type": "str", "default": ""},
            {"name": "priority", "type": "str", "default": "medium"}],
@@ -658,6 +665,7 @@ return {'ok': True, 'key': key, 'ticket_id': tid, 'status': 'open'}""",
     T(_mk("update_ticket", "Update a ticket's status and/or assignee.",
           [{"name": "key", "type": "str", "required": True},
            {"name": "status", "type": "str", "default": None,
+            "choices": ("open", "in_progress", "in_review", "done"),
             "description": "open|in_progress|in_review|done"},
            {"name": "assignee", "type": "str", "default": None}],
           """\
@@ -953,7 +961,8 @@ return out""",
           "applied before the code version that requires them is deployed there.",
           [{"name": "service", "type": "str", "required": True},
            {"name": "name", "type": "str", "required": True},
-           {"name": "environment", "type": "str", "required": True, "description": "staging|production"}],
+           {"name": "environment", "type": "str", "required": True,
+            "choices": ("staging", "production"), "description": "staging|production"}],
           """\
 if environment not in ('staging', 'production'):
     return {'ok': False, 'error': "environment must be 'staging' or 'production'"}
@@ -975,7 +984,8 @@ return {'ok': True, 'service': service, 'name': name, 'environment': environment
           "state only takes effect at promote_canary. Policy: production is staging-first; tier-1 services "
           "canary at <=25% then promote. A version whose migration is not applied is rejected.",
           [{"name": "service", "type": "str", "required": True},
-           {"name": "environment", "type": "str", "required": True},
+           {"name": "environment", "type": "str", "required": True,
+            "choices": ("staging", "production")},
            {"name": "version", "type": "str", "default": None},
            {"name": "canary_percent", "type": "int", "default": 100}],
           """\
@@ -1116,7 +1126,8 @@ return {'ok': True, 'service': service, 'environment': environment,
           "Toggle a feature flag or change its rollout percent in one environment. Runtime operation: "
           "takes effect immediately, no deploy needed.",
           [{"name": "key", "type": "str", "required": True},
-           {"name": "environment", "type": "str", "required": True},
+           {"name": "environment", "type": "str", "required": True,
+            "choices": ("staging", "production")},
            {"name": "enabled", "type": "bool", "default": None},
            {"name": "rollout_percent", "type": "int", "default": None}],
           """\
@@ -1240,7 +1251,8 @@ return {'ok': True, 'incident_id': cur.lastrowid, 'status': 'open'}""",
 
     T(_mk("update_incident", "Update an incident's status (open|mitigated|resolved) and/or commander.",
           [{"name": "incident_id", "type": "int", "required": True},
-           {"name": "status", "type": "str", "default": None},
+           {"name": "status", "type": "str", "default": None,
+            "choices": ("open", "mitigated", "resolved")},
            {"name": "commander", "type": "str", "default": None}],
           """\
 incident_id = int(incident_id)
@@ -1261,7 +1273,8 @@ return {'ok': True, 'incident_id': incident_id, 'status': ns, 'commander': nc}""
 
     T(_mk("publish_status_update",
           "Publish an update to the public system-status page (state: investigating|identified|monitoring|resolved).",
-          [{"name": "state", "type": "str", "required": True},
+          [{"name": "state", "type": "str", "required": True,
+            "choices": ("investigating", "identified", "monitoring", "resolved")},
            {"name": "title", "type": "str", "required": True},
            {"name": "body", "type": "str", "default": ""}],
           """\
@@ -1285,7 +1298,8 @@ return {'ok': True, 'post_id': cur.lastrowid, 'state': state}""",
            {"name": "fault_detected", "type": "bool", "required": True},
            {"name": "service", "type": "str", "default": "",
             "description": "the service responsible (localization)"},
-           {"name": "fault_type", "type": "str", "default": "none"},
+           {"name": "fault_type", "type": "str", "default": "none",
+            "choices": ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion', 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass', 'bad_release', 'feature_flag_regression', 'none')},
            {"name": "offending_key", "type": "str", "default": "",
             "description": "config key, flag key or version at fault"},
            {"name": "evidence", "type": "str", "default": "",
@@ -1296,7 +1310,11 @@ kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion',
          'bad_release', 'feature_flag_regression', 'none')
 if fault_type not in kinds:
     return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}
-det = 1 if str(fault_detected).lower() in ('1', 'true', 'yes', 'on') else 0
+_t, _f = ('1', 'true', 'yes', 'on'), ('0', 'false', 'no', 'off')
+_v = str(fault_detected).lower()
+if _v not in _t + _f:
+    return {'ok': False, 'error': 'fault_detected must be true or false, not ' + repr(fault_detected)}
+det = 1 if _v in _t else 0
 if service and conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
     return {'ok': False, 'error': 'unknown service: ' + str(service)}
 if det and fault_type == 'none':

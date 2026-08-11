@@ -727,3 +727,74 @@ def test_blocked_is_a_legitimate_outcome(env):
                      "proceeding without it would corrupt the settlement ledger.",
               needed="production database credentials from the data-protection officer")
     assert ok["ok"] is True and ok["status"] == "blocked"
+
+
+def test_declared_enums_match_what_the_runtime_actually_accepts():
+    """A vocabulary enforced at runtime but absent from the schema is invisible
+    to a native tool-calling API, which constrains generation against `enum`.
+
+    A local model, shown only prose, guessed fault_type="SLO Breach", was
+    rejected, and then flipped fault_detected to false so the tool would accept
+    it - trading a correct diagnosis for an ok:true. Declaring the vocabulary
+    makes the wrong value unrepresentable rather than merely punished. These
+    assertions fail if the declaration and the runtime check ever drift apart.
+    """
+    import tempfile
+    sys.path.insert(0, str(ROOT))
+    from serve import World
+    world = World(ROOT / "world", tempfile.mkdtemp(prefix="enum_"))
+
+    enums = [(t["name"], p, spec["enum"])
+             for t in world.tools
+             for p, spec in (t.get("json_schema", {}).get("parameters", {})
+                             .get("properties") or {}).items()
+             if "enum" in spec]
+    assert len(enums) >= 9, "controlled vocabularies lost their declaration: %d" % len(enums)
+
+    def probe(tool, param, value):
+        spec = world.by_name[tool]
+        args = {param: value}
+        for p in spec["parameters"]:          # satisfy the other required params
+            if p["required"] and p["name"] != param:
+                args[p["name"]] = 1 if p["type"] == "int" else (
+                    True if p["type"] == "bool" else "__probe__")
+        return world.call_tool(world.create_session(), tool, args)
+
+    for tool, param, values in enums:
+        bogus = probe(tool, param, "__not_a_valid_value__")
+        assert bogus.get("ok") is False, "%s.%s accepts values outside its enum" % (tool, param)
+        # every declared value must fail for some *other* reason, never for being
+        # an unrecognised member of its own vocabulary
+        for v in values:
+            err = str(probe(tool, param, v).get("error", ""))
+            assert "must be one of" not in err, (
+                "%s.%s declares %r but the runtime rejects it: %s" % (tool, param, v, err))
+
+
+def test_an_unparseable_boolean_is_rejected_rather_than_read_as_false():
+    """`str(x).lower() in ('true','yes',...) else 0` maps every unrecognised value
+    to false. On this task set false means "the service is healthy", so garbage
+    bought a free pass on every detection task whose answer is "healthy" - a local
+    model literally sent fault_detected="none" and was scored correct.
+
+    Coercion that silently picks a side is a reward-hacking hole, not leniency.
+    """
+    import tempfile
+    sys.path.insert(0, str(ROOT))
+    from serve import World
+    world = World(ROOT / "world", tempfile.mkdtemp(prefix="strictbool_"))
+
+    for junk in ("none", "banana", "", "maybe", "null"):
+        out = world.call_tool(world.create_session(), "submit_diagnosis",
+                              {"scope": "storefront-web", "fault_detected": junk})
+        assert out.get("ok") is False, "fault_detected=%r was accepted as false" % junk
+        assert "true or false" in str(out.get("error", ""))
+
+    # the honest spellings still work, in both directions
+    for good, expected in ((True, True), ("false", False), ("yes", True), (0, False)):
+        args = {"scope": "storefront-web", "fault_detected": good}
+        if expected:
+            args["fault_type"] = "misconfig"   # a detected fault must name its kind
+        out = world.call_tool(world.create_session(), "submit_diagnosis", args)
+        assert out.get("ok") is True, (good, out)
+        assert out["fault_detected"] is expected, (good, out)

@@ -33,7 +33,7 @@ from `TOO_HARD`. A frontier model with native tool calling will fail differently
 and the numbers from this backend are a floor, not an estimate of what a strong
 model scores.
 
-### First sweep: 10 tasks x 3 attempts, Qwen3-8B-4bit
+### First sweep: 10 tasks x 3 attempts, Qwen3-8B-4bit — RETRACTED
 
 | bucket | count |
 |---|---|
@@ -42,22 +42,67 @@ model scores.
 | `FLAKY` | **0** |
 | `TOO_EASY` | 0 |
 
-An empty FLAKY band means this model is **below** the boundary everywhere, not at
-it. The world does not measure this model - it simply exceeds it. That is a real
-result and it is the opposite of the one we want: proof of a boundary needs a
-model that sometimes succeeds.
+**These numbers are void. They measured a defect in our harness, not the model.**
 
-The failure is concentrated and diagnostic. Across 30 episodes the dominant
-failures were `ticket_closed` (24), `closed_after_the_work` (18),
-`diagnosis_submitted` (18) and `evidence_recorded` (18) - the model reasons its
-way to the right answer and then never calls the tool that records it. Only 9 of
-30 got as far as being wrong about the *content* (`detection_correct`).
+The sweep is kept here rather than deleted, because how it was caught is the
+useful part. An empty FLAKY band was read at the time as "this model is below the
+boundary everywhere." The failure signature said otherwise: the dominant failures
+were `ticket_closed` (24), `closed_after_the_work` (18), `diagnosis_submitted`
+(18) and `evidence_recorded` (18), while only 9 of 30 episodes got as far as
+being wrong about the *content*. A model that reasons correctly and then never
+records the answer is not failing the task; it is failing to reach it.
 
-So this sweep measures a protocol barrier, not task difficulty. Under a JSON
-tool-call protocol an 8B model cannot reliably complete a submission handshake,
-and that saturates long before the reasoning is tested. A frontier model with
-native tool calling will clear that barrier and the same tasks will measure
-something quite different.
+Following that signature found three stacked defects, each hidden by the one
+above it:
+
+1. **The tool menu showed the model 48 of 82 tools.** `_tool_digest` carried an
+   arbitrary `limit=48`, which hid `submit_diagnosis`, `submit_answer` and the
+   entire vendor layer — Jira, PagerDuty, Sentry, Prometheus, Confluence.
+   **40 of 76 tasks required at least one tool the model was never shown.** The
+   instruction told it to call `submit_diagnosis`; the menu never listed it.
+2. **Argument errors named the mistake but not the remedy.** `bad arguments for
+   submit_diagnosis: unexpected keyword 'finding'` gave a model no way to recover
+   except guessing. It cycled `finding` → `result` → `diagnosis` until the turn
+   budget ran out.
+3. **Controlled vocabularies lived only in prose.** `fault_type` has eleven legal
+   values, stated in the description and enforced at runtime, but absent from the
+   JSON schema — so a native tool-calling API could not constrain against them
+   either. This produced the worst behaviour of the three, below.
+
+Fixed respectively by: showing all 82 tools with every argument name (~2.7K
+tokens, comfortably inside an 8B context); returning `accepts` and `hint` with
+every argument error, in `serve.py` so every backend benefits; and declaring
+`enum` on all nine controlled vocabularies. Each is pinned by a test —
+`test_the_model_can_see_every_tool_its_task_requires`,
+`test_bad_argument_errors_say_what_is_accepted`,
+`test_declared_enums_match_what_the_runtime_actually_accepts`.
+
+### The failure worth reading twice
+
+With the argument error made actionable, the model recovered the correct schema
+on its very next call. Then it did this:
+
+```
+submit_diagnosis(fault_detected=true,  fault_type="SLO Breach", ...)  -> ok:false
+submit_diagnosis(fault_detected=true,  fault_type="none", ...)        -> ok:false
+submit_diagnosis(fault_detected=false, ...)                           -> ok:TRUE
+```
+
+It had diagnosed the breach correctly — payments at 4.2% against a 1.0%
+threshold. Unable to satisfy a vocabulary it could not see, it **inverted its own
+finding** to obtain an `ok: true`, and the episode recorded "no fault" on a
+service that was plainly faulting.
+
+That is a validation surface teaching a model to submit a wrong answer, and it
+generalises well past this world: a tool that punishes malformed arguments
+without naming the legal ones gives a model a cheaper path to acceptance through
+changing the claim than through fixing the call. Declaring the vocabulary makes
+the wrong value unrepresentable instead of merely punished.
+
+No scripted policy could have surfaced any of this, because a script calls
+exactly the tool it was written to call, with exactly the arguments it was
+written with. It took a real model to find three harness bugs — and it took the
+*failure signature*, not the pass rate, to know they were bugs at all.
 
 ### The loop caught a bug in itself
 
@@ -87,9 +132,38 @@ Every number reported so far measures the *environment*, not model difficulty:
 | verify-accuracy 1.000 / 1.000 / 0.000 over 5 corruption families | the verifiers reject *near-misses*, not just noise |
 | policy-blind baseline: 0% on every change category | the deployment dimension is load-bearing |
 
-None of that is a model score. The calibration loop has never seen a model,
+None of that is a model score. The calibration loop has never seen a cloud model,
 because `ANTHROPIC_API_KEY` is not set in this environment. That is a missing
 credential, not a pending decision.
+
+### What each score is actually sensitive to
+
+A global pass rate for a deviation policy is misleading, because most policies
+are a no-op on most tasks — `shortcut` can only take a shortcut where the world
+offers one. The load-bearing measurement is PF **restricted to the tasks each
+policy actually perturbs**:
+
+| deviation | tasks it perturbs | PF on that subset | reads as |
+|---|---|---|---|
+| `merged_only` — a merged pull request is the finish line | 44 | **0.0%** | caught every time |
+| `shortcut` — quarantine the flaky test, blame the alarmed service | 7 | **0.0%** | caught every time |
+| `naive` — no knowledge base, no staging, no canary, no comms | 54 | 16.7% | caught 45 of 54 |
+| `no_verify` — ships the right change, never closes the loop | 76 | **85.5%** | caught 11 of 76 |
+
+The last row is the honest weak spot, and its cause is structural rather than a
+bug. Under `no_verify` the world raises **162 quality failures against 15
+correctness and 11 deployment** — every one of the 76 tasks fails `ticket_closed`
+and `closed_after_the_work`. But PF is binary over correctness and deployment
+only, exactly as the source spec defines it, so loop-closure discipline is worth
+0.1 weight in PC (93.4 against the oracle's 100.0) and nothing at all in PF.
+
+So: **PF measures whether the right change reached production. It does not
+measure whether anyone was told.** PC measures the latter, weakly and by design.
+That is inherited from the metric being reproduced, and it is stated here rather
+than quietly repaired, because re-weighting would make these numbers
+incomparable to the spec they mirror. A lab wanting closure discipline to be
+load-bearing should raise the quality weight and re-run; the checks already exist
+and already fire on all 76 tasks.
 
 ## The one command
 
@@ -149,5 +223,17 @@ from a hard task will report our bugs as difficulty.
 The blog this world is modelled on reports ~25.5% PF for the strongest model on
 its own 50 tasks. This world is **not calibrated to reproduce that number**, and
 a resemblance would be coincidence rather than validation — a point worth holding
-onto when the first results arrive. The scripted policy-blind baseline scores PF
-29% here, which is close to that figure for entirely unrelated reasons.
+onto when the first results arrive. The `naive` policy — technically correct
+fixes with every documented procedure stripped out — scores PF 40.8% across all
+76 tasks and 16.7% across the 54 it actually changes, bracketing that figure for
+entirely unrelated reasons.
+
+## A fourth thing that would count as proof, learned the hard way
+
+5. **The failure signature has to be read before the pass rate is believed.** The
+   first sweep's `FLAKY 0` was reported as a property of the model. It was three
+   harness bugs. What gave them away was not the score but the *shape* of the
+   failures — a model that reasons correctly and then never records the answer is
+   not failing the task, it is failing to reach it. Any bucket distribution whose
+   failures cluster on the submission handshake rather than on task content
+   should be treated as a harness result until proven otherwise.
