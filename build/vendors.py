@@ -464,23 +464,38 @@ LINEAR_ISSUES = [
      "bug,performance", 416),
 ]
 GITHUB_ISSUES = [
-    # Ported task substrate. TheAgentCompany's sde-collect-open-issues,
-    # sde-check-high-priority-issue and sde-copy-issues-to-plane all filter an
-    # issue tracker by state, label and creation date, then move or report the
-    # result. Three issues cannot express that; the filter has to be able to be
-    # got wrong. Days run 402-419, matching the rest of the world's clock.
-    (4402, 'novacart/storefront', 'Stale search results after catalog update', 'closed', 'bug,duplicate', 408),
-    (4405, 'novacart/platform', 'Rate limiter allows bursts above the configured ceiling', 'open', 'bug,priority', 405),
-    (4408, 'novacart/commerce', 'Refund webhook retried indefinitely on 4xx', 'open', 'bug,priority', 409),
-    (4411, 'novacart/storefront', 'Dark mode toggle resets on navigation', 'open', 'enhancement', 411),
-    (4412, 'novacart/storefront', 'Checkout page hangs for ~8s before redirect', 'open', 'bug,customer-report', 412),
-    (4414, 'novacart/platform', 'Document the traffic-shift ceiling in the runbook', 'closed', 'docs', 414),
-    (4415, 'novacart/platform', 'Gateway 502s under sustained load', 'open', 'bug', 415),
-    (4417, 'novacart/commerce', 'Settlement batch size is not configurable', 'open', 'enhancement,priority', 417),
-    (4418, 'novacart/growth', 'Search reindex job has never completed', 'open', 'bug,priority', 418),
-    (4419, 'novacart/growth', 'Autocomplete returns deleted products', 'open', 'bug,customer-report', 419),
-    (4420, 'novacart/commerce', 'Duplicate charge on retried capture', 'closed', 'bug,priority', 407),
-    (4421, 'novacart/platform', 'Upgrade the base image to bookworm', 'open', 'chore', 403),
+    # Substrate for the ported filter-and-act tasks. Filters over state,
+    # label, repository and creation day have to be able to be got wrong, so
+    # each dimension varies independently and no two filters select the same
+    # set. Days run 396-419, matching the rest of the world's clock.
+    (4404, 'novacart/storefront', 'Rate limiter allows bursts above the configured ceiling', 'closed', 'bug', 396),
+    (4407, 'novacart/platform', 'Refund webhook retried indefinitely on 4xx', 'open', 'bug,priority', 403),
+    (4409, 'novacart/commerce', 'Dark mode toggle resets on navigation', 'open', 'bug,customer-report', 410),
+    (4411, 'novacart/growth', 'Checkout page hangs before redirect', 'open', 'enhancement', 417),
+    (4414, 'novacart/data', 'Gateway 502s under sustained load', 'closed', 'enhancement,priority', 400),
+    (4417, 'novacart/storefront', 'Settlement batch size is not configurable', 'open', 'chore', 407),
+    (4418, 'novacart/platform', 'Search reindex job has never completed', 'open', 'docs', 414),
+    (4419, 'novacart/commerce', 'Autocomplete returns deleted products', 'open', 'bug,regression', 397),
+    (4422, 'novacart/growth', 'Duplicate charge on retried capture', 'closed', 'security', 404),
+    (4424, 'novacart/data', 'Upgrade the base image to bookworm', 'open', 'bug,priority,customer-report', 411),
+    (4427, 'novacart/storefront', 'Stale search results after catalog update', 'open', 'bug', 418),
+    (4430, 'novacart/platform', 'Document the traffic-shift ceiling', 'open', 'bug,priority', 401),
+    (4431, 'novacart/commerce', 'Cart total rounds incorrectly at 3 decimal places', 'closed', 'bug,customer-report', 408),
+    (4432, 'novacart/growth', 'Session cookie missing SameSite attribute', 'open', 'enhancement', 415),
+    (4434, 'novacart/data', 'Inventory count drifts after partial fulfilment', 'open', 'enhancement,priority', 398),
+    (4436, 'novacart/storefront', 'Export job writes an empty header row', 'open', 'chore', 405),
+    (4437, 'novacart/platform', 'Password reset email links expire too quickly', 'closed', 'docs', 412),
+    (4438, 'novacart/commerce', 'Product images load at full resolution on mobile', 'open', 'bug,regression', 419),
+    (4441, 'novacart/growth', 'Analytics rollup double-counts refunded orders', 'open', 'security', 402),
+    (4444, 'novacart/data', 'Timezone handling breaks the nightly cutover', 'open', 'bug,priority,customer-report', 409),
+    (4447, 'novacart/storefront', 'Webhook signature check accepts an empty signature', 'closed', 'bug', 416),
+    (4448, 'novacart/platform', 'Bulk import silently drops rows over 10k', 'open', 'bug,priority', 399),
+    (4451, 'novacart/commerce', 'Coupon stacking bypasses the maximum discount', 'open', 'bug,customer-report', 406),
+    (4453, 'novacart/growth', 'Search filters reset when paginating', 'open', 'enhancement', 413),
+    (4455, 'novacart/data', 'Order confirmation shows the wrong currency symbol', 'closed', 'enhancement,priority', 396),
+    (4458, 'novacart/storefront', 'Retry storm when the payment provider is slow', 'open', 'chore', 403),
+    (4461, 'novacart/platform', 'Admin audit log is missing actor identity', 'open', 'docs', 410),
+    (4464, 'novacart/commerce', 'Feature flag evaluation is not cached per request', 'open', 'bug,regression', 417),
 ]
 # The links exist — so the reconciliation is discoverable, not guesswork (F5).
 ISSUE_LINKS = [

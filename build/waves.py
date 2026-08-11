@@ -315,11 +315,117 @@ def w5_attribution(db):
     return out
 
 
+# ---------------------------------------------------------------------------
+# wave 6 — ported clerical work, generated across the filter space
+# ---------------------------------------------------------------------------
+
+def w6_filter_and_act(db):
+    """TheAgentCompany's sde/pm shape: filter one system, act in another.
+
+    The queue of portable source tasks is long and they reduce to a handful of
+    shapes over a filter. Generating them is honest only if each task asks a
+    DIFFERENT question, so a candidate is dropped when its result set duplicates
+    one already emitted, is empty, or is everything - a filter that selects all
+    issues is not a filter and a model that ignores it scores full marks.
+    """
+    issues = _rows(db, "SELECT number, repo, title, state, labels, created_day "
+                       "FROM github_issues ORDER BY number")
+    if not issues:
+        return []
+    all_nums = [i["number"] for i in issues]
+
+    def select(state=None, label=None, repo=None, since=None):
+        out = []
+        for i in issues:
+            if state and i["state"] != state:
+                continue
+            if label and label not in [x.strip() for x in i["labels"].split(",")]:
+                continue
+            if repo and i["repo"] != repo:
+                continue
+            if since is not None and i["created_day"] < since:
+                continue
+            out.append(i["number"])
+        return out
+
+    labels = sorted({x.strip() for i in issues for x in i["labels"].split(",") if x.strip()})
+    repos = sorted({i["repo"] for i in issues})
+    filters = []
+    for lb in labels:
+        filters.append(({"state": "open", "label": lb},
+                        "open and labelled '%s'" % lb))
+    for rp in repos:
+        filters.append(({"state": "open", "repo": rp},
+                        "open in %s" % rp))
+    for day in (404, 410, 416):
+        filters.append(({"state": "open", "since": day},
+                        "open and raised on day %d or later" % day))
+    for lb in ("priority", "customer-report", "regression"):
+        for day in (404, 412):
+            filters.append(({"state": "open", "label": lb, "since": day},
+                            "open, labelled '%s', and raised on day %d or later" % (lb, day)))
+
+    MODES = [("report", "#eng"), ("copy", "#eng"), ("count", "#eng")]
+    out, seen_sets = [], set()
+    for spec, prose in filters:
+        want = select(**spec)
+        if not want or len(want) == len(all_nums):
+            continue                       # empty, or not a filter at all
+        key = tuple(want)
+        if key in seen_sets:
+            continue                       # a different filter, the same question
+        seen_sets.add(key)
+        mode, channel = MODES[len(out) % len(MODES)]
+        titles = {i["number"]: i["title"] for i in issues}
+        excluded = [n for n in all_nums if n not in want]
+        base = {
+            "generator": "crosssystem", "category": "cross_system",
+            "wave": 6, "axis": "ported-clerical",
+            "source_repo": "TheAgentCompany",
+            "source_path": ("research/repos/evals/TheAgentCompany__TheAgentCompany/"
+                            "workspaces/tasks/sde-collect-open-issues"),
+            "mode": mode, "channel": channel,
+            "expected": want, "excluded": excluded,
+            "difficulty": "hard" if len(spec) > 2 else "medium",
+            "id": "w6_%s_%d" % (mode, len(out)),
+        }
+        if mode == "report":
+            base["ask"] = ("Post one message to %s naming every issue that is %s. "
+                           "Anything outside that filter must not appear - the list is "
+                           "acted on as written." % (channel, prose))
+            base["report_body"] = ("Issues %s: " % prose) + "; ".join(
+                "%d %s" % (n, titles[n]) for n in want)
+            base["ticket"] = ("W6-%04d" % len(out), "medium",
+                              "Report the issues that are %s" % prose)
+        elif mode == "copy":
+            base["copy_service"] = ""
+            base["copy_titles"] = {n: titles[n] for n in want}
+            base["ask"] = ("Every issue that is %s needs a matching ticket on our board, "
+                           "citing the issue number it came from. Nothing outside the "
+                           "filter gets copied. Tell %s once they are mirrored."
+                           % (prose, channel))
+            base["ticket"] = ("W6-%04d" % len(out), "high",
+                              "Mirror the issues that are %s" % prose)
+        else:
+            base["question_id"] = "Q-W6-%d" % len(out)
+            base["answer"] = len(want)
+            base["sources"] = ["github_issues"]
+            base["assumptions"] = "Counted issues that are %s." % prose
+            base["ask"] = ("How many issues are %s? Submit the number with "
+                           "submit_answer(question_id='Q-W6-%d', answer=..., "
+                           "sources=[...])." % (prose, len(out)))
+            base["ticket"] = ("W6-%04d" % len(out), "medium",
+                              "How many issues are %s?" % prose)
+        out.append(base)
+    return out
+
+
 WAVES = {
     1: [w1_detection, w1_flaky_triage, w1_vulnerabilities],
     2: [w2_dependency_span],
     3: [w3_symptom_only],
     5: [w5_attribution],
+    6: [w6_filter_and_act],
 }
 
 

@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_14aaedd7",
+  "env_id": "env_software_devops_8384d9e0",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -24,7 +24,7 @@
     "seed": 42,
     "engine": "sqlite",
     "table_count": 71,
-    "row_count": 1409,
+    "row_count": 1443,
     "complexification_rounds": 0
   },
   "tools": {
@@ -394,14 +394,32 @@
     "tsk_w5_attr_media_analytics_payments",
     "tsk_w5_attr_media_catalog_payments",
     "tsk_w5_attr_api_checkout_analytics",
-    "tsk_w5_attr_api_checkout_catalog"
+    "tsk_w5_attr_api_checkout_catalog",
+    "tsk_w6_report_0",
+    "tsk_w6_copy_1",
+    "tsk_w6_count_2",
+    "tsk_w6_report_3",
+    "tsk_w6_copy_4",
+    "tsk_w6_count_5",
+    "tsk_w6_report_6",
+    "tsk_w6_copy_7",
+    "tsk_w6_count_8",
+    "tsk_w6_report_9",
+    "tsk_w6_copy_10",
+    "tsk_w6_count_11",
+    "tsk_w6_report_12",
+    "tsk_w6_copy_13",
+    "tsk_w6_count_14",
+    "tsk_w6_report_15",
+    "tsk_w6_copy_16",
+    "tsk_w6_count_17"
   ],
   "verifier_refs": [],
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 161,
-    "accepted_task_count": 161,
+    "task_count": 179,
+    "accepted_task_count": 179,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -411,8 +429,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 161,
-    "discriminating_vcode_tasks": 161,
+    "total_tasks": 179,
+    "discriminating_vcode_tasks": 179,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,

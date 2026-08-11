@@ -108,7 +108,7 @@ REPRODUCED = {
     "sierra-research__tau-bench": (2, "both patterns adopted rather than the domains: "
                                       "pass^k reliability, and policy that lives in a "
                                       "knowledge base rather than the prompt"),
-    "TheAgentCompany__TheAgentCompany": (8, "sde tasks ported with systems substituted "
+    "TheAgentCompany__TheAgentCompany": (26, "sde tasks ported with systems substituted "
                                             "(gitlab -> issue tracker, rocketchat -> "
                                             "channels, plane -> tickets); each records the "
                                             "source directory. 38 more sde tasks have "

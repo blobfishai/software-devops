@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_14aaedd7",
+  "world_id": "env_software_devops_8384d9e0",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "14aaedd72912969539187e6ce653171f75541d53d7252d469a24d2b318e9016b",
+  "world_digest": "8384d9e0d74313664c9583544223cc6d5d873487fa6900fcbc68fec63d83cec7",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -86,17 +86,17 @@
   "tables_without_tools": [],
   "counts": {
     "tables": 71,
-    "rows": 1409,
+    "rows": 1443,
     "tools": 95,
-    "tasks": 161,
+    "tasks": 179,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
     "documents": 30
   },
   "difficulty": {
-    "hard": 52,
-    "medium": 51,
+    "hard": 54,
+    "medium": 67,
     "expert": 46,
     "easy": 12
   },
@@ -112,7 +112,7 @@
     "aiops_localization": 13,
     "aiops_analysis": 17,
     "code_implementation": 4,
-    "cross_system": 8,
+    "cross_system": 26,
     "workspace": 1,
     "attribution": 13,
     "reconciliation": 7,
@@ -247,6 +247,20 @@
       "tsk_w5_attr_media_catalog_payments",
       "tsk_w5_attr_media_checkout_analytics",
       "tsk_w5_attr_media_checkout_payments",
+      "tsk_w6_copy_1",
+      "tsk_w6_copy_10",
+      "tsk_w6_copy_13",
+      "tsk_w6_copy_4",
+      "tsk_w6_copy_7",
+      "tsk_w6_count_11",
+      "tsk_w6_count_17",
+      "tsk_w6_count_2",
+      "tsk_w6_count_5",
+      "tsk_w6_report_0",
+      "tsk_w6_report_12",
+      "tsk_w6_report_15",
+      "tsk_w6_report_6",
+      "tsk_w6_report_9",
       "tsk_ws_ledger_missing_account"
     ],
     "heldout": [
@@ -283,11 +297,15 @@
       "tsk_w3_symptom_notifications",
       "tsk_w5_attr_media_analytics_catalog",
       "tsk_w5_attr_media_api_checkout",
-      "tsk_w5_attr_media_checkout_catalog"
+      "tsk_w5_attr_media_checkout_catalog",
+      "tsk_w6_copy_16",
+      "tsk_w6_count_14",
+      "tsk_w6_count_8",
+      "tsk_w6_report_3"
     ]
   },
   "task_creation": {
-    "accepted": 161,
+    "accepted": 179,
     "rejected": 0
   },
   "personas": [
