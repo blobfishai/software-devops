@@ -85,6 +85,24 @@ def load(paths):
             seen.add(key)
             tasks.append(t)
     merged["tasks"] = repair_attribution(tasks)
+
+    # No silent caps. A sharded run that quietly evaluated 77 of 83 tasks reports a
+    # pass rate that looks complete and is not - and this exact thing happened: a
+    # `while read` loop dropped the final line of every shard file, so six tasks
+    # were never run and nothing said so.
+    try:
+        world = json.loads((pathlib.Path(__file__).resolve().parent / "world" /
+                            "tasks.json").read_text())
+        expected = {t["task_id"] for t in world}
+        got = {t["task_id"] for t in merged["tasks"]}
+        missing = sorted(expected - got)
+        if missing:
+            print("INCOMPLETE: %d of %d tasks were never evaluated: %s%s"
+                  % (len(missing), len(expected), ", ".join(missing[:6]),
+                     " ..." if len(missing) > 6 else ""))
+            merged["incomplete"] = missing
+    except Exception:  # noqa: BLE001
+        pass                      # a subset run against another world is legitimate
     return merged
 
 
