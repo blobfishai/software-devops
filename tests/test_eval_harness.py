@@ -336,3 +336,25 @@ def test_shard_merge_refuses_to_average_across_worlds(tmp_path):
     other_model = shard("d.json", "w1", "m2", ["t5"])
     with pytest.raises(AssertionError, match="different models"):
         analyse_run.load([a, other_model])
+
+
+def test_the_shipped_package_matches_the_built_world():
+    """dist/harbor is the deliverable, and it is produced by a separate command
+    from the world build. Nothing forces the two to be run together, so a world
+    rebuilt without a re-export ships verifiers for tasks that no longer exist -
+    and a consumer would never know, because the package is internally
+    consistent."""
+    world = json.loads((ROOT / "world" / "world.json").read_text())
+    manifest = json.loads((ROOT / "dist" / "harbor" / "manifest.json").read_text())
+    mw = manifest.get("world_id") or (manifest.get("world") or {}).get("world_id")
+    assert mw == world["world_id"], (
+        "dist/harbor was built from %s but world/ is %s - run: python3 export_harbor.py"
+        % (mw, world["world_id"]))
+
+    shipped = [l for l in (ROOT / "dist" / "harbor" / "tasks" / "tasks.jsonl")
+               .read_text().splitlines() if l.strip()]
+    assert len(shipped) == world["counts"]["tasks"]
+    verifiers = list((ROOT / "dist" / "harbor" / "verifiers").glob("verify_*.py"))
+    assert len(verifiers) == world["counts"]["tasks"], \
+        "every task must ship a verifier: %d tasks, %d verifiers" % (
+            world["counts"]["tasks"], len(verifiers))
