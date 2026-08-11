@@ -67,6 +67,17 @@ def section(run):
                  "itself was right.")
     L += ["### Where it breaks", "", lead, ""]
 
+    # Validity first: a difficulty number means nothing if the world was breaking.
+    if excluded == 0:
+        L += ["Every episode was attributable. **No episode failed with a world-side "
+              "symptom** — no missing table, no traceback, no crashed verifier, no "
+              "invented tool, no provider outage — so none of the failures below are "
+              "ours.", ""]
+    else:
+        L += ["**%d episode(s) were excluded as harness or environment faults** and are "
+              "not in the pass rate. Any non-zero count here weakens every number in "
+              "this section until it is explained." % excluded, ""]
+
     checks = collections.Counter()
     for t in scored:
         if t.get("passed"):
