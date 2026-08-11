@@ -583,6 +583,88 @@ _add("reconciliation", "reconcile", id="rcn_gateway_owner",
                        "routing system over the two written sources.")
 
 
+# ==========================================================================
+# Judgement suite — decide, do not build. The agent produces no artifact.
+# ==========================================================================
+_add("judgement", "judgement", id="judge_payments_retry", question_id="J-PAY",
+     incident_ref="payments-error-rate", correct=102, difficulty="hard",
+     ticket=("OPS-301", "critical", "Decide the remediation for the payments error rate"),
+     situation="payments is failing 4.2% of requests against a 1.0% SLO. The team has "
+               "proposed four remediations in the incident channel and wants a decision.",
+     why="proposal 102 restores the retry the standard requires; 101 lengthens the timeout "
+         "without preventing the permanent failure, 103 discards delivery guarantees, and "
+         "104 scales a service that is not the bottleneck",
+     oracle_reads=[{"tool": "search_logs", "args": {"service": "payments"}},
+                   {"tool": "get_document", "args": {"title": "Retry and timeout standard"}}],
+     oracle_reasoning="102 is the only proposal that addresses the mechanism: a single "
+                      "notifications timeout permanently fails the payment because no retry "
+                      "is attempted, and the retry standard requires 3. 101 lengthens the "
+                      "timeout, which reduces how often the symptom appears without removing "
+                      "the permanent failure. 103 makes the call fire-and-forget, which "
+                      "silently drops receipts - it changes behaviour rather than restoring "
+                      "it. 104 scales notifications, which is not the bottleneck: the "
+                      "downstream answers, our caller gives up.")
+
+_add("judgement", "judgement", id="judge_analytics_oom", question_id="J-OOM",
+     incident_ref="analytics-oom", correct=202, difficulty="expert",
+     ticket=("OPS-302", "high", "Decide the remediation for the analytics crashloop"),
+     situation="analytics-worker is being OOMKilled and is in CrashLoopBackOff. Four "
+               "remediations have been proposed.",
+     why="proposal 202 bounds the unlimited prefetch that causes the memory growth; 201 "
+         "raises the limit and only moves the threshold, 203 makes the crash quieter, and "
+         "204 turns the feature off",
+     oracle_reads=[{"tool": "k8s_events_list", "args": {"reason": "OOMKilled"}},
+                   {"tool": "k8s_pods_list", "args": {"service": "analytics-worker"}},
+                   {"tool": "get_document", "args": {"title": "Queue consumer tuning"}}],
+     oracle_reasoning="202 fixes the cause. prefetch_count=0 means unlimited prefetch, so "
+                      "the consumer pulls the whole backlog into memory and is killed at "
+                      "511Mi of a 512Mi limit. 201 raises the limit, which moves the "
+                      "threshold and will fail again on a larger backlog. 203 makes the "
+                      "crashloop quieter without stopping it. 204 disables the feature, "
+                      "which is availability loss dressed as a fix.")
+
+_add("judgement", "judgement", id="judge_gateway_latency", question_id="J-GW",
+     incident_ref="gateway-latency", correct=303, difficulty="expert",
+     ticket=("OPS-303", "critical", "Decide the remediation for the gateway latency surge"),
+     situation="api-gateway p99 is 1030ms against a 250ms SLO and has been since v5.1.0 was "
+               "promoted. Four remediations have been proposed.",
+     why="proposal 303 rolls back the release carrying the leak; 301 and 302 add capacity to "
+         "a connection leak, which does not recover it, and 304 raises the SLO to silence "
+         "the alarm",
+     oracle_reads=[{"tool": "search_logs", "args": {"service": "api-gateway"}},
+                   {"tool": "list_deployments", "args": {"service": "api-gateway",
+                                                         "environment": "production"}},
+                   {"tool": "k8s_pods_list", "args": {"service": "api-gateway"}}],
+     oracle_reasoning="303 is correct: p99 moved at the exact moment v5.1.0 was promoted, "
+                      "and that release opens an upstream connection per request without "
+                      "releasing it. Because the leak is in every version at or above "
+                      "v5.1.0, rolling forward does not recover it - only a rollback does. "
+                      "301 and 302 add capacity to a leak, which delays exhaustion rather "
+                      "than preventing it. 304 raises the SLO, which changes the "
+                      "measurement rather than the system.")
+
+_add("judgement", "judgement", id="judge_checkout_flag", question_id="J-CHK",
+     incident_ref="checkout-errors", correct=401, difficulty="hard",
+     ticket=("OPS-304", "critical", "Decide the remediation for the checkout error spike"),
+     situation="checkout is failing 5.5% of requests and the rate tracks the instant_refunds "
+               "flag ramp exactly. Four remediations have been proposed and customers are "
+               "affected now.",
+     why="proposal 401 is the runtime kill switch, which mitigates immediately with no "
+         "deploy; 402 rolls back a deploy that is not the cause, 403 is the right eventual "
+         "fix but takes a full pipeline while customers are affected, and 404 tunes an "
+         "unrelated timeout",
+     oracle_reads=[{"tool": "search_logs", "args": {"service": "checkout"}},
+                   {"tool": "list_feature_flags", "args": {"service": "checkout"}},
+                   {"tool": "get_document", "args": {"title": "Incident response"}}],
+     oracle_reasoning="401 is correct for mitigation. The errors correlate 1:1 with the "
+                      "flag, and a flag is a runtime toggle that takes effect immediately - "
+                      "the incident runbook puts mitigation before the durable fix. 402 "
+                      "rolls back a deploy that did not introduce the fault, so it would not "
+                      "help. 403 is the right permanent fix but requires CI, merge, staging "
+                      "and a canary while customers are erroring. 404 changes a timeout "
+                      "unrelated to a null dereference.")
+
+
 def all_specs():
     return list(SPECS)
 
@@ -604,7 +686,8 @@ def _ticket_type(s):
             "flag_ship": "feature", "flag_cleanup": "task",
             "api_migration": "task", "multi_service": "feature",
             "detection": "incident", "localization": "incident",
-            "analysis": "incident", "reconcile": "task"}[s["generator"]]
+            "analysis": "incident", "reconcile": "task",
+            "judgement": "incident"}[s["generator"]]
 
 
 def _ticket_service(s):
@@ -650,6 +733,8 @@ def _ticket_desc(s):
                "with submit_diagnosis. Read-only investigation." % s["scope"]
     if g == "reconcile":
         return s["question"]
+    if g == "judgement":
+        return s["situation"]
     if g == "analysis":
         return "Perform a root-cause analysis for %s and report service, fault type and the " \
                "offending key with submit_diagnosis. Read-only investigation." % s["scope"]

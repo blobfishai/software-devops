@@ -1209,7 +1209,53 @@ def gen_reconcile(spec):
     return instruction, checks, calls
 
 
+def gen_judgement(spec):
+    """Choose the correct remediation. The agent writes nothing; it decides.
+
+    SWE-Lancer's manager split is 265 of 463 tasks and is harder than implementing
+    the fix (47.2% vs 51.5%), integer-graded and flake-free
+    (research/notes/evals/openai__SWELancer-Benchmark.md)."""
+    qid, tkt = spec["question_id"], spec["ticket"][0]
+    instruction = (
+        "This is a decision, not a change. Do NOT modify production state.\n\n"
+        "%s — %s\n\n%s\n\nFour people have proposed a remediation. Read the "
+        "proposals and the evidence, decide which one is actually right, and submit "
+        "its proposal_id with submit_answer(question_id='%s', answer='<id>'). Several "
+        "of the proposals will reduce the symptom; only one addresses the cause. In "
+        "`assumptions`, say why the others are wrong."
+        % (tkt, spec["ticket"][2], spec["situation"], qid))
+    checks = [
+        ("correctness", "decision_submitted", "_answer(%s) is not None" % q(qid),
+         "submit a proposal_id for '%s'" % qid),
+        ("correctness", "chose_the_root_cause_fix",
+         "_answer_num(%s) == %d" % (q(qid), spec["correct"]),
+         spec["why"]),
+        ("correctness", "read_the_proposals", "_called('list_remediation_proposals')",
+         "read the proposals before deciding"),
+        ("deployment", "decision_was_read_only", "_mutating_calls() == 0",
+         "a decision task must not change production state"),
+        ("quality", "reasoning_recorded",
+         "len((_answer(%s) or {}).get('assumptions','')) >= 60" % q(qid),
+         "say why the rejected proposals are wrong, not just which you picked"),
+        ("quality", "ticket_closed", "_ticket_status(%s) == 'done'" % q(tkt),
+         "close ticket %s" % tkt),
+        ("quality", "closed_after_the_work", "_closed_after_work(%s)" % q(tkt),
+         "close %s only once the decision is submitted" % tkt),
+    ]
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}}]
+    calls += spec["oracle_reads"]
+    calls += [{"tool": "list_remediation_proposals",
+               "args": {"incident_ref": spec["incident_ref"]}},
+              {"tool": "submit_answer", "args": {
+                  "question_id": qid, "answer": str(spec["correct"]),
+                  "sources": ["remediation_proposals"],
+                  "assumptions": spec["oracle_reasoning"]}},
+              {"tool": "update_ticket", "args": {"key": tkt, "status": "done"}}]
+    return instruction, checks, calls
+
+
 GENERATORS = {
+    "judgement": gen_judgement,
     "reconcile": gen_reconcile,
     "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
     "config_fix": gen_config_fix, "flag_ship": gen_flag_ship, "flag_kill": gen_flag_kill,
@@ -1269,6 +1315,10 @@ GUIDANCE = {
                  "with fault_type='none'.",
     "localization": "Procedure: trace the symptom through the metrics, the service dependency "
                     "graph and the logs, then submit the responsible service.",
+    "judgement": "Procedure: establish the mechanism from the telemetry and the code "
+                 "before reading the proposals, then reject any proposal that treats the "
+                 "symptom, targets a different component, or changes behaviour rather "
+                 "than restoring it.",
     "reconcile": "Procedure: identify every system that holds part of the answer, resolve "
                  "the service naming across them, check for duplicates and sampling before "
                  "counting, decide the boundary condition explicitly, and record which "

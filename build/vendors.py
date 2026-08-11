@@ -18,6 +18,18 @@ inside the world. Nothing here is hidden - it is contradictory.
 """
 
 SCHEMA_SQL = """
+-- Human-written remediation proposals attached to an incident. The agent picks
+-- one; it writes no code. SWE-Lancer's manager split is 265 of 463 tasks and is
+-- HARDER than implementing the fix (47.2% vs 51.5%), integer-graded and
+-- flake-free (research/notes/evals/openai__SWELancer-Benchmark.md).
+CREATE TABLE remediation_proposals (
+    proposal_id INTEGER PRIMARY KEY,
+    incident_ref TEXT NOT NULL,
+    author TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    detail TEXT NOT NULL
+);
+
 -- Every tool call, read or write. Verifiers that ask "did you actually consult
 -- X" must derive that from the trace, never from what the agent says it did.
 CREATE TABLE tool_calls (
@@ -382,6 +394,72 @@ K8S_EVENTS = [
      "Container analytics exceeded its memory limit of 512Mi and was killed", 39, 420),
     (9004, "production", "api-gateway-9f2e-cc33", "Killing",
      "Stopping container gateway for rollout", 1, 417),
+]
+
+# Four proposals per incident. Exactly one is correct; the rest are the kind of
+# plausible-but-wrong suggestion that actually appears in an incident channel -
+# masking the symptom, fixing the wrong service, or changing semantics.
+REMEDIATION_PROPOSALS = [
+    # --- payments error rate (root cause: notifications_retry_max_attempts=0)
+    (101, "payments-error-rate", "Priya Nair",
+     "Raise the notifications timeout from 30s to 60s",
+     "Give the downstream longer to answer so fewer calls time out."),
+    (102, "payments-error-rate", "Diego Ramos",
+     "Set notifications_retry_max_attempts to 3 per the retry standard",
+     "A single downstream timeout currently fails the payment permanently because "
+     "no retry is attempted. The standard requires 3 attempts with backoff."),
+    (103, "payments-error-rate", "Sam Whitfield",
+     "Make the notifications call fire-and-forget",
+     "Drop the response entirely so a slow downstream cannot fail a payment."),
+    (104, "payments-error-rate", "Nina Kowalski",
+     "Scale the notifications service to more replicas",
+     "Add capacity so notifications answers faster."),
+    # --- analytics worker OOMKill (root cause: memory_limit_mb too low for prefetch)
+    (201, "analytics-oom", "Alex Osei",
+     "Raise the container memory limit from 512Mi to 2Gi",
+     "The container is killed at its limit; give it more headroom."),
+    (202, "analytics-oom", "Priya Nair",
+     "Bound the queue prefetch so the consumer stops pulling the whole backlog",
+     "prefetch_count=0 means unlimited prefetch, so the consumer loads the entire "
+     "backlog into memory and is OOMKilled. Bounding it fixes the cause; raising "
+     "the limit only moves the threshold."),
+    (203, "analytics-oom", "Tom Becker",
+     "Add a restart policy with exponential backoff",
+     "Let it crash more gracefully so the restarts are less noisy."),
+    (204, "analytics-oom", "Lena Ortiz",
+     "Disable the analytics rollup until the next sprint",
+     "Turn the consumer off so it stops paging us."),
+    # --- gateway latency (root cause: bad release v5.1.0)
+    (301, "gateway-latency", "Mei Tanaka",
+     "Increase the gateway rate limit so requests queue less",
+     "Raise rate_limit_rps to let more traffic through."),
+    (302, "gateway-latency", "Ravi Shah",
+     "Add more gateway replicas to absorb the latency",
+     "Horizontal scale until p99 comes down."),
+    (303, "gateway-latency", "Priya Nair",
+     "Roll production back to v5.0.9",
+     "p99 moved from 120ms to 1030ms at the exact moment v5.1.0 was promoted, and "
+     "the pool in that release opens a connection per request without releasing "
+     "it. Every version at or above v5.1.0 carries the leak, so rolling forward "
+     "does not recover it."),
+    (304, "gateway-latency", "Jordan Blake",
+     "Raise the latency SLO to 1200ms while we investigate",
+     "Stop the alarm firing so the team can work uninterrupted."),
+    # --- checkout error spike (root cause: instant_refunds flag)
+    (401, "checkout-errors", "Diego Ramos",
+     "Disable the instant_refunds flag in production",
+     "The error rate tracks the flag ramp exactly, and the refund path dereferences "
+     "a missing record. The flag is a runtime toggle, so this mitigates immediately "
+     "without a deploy."),
+    (402, "checkout-errors", "Sam Whitfield",
+     "Roll back the last checkout deploy",
+     "Revert to the previous version to clear the errors."),
+    (403, "checkout-errors", "Nina Kowalski",
+     "Add a null check and ship a hotfix",
+     "Patch the dereference and deploy through the normal pipeline."),
+    (404, "checkout-errors", "Lena Ortiz",
+     "Increase the checkout payments timeout",
+     "Give payments longer so checkout stops erroring."),
 ]
 
 # --------------------------------------------------------------------------

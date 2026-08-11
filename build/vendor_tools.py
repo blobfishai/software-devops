@@ -321,6 +321,22 @@ return [dict(r) for r in conn.execute(
     'SELECT canonical, alias, system FROM service_aliases ORDER BY canonical, system').fetchall()]""",
           reads=["service_aliases"], writes=[], returns="list[dict]"))
 
+    T(_mk("list_remediation_proposals",
+          "Read the remediation proposals people have put forward for an incident. "
+          "Exactly one is the right call; the others are plausible suggestions that "
+          "mask the symptom, target the wrong component, or change behaviour.",
+          [{"name": "incident_ref", "type": "str", "required": True}],
+          """\
+rows = conn.execute('SELECT * FROM remediation_proposals WHERE incident_ref=? ORDER BY proposal_id',
+                    (incident_ref,)).fetchall()
+if not rows:
+    refs = [r[0] for r in conn.execute(
+        'SELECT DISTINCT incident_ref FROM remediation_proposals ORDER BY 1').fetchall()]
+    return {'ok': False, 'error': 'no proposals for ' + str(incident_ref) +
+            '; known: ' + ', '.join(refs)}
+return [dict(r) for r in rows]""",
+          reads=["remediation_proposals"], writes=[], returns="list[dict]"))
+
     T(_mk("jira_transition_issue",
           "Transition a Jira issue. Jira status is a per-project workflow, so moving an "
           "issue to 'Done' does NOT by itself mean it was fixed - a completed issue also "

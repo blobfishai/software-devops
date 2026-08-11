@@ -2665,6 +2665,34 @@ def list_service_aliases(db_path=None):
         conn.close()
 
 
+def list_remediation_proposals(db_path=None, incident_ref=None):
+    """Read the remediation proposals people have put forward for an incident. Exactly one is the right call; the others are plausible suggestions that mask the symptom, target the wrong component, or change behaviour."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_remediation_proposals',)); conn.commit()
+        except Exception:
+            pass
+        if incident_ref is None:
+            return {'ok': False, 'error': 'missing required parameter: incident_ref'}
+        rows = conn.execute('SELECT * FROM remediation_proposals WHERE incident_ref=? ORDER BY proposal_id',
+                            (incident_ref,)).fetchall()
+        if not rows:
+            refs = [r[0] for r in conn.execute(
+                'SELECT DISTINCT incident_ref FROM remediation_proposals ORDER BY 1').fetchall()]
+            return {'ok': False, 'error': 'no proposals for ' + str(incident_ref) +
+                    '; known: ' + ', '.join(refs)}
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
 def jira_transition_issue(db_path=None, key=None, status=None, resolution=''):
     """Transition a Jira issue. Jira status is a per-project workflow, so moving an issue to 'Done' does NOT by itself mean it was fixed - a completed issue also carries a resolution (e.g. 'Fixed'). Set both."""
     import sqlite3 as _sq

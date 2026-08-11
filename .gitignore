@@ -4,3 +4,4 @@ __pycache__/
 world/runs/
 research/repos/
 dist/
+world/verifier_accuracy_receipt.json

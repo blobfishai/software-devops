@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_0c59a9f6",
+  "env_id": "env_software_devops_46c355c7",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -20,17 +20,17 @@
   },
   "database": {
     "snapshot_ref": "environment.db",
-    "schema_hash": "71e470e4f0532ca27f57ff35d28c6225257c85dbb74612500c34201795a1508e",
+    "schema_hash": "200cdd831dc56172318088e69bac875046b2575100e96f5648d0b113136b9b00",
     "seed": 42,
     "engine": "sqlite",
-    "table_count": 56,
-    "row_count": 1198,
+    "table_count": 57,
+    "row_count": 1218,
     "complexification_rounds": 0
   },
   "tools": {
     "manifest_ref": "",
     "tests_ref": "",
-    "tool_count": 75,
+    "tool_count": 76,
     "survival_rate": 1.0,
     "valid_tool_ids": [
       "tool_list_services",
@@ -104,6 +104,7 @@
       "tool_query_local_deploy_log",
       "tool_resolve_service_alias",
       "tool_list_service_aliases",
+      "tool_list_remediation_proposals",
       "tool_jira_transition_issue",
       "tool_k8s_events_list",
       "tool_k8s_pods_list",
@@ -183,6 +184,7 @@
       "tool_query_local_deploy_log",
       "tool_resolve_service_alias",
       "tool_list_service_aliases",
+      "tool_list_remediation_proposals",
       "tool_jira_transition_issue",
       "tool_k8s_events_list",
       "tool_k8s_pods_list",
@@ -263,14 +265,18 @@
     "tsk_rcn_checkout_error_rate",
     "tsk_rcn_distinct_checkout_bugs",
     "tsk_rcn_production_deploys",
-    "tsk_rcn_gateway_owner"
+    "tsk_rcn_gateway_owner",
+    "tsk_judge_payments_retry",
+    "tsk_judge_analytics_oom",
+    "tsk_judge_gateway_latency",
+    "tsk_judge_checkout_flag"
   ],
   "verifier_refs": [],
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 70,
-    "accepted_task_count": 70,
+    "task_count": 74,
+    "accepted_task_count": 74,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -280,8 +286,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 70,
-    "discriminating_vcode_tasks": 70,
+    "total_tasks": 74,
+    "discriminating_vcode_tasks": 74,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,

@@ -19,7 +19,7 @@ def test_oracle_policy_scores_perfect(tmp_path):
     report = json.loads(out.read_text())
     assert report["pass_rate"] == 1.0
     assert report["mean_score"] == 1.0
-    assert len(report["tasks"]) == 70
+    assert len(report["tasks"]) == 74
     for t in report["tasks"]:
         assert t["passed"] and t["score"] == 1.0
         assert "correctness" in t["dimensions"]
@@ -33,7 +33,7 @@ def test_split_selection_and_missing_key(tmp_path):
          "--split", "heldout", "--out", str(out)],
         capture_output=True, text=True, timeout=300)
     assert proc.returncode == 0, proc.stderr
-    assert len(json.loads(out.read_text())["tasks"]) == 13
+    assert len(json.loads(out.read_text())["tasks"]) == 14
 
     env_no_key = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin"}
     proc = subprocess.run(
@@ -53,16 +53,27 @@ def test_policy_blind_baseline_fails_the_change_tasks(tmp_path):
         capture_output=True, text=True, timeout=300)
     assert proc.returncode == 0, proc.stderr
     rep = json.loads(out.read_text())
-    assert rep["pass_rate"] < 0.40, "policy-blind agent should not clear 40%%: %s" % rep["pass_rate"]
-
     by_cat = {}
     for t in rep["tasks"]:
         by_cat.setdefault(t["category"], []).append(t["passed"])
+
+    # The meaningful guard: a policy-blind agent must pass NO task that ships a
+    # change. A global threshold would drift every time a read-only family is
+    # added, which is a property of the task mix, not of difficulty.
     change = ["error_rate_reduction", "latency_optimization", "feature_flag",
               "security_incident", "api_migration", "multi_service_rollout"]
     for c in change:
         assert not any(by_cat[c]), "%s must be policy-sensitive, got %s" % (c, by_cat[c])
-    # the read-only diagnostics have no deployment policy to violate, so they survive
+
+    # Its overall pass rate must therefore be exactly the read-only share: read-only
+    # families have no deployment policy to violate, so they legitimately survive.
+    read_only = [c for c in by_cat if c.startswith("aiops_")
+                 or c in ("reconciliation", "judgement", "flaky_test")]
+    expected = sum(len(by_cat[c]) for c in read_only) / len(rep["tasks"])
+    assert abs(rep["pass_rate"] - expected) < 0.02, (
+        "policy-blind pass rate %.3f should equal the read-only share %.3f - anything "
+        "higher means a change task stopped being policy-sensitive"
+        % (rep["pass_rate"], expected))
     assert all(by_cat["aiops_detection"])
 
 

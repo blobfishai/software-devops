@@ -2831,6 +2831,22 @@ INSERT INTO "prom_series" VALUES(9,'http_errors_total:rate5m','checkout_service'
 INSERT INTO "prom_series" VALUES(10,'http_errors_total:rate5m','checkout_service','nonprod-staging',420,29.4,0);
 INSERT INTO "pull_requests" VALUES(9201,'api-gateway','Connection pool rewrite','Perf: new upstream pool.','Priya Nair','','merged','v5.1.0');
 INSERT INTO "pull_requests" VALUES(9202,'catalog','Price rounding cleanup','Draft, do not merge yet.','Diego Ramos','','open','');
+INSERT INTO "remediation_proposals" VALUES(101,'payments-error-rate','Priya Nair','Raise the notifications timeout from 30s to 60s','Give the downstream longer to answer so fewer calls time out.');
+INSERT INTO "remediation_proposals" VALUES(102,'payments-error-rate','Diego Ramos','Set notifications_retry_max_attempts to 3 per the retry standard','A single downstream timeout currently fails the payment permanently because no retry is attempted. The standard requires 3 attempts with backoff.');
+INSERT INTO "remediation_proposals" VALUES(103,'payments-error-rate','Sam Whitfield','Make the notifications call fire-and-forget','Drop the response entirely so a slow downstream cannot fail a payment.');
+INSERT INTO "remediation_proposals" VALUES(104,'payments-error-rate','Nina Kowalski','Scale the notifications service to more replicas','Add capacity so notifications answers faster.');
+INSERT INTO "remediation_proposals" VALUES(201,'analytics-oom','Alex Osei','Raise the container memory limit from 512Mi to 2Gi','The container is killed at its limit; give it more headroom.');
+INSERT INTO "remediation_proposals" VALUES(202,'analytics-oom','Priya Nair','Bound the queue prefetch so the consumer stops pulling the whole backlog','prefetch_count=0 means unlimited prefetch, so the consumer loads the entire backlog into memory and is OOMKilled. Bounding it fixes the cause; raising the limit only moves the threshold.');
+INSERT INTO "remediation_proposals" VALUES(203,'analytics-oom','Tom Becker','Add a restart policy with exponential backoff','Let it crash more gracefully so the restarts are less noisy.');
+INSERT INTO "remediation_proposals" VALUES(204,'analytics-oom','Lena Ortiz','Disable the analytics rollup until the next sprint','Turn the consumer off so it stops paging us.');
+INSERT INTO "remediation_proposals" VALUES(301,'gateway-latency','Mei Tanaka','Increase the gateway rate limit so requests queue less','Raise rate_limit_rps to let more traffic through.');
+INSERT INTO "remediation_proposals" VALUES(302,'gateway-latency','Ravi Shah','Add more gateway replicas to absorb the latency','Horizontal scale until p99 comes down.');
+INSERT INTO "remediation_proposals" VALUES(303,'gateway-latency','Priya Nair','Roll production back to v5.0.9','p99 moved from 120ms to 1030ms at the exact moment v5.1.0 was promoted, and the pool in that release opens a connection per request without releasing it. Every version at or above v5.1.0 carries the leak, so rolling forward does not recover it.');
+INSERT INTO "remediation_proposals" VALUES(304,'gateway-latency','Jordan Blake','Raise the latency SLO to 1200ms while we investigate','Stop the alarm firing so the team can work uninterrupted.');
+INSERT INTO "remediation_proposals" VALUES(401,'checkout-errors','Diego Ramos','Disable the instant_refunds flag in production','The error rate tracks the flag ramp exactly, and the refund path dereferences a missing record. The flag is a runtime toggle, so this mitigates immediately without a deploy.');
+INSERT INTO "remediation_proposals" VALUES(402,'checkout-errors','Sam Whitfield','Roll back the last checkout deploy','Revert to the previous version to clear the errors.');
+INSERT INTO "remediation_proposals" VALUES(403,'checkout-errors','Nina Kowalski','Add a null check and ship a hotfix','Patch the dereference and deploy through the normal pipeline.');
+INSERT INTO "remediation_proposals" VALUES(404,'checkout-errors','Lena Ortiz','Increase the checkout payments timeout','Give payments longer so checkout stops erroring.');
 INSERT INTO "repo_files" VALUES(1,'payments','src/payments/settings.py','python','Diego Ramos',70,'"""Typed configuration loader for the payments service.
 
 Resolution order, first hit wins: process environment
@@ -5662,6 +5678,10 @@ INSERT INTO "tickets" VALUES(9167,'OPS-202','task','What is checkout''s producti
 INSERT INTO "tickets" VALUES(9168,'OPS-203','task','How many distinct open checkout bugs do we have?','The commerce lead wants to know how many genuinely distinct open checkout bugs exist. Bugs get filed in more than one tracker.','open','medium','','');
 INSERT INTO "tickets" VALUES(9169,'OPS-204','task','How many production deployments in the last 7 days?','For the weekly delivery report: how many deployments reached production in days 414-420, excluding rollbacks?','open','medium','','');
 INSERT INTO "tickets" VALUES(9170,'OPS-205','task','Who owns the API gateway right now?','A gateway alarm needs an owner and the wiki and the spreadsheet disagree. Who should actually be paged? Answer with the number of the escalation policy''s current on-call day, and name the team in your assumptions.','open','high','','');
+INSERT INTO "tickets" VALUES(9171,'OPS-301','incident','Decide the remediation for the payments error rate','payments is failing 4.2% of requests against a 1.0% SLO. The team has proposed four remediations in the incident channel and wants a decision.','open','critical','','');
+INSERT INTO "tickets" VALUES(9172,'OPS-302','incident','Decide the remediation for the analytics crashloop','analytics-worker is being OOMKilled and is in CrashLoopBackOff. Four remediations have been proposed.','open','high','','');
+INSERT INTO "tickets" VALUES(9173,'OPS-303','incident','Decide the remediation for the gateway latency surge','api-gateway p99 is 1030ms against a 250ms SLO and has been since v5.1.0 was promoted. Four remediations have been proposed.','open','critical','','');
+INSERT INTO "tickets" VALUES(9174,'OPS-304','incident','Decide the remediation for the checkout error spike','checkout is failing 5.5% of requests and the rate tracks the instant_refunds flag ramp exactly. Four remediations have been proposed and customers are affected now.','open','critical','','');
 INSERT INTO "traffic_profile" VALUES(9201,'storefront-web','GET /',420,100);
 INSERT INTO "traffic_profile" VALUES(9202,'storefront-web','GET /product/:id',310,100);
 INSERT INTO "traffic_profile" VALUES(9203,'api-gateway','POST /v1/orders',145,100);
@@ -5690,7 +5710,7 @@ INSERT INTO "vulnerabilities" VALUES(9801,'CVE-2026-31337','libpayproc','payment
 INSERT INTO "vulnerabilities" VALUES(9802,'CVE-2026-40881','stripe-sdk','checkout','high','11.4.0','open');
 INSERT INTO "vulnerabilities" VALUES(9803,'CVE-2026-22190','pydantic','catalog','medium','2.11.0','remediated');
 INSERT INTO "vulnerabilities" VALUES(9804,'CVE-2026-51002','requests','payments','high','2.33.0','open');
-INSERT INTO "sqlite_sequence" VALUES('tickets',9170);
+INSERT INTO "sqlite_sequence" VALUES('tickets',9174);
 INSERT INTO "sqlite_sequence" VALUES('deployments',9272);
 INSERT INTO "sqlite_sequence" VALUES('feature_flags',9308);
 INSERT INTO "sqlite_sequence" VALUES('alerts',9610);

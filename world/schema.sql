@@ -306,6 +306,13 @@ CREATE TABLE pull_requests (
     status TEXT NOT NULL DEFAULT 'open',
     merged_version TEXT NOT NULL DEFAULT ''
 );
+CREATE TABLE remediation_proposals (
+    proposal_id INTEGER PRIMARY KEY,
+    incident_ref TEXT NOT NULL,
+    author TEXT NOT NULL,
+    summary TEXT NOT NULL,
+    detail TEXT NOT NULL
+);
 CREATE TABLE repo_files (
     file_id INTEGER PRIMARY KEY AUTOINCREMENT,
     service TEXT NOT NULL,

@@ -22,6 +22,7 @@ import pathlib
 import sys
 import tempfile
 import time
+import collections
 import math
 import re
 import urllib.error
@@ -264,6 +265,35 @@ def pass_hat_k(successes, n, k):
     return math.comb(successes, k) / math.comb(n, k) if successes >= k else 0.0
 
 
+# vivaria is the only benchmark in the corpus that types this and derives run
+# status from it in SQL so the two cannot drift; everyone else collects a rich
+# failure vocabulary and averages it away at scoring time
+# (research/notes/evals/METR__vivaria.md, research/notes/evals/_CROSS_CUTTING.md).
+# Environment failure is first-order here, not noise: AlgoTune's own oracle passes
+# only ~85%, and three SWE-bench Verified tasks fail with the oracle agent.
+ERROR_SOURCE = ("agent", "harness", "environment", "serverOrTask", "capped", "user")
+HARNESS_MARKERS = ("API ", "exhausted API retries", "urlopen", "HTTPError", "timed out")
+ENVIRONMENT_MARKERS = ("unknown tool", "bad arguments for", "missing required parameter",
+                       "no such table", "database is locked", "verifier execution failed",
+                       "Traceback", "InternalError")
+
+
+def classify_outcome(passed, err, transcript, verdict, turns, max_turns):
+    """Attribute an episode. An agent may never be blamed for a harness fault, and
+    a budget exhaustion is its own outcome rather than a failure."""
+    if passed:
+        return "resolved"
+    blob = "%s %s" % (err or "", verdict.get("error") or "")
+    if any(m in blob for m in HARNESS_MARKERS):
+        return "harness"
+    hay = "%s %s" % (blob, transcript or "")
+    if any(m in hay for m in ENVIRONMENT_MARKERS):
+        return "environment"
+    if turns >= max_turns:
+        return "capped"
+    return "agent"
+
+
 def dimension_breakdown(verdict):
     dims = {}
     for a in verdict.get("assertions") or []:
@@ -448,7 +478,11 @@ def main():
         W = {"correctness": 0.6, "deployment": 0.3, "quality": 0.1}
         tw = sum(W[d] for d in fr) or 1.0
         pc = round(sum(W[d] / tw * v for d, v in fr.items()), 4)
-        rec = {"task_id": tid, "category": task.get("category"),
+        outcome = classify_outcome(bool(verdict.get("passed")), err,
+                                   stats.get("transcript", ""), verdict,
+                                   stats.get("turns", 0), args.max_turns)
+        rec = {"outcome": outcome,
+               "task_id": tid, "category": task.get("category"),
                "difficulty": task.get("difficulty"),
                "passed": bool(verdict.get("passed")), "score": pc,
                "dimension_fractions": {k: round(v, 3) for k, v in sorted(fr.items())},
@@ -476,8 +510,15 @@ def main():
     n = len(records)
     passed = sum(1 for r in records if r["passed"])
     mean_score = sum(r["score"] for r in records) / n
-    print("\n  Horizon-SWE-PF  (pass rate, correctness+deployment must be perfect) : %.1f%%  (%d/%d)"
-          % (100.0 * passed / n, passed, n))
+    outcomes = collections.Counter(r.get("outcome", "agent") for r in records)
+    scored = outcomes["resolved"] + outcomes["agent"] + outcomes["capped"]
+    print("\n  outcomes: %s" % "  ".join("%s=%d" % (k, v) for k, v in outcomes.most_common()))
+    if outcomes["harness"] or outcomes["environment"]:
+        print("  !! %d episode(s) failed for harness/environment reasons and are EXCLUDED "
+              "from the pass rate - they are our fault, not the model's"
+              % (outcomes["harness"] + outcomes["environment"]))
+    print("\n  Horizon-SWE-PF  (pass rate over %d attributable episodes) : %.1f%%  (%d/%d)"
+          % (scored, 100.0 * passed / max(1, scored), passed, scored))
     print("  Horizon-SWE-PC  (0.6 correctness / 0.3 deployment / 0.1 quality)     : %.1f"
           % (100.0 * mean_score))
     cats = {}
@@ -520,6 +561,8 @@ def main():
              "model": args.model if args.policy == "model" else None,
              "split": args.split, "guidance": args.guidance, "pass_rate": passed / n,
              "mean_score": mean_score, "trials": args.trials,
+             "outcomes": dict(outcomes),
+             "attributable_episodes": scored,
              "pass_hat_k": {str(k): (lambda vs: sum(vs) / len(vs) if vs else None)(
                  [v for v in (pass_hat_k(sum(x), len(x), k) for x in trials.values())
                   if v is not None])
