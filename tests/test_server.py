@@ -182,3 +182,28 @@ def test_a_rebuild_mid_run_cannot_change_a_live_world():
     assert after == before, (
         "a session created after an on-disk rebuild saw %d services instead of %d - "
         "sessions are forking from world/ rather than from the load-time snapshot" % (after, before))
+
+
+def test_controlled_vocabularies_reach_an_mcp_client():
+    """Declaring `enum` only helps if it survives to the consumer. A native
+    tool-calling client constrains generation against the schema it is handed, so
+    an enum that serve.py strips on the way out is a fix that never arrives - and
+    the failure it prevents (a model inverting its own finding to satisfy a
+    vocabulary it cannot see) comes straight back."""
+    import tempfile
+    sys.path.insert(0, str(ROOT))
+    from serve import World
+    world = World(ROOT / "world", tempfile.mkdtemp(prefix="mcpenum_"))
+
+    published = {t["name"]: t for t in world.public_tools()}
+    declared = 0
+    for t in world.tools:
+        for name, spec in (t.get("json_schema", {}).get("parameters", {})
+                           .get("properties") or {}).items():
+            if "enum" not in spec:
+                continue
+            declared += 1
+            out = published[t["name"]]["parameters"]["properties"][name]
+            assert out.get("enum") == spec["enum"], \
+                "%s.%s loses its vocabulary on the way to a client" % (t["name"], name)
+    assert declared >= 9, "controlled vocabularies disappeared: %d" % declared

@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_ebbb2b5f",
+  "world_id": "env_software_devops_56e8deea",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "ebbb2b5faa0dea1da67698a94d859575db325031fdb915f2cd0c9c747e4296e6",
+  "world_digest": "56e8deeadf813197b722a75fb488856204d820a463e0d61b5c7cf0eda6097572",
   "entities": [
     "alert_firings",
     "alert_rules",

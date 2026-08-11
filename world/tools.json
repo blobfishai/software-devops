@@ -2552,7 +2552,7 @@
         "type": "bool",
         "required": true,
         "default": null,
-        "description": "fault_detected"
+        "description": "true if the scope is faulting, false if it is healthy"
       },
       {
         "name": "service",
@@ -2566,7 +2566,7 @@
         "type": "str",
         "required": false,
         "default": "none",
-        "description": "fault_type"
+        "description": "the mechanism, or 'unclassified' when a fault is evidenced but its mechanism was not asked for, or 'none' when healthy"
       },
       {
         "name": "offending_key",
@@ -2603,7 +2603,7 @@
           },
           "fault_detected": {
             "type": "boolean",
-            "description": "fault_detected"
+            "description": "true if the scope is faulting, false if it is healthy"
           },
           "service": {
             "type": "string",
@@ -2611,7 +2611,7 @@
           },
           "fault_type": {
             "type": "string",
-            "description": "fault_type",
+            "description": "the mechanism, or 'unclassified' when a fault is evidenced but its mechanism was not asked for, or 'none' when healthy",
             "enum": [
               "misconfig",
               "missing_retry",
