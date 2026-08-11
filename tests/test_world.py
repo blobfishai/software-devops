@@ -656,3 +656,27 @@ def test_documentation_counts_match_the_built_world(tmp_path):
     wrong = [m for m in _re.findall(r"\b(\d+) tasks\b", readme)
              if m.isdigit() and int(m) not in (n, 8, 7, 6, 5, 4, 3, 2, 1)]
     assert not wrong, "README claims task counts %s but the world has %d" % (wrong, n)
+
+
+def test_jira_done_requires_a_resolution(env):
+    """Jira status is a per-project workflow: Done without a resolution records
+    no outcome. The tool must refuse it rather than silently accepting."""
+    db = fork(env, "jira_res")
+    bad = call(env, db, "jira_transition_issue", key="ENG-2101", status="Done")
+    assert bad["ok"] is False and "resolution" in bad["error"]
+    ok = call(env, db, "jira_transition_issue", key="ENG-2101", status="Done",
+              resolution="Fixed")
+    assert ok["ok"] is True
+
+
+def test_forgetting_the_duplicate_tracker_is_penalised(env):
+    """The same work is tracked in two systems. Closing only the on-call queue
+    leaves the engineering tracker stale - a hygiene failure, so it docks quality
+    without failing PF."""
+    task = env["tasks"]["tsk_payments_retry"]
+    db = fork(env, "jira_twin")
+    run_calls(env, db, [c for c in copy.deepcopy(task["expected_calls"])
+                        if c["tool"] != "jira_transition_issue"])
+    ok, err, score = bw.run_vcode(task["vcode"], str(db))
+    assert ok, "correctness and deployment are unaffected"
+    assert score is not None and score < 1.0

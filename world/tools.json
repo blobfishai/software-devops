@@ -3523,6 +3523,68 @@
     }
   },
   {
+    "tool_id": "tool_jira_transition_issue",
+    "name": "jira_transition_issue",
+    "description": "Transition a Jira issue. Jira status is a per-project workflow, so moving an issue to 'Done' does NOT by itself mean it was fixed - a completed issue also carries a resolution (e.g. 'Fixed'). Set both.",
+    "source_code": "def jira_transition_issue(db_path=None, key=None, status=None, resolution=''):\n    \"\"\"Transition a Jira issue. Jira status is a per-project workflow, so moving an issue to 'Done' does NOT by itself mean it was fixed - a completed issue also carries a resolution (e.g. 'Fixed'). Set both.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('jira_transition_issue',)); conn.commit()\n        except Exception:\n            pass\n        if key is None:\n            return {'ok': False, 'error': 'missing required parameter: key'}\n        if status is None:\n            return {'ok': False, 'error': 'missing required parameter: status'}\n        def _audit(conn, _tool, _svc, _detail):\n            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))\n        row = conn.execute('SELECT * FROM jira_issues WHERE key=?', (key,)).fetchone()\n        if row is None:\n            return {'ok': False, 'error': 'no such Jira issue: ' + str(key)}\n        valid = ('Backlog', 'In Progress', 'In Review', 'Blocked', 'Done')\n        if status not in valid:\n            return {'ok': False, 'error': 'status must be one of: ' + ', '.join(valid)}\n        if status == 'Done' and not (resolution or '').strip():\n            return {'ok': False, 'error': 'transitioning to Done requires a resolution '\n                    '(for example Fixed) - a status alone does not record the outcome'}\n        conn.execute('UPDATE jira_issues SET status=?, resolution=? WHERE key=?',\n                     (status, resolution or '', key))\n        _audit(conn, 'jira_transition_issue', row['component'] or '',\n               {'key': key, 'status': status, 'resolution': resolution or ''})\n        conn.commit()\n        return {'ok': True, 'key': key, 'status': status, 'resolution': resolution or ''}\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "key",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "key"
+      },
+      {
+        "name": "status",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "status"
+      },
+      {
+        "name": "resolution",
+        "type": "str",
+        "required": false,
+        "default": "",
+        "description": "resolution"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [
+      "jira_issues"
+    ],
+    "write_tables": [
+      "audit_events",
+      "jira_issues"
+    ],
+    "json_schema": {
+      "name": "jira_transition_issue",
+      "description": "Transition a Jira issue. Jira status is a per-project workflow, so moving an issue to 'Done' does NOT by itself mean it was fixed - a completed issue also carries a resolution (e.g. 'Fixed'). Set both.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "key"
+          },
+          "status": {
+            "type": "string",
+            "description": "status"
+          },
+          "resolution": {
+            "type": "string",
+            "description": "resolution"
+          }
+        },
+        "required": [
+          "key",
+          "status"
+        ]
+      }
+    }
+  },
+  {
     "tool_id": "tool_k8s_events_list",
     "name": "k8s_events_list",
     "description": "List Kubernetes events (OOMKilled, CrashLoopBackOff, ...). The kubelet records kernel-level kills that an application error tracker never sees, because the process dies before its SDK can flush.",

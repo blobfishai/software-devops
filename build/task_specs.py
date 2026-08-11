@@ -21,7 +21,7 @@ def _add(category, generator, **kw):
 _add("error_rate_reduction", "config_fix", id="payments_retry", service="payments",
      config_key="notifications_retry_max_attempts", good="3", metric="error_rate_pct",
      alert_id=9601, difficulty="hard",
-     ticket=("ENG-2101", "critical", "Payments error rate breaching the 1% SLO"),
+     jira_twin=True, ticket=("ENG-2101", "critical", "Payments error rate breaching the 1% SLO"),
      symptom="payments error_rate_pct is 4.2% against a 1.0% SLO (alarm 9601)",
      hint="production logs show a ConnectionTimeout on the notifications call with no retry attempted",
      doc="Retry and timeout standard")
@@ -29,7 +29,7 @@ _add("error_rate_reduction", "config_fix", id="payments_retry", service="payment
 _add("error_rate_reduction", "config_fix", id="inventory_pool", service="inventory",
      config_key="db_pool_size", good="20", metric="error_rate_pct", alert_id=9606,
      difficulty="hard", incident_id=9703,
-     ticket=("ENG-2102", "high", "Inventory reservations failing under peak traffic"),
+     jira_twin=True, ticket=("ENG-2102", "high", "Inventory reservations failing under peak traffic"),
      symptom="inventory error_rate_pct is 4.7% against a 1.0% SLO (alarm 9606) and incident 9703 is open",
      hint="logs show SQLTimeoutException connection-wait timeouts at 128 rps of reservations",
      doc="Connection pool sizing")
@@ -37,7 +37,7 @@ _add("error_rate_reduction", "config_fix", id="inventory_pool", service="invento
 _add("error_rate_reduction", "config_fix", id="analytics_prefetch", service="analytics-worker",
      config_key="prefetch_count", good="50", metric="error_rate_pct", alert_id=9609,
      difficulty="medium",
-     ticket=("ENG-2103", "high", "Analytics worker restarting under queue load"),
+     jira_twin=True, ticket=("ENG-2103", "high", "Analytics worker restarting under queue load"),
      symptom="analytics-worker error_rate_pct is 6.0% against a 2.0% SLO (alarm 9609)",
      hint="the consumer runs out of memory because it prefetches the whole queue",
      doc="Queue consumer tuning")
@@ -45,7 +45,7 @@ _add("error_rate_reduction", "config_fix", id="analytics_prefetch", service="ana
 _add("error_rate_reduction", "config_fix", id="notifications_timeout", service="notifications",
      config_key="smtp_timeout_ms", good="2000", metric="error_rate_pct", alert_id=9608,
      difficulty="medium",
-     ticket=("ENG-2104", "high", "Notification delivery failures from hung SMTP calls"),
+     jira_twin=True, ticket=("ENG-2104", "high", "Notification delivery failures from hung SMTP calls"),
      symptom="notifications error_rate_pct is 3.6% against a 1.5% SLO (alarm 9608)",
      hint="outbound SMTP calls hang forever because no timeout is configured",
      doc="Retry and timeout standard")
@@ -89,7 +89,7 @@ _add("error_rate_reduction", "config_fix", id="analytics_batch_size", service="a
 _add("latency_optimization", "config_fix", id="search_cache", service="search",
      config_key="cache_enabled", good="true", metric="latency_p99_ms", alert_id=9602,
      difficulty="medium",
-     ticket=("ENG-2201", "high", "Search p99 latency exceeds the 300ms SLO"),
+     jira_twin=True, ticket=("ENG-2201", "high", "Search p99 latency exceeds the 300ms SLO"),
      symptom="search latency_p99_ms is 850ms against a 300ms SLO (alarm 9602)",
      hint="the query cache was disabled during an old incident and never re-enabled",
      doc="Search caching")
@@ -97,7 +97,7 @@ _add("latency_optimization", "config_fix", id="search_cache", service="search",
 _add("latency_optimization", "config_fix", id="catalog_batch_pricing", service="catalog",
      config_key="batch_pricing_enabled", good="true", metric="latency_p99_ms", alert_id=9605,
      difficulty="hard",
-     ticket=("ENG-2202", "high", "Catalog pricing p99 regression"),
+     jira_twin=True, ticket=("ENG-2202", "high", "Catalog pricing p99 regression"),
      symptom="catalog latency_p99_ms is 645ms against a 300ms SLO (alarm 9605)",
      hint="the pricing path issues one query per product - a classic N+1 loop",
      doc="Catalog pricing performance")
@@ -105,7 +105,7 @@ _add("latency_optimization", "config_fix", id="catalog_batch_pricing", service="
 _add("latency_optimization", "config_fix", id="media_cdn", service="media-service",
      config_key="cdn_enabled", good="true", metric="latency_p99_ms", alert_id=9607,
      difficulty="medium",
-     ticket=("ENG-2203", "medium", "Media assets served from origin instead of the CDN"),
+     jira_twin=True, ticket=("ENG-2203", "medium", "Media assets served from origin instead of the CDN"),
      symptom="media-service latency_p99_ms is 800ms against a 400ms SLO (alarm 9607)",
      hint="every asset request bypasses the CDN and hits the object store directly",
      doc="CDN and media delivery")

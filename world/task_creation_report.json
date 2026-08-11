@@ -19,7 +19,7 @@
       "task_id": "tsk_payments_retry",
       "accepted": true,
       "category": "error_rate_reduction",
-      "oracle_steps": 17,
+      "oracle_steps": 19,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -28,7 +28,7 @@
       "task_id": "tsk_inventory_pool",
       "accepted": true,
       "category": "error_rate_reduction",
-      "oracle_steps": 17,
+      "oracle_steps": 19,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -37,7 +37,7 @@
       "task_id": "tsk_analytics_prefetch",
       "accepted": true,
       "category": "error_rate_reduction",
-      "oracle_steps": 16,
+      "oracle_steps": 18,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -46,7 +46,7 @@
       "task_id": "tsk_notifications_timeout",
       "accepted": true,
       "category": "error_rate_reduction",
-      "oracle_steps": 15,
+      "oracle_steps": 17,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -91,7 +91,7 @@
       "task_id": "tsk_search_cache",
       "accepted": true,
       "category": "latency_optimization",
-      "oracle_steps": 17,
+      "oracle_steps": 19,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -100,7 +100,7 @@
       "task_id": "tsk_catalog_batch_pricing",
       "accepted": true,
       "category": "latency_optimization",
-      "oracle_steps": 17,
+      "oracle_steps": 19,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -109,7 +109,7 @@
       "task_id": "tsk_media_cdn",
       "accepted": true,
       "category": "latency_optimization",
-      "oracle_steps": 16,
+      "oracle_steps": 18,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true

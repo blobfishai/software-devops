@@ -2665,6 +2665,45 @@ def list_service_aliases(db_path=None):
         conn.close()
 
 
+def jira_transition_issue(db_path=None, key=None, status=None, resolution=''):
+    """Transition a Jira issue. Jira status is a per-project workflow, so moving an issue to 'Done' does NOT by itself mean it was fixed - a completed issue also carries a resolution (e.g. 'Fixed'). Set both."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('jira_transition_issue',)); conn.commit()
+        except Exception:
+            pass
+        if key is None:
+            return {'ok': False, 'error': 'missing required parameter: key'}
+        if status is None:
+            return {'ok': False, 'error': 'missing required parameter: status'}
+        def _audit(conn, _tool, _svc, _detail):
+            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
+        row = conn.execute('SELECT * FROM jira_issues WHERE key=?', (key,)).fetchone()
+        if row is None:
+            return {'ok': False, 'error': 'no such Jira issue: ' + str(key)}
+        valid = ('Backlog', 'In Progress', 'In Review', 'Blocked', 'Done')
+        if status not in valid:
+            return {'ok': False, 'error': 'status must be one of: ' + ', '.join(valid)}
+        if status == 'Done' and not (resolution or '').strip():
+            return {'ok': False, 'error': 'transitioning to Done requires a resolution '
+                    '(for example Fixed) - a status alone does not record the outcome'}
+        conn.execute('UPDATE jira_issues SET status=?, resolution=? WHERE key=?',
+                     (status, resolution or '', key))
+        _audit(conn, 'jira_transition_issue', row['component'] or '',
+               {'key': key, 'status': status, 'resolution': resolution or ''})
+        conn.commit()
+        return {'ok': True, 'key': key, 'status': status, 'resolution': resolution or ''}
+    finally:
+        conn.close()
+
+
 def k8s_events_list(db_path=None, namespace=None, pod=None, reason=None):
     """List Kubernetes events (OOMKilled, CrashLoopBackOff, ...). The kubelet records kernel-level kills that an application error tracker never sees, because the process dies before its SDK can flush."""
     import sqlite3 as _sq

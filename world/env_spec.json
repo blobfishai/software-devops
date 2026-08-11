@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_696e2703",
+  "env_id": "env_software_devops_0c59a9f6",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -24,13 +24,13 @@
     "seed": 42,
     "engine": "sqlite",
     "table_count": 56,
-    "row_count": 1193,
+    "row_count": 1198,
     "complexification_rounds": 0
   },
   "tools": {
     "manifest_ref": "",
     "tests_ref": "",
-    "tool_count": 74,
+    "tool_count": 75,
     "survival_rate": 1.0,
     "valid_tool_ids": [
       "tool_list_services",
@@ -104,6 +104,7 @@
       "tool_query_local_deploy_log",
       "tool_resolve_service_alias",
       "tool_list_service_aliases",
+      "tool_jira_transition_issue",
       "tool_k8s_events_list",
       "tool_k8s_pods_list",
       "tool_submit_answer"
@@ -182,6 +183,7 @@
       "tool_query_local_deploy_log",
       "tool_resolve_service_alias",
       "tool_list_service_aliases",
+      "tool_jira_transition_issue",
       "tool_k8s_events_list",
       "tool_k8s_pods_list",
       "tool_submit_answer"

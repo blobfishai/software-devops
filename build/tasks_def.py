@@ -144,6 +144,9 @@ def _answer_num(_qid):
         except Exception:
             continue
     return None
+def _jira(_key):
+    _r = conn.execute('SELECT status, resolution FROM jira_issues WHERE key=?', (_key,)).fetchone()
+    return None if _r is None else (_r[0], _r[1] or '')
 def _called(_tool):
     return (_one('SELECT COUNT(*) FROM tool_calls WHERE tool=?', _tool) or 0) > 0
 def _used(_qid, _system):
@@ -357,6 +360,15 @@ def gen_config_fix(spec):
     checks.append(("deployment", "no_alarming_deploys", "_no_new_alarms()",
                    "no deployment may trip a new alarm"))
     common_quality(checks, svc, tkt, pr_expr)
+    if spec.get("jira_twin"):
+        # The same work is tracked in Jira as well as the on-call queue. Jira
+        # status is a per-project workflow, so Done without a resolution does not
+        # record an outcome (research/notes/mcp/sooperset__mcp-atlassian.md).
+        checks.append(("quality", "jira_twin_resolved",
+                       "(_jira(%s) or ('', ''))[0] == 'Done' and (_jira(%s) or ('', ''))[1] != ''"
+                       % (q(tkt), q(tkt)),
+                       "%s is also tracked in Jira; close it there with a resolution, not "
+                       "just a status" % tkt))
     # negative controls
     other = "search" if svc != "search" else "payments"
     other_key = "cache_enabled" if other == "search" else "notifications_retry_max_attempts"
@@ -390,6 +402,11 @@ def gen_config_fix(spec):
     if spec.get("incident_id"):
         calls.append({"tool": "update_incident",
                       "args": {"incident_id": spec["incident_id"], "status": "resolved"}})
+    if spec.get("jira_twin"):
+        calls.append({"tool": "jira_search", "args": {"project": "ENG",
+                                                      "component": spec["service"]}})
+        calls.append({"tool": "jira_transition_issue",
+                      "args": {"key": tkt, "status": "Done", "resolution": "Fixed"}})
     calls.append({"tool": "update_ticket", "args": {"key": tkt, "status": "done"}})
     return "\n\n".join(parts), checks, calls
 

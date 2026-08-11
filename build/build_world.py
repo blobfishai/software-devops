@@ -44,7 +44,7 @@ FROZEN_TABLES = ("oncall", "slos", "metric_rules", "runbooks_placeholder")
 FROZEN = ("oncall", "slos", "metric_rules", "documents", "channels", "logs",
           "infra_components", "service_dependencies",
           "migration_requirements", "contract_rules", "commits",
-          "jira_issues", "linear_issues", "github_issues", "issue_links",
+          "linear_issues", "github_issues", "issue_links",
           "prom_series", "sentry_issues", "sentry_projects", "pd_services",
           "pd_incidents", "pd_oncall", "pd_change_events", "status_page_posts",
           "confluence_pages", "owner_spreadsheet", "local_deploy_log",
@@ -52,7 +52,7 @@ FROZEN = ("oncall", "slos", "metric_rules", "documents", "channels", "logs",
 # traffic_profile is legitimately updated by shift_endpoint_traffic, so only its
 # row count is pinned; the rest may not gain or lose rows either.
 FIXED_ROWS = ("services", "tests_catalog", "vulnerabilities", "repo_files",
-              "traffic_profile")
+              "traffic_profile", "jira_issues")
 
 
 def build_db(db_path):

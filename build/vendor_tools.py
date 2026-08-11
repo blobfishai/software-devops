@@ -321,6 +321,32 @@ return [dict(r) for r in conn.execute(
     'SELECT canonical, alias, system FROM service_aliases ORDER BY canonical, system').fetchall()]""",
           reads=["service_aliases"], writes=[], returns="list[dict]"))
 
+    T(_mk("jira_transition_issue",
+          "Transition a Jira issue. Jira status is a per-project workflow, so moving an "
+          "issue to 'Done' does NOT by itself mean it was fixed - a completed issue also "
+          "carries a resolution (e.g. 'Fixed'). Set both.",
+          [{"name": "key", "type": "str", "required": True},
+           {"name": "status", "type": "str", "required": True},
+           {"name": "resolution", "type": "str", "default": ""}],
+          """\
+row = conn.execute('SELECT * FROM jira_issues WHERE key=?', (key,)).fetchone()
+if row is None:
+    return {'ok': False, 'error': 'no such Jira issue: ' + str(key)}
+valid = ('Backlog', 'In Progress', 'In Review', 'Blocked', 'Done')
+if status not in valid:
+    return {'ok': False, 'error': 'status must be one of: ' + ', '.join(valid)}
+if status == 'Done' and not (resolution or '').strip():
+    return {'ok': False, 'error': 'transitioning to Done requires a resolution '
+            '(for example Fixed) - a status alone does not record the outcome'}
+conn.execute('UPDATE jira_issues SET status=?, resolution=? WHERE key=?',
+             (status, resolution or '', key))
+_audit(conn, 'jira_transition_issue', row['component'] or '',
+       {'key': key, 'status': status, 'resolution': resolution or ''})
+conn.commit()
+return {'ok': True, 'key': key, 'status': status, 'resolution': resolution or ''}""",
+          reads=["jira_issues"], writes=["jira_issues", "audit_events"],
+          snippets=(AUDIT_SNIPPET,)))
+
     T(_mk("k8s_events_list",
           "List Kubernetes events (OOMKilled, CrashLoopBackOff, ...). The kubelet records "
           "kernel-level kills that an application error tracker never sees, because the "
