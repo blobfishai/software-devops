@@ -1,0 +1,766 @@
+{
+  "world_id": "env_software_devops_3f1d5e2a",
+  "policy": "deepseek",
+  "model": "deepseek-v4-pro",
+  "split": "all",
+  "guidance": "standard",
+  "pass_rate": 0.0,
+  "mean_score": 0.6,
+  "trials": 1,
+  "outcomes": {
+    "agent": 4
+  },
+  "attributable_episodes": 4,
+  "spend": {
+    "prompt_tokens": 995829,
+    "completion_tokens": 36148,
+    "episodes": 4
+  },
+  "pass_hat_k": {
+    "1": 0.0
+  },
+  "tasks": [
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_gateway_latency_surge"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_gateway_latency_surge"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_checkout_error_spike"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_checkout_error_spike"
+        },
+        {
+          "dimension": "correctness",
+          "name": "causes_are_distinct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 265061,
+      "completion_tokens": 10905,
+      "task_id": "tsk_attr_three_at_once",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.4733,
+      "dimension_fractions": {
+        "correctness": 0.222,
+        "deployment": 1.0,
+        "quality": 0.4
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/9",
+        "deployment": "1/1",
+        "quality": "2/5"
+      },
+      "tool_calls": 53,
+      "turns": 13,
+      "steps_to_answer": null,
+      "seconds": 143.6,
+      "error": "assertion: 7 verifier(s) failed (PC score=0.4733): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3; correctness/attributed_gateway_latency_surge - gateway-latency-surge is a bad_release in api-gateway; correctness/key_for_gateway_latency_surge - the setting responsible for gateway-latency-surge is v5.1.0; correctness/attributed_checkout_error_spike - checkout-error-spike is a feature_flag_regression in checkout; correctness/key_for_checkout_error_spike - the setting responsible for checkout-error-spike is instant_refunds; correctness/causes_are_distinct - these symptoms do not share a cause; each has its own | quality also flagged: quality/evidence_recorded, quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_gateway_latency_surge"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_gateway_latency_surge"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_payments_error_rate"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_payments_error_rate"
+        },
+        {
+          "dimension": "correctness",
+          "name": "causes_are_distinct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 138027,
+      "completion_tokens": 7134,
+      "task_id": "tsk_w5_attr_media_api_payments",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.4733,
+      "dimension_fractions": {
+        "correctness": 0.222,
+        "deployment": 1.0,
+        "quality": 0.4
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/9",
+        "deployment": "1/1",
+        "quality": "2/5"
+      },
+      "tool_calls": 38,
+      "turns": 8,
+      "steps_to_answer": null,
+      "seconds": 87.2,
+      "error": "assertion: 7 verifier(s) failed (PC score=0.4733): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3; correctness/attributed_gateway_latency_surge - gateway-latency-surge is a bad_release in api-gateway; correctness/key_for_gateway_latency_surge - the setting responsible for gateway-latency-surge is v5.1.0; correctness/attributed_payments_error_rate - payments-error-rate is a missing_retry in payments; correctness/key_for_payments_error_rate - the setting responsible for payments-error-rate is notifications_retry_max_attempts; correctness/causes_are_distinct - these symptoms do not share a cause; each has its own | quality also flagged: quality/evidence_recorded, quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_analytics_connection_refused"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 287813,
+      "completion_tokens": 9248,
+      "task_id": "tsk_w5_attr_media_analytics_catalog",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.6267,
+      "dimension_fractions": {
+        "correctness": 0.444,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/9",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 66,
+      "turns": 15,
+      "steps_to_answer": 64,
+      "seconds": 115.3,
+      "error": "assertion: 5 verifier(s) failed (PC score=0.6267): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3; correctness/key_for_analytics_connection_refused - the setting responsible for analytics-connection-refused is pg-replica; correctness/attributed_catalog_latency_sawtooth - catalog-latency-sawtooth is a resource_exhaustion in catalog; correctness/key_for_catalog_latency_sawtooth - the setting responsible for catalog-latency-sawtooth is heap_used_pct | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 304928,
+      "completion_tokens": 8861,
+      "task_id": "tsk_w5_attr_api_checkout_catalog",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.8267,
+      "dimension_fractions": {
+        "correctness": 0.778,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/9",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 54,
+      "turns": 15,
+      "steps_to_answer": 52,
+      "seconds": 113.8,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.8267): correctness/attributed_catalog_latency_sawtooth - catalog-latency-sawtooth is a resource_exhaustion in catalog; correctness/key_for_catalog_latency_sawtooth - the setting responsible for catalog-latency-sawtooth is heap_used_pct | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 168118,
+      "completion_tokens": 6616,
+      "task_id": "tsk_w5_attr_media_api_checkout",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.8267,
+      "dimension_fractions": {
+        "correctness": 0.778,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/9",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 32,
+      "turns": 9,
+      "steps_to_answer": 30,
+      "seconds": 87.8,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.8267): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3 | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_analytics_connection_refused"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 346826,
+      "completion_tokens": 8658,
+      "task_id": "tsk_w5_attr_media_checkout_analytics",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.76,
+      "dimension_fractions": {
+        "correctness": 0.667,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/9",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 59,
+      "turns": 17,
+      "steps_to_answer": 57,
+      "seconds": 110.2,
+      "error": "assertion: 3 verifier(s) failed (PC score=0.76): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3; correctness/key_for_analytics_connection_refused - the setting responsible for analytics-connection-refused is pg-replica | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_analytics_connection_refused"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 198372,
+      "completion_tokens": 9286,
+      "task_id": "tsk_w5_attr_media_analytics_payments",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.76,
+      "dimension_fractions": {
+        "correctness": 0.667,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/9",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 42,
+      "turns": 12,
+      "steps_to_answer": 40,
+      "seconds": 124.9,
+      "error": "assertion: 3 verifier(s) failed (PC score=0.76): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3; correctness/key_for_analytics_connection_refused - the setting responsible for analytics-connection-refused is pg-replica | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_gateway_latency_surge"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_gateway_latency_surge"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_analytics_connection_refused"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_analytics_connection_refused"
+        },
+        {
+          "dimension": "correctness",
+          "name": "causes_are_distinct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 882220,
+      "completion_tokens": 17821,
+      "task_id": "tsk_w5_attr_media_api_analytics",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.4733,
+      "dimension_fractions": {
+        "correctness": 0.222,
+        "deployment": 1.0,
+        "quality": 0.4
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/9",
+        "deployment": "1/1",
+        "quality": "2/5"
+      },
+      "tool_calls": 106,
+      "turns": 32,
+      "steps_to_answer": null,
+      "seconds": 256.0,
+      "error": "assertion: 7 verifier(s) failed (PC score=0.4733): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3; correctness/attributed_gateway_latency_surge - gateway-latency-surge is a bad_release in api-gateway; correctness/key_for_gateway_latency_surge - the setting responsible for gateway-latency-surge is v5.1.0; correctness/attributed_analytics_connection_refused - analytics-connection-refused is a misconfig in analytics-worker; correctness/key_for_analytics_connection_refused - the setting responsible for analytics-connection-refused is pg-replica; correctness/causes_are_distinct - these symptoms do not share a cause; each has its own | quality also flagged: quality/evidence_recorded, quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 412898,
+      "completion_tokens": 12283,
+      "task_id": "tsk_w5_attr_media_checkout_catalog",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.6933,
+      "dimension_fractions": {
+        "correctness": 0.556,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/9",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 68,
+      "turns": 16,
+      "steps_to_answer": 66,
+      "seconds": 165.6,
+      "error": "assertion: 4 verifier(s) failed (PC score=0.6933): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3; correctness/attributed_catalog_latency_sawtooth - catalog-latency-sawtooth is a resource_exhaustion in catalog; correctness/key_for_catalog_latency_sawtooth - the setting responsible for catalog-latency-sawtooth is heap_used_pct | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_payments_error_rate"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_payments_error_rate"
+        },
+        {
+          "dimension": "correctness",
+          "name": "causes_are_distinct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 337292,
+      "completion_tokens": 10596,
+      "task_id": "tsk_w5_attr_media_catalog_payments",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.4733,
+      "dimension_fractions": {
+        "correctness": 0.222,
+        "deployment": 1.0,
+        "quality": 0.4
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/9",
+        "deployment": "1/1",
+        "quality": "2/5"
+      },
+      "tool_calls": 53,
+      "turns": 15,
+      "steps_to_answer": null,
+      "seconds": 141.8,
+      "error": "assertion: 7 verifier(s) failed (PC score=0.4733): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3; correctness/attributed_catalog_latency_sawtooth - catalog-latency-sawtooth is a resource_exhaustion in catalog; correctness/key_for_catalog_latency_sawtooth - the setting responsible for catalog-latency-sawtooth is heap_used_pct; correctness/attributed_payments_error_rate - payments-error-rate is a missing_retry in payments; correctness/key_for_payments_error_rate - the setting responsible for payments-error-rate is notifications_retry_max_attempts; correctness/causes_are_distinct - these symptoms do not share a cause; each has its own | quality also flagged: quality/evidence_recorded, quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_gateway_latency_surge"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_gateway_latency_surge"
+        },
+        {
+          "dimension": "correctness",
+          "name": "attributed_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_catalog_latency_sawtooth"
+        },
+        {
+          "dimension": "correctness",
+          "name": "causes_are_distinct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 257944,
+      "completion_tokens": 8544,
+      "task_id": "tsk_w5_attr_media_api_catalog",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.4733,
+      "dimension_fractions": {
+        "correctness": 0.222,
+        "deployment": 1.0,
+        "quality": 0.4
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/9",
+        "deployment": "1/1",
+        "quality": "2/5"
+      },
+      "tool_calls": 50,
+      "turns": 13,
+      "steps_to_answer": null,
+      "seconds": 115.8,
+      "error": "assertion: 7 verifier(s) failed (PC score=0.4733): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3; correctness/attributed_gateway_latency_surge - gateway-latency-surge is a bad_release in api-gateway; correctness/key_for_gateway_latency_surge - the setting responsible for gateway-latency-surge is v5.1.0; correctness/attributed_catalog_latency_sawtooth - catalog-latency-sawtooth is a resource_exhaustion in catalog; correctness/key_for_catalog_latency_sawtooth - the setting responsible for catalog-latency-sawtooth is heap_used_pct; correctness/causes_are_distinct - these symptoms do not share a cause; each has its own | quality also flagged: quality/evidence_recorded, quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "attributed_media_upload_stalls"
+        },
+        {
+          "dimension": "correctness",
+          "name": "key_for_media_upload_stalls"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 398953,
+      "completion_tokens": 11356,
+      "task_id": "tsk_w5_attr_media_checkout_payments",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.8267,
+      "dimension_fractions": {
+        "correctness": 0.778,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/9",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 56,
+      "turns": 18,
+      "steps_to_answer": 54,
+      "seconds": 142.8,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.8267): correctness/attributed_media_upload_stalls - media-upload-stalls is a node_unhealthy in media-service; correctness/key_for_media_upload_stalls - the setting responsible for media-upload-stalls is node-b3 | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "key_for_analytics_connection_refused"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 233648,
+      "completion_tokens": 6711,
+      "task_id": "tsk_w5_attr_api_checkout_analytics",
+      "category": "attribution",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.8933,
+      "dimension_fractions": {
+        "correctness": 0.889,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "8/9",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 45,
+      "turns": 12,
+      "steps_to_answer": 43,
+      "seconds": 84.7,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8933): correctness/key_for_analytics_connection_refused - the setting responsible for analytics-connection-refused is pg-replica | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    }
+  ]
+}

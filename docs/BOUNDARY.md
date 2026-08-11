@@ -338,6 +338,44 @@ Read plainly: stating the procedure helps, so procedural knowledge is part of wh
 
 <!-- results:end -->
 
+## The composition wave sits above this model, not at it
+
+The attribution family - three concurrent symptoms, each needing its own cause -
+was generated from the world's real faults after a frontier model misattributed
+one of them. Measured against the same model:
+
+| | |
+|---|---|
+| PF | **0%** (0/13) |
+| PC | 66.0 |
+| mean tool calls | 56 |
+
+Zero is a ceiling marker rather than a boundary. A task nobody passes does not
+discriminate between models, and by the calibration loop's own rule this family
+is TOO_HARD and should be deepened downward, not upward.
+
+What makes it worth keeping is that the failure is concentrated rather than
+diffuse, and reproducible across independently generated tasks:
+
+| failed check | of 13 |
+|---|---|
+| `attributed_media_upload_stalls` | 11 |
+| `key_for_media_upload_stalls` | 11 |
+| `causes_are_distinct` | 5 |
+
+Eleven of thirteen times the model fails the same sub-question - the one whose
+answer is a disk-pressured node rather than anything in the service's own code -
+and five times it explicitly attributes several symptoms to a single cause, which
+is the "one incident, one rollback" fallacy the task was built to catch. The
+evidence chain for the missed one is two calls long and was verified reachable
+before the family shipped: pods, then an Evicted event reading "the node was low
+on resource: ephemeral-storage", then a node at DiskPressure 97%.
+
+So the honest reading is narrow and useful: this model does not look one layer
+below the service it was asked about, and giving it three services to consider at
+once does not change that. PC 66.0 shows it is not failing at random - it gets
+most of each task right and misses the same piece every time.
+
 ## What would count as proof
 
 1. **A non-empty `FLAKY` band.** If a model passes some attempts and fails
