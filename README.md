@@ -73,6 +73,17 @@ See [docs/AIOPSLAB.md](docs/AIOPSLAB.md).
 
 41 train / 9 heldout, split per category. Difficulty: 23 medium, 16 hard, 11 expert.
 
+## Browsing tasks and traces
+
+Every task's assignment, its executable verifier checks, and the complete oracle
+trace are captured in `docs/traces.json` and rendered by
+`python3 build/gen_traces.py` into a filterable explorer (filter by category,
+difficulty and split; search across ids, instructions and tool names).
+
+```bash
+python3 build/gen_traces.py     # -> /tmp/demo/traces.html
+```
+
 ## Quickstart
 
 ```bash
