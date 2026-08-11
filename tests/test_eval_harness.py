@@ -338,23 +338,31 @@ def test_shard_merge_refuses_to_average_across_worlds(tmp_path):
         analyse_run.load([a, other_model])
 
 
-def test_the_shipped_package_matches_the_built_world():
-    """dist/harbor is the deliverable, and it is produced by a separate command
-    from the world build. Nothing forces the two to be run together, so a world
-    rebuilt without a re-export ships verifiers for tasks that no longer exist -
-    and a consumer would never know, because the package is internally
-    consistent."""
-    world = json.loads((ROOT / "world" / "world.json").read_text())
-    manifest = json.loads((ROOT / "dist" / "harbor" / "manifest.json").read_text())
-    mw = manifest.get("world_id") or (manifest.get("world") or {}).get("world_id")
-    assert mw == world["world_id"], (
-        "dist/harbor was built from %s but world/ is %s - run: python3 export_harbor.py"
-        % (mw, world["world_id"]))
+def test_the_export_produces_a_package_matching_the_world(tmp_path):
+    """The deliverable is produced by a separate command from the world build, so
+    nothing forces the two to agree. A world rebuilt without a re-export yields
+    verifiers for tasks that no longer exist - and a consumer would never notice,
+    because the package is internally consistent and only wrong relative to the
+    world it claims to grade.
 
-    shipped = [l for l in (ROOT / "dist" / "harbor" / "tasks" / "tasks.jsonl")
-               .read_text().splitlines() if l.strip()]
+    dist/ is build output and is not tracked, so this exports fresh rather than
+    inspecting whatever happens to be on this machine: a test that depends on an
+    untracked directory passes or fails on an accident of the working tree.
+    """
+    out = tmp_path / "harbor"
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "export_harbor.py"), "--out", str(out)],
+        capture_output=True, text=True, timeout=900, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stderr
+
+    world = json.loads((ROOT / "world" / "world.json").read_text())
+    manifest = json.loads((out / "manifest.json").read_text())
+    mw = manifest.get("world_id") or (manifest.get("world") or {}).get("world_id")
+    assert mw == world["world_id"], "export built %s but world/ is %s" % (mw, world["world_id"])
+
+    shipped = [l for l in (out / "tasks" / "tasks.jsonl").read_text().splitlines() if l.strip()]
     assert len(shipped) == world["counts"]["tasks"]
-    verifiers = list((ROOT / "dist" / "harbor" / "verifiers").glob("verify_*.py"))
+    verifiers = list((out / "verifiers").glob("verify_*.py"))
     assert len(verifiers) == world["counts"]["tasks"], \
         "every task must ship a verifier: %d tasks, %d verifiers" % (
             world["counts"]["tasks"], len(verifiers))

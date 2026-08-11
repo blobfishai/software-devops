@@ -16,7 +16,15 @@ cli = ap.parse_args()
 
 REPO = pathlib.Path(__file__).resolve().parent
 stage = pathlib.Path(tempfile.mkdtemp(prefix="harbor_selftest_"))
-shutil.copytree(REPO / "dist" / "harbor", stage / "harbor")
+pkg = REPO / "dist" / "harbor"
+if not pkg.exists():
+    # dist/ is build output and is not tracked, so a fresh clone has none. Build it
+    # rather than failing: the point of this script is that the package works, and
+    # "you forgot to run the exporter" is not that.
+    print("dist/harbor is absent; running export_harbor.py first")
+    subprocess.run([sys.executable, str(REPO / "export_harbor.py")],
+                   check=True, cwd=str(REPO), stdout=subprocess.DEVNULL)
+shutil.copytree(pkg, stage / "harbor")
 shutil.copytree(REPO / "world", stage / "world")
 
 sys.path.insert(0, str(REPO))
