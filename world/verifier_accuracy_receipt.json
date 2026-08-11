@@ -1,8 +1,8 @@
 {
   "kind": "verifier_accuracy_receipt",
   "version": 1,
-  "generated_at": "2026-08-11T03:48:39Z",
-  "world_id": "env_software_devops_069f1222",
+  "generated_at": "2026-08-11T06:40:02Z",
+  "world_id": "env_software_devops_72740905",
   "world_dir": "/Users/samuelchien/dev/software-devops/world",
   "label_provenance": "constructed",
   "corruption_kinds": [
