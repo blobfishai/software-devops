@@ -967,6 +967,20 @@ def test_the_world_actually_executes_code_it_cannot_otherwise_grade(env):
                  "    return [items[i:i+size] for i in range(0, len(items), size)]\n",
         "cachekey": "def cache_key(params):\n"
                     "    return ''.join('%s%s' % (k, v) for k, v in sorted(params.items()))\n",
+        # floors elapsed seconds and lets a backwards clock wedge the bucket
+        "ratelimit": "class TokenBucket:\n"
+                     "    def __init__(self, capacity, refill_per_sec):\n"
+                     "        self.capacity = capacity; self.rate = refill_per_sec\n"
+                     "        self.tokens = capacity; self.last = None\n"
+                     "    def allow(self, now_ms):\n"
+                     "        if self.last is None: self.last = now_ms\n"
+                     "        secs = int((now_ms - self.last) / 1000)\n"
+                     "        if secs > 0:\n"
+                     "            self.tokens = min(self.capacity, self.tokens + secs * self.rate)\n"
+                     "            self.last = now_ms\n"
+                     "        if self.tokens >= 1:\n"
+                     "            self.tokens -= 1; return True\n"
+                     "        return False\n",
     }
     for ex in EXERCISES:
         sid = world.create_session()
@@ -1023,3 +1037,32 @@ def test_hidden_tests_are_never_returned_to_the_agent(env):
              and "hidden" in t["source_code"] and "hidden_tests'" in t["source_code"]
              and "return" in t["source_code"].split("hidden_tests'")[-1][:200]]
     assert not leaky, "tool(s) return hidden tests: %s" % leaky
+
+
+def test_no_hidden_test_checks_behaviour_the_spec_never_states():
+    """A hidden test the agent cannot see, for behaviour the specification never
+    mentions, is a trick rather than a test - it measures whether the agent
+    guessed our intent, not whether it implemented what it was told.
+
+    This file has already shipped one. A frontier model wrote a chunk() that
+    guarded size, handled empty input, exact multiples and ordering, and failed
+    only because it used len() on what the hidden test passed as a one-pass
+    iterator - a requirement the spec did not state. The prose rule at the top of
+    build/code_exercises.py did not prevent that, so the link is now checkable:
+    every hidden test names the sentence of the spec it tests, and that sentence
+    must actually appear there.
+    """
+    sys.path.insert(0, str(ROOT / "build"))
+    from code_exercises import EXERCISES, SPEC_REFS
+
+    problems = []
+    for ex in EXERCISES:
+        refs = SPEC_REFS.get(ex["id"], {})
+        for name, _ in ex["hidden_tests"]:
+            ref = refs.get(name)
+            if ref is None:
+                problems.append("%s/%s: no spec reference" % (ex["id"], name))
+            elif ref not in ex["spec"]:
+                problems.append("%s/%s: cites %r, which is not in the spec"
+                                % (ex["id"], name, ref[:50]))
+    assert not problems, problems

@@ -1,0 +1,176 @@
+{
+  "world_id": "env_software_devops_091afb41",
+  "policy": "deepseek",
+  "model": "deepseek-v4-pro",
+  "split": "all",
+  "guidance": "standard",
+  "pass_rate": 1.0,
+  "mean_score": 0.95,
+  "trials": 1,
+  "outcomes": {
+    "resolved": 1
+  },
+  "attributable_episodes": 1,
+  "spend": {
+    "prompt_tokens": 38021,
+    "completion_tokens": 669,
+    "episodes": 1
+  },
+  "pass_hat_k": {
+    "1": 1.0
+  },
+  "tasks": [
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 38021,
+      "completion_tokens": 669,
+      "task_id": "tsk_impl_backoff",
+      "category": "code_implementation",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.95,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.5
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "2/4"
+      },
+      "tool_calls": 3,
+      "turns": 4,
+      "steps_to_answer": null,
+      "seconds": 13.1,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 38403,
+      "completion_tokens": 908,
+      "task_id": "tsk_impl_chunk",
+      "category": "code_implementation",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 0.95,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.5
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "2/4"
+      },
+      "tool_calls": 3,
+      "turns": 4,
+      "steps_to_answer": null,
+      "seconds": 17.5,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 38974,
+      "completion_tokens": 1235,
+      "task_id": "tsk_impl_cachekey",
+      "category": "code_implementation",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.95,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.5
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "2/4"
+      },
+      "tool_calls": 3,
+      "turns": 4,
+      "steps_to_answer": null,
+      "seconds": 20.2,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 40545,
+      "completion_tokens": 2905,
+      "task_id": "tsk_impl_ratelimit",
+      "category": "code_implementation",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 0.95,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.5
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "2/4"
+      },
+      "tool_calls": 3,
+      "turns": 4,
+      "steps_to_answer": null,
+      "seconds": 44.2,
+      "error": null,
+      "trial": 0
+    }
+  ]
+}

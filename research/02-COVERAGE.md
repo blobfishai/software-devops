@@ -585,7 +585,20 @@ deliberately insufficient — each is satisfied by a plausible wrong implementat
 that the hidden tests reject, pinned by
 `test_the_world_actually_executes_code_it_cannot_otherwise_grade`.
 
-**Still missing.** Three tasks are a family, not a benchmark. The exercises are
+**Measured, and the result is worth stating.** DeepSeek v4-pro passes all four,
+including the expert-level token bucket with continuous fractional refill and an
+NTP clock that steps backwards. One earlier failure turned out to be our fault:
+it wrote a correct `chunk()` and failed only on iterator support, which the spec
+had never stated. Once stated, it passed.
+
+So on this evidence **specifying a function precisely enough to test it is
+specifying it precisely enough for a frontier model to implement it.** The
+difficulty in this world does not live in writing well-specified code; it lives
+in the investigation families, where reconciliation sits at 29% and root-cause
+analysis at 30%. That is a fact about where a lab should look, and it is the
+opposite of what the corpus's emphasis on code benchmarks would predict.
+
+**Still missing.** Four tasks are a family, not a benchmark. The exercises are
 single stdlib functions rather than a repository, there is no container, no
 dependency resolution and no build; execution is a subprocess with a stripped
 environment, which is containment enough for a local eval and not enough for

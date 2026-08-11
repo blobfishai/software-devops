@@ -555,6 +555,10 @@ _add("code_implementation", "implement", id="impl_cachekey", path='src/search/ca
      difficulty='hard', reference=CODE['cachekey'],
      ticket=('OPS-142', 'high', 'Implement the search cache key'))
 
+_add("code_implementation", "implement", id="impl_ratelimit",
+     path='src/gateway/token_bucket.py', difficulty='expert', reference=CODE['ratelimit'],
+     ticket=('OPS-143', 'high', 'Implement per-client rate limiting at the edge'))
+
 # ==========================================================================
 # Reconciliation suite — questions no single system can answer, over data that
 # disagrees. Every scenario cites research/notes/domain/F_chaos_scenarios.md.

@@ -81,7 +81,10 @@ EXERCISES = [
             "the run. Split `items` into consecutive groups of at most `size`, preserving\n"
             "order. The final group may be shorter. An empty input produces no groups at\n"
             "all - not one empty group. A size below 1 is meaningless and must raise\n"
-            "ValueError."
+            "ValueError.\n\n"
+            "`items` is whatever captures.list_settlable() returned, which is any iterable\n"
+            "and is sometimes a one-pass generator, so do not assume it can be indexed or\n"
+            "measured with len()."
         ),
         "starter": (
             '"""Batch chunking for nightly settlement."""\n\n\n'
@@ -116,6 +119,9 @@ EXERCISES = [
              "for bad in (0, -1):\n"
              "    try:\n        chunk([1, 2], bad)\n    except ValueError:\n        pass\n"
              "    else:\n        raise AssertionError('size %r must raise ValueError' % bad)"),
+            # Stated in the spec above. It was not, until a frontier model wrote a
+            # correct-looking implementation and failed only here - which by this
+            # file's own rule made the test a trick rather than a test.
             ("an iterator is accepted, not just a list",
              "assert chunk(iter([1, 2, 3]), 2) == [[1, 2], [3]]"),
         ],
@@ -169,7 +175,146 @@ EXERCISES = [
              "assert cache_key({'a': 'xb', 'b': ''}) != cache_key({'a': 'x', 'bb': ''})"),
         ],
     },
+    {
+        "id": "ratelimit",
+        "service": "api-gateway",
+        "path": "src/gateway/token_bucket.py",
+        "func": "TokenBucket",
+        "spec": (
+            "Implement class TokenBucket(capacity, refill_per_sec) with one method,\n"
+            "allow(now_ms), returning True if a request may proceed and False otherwise.\n\n"
+            "A bucket starts full. Each allowed request consumes exactly one token; a\n"
+            "refused request consumes none. Tokens refill continuously at refill_per_sec\n"
+            "and the bucket never holds more than capacity.\n\n"
+            "Refill is continuous, not stepwise: two calls 500ms apart at 1 token/sec must\n"
+            "together restore one whole token, so partial time must not be discarded. The\n"
+            "first call establishes the clock and refills nothing.\n\n"
+            "now_ms comes from a wall clock that is occasionally stepped backwards by NTP.\n"
+            "A backwards jump must never grant tokens and must never make the bucket\n"
+            "permanently unable to refill: treat time as not having advanced, and take the\n"
+            "new reading as the current clock."
+        ),
+        "starter": (
+            '"""Per-client rate limiting at the API gateway edge."""\n\n\n'
+            "class TokenBucket:\n"
+            "    def __init__(self, capacity, refill_per_sec):\n"
+            "        raise NotImplementedError\n\n"
+            "    def allow(self, now_ms):\n"
+            '        """True if a request may proceed, consuming one token."""\n'
+            "        raise NotImplementedError\n"
+        ),
+        "reference": (
+            '"""Per-client rate limiting at the API gateway edge."""\n\n\n'
+            "class TokenBucket:\n"
+            "    def __init__(self, capacity, refill_per_sec):\n"
+            "        self.capacity = float(capacity)\n"
+            "        self.refill_per_sec = float(refill_per_sec)\n"
+            "        self.tokens = float(capacity)\n"
+            "        self.last_ms = None\n\n"
+            "    def allow(self, now_ms):\n"
+            "        if self.last_ms is None:\n"
+            "            self.last_ms = now_ms\n"
+            "        elif now_ms > self.last_ms:\n"
+            "            elapsed = (now_ms - self.last_ms) / 1000.0\n"
+            "            self.tokens = min(self.capacity,\n"
+            "                              self.tokens + elapsed * self.refill_per_sec)\n"
+            "            self.last_ms = now_ms\n"
+            "        else:\n"
+            "            self.last_ms = now_ms\n"
+            "        if self.tokens >= 1.0:\n"
+            "            self.tokens -= 1.0\n"
+            "            return True\n"
+            "        return False\n"
+        ),
+        "visible_tests": [
+            ("a full bucket allows up to capacity",
+             "b = TokenBucket(2, 1)\n"
+             "assert b.allow(0) and b.allow(0) and not b.allow(0)"),
+            ("waiting restores a token",
+             "b = TokenBucket(1, 1)\n"
+             "assert b.allow(0)\nassert not b.allow(0)\nassert b.allow(1000)"),
+        ],
+        "hidden_tests": [
+            ("partial time is not discarded",
+             "b = TokenBucket(1, 1)\n"
+             "assert b.allow(0)\n"
+             "assert not b.allow(500)\n"
+             "assert b.allow(1000)"),
+            ("the bucket never exceeds capacity",
+             "b = TokenBucket(2, 100)\n"
+             "assert b.allow(0) and b.allow(0)\n"
+             "assert b.allow(10000) and b.allow(10000)\n"
+             "assert not b.allow(10000)"),
+            ("a backwards clock grants nothing",
+             "b = TokenBucket(1, 1)\n"
+             "assert b.allow(5000)\n"
+             "assert not b.allow(1000)"),
+            ("a backwards clock does not wedge the bucket",
+             "b = TokenBucket(1, 1)\n"
+             "assert b.allow(5000)\n"
+             "assert not b.allow(1000)\n"
+             "assert b.allow(2000)"),
+            ("a refused request consumes nothing",
+             "b = TokenBucket(1, 1)\n"
+             "assert b.allow(0)\n"
+             "for _ in range(5):\n    assert not b.allow(0)\n"
+             "assert b.allow(1000)"),
+        ],
+    },
 ]
+
+
+# Each hidden test names the exact sentence of the specification it checks. A
+# hidden test for unstated behaviour is a trick rather than a test, and this file
+# has already shipped one: a frontier model wrote a correct-looking chunk() and
+# failed only on iterator support, which the spec had never mentioned. A prose
+# rule did not prevent that; a checkable link does.
+SPEC_REFS = {
+    'backoff': {
+        'attempt 1 is base_ms, not double':
+            'the delay before the FIRST retry is attempt=1',
+        'the cap is a ceiling on the value':
+            'The cap is a\nceiling on the returned value',
+        'the cap applies at the boundary':
+            'capped at max_ms',
+        'attempt below 1 is not a retry':
+            'attempt < 1 is not a retry and must raise ValueError',
+    },
+    'chunk': {
+        'empty input produces no groups':
+            'An empty input produces no groups at\nall',
+        'an exact multiple has no trailing empty group':
+            'not one empty group',
+        'order is preserved':
+            'preserving\norder',
+        'a size below 1 is meaningless':
+            'A size below 1 is meaningless and must raise\nValueError',
+        'an iterator is accepted, not just a list':
+            'sometimes a one-pass generator',
+    },
+    'cachekey': {
+        'insertion order does not matter':
+            'regardless of the order the keys\nwere inserted',
+        'different values differ':
+            'Different parameters must produce different keys',
+        'an explicit None is not an absent key':
+            'explicitly set\nto None is not the same request',
+        'keys and values cannot run together':
+            'Different parameters must produce different keys',
+    },
+    'ratelimit': {
+        'partial time is not discarded':
+            'partial time must not be discarded',
+        'the bucket never exceeds capacity':
+            'the bucket never holds more than capacity',
+        'a backwards clock grants nothing':
+            'A backwards jump must never grant tokens',
+        'a backwards clock does not wedge the bucket':
+            'never make the bucket\npermanently unable to refill',
+        'a refused request consumes nothing':
+            'a\nrefused request consumes none',
+    },
+}
 
 
 def as_rows():

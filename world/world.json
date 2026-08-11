@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_4e93291e",
+  "world_id": "env_software_devops_091afb41",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "4e93291eaf8280837a8243996fb3ed983316507b8a688f4f82fe186759c95cf5",
+  "world_digest": "091afb4128a09e21997e8ff59fab89ba3d8c407a44ee3a492c55705d0250836b",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -81,9 +81,9 @@
   "tables_without_tools": [],
   "counts": {
     "tables": 66,
-    "rows": 1294,
+    "rows": 1297,
     "tools": 87,
-    "tasks": 86,
+    "tasks": 87,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
@@ -92,7 +92,7 @@
   "difficulty": {
     "hard": 28,
     "medium": 30,
-    "expert": 26,
+    "expert": 27,
     "easy": 2
   },
   "categories": {
@@ -106,7 +106,7 @@
     "aiops_detection": 5,
     "aiops_localization": 6,
     "aiops_analysis": 10,
-    "code_implementation": 3,
+    "code_implementation": 4,
     "reconciliation": 7,
     "judgement": 4,
     "human_gated": 1
@@ -190,6 +190,7 @@
       "tsk_detect_status_page_recurrence",
       "tsk_flaky_gateway_timeout",
       "tsk_gateway_pool_reuse",
+      "tsk_impl_ratelimit",
       "tsk_inventory_pool",
       "tsk_judge_payments_retry",
       "tsk_legacy_price_rounding_cleanup",
@@ -204,7 +205,7 @@
     ]
   },
   "task_creation": {
-    "accepted": 86,
+    "accepted": 87,
     "rejected": 0
   },
   "personas": [
