@@ -492,7 +492,7 @@
       "oracle_replay_passed": true
     },
     {
-      "task_id": "tsk_detect_checkout_latency_healthy",
+      "task_id": "tsk_detect_checkout_errors",
       "accepted": true,
       "category": "aiops_detection",
       "oracle_steps": 6,

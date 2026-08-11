@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_1cb98b42",
+  "world_id": "env_software_devops_48268a06",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "1cb98b42194a2104171a58806835db859f20adbb495288bcb6f097637e237a13",
+  "world_digest": "48268a06bf59ae1ecbf06f7017b53fb3a5763c48b771f46794e821339c57e782",
   "entities": [
     "alerts",
     "audit_events",
@@ -94,7 +94,7 @@
       "tsk_cve_libpayproc",
       "tsk_cve_pydantic",
       "tsk_cve_stripe_sdk",
-      "tsk_detect_checkout_latency_healthy",
+      "tsk_detect_checkout_errors",
       "tsk_detect_inventory",
       "tsk_detect_payments",
       "tsk_express_checkout",

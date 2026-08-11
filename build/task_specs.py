@@ -352,7 +352,7 @@ _add("aiops_detection", "detection", id="detect_storefront_healthy", scope="stor
      evidence="storefront-web latency_p99_ms is 220 against a 500 SLO and no alarm is firing",
      ticket=("OPS-103", "medium", "Detection: is storefront-web violating its SLOs?"))
 
-_add("aiops_detection", "detection", id="detect_checkout_latency_healthy", scope="checkout",
+_add("aiops_detection", "detection", id="detect_checkout_errors", scope="checkout",
      service="checkout", fault_detected=True, fault_type="feature_flag_regression",
      offending_key="instant_refunds", difficulty="medium", budget=8,
      evidence="checkout error_rate_pct is 5.5 against a 1.0 SLO while latency_p99_ms 180 is within its 400 SLO",

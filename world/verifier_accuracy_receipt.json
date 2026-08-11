@@ -1,8 +1,8 @@
 {
   "kind": "verifier_accuracy_receipt",
   "version": 1,
-  "generated_at": "2026-08-11T01:47:17Z",
-  "world_id": "env_software_devops_012b77ba",
+  "generated_at": "2026-08-11T02:47:48Z",
+  "world_id": "env_software_devops_1cb98b42",
   "world_dir": "/Users/samuelchien/dev/software-devops/world",
   "label_provenance": "constructed",
   "corruption_kinds": [
@@ -15,7 +15,7 @@
   "sample": {
     "seed": 42,
     "requested": 50,
-    "population": 50,
+    "population": 62,
     "sampled": 50,
     "split": "all"
   },
@@ -2376,489 +2376,7 @@
       }
     },
     {
-      "task_id": "tsk_catalog_batch_pricing",
-      "panel_unbuildable": false,
-      "tier": "vcode",
-      "positive_basis": "vcode",
-      "weak_vcode": false,
-      "has_vcode": true,
-      "panel": {
-        "positives": 1,
-        "negatives": 5,
-        "corruption_kinds": [
-          "no_op",
-          "zero_tool_call",
-          "partial_completion",
-          "wrong_target",
-          "over_repair"
-        ],
-        "dropped_degenerate": [],
-        "corruption_unbuildable": {}
-      },
-      "composite": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "vcode_artifact": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "flags": {
-        "composite": [],
-        "vcode_artifact": []
-      }
-    },
-    {
       "task_id": "tsk_media_cdn",
-      "panel_unbuildable": false,
-      "tier": "vcode",
-      "positive_basis": "vcode",
-      "weak_vcode": false,
-      "has_vcode": true,
-      "panel": {
-        "positives": 1,
-        "negatives": 5,
-        "corruption_kinds": [
-          "no_op",
-          "zero_tool_call",
-          "partial_completion",
-          "wrong_target",
-          "over_repair"
-        ],
-        "dropped_degenerate": [],
-        "corruption_unbuildable": {}
-      },
-      "composite": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "vcode_artifact": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "flags": {
-        "composite": [],
-        "vcode_artifact": []
-      }
-    },
-    {
-      "task_id": "tsk_catalog_pricing_from_code",
       "panel_unbuildable": false,
       "tier": "vcode",
       "positive_basis": "vcode",
@@ -4063,1212 +3581,7 @@
       }
     },
     {
-      "task_id": "tsk_express_checkout",
-      "panel_unbuildable": false,
-      "tier": "vcode",
-      "positive_basis": "vcode",
-      "weak_vcode": false,
-      "has_vcode": true,
-      "panel": {
-        "positives": 1,
-        "negatives": 5,
-        "corruption_kinds": [
-          "no_op",
-          "zero_tool_call",
-          "partial_completion",
-          "wrong_target",
-          "over_repair"
-        ],
-        "dropped_degenerate": [],
-        "corruption_unbuildable": {}
-      },
-      "composite": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "vcode_artifact": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "flags": {
-        "composite": [],
-        "vcode_artifact": []
-      }
-    },
-    {
       "task_id": "tsk_search_autocomplete",
-      "panel_unbuildable": false,
-      "tier": "vcode",
-      "positive_basis": "vcode",
-      "weak_vcode": false,
-      "has_vcode": true,
-      "panel": {
-        "positives": 1,
-        "negatives": 5,
-        "corruption_kinds": [
-          "no_op",
-          "zero_tool_call",
-          "partial_completion",
-          "wrong_target",
-          "over_repair"
-        ],
-        "dropped_degenerate": [],
-        "corruption_unbuildable": {}
-      },
-      "composite": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "vcode_artifact": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "flags": {
-        "composite": [],
-        "vcode_artifact": []
-      }
-    },
-    {
-      "task_id": "tsk_saved_carts",
-      "panel_unbuildable": false,
-      "tier": "vcode",
-      "positive_basis": "vcode",
-      "weak_vcode": false,
-      "has_vcode": true,
-      "panel": {
-        "positives": 1,
-        "negatives": 5,
-        "corruption_kinds": [
-          "no_op",
-          "zero_tool_call",
-          "partial_completion",
-          "wrong_target",
-          "over_repair"
-        ],
-        "dropped_degenerate": [],
-        "corruption_unbuildable": {}
-      },
-      "composite": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "vcode_artifact": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "flags": {
-        "composite": [],
-        "vcode_artifact": []
-      }
-    },
-    {
-      "task_id": "tsk_media_webp",
-      "panel_unbuildable": false,
-      "tier": "vcode",
-      "positive_basis": "vcode",
-      "weak_vcode": false,
-      "has_vcode": true,
-      "panel": {
-        "positives": 1,
-        "negatives": 5,
-        "corruption_kinds": [
-          "no_op",
-          "zero_tool_call",
-          "partial_completion",
-          "wrong_target",
-          "over_repair"
-        ],
-        "dropped_degenerate": [],
-        "corruption_unbuildable": {}
-      },
-      "composite": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "vcode_artifact": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "flags": {
-        "composite": [],
-        "vcode_artifact": []
-      }
-    },
-    {
-      "task_id": "tsk_instant_refunds_killswitch",
-      "panel_unbuildable": false,
-      "tier": "vcode",
-      "positive_basis": "vcode",
-      "weak_vcode": false,
-      "has_vcode": true,
-      "panel": {
-        "positives": 1,
-        "negatives": 5,
-        "corruption_kinds": [
-          "no_op",
-          "zero_tool_call",
-          "partial_completion",
-          "wrong_target",
-          "over_repair"
-        ],
-        "dropped_degenerate": [],
-        "corruption_unbuildable": {}
-      },
-      "composite": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "vcode_artifact": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "flags": {
-        "composite": [],
-        "vcode_artifact": []
-      }
-    },
-    {
-      "task_id": "tsk_legacy_price_rounding_cleanup",
       "panel_unbuildable": false,
       "tier": "vcode",
       "positive_basis": "vcode",
@@ -7678,489 +5991,7 @@
       }
     },
     {
-      "task_id": "tsk_auth_v1_to_v2",
-      "panel_unbuildable": false,
-      "tier": "vcode",
-      "positive_basis": "vcode",
-      "weak_vcode": false,
-      "has_vcode": true,
-      "panel": {
-        "positives": 1,
-        "negatives": 5,
-        "corruption_kinds": [
-          "no_op",
-          "zero_tool_call",
-          "partial_completion",
-          "wrong_target",
-          "over_repair"
-        ],
-        "dropped_degenerate": [],
-        "corruption_unbuildable": {}
-      },
-      "composite": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "vcode_artifact": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "flags": {
-        "composite": [],
-        "vcode_artifact": []
-      }
-    },
-    {
       "task_id": "tsk_checkout_v1_to_v2",
-      "panel_unbuildable": false,
-      "tier": "vcode",
-      "positive_basis": "vcode",
-      "weak_vcode": false,
-      "has_vcode": true,
-      "panel": {
-        "positives": 1,
-        "negatives": 5,
-        "corruption_kinds": [
-          "no_op",
-          "zero_tool_call",
-          "partial_completion",
-          "wrong_target",
-          "over_repair"
-        ],
-        "dropped_degenerate": [],
-        "corruption_unbuildable": {}
-      },
-      "composite": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "vcode_artifact": {
-        "total": 6,
-        "true_positives": 1,
-        "false_positives": 0,
-        "true_negatives": 5,
-        "false_negatives": 0,
-        "errored": 0,
-        "precision": 1.0,
-        "recall": 1.0,
-        "fpr": 0.0,
-        "accuracy": 1.0,
-        "corruption_recall": 1.0,
-        "accepts_everything": false,
-        "rejects_everything": false,
-        "degenerate": false,
-        "per_corruption_recall": {
-          "no_op": 1.0,
-          "over_repair": 1.0,
-          "partial_completion": 1.0,
-          "wrong_target": 1.0,
-          "zero_tool_call": 1.0
-        },
-        "per_corruption_counts": {
-          "no_op": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "over_repair": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "partial_completion": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "wrong_target": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          },
-          "zero_tool_call": {
-            "accepted": 0,
-            "errored": 0,
-            "rejected": 1,
-            "total": 1
-          }
-        },
-        "label_provenance": "constructed",
-        "provenance_counts": {
-          "corruption:no_op": 1,
-          "corruption:over_repair": 1,
-          "corruption:partial_completion": 1,
-          "corruption:wrong_target": 1,
-          "corruption:zero_tool_call": 1,
-          "oracle_positive": 1
-        },
-        "verdicts": [
-          {
-            "trajectory_id": "oracle_positive[0]",
-            "provenance": "oracle_positive",
-            "label": true,
-            "outcome": "true_positive",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:no_op",
-            "provenance": "corruption:no_op",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:zero_tool_call",
-            "provenance": "corruption:zero_tool_call",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:partial_completion",
-            "provenance": "corruption:partial_completion",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:wrong_target",
-            "provenance": "corruption:wrong_target",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          },
-          {
-            "trajectory_id": "corruption:over_repair",
-            "provenance": "corruption:over_repair",
-            "label": false,
-            "outcome": "true_negative",
-            "error": null
-          }
-        ]
-      },
-      "flags": {
-        "composite": [],
-        "vcode_artifact": []
-      }
-    },
-    {
-      "task_id": "tsk_search_v1_to_v2",
       "panel_unbuildable": false,
       "tier": "vcode",
       "positive_basis": "vcode",
@@ -12017,6 +9848,2175 @@
     },
     {
       "task_id": "tsk_checkout_upsell",
+      "panel_unbuildable": false,
+      "tier": "vcode",
+      "positive_basis": "vcode",
+      "weak_vcode": false,
+      "has_vcode": true,
+      "panel": {
+        "positives": 1,
+        "negatives": 5,
+        "corruption_kinds": [
+          "no_op",
+          "zero_tool_call",
+          "partial_completion",
+          "wrong_target",
+          "over_repair"
+        ],
+        "dropped_degenerate": [],
+        "corruption_unbuildable": {}
+      },
+      "composite": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "vcode_artifact": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "flags": {
+        "composite": [],
+        "vcode_artifact": []
+      }
+    },
+    {
+      "task_id": "tsk_detect_payments",
+      "panel_unbuildable": false,
+      "tier": "vcode",
+      "positive_basis": "vcode",
+      "weak_vcode": false,
+      "has_vcode": true,
+      "panel": {
+        "positives": 1,
+        "negatives": 5,
+        "corruption_kinds": [
+          "no_op",
+          "zero_tool_call",
+          "partial_completion",
+          "wrong_target",
+          "over_repair"
+        ],
+        "dropped_degenerate": [],
+        "corruption_unbuildable": {}
+      },
+      "composite": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "vcode_artifact": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "flags": {
+        "composite": [],
+        "vcode_artifact": []
+      }
+    },
+    {
+      "task_id": "tsk_detect_inventory",
+      "panel_unbuildable": false,
+      "tier": "vcode",
+      "positive_basis": "vcode",
+      "weak_vcode": false,
+      "has_vcode": true,
+      "panel": {
+        "positives": 1,
+        "negatives": 5,
+        "corruption_kinds": [
+          "no_op",
+          "zero_tool_call",
+          "partial_completion",
+          "wrong_target",
+          "over_repair"
+        ],
+        "dropped_degenerate": [],
+        "corruption_unbuildable": {}
+      },
+      "composite": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "vcode_artifact": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "flags": {
+        "composite": [],
+        "vcode_artifact": []
+      }
+    },
+    {
+      "task_id": "tsk_detect_storefront_healthy",
+      "panel_unbuildable": false,
+      "tier": "vcode",
+      "positive_basis": "vcode",
+      "weak_vcode": false,
+      "has_vcode": true,
+      "panel": {
+        "positives": 1,
+        "negatives": 5,
+        "corruption_kinds": [
+          "no_op",
+          "zero_tool_call",
+          "partial_completion",
+          "wrong_target",
+          "over_repair"
+        ],
+        "dropped_degenerate": [],
+        "corruption_unbuildable": {}
+      },
+      "composite": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "vcode_artifact": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "flags": {
+        "composite": [],
+        "vcode_artifact": []
+      }
+    },
+    {
+      "task_id": "tsk_detect_checkout_latency_healthy",
+      "panel_unbuildable": false,
+      "tier": "vcode",
+      "positive_basis": "vcode",
+      "weak_vcode": false,
+      "has_vcode": true,
+      "panel": {
+        "positives": 1,
+        "negatives": 5,
+        "corruption_kinds": [
+          "no_op",
+          "zero_tool_call",
+          "partial_completion",
+          "wrong_target",
+          "over_repair"
+        ],
+        "dropped_degenerate": [],
+        "corruption_unbuildable": {}
+      },
+      "composite": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "vcode_artifact": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "flags": {
+        "composite": [],
+        "vcode_artifact": []
+      }
+    },
+    {
+      "task_id": "tsk_localize_gateway_latency",
+      "panel_unbuildable": false,
+      "tier": "vcode",
+      "positive_basis": "vcode",
+      "weak_vcode": false,
+      "has_vcode": true,
+      "panel": {
+        "positives": 1,
+        "negatives": 5,
+        "corruption_kinds": [
+          "no_op",
+          "zero_tool_call",
+          "partial_completion",
+          "wrong_target",
+          "over_repair"
+        ],
+        "dropped_degenerate": [],
+        "corruption_unbuildable": {}
+      },
+      "composite": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "vcode_artifact": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "flags": {
+        "composite": [],
+        "vcode_artifact": []
+      }
+    },
+    {
+      "task_id": "tsk_localize_search_latency",
+      "panel_unbuildable": false,
+      "tier": "vcode",
+      "positive_basis": "vcode",
+      "weak_vcode": false,
+      "has_vcode": true,
+      "panel": {
+        "positives": 1,
+        "negatives": 5,
+        "corruption_kinds": [
+          "no_op",
+          "zero_tool_call",
+          "partial_completion",
+          "wrong_target",
+          "over_repair"
+        ],
+        "dropped_degenerate": [],
+        "corruption_unbuildable": {}
+      },
+      "composite": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "vcode_artifact": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "flags": {
+        "composite": [],
+        "vcode_artifact": []
+      }
+    },
+    {
+      "task_id": "tsk_localize_media_latency",
+      "panel_unbuildable": false,
+      "tier": "vcode",
+      "positive_basis": "vcode",
+      "weak_vcode": false,
+      "has_vcode": true,
+      "panel": {
+        "positives": 1,
+        "negatives": 5,
+        "corruption_kinds": [
+          "no_op",
+          "zero_tool_call",
+          "partial_completion",
+          "wrong_target",
+          "over_repair"
+        ],
+        "dropped_degenerate": [],
+        "corruption_unbuildable": {}
+      },
+      "composite": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "vcode_artifact": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "flags": {
+        "composite": [],
+        "vcode_artifact": []
+      }
+    },
+    {
+      "task_id": "tsk_rca_payments_retry",
+      "panel_unbuildable": false,
+      "tier": "vcode",
+      "positive_basis": "vcode",
+      "weak_vcode": false,
+      "has_vcode": true,
+      "panel": {
+        "positives": 1,
+        "negatives": 5,
+        "corruption_kinds": [
+          "no_op",
+          "zero_tool_call",
+          "partial_completion",
+          "wrong_target",
+          "over_repair"
+        ],
+        "dropped_degenerate": [],
+        "corruption_unbuildable": {}
+      },
+      "composite": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "vcode_artifact": {
+        "total": 6,
+        "true_positives": 1,
+        "false_positives": 0,
+        "true_negatives": 5,
+        "false_negatives": 0,
+        "errored": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "fpr": 0.0,
+        "accuracy": 1.0,
+        "corruption_recall": 1.0,
+        "accepts_everything": false,
+        "rejects_everything": false,
+        "degenerate": false,
+        "per_corruption_recall": {
+          "no_op": 1.0,
+          "over_repair": 1.0,
+          "partial_completion": 1.0,
+          "wrong_target": 1.0,
+          "zero_tool_call": 1.0
+        },
+        "per_corruption_counts": {
+          "no_op": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "over_repair": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "partial_completion": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "wrong_target": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          },
+          "zero_tool_call": {
+            "accepted": 0,
+            "errored": 0,
+            "rejected": 1,
+            "total": 1
+          }
+        },
+        "label_provenance": "constructed",
+        "provenance_counts": {
+          "corruption:no_op": 1,
+          "corruption:over_repair": 1,
+          "corruption:partial_completion": 1,
+          "corruption:wrong_target": 1,
+          "corruption:zero_tool_call": 1,
+          "oracle_positive": 1
+        },
+        "verdicts": [
+          {
+            "trajectory_id": "oracle_positive[0]",
+            "provenance": "oracle_positive",
+            "label": true,
+            "outcome": "true_positive",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:no_op",
+            "provenance": "corruption:no_op",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:zero_tool_call",
+            "provenance": "corruption:zero_tool_call",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:partial_completion",
+            "provenance": "corruption:partial_completion",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:wrong_target",
+            "provenance": "corruption:wrong_target",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          },
+          {
+            "trajectory_id": "corruption:over_repair",
+            "provenance": "corruption:over_repair",
+            "label": false,
+            "outcome": "true_negative",
+            "error": null
+          }
+        ]
+      },
+      "flags": {
+        "composite": [],
+        "vcode_artifact": []
+      }
+    },
+    {
+      "task_id": "tsk_rca_catalog_n_plus_one",
       "panel_unbuildable": false,
       "tier": "vcode",
       "positive_basis": "vcode",

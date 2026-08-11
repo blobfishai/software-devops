@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_1cb98b42",
+  "env_id": "env_software_devops_48268a06",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -199,7 +199,7 @@
     "tsk_detect_payments",
     "tsk_detect_inventory",
     "tsk_detect_storefront_healthy",
-    "tsk_detect_checkout_latency_healthy",
+    "tsk_detect_checkout_errors",
     "tsk_localize_gateway_latency",
     "tsk_localize_search_latency",
     "tsk_localize_analytics_errors",
