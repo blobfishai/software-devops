@@ -186,17 +186,22 @@ def w3_symptom_only(db):
     agent works out what it is about, which is the difference between reading a
     dashboard and taking a report.
     """
+    # Written the way a customer describes a problem, which is to say without
+    # naming a service - "my card keeps getting refused", not "payments is
+    # erroring". Two of these used to name the service they were asking about,
+    # which made the task look hard and grade easy.
     SYMPTOM = {
-        "payments": "card payments are being declined that should not be",
-        "checkout": "customers cannot complete a purchase",
-        "search": "search is taking so long people give up",
-        "catalog": "product pages are slow to show a price",
-        "inventory": "stock reservations are failing at the last step",
-        "media-service": "product images take too long to appear",
-        "notifications": "order confirmation emails are not arriving",
-        "analytics-worker": "the overnight reports came out wrong",
-        "api-gateway": "everything feels slow, across the whole site",
-        "storefront-web": "a customer said the site felt sluggish yesterday",
+        "payments": "my card keeps getting refused at the last step, and my bank says "
+                    "there is nothing wrong with it",
+        "checkout": "I can put things in the basket but I cannot finish buying them",
+        "search": "I type in the box and wait, and I gave up before anything appeared",
+        "catalog": "the product page loads but the price takes ages to show up",
+        "inventory": "it lets me order something and then says it is unavailable",
+        "media-service": "the pictures take forever to appear on product pages",
+        "notifications": "I bought something an hour ago and still have no email",
+        "analytics-worker": "the numbers in this morning's report do not add up",
+        "api-gateway": "the whole site feels slow today, every page of it",
+        "storefront-web": "someone mentioned the site felt sluggish yesterday",
     }
     metrics = {(r["service"], r["metric"]): (r["value"], r["threshold"]) for r in _rows(db, """
         SELECT s.service, s.metric, s.threshold, m.value FROM slos s
@@ -213,7 +218,10 @@ def w3_symptom_only(db):
             "generator": "detection", "category": "aiops_detection",
             "wave": 3, "axis": "ambiguity",
             "id": "w3_symptom_%s" % service.replace("-", "_"),
-            "scope": "report-%s" % service, "service": service,
+            # NOT "report-<service>": the whole axis is that the target is not
+            # named, and putting it in the scope string hands the answer over in
+            # the same sentence that asks for it. The ticket number is opaque.
+            "scope": "SUP-%d" % (7500 + len(out)), "service": service,
             "symptom": ("Support passed this on from a customer: \"%s\". Nobody has "
                         "attached it to a service yet." % symptom),
             "fault_detected": breaching,

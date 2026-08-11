@@ -1151,3 +1151,23 @@ def test_waves_never_emit_a_duplicate_task():
             raise AssertionError("%s and %s are the same task with different ids"
                                  % (seen[key], t["task_id"]))
         seen[key] = t["task_id"]
+
+
+def test_the_ambiguity_axis_does_not_name_the_target_it_asks_for():
+    """The ambiguity wave gives a customer-visible symptom and asks which service it
+    is about. The scope string was "report-<service>", which handed the answer over
+    in the same sentence that asked for it - the task looked hard and graded easy.
+
+    Nothing before the question may name the service, in any casing.
+    """
+    tasks = [t for t in json.loads((ROOT / "world" / "tasks.json").read_text())
+             if t["task_id"].startswith("tsk_w3_symptom_")]
+    assert tasks, "the ambiguity wave produced nothing"
+    leaks = []
+    for t in tasks:
+        call = next(c for c in t["expected_calls"] if c["tool"] == "submit_diagnosis")
+        service = call["args"]["service"]
+        preamble = t["instruction"].split("Work out which service")[0].lower()
+        if service.lower() in preamble or service.lower() in call["args"]["scope"].lower():
+            leaks.append((t["task_id"], service))
+    assert not leaks, "the target is named before it is asked for: %s" % leaks
