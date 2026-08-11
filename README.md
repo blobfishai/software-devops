@@ -19,7 +19,7 @@ Agents solve long-horizon workflows: **investigate → PR → CI (build · unit 
 integration · regression) → merge → migrate → staging → canary → promote →
 observe → resolve → close the ticket.**
 
-**82 tasks**, graded on both
+**83 tasks**, graded on both
 Horizon-SWE-PF (binary) and Horizon-SWE-PC (composite).
 
 The same world also hosts a second suite that reproduces the use case of
@@ -68,7 +68,7 @@ stripped environment, checking both halves of what a verifier is for:
 
 ```
 $ python3 harbor_selftest.py
-harbor standalone self-test: 82/82 verifiers accept the reference solution
+harbor standalone self-test: 83/83 verifiers accept the reference solution
 and reject an untouched world
   failures 0, missing 0, free-reward 0
 ```
@@ -77,7 +77,7 @@ An untouched world must be **rejected** — a verifier that passes before anyone
 does anything is a free reward, not a grader. The reference solution must be
 **accepted**. All 82 do both, outside the repository that built them.
 
-## The 82 tasks
+## The 83 tasks
 
 | Category | Tasks | Examples |
 |---|---|---|
@@ -91,11 +91,11 @@ does anything is a free reward, not a grader. The reference solution must be
 | reconciliation | 7 | questions no single system answers, over systems that disagree |
 | flaky test | 6 | diagnose from CI history, fix (not quarantine), prove 3 green runs |
 | localization | 6 | name the responsible service when the alarm names a different one |
-| detection | 4 | is this service violating an SLO? one is healthy, and saying so is the pass |
+| detection | 5 | is this service violating an SLO? one is healthy, and saying so is the pass |
 | judgement | 4 | choose between four plausible remediations, three of which treat the symptom |
 | human-gated | 1 | the change needs an approval that is not granted on request |
 
-67 train / 15 heldout, split per category. Difficulty: 2 easy, 29 medium, 26 hard, 25 expert.
+68 train / 15 heldout, split per category. Difficulty: 2 easy, 29 medium, 26 hard, 26 expert.
 
 ## Instruction design: outcomes, not procedure
 
@@ -106,7 +106,7 @@ rule, "fix don't quarantine", the audit-note and status-page requirements — is
 never in the prompt. It lives in the knowledge base, and the agent has to go
 find it. Deviating from a policy it never read still fails the verifier.
 
-Measured across all 82 tasks, the default prompt contains the exact config key
+Measured across all 83 tasks, the default prompt contains the exact config key
 **0** times, the target value **0** times, a runbook title **0** times, and any
 workflow instruction **0** times. Every policy removed from the prompts is
 verifiably present in the knowledge base, so the tasks stay solvable by
@@ -136,7 +136,7 @@ failure mode damages.
 | `no_verify` | ships the fix but never checks, resolves or closes anything |
 | `shortcut` | quarantines flaky tests; blames whichever service the alarm names |
 
-PF pass rate by category (82 tasks):
+PF pass rate by category (83 tasks):
 
 ```
                           oracle    naive  merged_only  no_verify  shortcut
@@ -228,7 +228,7 @@ verifier, reporting both Horizon-style numbers:
 ```
   tsk_payments_retry     hard   PASS  score=1.00  corr 7/7 depl 4/4 qual 5/5  calls=14
   ...
-  Horizon-SWE-PF  (pass rate, correctness+deployment must be perfect) : 100.0%  (82/82)
+  Horizon-SWE-PF  (pass rate, correctness+deployment must be perfect) : 100.0%  (83/83)
   Horizon-SWE-PC  (0.6 correctness / 0.3 deployment / 0.1 quality)     : 100.0
 
   by category:

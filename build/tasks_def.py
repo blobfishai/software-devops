@@ -1043,12 +1043,28 @@ def _aiops_common(checks, scope, steps_budget):
 def gen_detection(spec):
     scope, tkt = spec["scope"], spec["ticket"][0]
     faulty = spec["fault_detected"]
-    instruction = (
-        AIOPS_INTRO +
-        "%s — %s\n\nDetermine whether %s is currently violating any of its service level "
-        "objectives, and submit the result under scope '%s' with the evidence you relied on. "
-        "Report honestly either way: a clean bill of health is a valid finding."
-        % (tkt, spec["ticket"][2], scope, scope))
+    if spec.get("symptom"):
+        # Deepened along the ambiguity axis: the request names no service and no
+        # alarm, only what a customer experienced, and the most authoritative-
+        # looking source in the world contradicts the live state. "Trusting the
+        # status page for customer impact" is an enumerated trap - it lags
+        # internal state and can be independently wrong
+        # (research/notes/domain/F_chaos_scenarios.md, CS-18).
+        instruction = (
+            AIOPS_INTRO +
+            "%s — %s\n\n%s\n\nWork out which service this is about, determine whether it is "
+            "currently violating any of its service level objectives, and submit the result "
+            "under scope '%s' — naming the service in the `service` field — with the evidence "
+            "you relied on. Report honestly either way: a clean bill of health is a valid "
+            "finding, and so is contradicting a system that says everything is fine."
+            % (tkt, spec["ticket"][2], spec["symptom"], scope))
+    else:
+        instruction = (
+            AIOPS_INTRO +
+            "%s — %s\n\nDetermine whether %s is currently violating any of its service level "
+            "objectives, and submit the result under scope '%s' with the evidence you relied on. "
+            "Report honestly either way: a clean bill of health is a valid finding."
+            % (tkt, spec["ticket"][2], scope, scope))
     checks = [
         ("correctness", "diagnosis_submitted",
          "_diagnosis(%s) is not None" % q(scope),
@@ -1058,6 +1074,12 @@ def gen_detection(spec):
          "%s is %s: fault_detected must be %s"
          % (scope, "breaching its SLO" if faulty else "healthy", str(bool(faulty)).lower())),
     ]
+    if spec.get("symptom"):
+        # the target was not named, so identifying it is part of being correct
+        checks.append(("correctness", "service_identified",
+                       "(_diagnosis(%s) or {}).get('service') == %s"
+                       % (q(scope), q(spec["service"])),
+                       "the service behind the symptom is %s" % spec["service"]))
     _aiops_common(checks, scope, spec.get("budget", 8))
     checks.append(("quality", "ticket_closed",
                    "_ticket_status(%s) == 'done'" % q(tkt),
@@ -1065,7 +1087,8 @@ def gen_detection(spec):
     checks.append(("quality", "closed_after_the_work",
                    "_closed_after_work(%s)" % q(tkt),
                    "close %s only once the finding is submitted, not before" % tkt))
-    calls = [{"tool": "get_ticket", "args": {"key": tkt}},
+    calls = list(spec.get("extra_reads", [])) + [
+             {"tool": "get_ticket", "args": {"key": tkt}},
              {"tool": "get_slo_status", "args": {"service": spec["service"]}},
              {"tool": "query_metrics", "args": {"service": spec["service"]}},
              {"tool": "list_alerts", "args": {"service": spec["service"]}},

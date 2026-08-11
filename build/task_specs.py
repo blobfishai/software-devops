@@ -352,6 +352,32 @@ _add("aiops_detection", "detection", id="detect_storefront_healthy", scope="stor
      evidence="storefront-web latency_p99_ms is 220 against a 500 SLO and no alarm is firing",
      ticket=("OPS-103", "medium", "Detection: is storefront-web violating its SLOs?"))
 
+# Deepened from tsk_detect_storefront_healthy along the AMBIGUITY axis, after the
+# calibration loop scored that task TOO_EASY against a real model. The request
+# names no service and no alarm - only what a customer experienced - and the most
+# authoritative-looking source in the world says the problem was fixed nine days
+# ago. Grounding: F_chaos_scenarios.md CS-18, which enumerates "trusting the
+# status page for customer impact" as a trap and cites ThousandEyes on status
+# pages lagging internal state, PagerDuty on communication cadence, and
+# Cloudflare's Nov-2025 postmortem, where the status page was independently wrong
+# and actively misled responders.
+_add("aiops_detection", "detection", id="detect_status_page_recurrence",
+     scope="status-7001-recurrence", service="checkout", fault_detected=True,
+     fault_type="unclassified", difficulty="expert", budget=12,
+     symptom="Support has had eleven tickets this morning from customers who cannot "
+             "complete a purchase - they get an error at the final step and give up. Our "
+             "status page has nothing open: the only related post, 'Degraded checkout "
+             "performance', was marked resolved on day 412. Support wants to know whether "
+             "to keep telling customers this is their browser.",
+     evidence="the status page post 7001 is marked resolved, but checkout is breaching both "
+              "of its SLOs right now - error_rate_pct 5.5 against a 1.0 threshold and "
+              "latency_p99_ms 530 against 400 - and alarms 9603 and 9610 are both firing; "
+              "the status page lags internal state and is not evidence of health",
+     extra_reads=[{"tool": "list_status_page_posts", "args": {}},
+                  {"tool": "list_alerts", "args": {"status": "firing"}}],
+     ticket=("OPS-131", "critical",
+             "Customers still cannot check out, and the status page says we fixed it"))
+
 _add("aiops_detection", "detection", id="detect_checkout_errors", scope="checkout",
      service="checkout", fault_detected=True, fault_type="feature_flag_regression",
      offending_key="instant_refunds", difficulty="medium", budget=8,

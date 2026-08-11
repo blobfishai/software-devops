@@ -809,12 +809,19 @@ def test_the_corpus_map_is_generated_not_hand_written():
     import subprocess
     doc = ROOT / "research" / "02-CORPUS-MAP.md"
     before = doc.read_text()
-    proc = subprocess.run([sys.executable, str(ROOT / "import_corpus_tasks.py")],
-                          capture_output=True, text=True, timeout=300, cwd=str(ROOT))
-    assert proc.returncode == 0, proc.stderr
-    assert doc.read_text() == before, (
-        "02-CORPUS-MAP.md changes when regenerated: it has been hand-edited. "
-        "Edit FAMILY_MAP in import_corpus_tasks.py instead.")
+    try:
+        proc = subprocess.run([sys.executable, str(ROOT / "import_corpus_tasks.py")],
+                              capture_output=True, text=True, timeout=300, cwd=str(ROOT))
+        assert proc.returncode == 0, proc.stderr
+        after = doc.read_text()
+    finally:
+        # the generator writes in place, so restore whatever was committed - a test
+        # that leaves the tree dirty passes on its second run and hides the drift
+        doc.write_text(before)
+    assert after == before, (
+        "02-CORPUS-MAP.md is stale or hand-edited. Regenerate with "
+        "`python3 import_corpus_tasks.py`, and put coverage claims in FAMILY_MAP "
+        "rather than in the markdown.")
 
 
 def test_the_corpus_map_never_cites_a_task_that_does_not_exist():
