@@ -871,3 +871,39 @@ def test_reporting_a_breach_never_requires_naming_a_mechanism_you_were_not_asked
                     if c["tool"] == "submit_diagnosis"]
         assert specific and all(f not in ("unclassified", "none") for f in specific), \
             "%s would accept an unclassified root cause" % t["task_id"]
+
+
+def test_every_rejection_an_agent_can_hit_is_discoverable(env):
+    """A tool that rejects a call for a reason the agent cannot anticipate and
+    cannot look up leaves it guessing, and a guessing model edits its claim rather
+    than its call - which is how a service at 4.2% against a 1.0% SLO came to be
+    reported healthy three times running.
+
+    Every literal rejection a tool can emit must have its key terms present either
+    in that tool's own description or somewhere in the knowledge base. Schema-level
+    errors (missing parameter, unknown id) are excluded: those are self-describing
+    and the runtime already returns the accepted signature alongside them.
+    """
+    import sqlite3 as _sq
+    conn = _sq.connect("file:%s?mode=ro" % (ROOT / "world" / "environment.db"), uri=True)
+    docs = " ".join(r[0] + " " + r[1] for r in
+                    conn.execute("SELECT title, body FROM documents")).lower()
+    conn.close()
+
+    STOP = {"error", "requires", "cannot", "should", "before", "after", "would",
+            "which", "there", "value", "while", "since", "their"}
+    undiscoverable = []
+    for t in json.loads((ROOT / "world" / "tools.json").read_text()):
+        desc = t["description"].lower()
+        msgs = set(re.findall(r"['\"]error['\"]:\s*['\"]([^'\"]{8,120})['\"]", t["source_code"]))
+        for m in msgs:
+            low = m.lower()
+            if low.startswith(("missing required parameter", "no such", "unknown ")):
+                continue
+            key = [w for w in re.findall(r"[a-z_]{5,}", low) if w not in STOP]
+            if key and not any(w in desc or w in docs for w in key):
+                undiscoverable.append((t["name"], m))
+
+    assert not undiscoverable, (
+        "rejections an agent can neither anticipate from the tool description nor "
+        "look up in the knowledge base: %s" % undiscoverable)
