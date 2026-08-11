@@ -117,6 +117,27 @@ def main(paths):
         for name, n in checks.most_common(12):
             print("  %-46s %d" % (name, n))
 
+    # --- where to probe next -----------------------------------------------
+    # A single attempt says pass or fail. It cannot say "sometimes", and
+    # "sometimes" is the only direct evidence of where capability runs out. The
+    # tasks worth spending repeats on are the near misses in both directions:
+    # failures that almost passed, and passes that almost failed.
+    near = []
+    for t in scored:
+        pc = t.get("score") or 0.0
+        if not t.get("passed") and pc >= 0.75:
+            near.append((pc, t["task_id"], "failed at PC %.2f" % pc))
+        elif t.get("passed") and pc < 1.0:
+            near.append((pc, t["task_id"], "passed at PC %.2f" % pc))
+    if near:
+        near.sort(reverse=True)
+        print("\nboundary candidates - run these with repeats to look for a FLAKY band:")
+        for pc, tid, why in near[:12]:
+            print("  %-42s %s" % (tid, why))
+        ids = " ".join("--task %s" % t for _, t, _ in near[:12])
+        print("\n  python3 calibrate.py --policy deepseek --model %s \\\n    --attempts 3 %s"
+              % (run.get("model") or "deepseek-v4-pro", ids))
+
     # --- effort ------------------------------------------------------------
     calls = [t.get("tool_calls", 0) for t in scored]
     if calls:
