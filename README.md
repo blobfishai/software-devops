@@ -22,6 +22,12 @@ observe → resolve → close the ticket.**
 **50 tasks across the benchmark's seven categories**, graded on both
 Horizon-SWE-PF (binary) and Horizon-SWE-PC (composite).
 
+The same world also hosts a second suite that reproduces the use case of
+[microsoft/AIOpsLab](https://github.com/microsoft/AIOpsLab) — **12 diagnostic
+tasks** covering its taxonomy (detection → localization → analysis) where the
+agent investigates read-only and *submits a finding* instead of executing a fix.
+See [docs/AIOPSLAB.md](docs/AIOPSLAB.md).
+
 ## Why it's hard (and honest)
 
 - **Deterministic physics, no LLM judge.** "Code" is abstracted into structured
@@ -122,7 +128,7 @@ curl -s -XPOST localhost:8080/sessions/$SID/verify \
 ### Drive it over MCP
 
 `POST /mcp` (JSON-RPC 2.0: `initialize`, `tools/list`, `tools/call`), with the
-session pinned via the `Mcp-Session-Id` header. Alongside the 50 world tools,
+session pinned via the `Mcp-Session-Id` header. Alongside the 51 world tools,
 the server exposes the blobfish meta-tools: `world_info`, `task_list`,
 `task_start`, `task_verify`, `episode_abort`. Episode lifecycle:
 `task_start` → world tool calls → `task_verify` (binary reward, no judge).

@@ -258,6 +258,16 @@ CREATE TABLE messages (
     author TEXT NOT NULL,
     body TEXT NOT NULL
 );
+-- AIOpsLab-style diagnostic submissions (the agent's answer, not the answer key).
+CREATE TABLE diagnoses (
+    diagnosis_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    scope TEXT NOT NULL,
+    fault_detected INTEGER NOT NULL,
+    service TEXT NOT NULL DEFAULT '',
+    fault_type TEXT NOT NULL DEFAULT '',
+    offending_key TEXT NOT NULL DEFAULT '',
+    evidence TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE migration_requirements (
     req_id INTEGER PRIMARY KEY,
     service TEXT NOT NULL,

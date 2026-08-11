@@ -1269,6 +1269,47 @@ conn.commit()
 return {'ok': True, 'post_id': cur.lastrowid, 'state': state}""",
           reads=[], writes=["status_page", "audit_events"], snippets=(AUDIT_SNIPPET,)))
 
+    T(_mk("submit_diagnosis",
+          "Submit a diagnostic finding for an investigation. `scope` is what you were asked to "
+          "investigate (a service name or alarm id). Set fault_detected=false with "
+          "fault_type='none' when the scope is healthy. fault_type is one of: misconfig, "
+          "missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, "
+          "cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, "
+          "none. offending_key is the specific config key, flag key or version responsible.",
+          [{"name": "scope", "type": "str", "required": True,
+            "description": "the service or alarm id you were asked to investigate"},
+           {"name": "fault_detected", "type": "bool", "required": True},
+           {"name": "service", "type": "str", "default": "",
+            "description": "the service responsible (localization)"},
+           {"name": "fault_type", "type": "str", "default": "none"},
+           {"name": "offending_key", "type": "str", "default": "",
+            "description": "config key, flag key or version at fault"},
+           {"name": "evidence", "type": "str", "default": "",
+            "description": "what you observed that supports this finding"}],
+          """\
+kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion',
+         'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass',
+         'bad_release', 'feature_flag_regression', 'none')
+if fault_type not in kinds:
+    return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}
+det = 1 if str(fault_detected).lower() in ('1', 'true', 'yes', 'on') else 0
+if service and conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
+    return {'ok': False, 'error': 'unknown service: ' + str(service)}
+if det and fault_type == 'none':
+    return {'ok': False, 'error': "fault_detected=true requires a specific fault_type"}
+if not det and fault_type != 'none':
+    return {'ok': False, 'error': "fault_detected=false requires fault_type='none'"}
+cur = conn.execute('INSERT INTO diagnoses(scope, fault_detected, service, fault_type, offending_key, evidence) VALUES (?,?,?,?,?,?)',
+                   (str(scope), det, service or '', fault_type, offending_key or '', evidence or ''))
+_audit(conn, 'submit_diagnosis', service or '', {'scope': str(scope), 'fault_detected': det,
+                                                 'fault_type': fault_type,
+                                                 'offending_key': offending_key or ''})
+conn.commit()
+return {'ok': True, 'diagnosis_id': cur.lastrowid, 'scope': str(scope),
+        'fault_detected': bool(det), 'service': service or '', 'fault_type': fault_type,
+        'offending_key': offending_key or ''}""",
+          reads=["services"], writes=["diagnoses", "audit_events"], snippets=(AUDIT_SNIPPET,)))
+
     T(_mk("post_message", "Post a message to a chat channel.",
           [{"name": "channel", "type": "str", "required": True},
            {"name": "body", "type": "str", "required": True}],

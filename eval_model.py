@@ -22,6 +22,7 @@ import pathlib
 import sys
 import tempfile
 import time
+import math
 import re
 import urllib.error
 import urllib.request
@@ -143,6 +144,23 @@ def run_oracle_episode(world, task, sid, verbose):
     return {"turns": 0, "tool_calls": calls, "transcript": "\n".join(log)}
 
 
+def steps_to_answer(transcript):
+    """AIOpsLab reports time-to-detect / localize / analyze. The discrete
+    analogue here is the tool call at which the finding was submitted."""
+    for i, line in enumerate(transcript.split("\n"), 1):
+        if line.startswith("submit_diagnosis("):
+            return i
+    return None
+
+
+def pass_hat_k(successes, n, k):
+    """tau-bench pass^k: the probability that all k independently sampled
+    trials of a task succeed, estimated as C(c, k) / C(n, k)."""
+    if k > n or n == 0:
+        return None
+    return math.comb(successes, k) / math.comb(n, k) if successes >= k else 0.0
+
+
 def dimension_breakdown(verdict):
     dims = {}
     for a in verdict.get("assertions") or []:
@@ -213,6 +231,8 @@ def main():
     ap.add_argument("--split", choices=["train", "heldout", "all"], default="all")
     ap.add_argument("--category", action="append", default=None,
                     help="restrict to these Horizon-SWE categories (repeatable)")
+    ap.add_argument("--trials", type=int, default=1,
+                    help="run each task k times and report tau-bench pass^k reliability")
     ap.add_argument("--quality-judge", choices=["deterministic", "llm"],
                     default="deterministic",
                     help="how to score the 10%% engineering-quality dimension")
@@ -254,9 +274,12 @@ def main():
              "" if len(tasks) == 1 else "s", args.split))
 
     records = []
+    trials = {}
     for task in tasks:
-        tid = task["task_id"]
-        print("  %-32s %-7s " % (tid, task.get("difficulty", "")), end="", flush=True)
+      tid = task["task_id"]
+      for trial in range(max(1, args.trials)):
+        if trial == 0:
+            print("  %-32s %-7s " % (tid, task.get("difficulty", "")), end="", flush=True)
         sid = world.create_session()
         started = time.time()
         try:
@@ -291,14 +314,21 @@ def main():
                "quality_judge": "llm" if judged is not None else "deterministic",
                "dimensions": dimension_breakdown(verdict),
                "tool_calls": stats["tool_calls"], "turns": stats["turns"],
+               "steps_to_answer": steps_to_answer(stats.get("transcript", "")),
                "seconds": round(time.time() - started, 1),
                "error": err or verdict.get("error")}
+        trials.setdefault(tid, []).append(bool(rec["passed"]))
+        if trial > 0:
+            continue
         records.append(rec)
         mark = "PASS" if rec["passed"] else "FAIL"
-        print("%s  score=%.2f  %s  calls=%d"
+        extra = ""
+        if rec.get("steps_to_answer"):
+            extra = "  answer@%d" % rec["steps_to_answer"]
+        print("%s  score=%.2f  %s  calls=%d%s"
               % (mark, rec["score"],
                  " ".join("%s %s" % (k[:4], v) for k, v in rec["dimensions"].items()),
-                 rec["tool_calls"]))
+                 rec["tool_calls"], extra))
         if not rec["passed"] and rec["error"]:
             print("        %s" % str(rec["error"])[:220])
 
@@ -322,12 +352,38 @@ def main():
             print("    %-24s PF %3.0f%%  PC %4.1f   (%d task%s)"
                   % (c, 100.0 * p_ / t_, 100.0 * sc / t_, t_, "" if t_ == 1 else "s"))
 
+    diag = [r for r in records if (r.get("category") or "").startswith("aiops_")]
+    if diag:
+        solved = [r for r in diag if r["passed"] and r.get("steps_to_answer")]
+        print("\n  AIOpsLab-style diagnostics: %d task%s"
+              % (len(diag), "" if len(diag) == 1 else "s"))
+        for cat, label in [("aiops_detection", "time-to-detect"),
+                           ("aiops_localization", "time-to-localize"),
+                           ("aiops_analysis", "time-to-analyze")]:
+            g = [r for r in solved if r.get("category") == cat]
+            if g:
+                print("    %-18s %-17s mean %.1f tool calls (n=%d)"
+                      % (cat.split("_")[1], label,
+                         sum(r["steps_to_answer"] for r in g) / len(g), len(g)))
+    if args.trials > 1:
+        n = args.trials
+        print("\n  tau-bench reliability over %d trials per task:" % n)
+        for k in range(1, n + 1):
+            vals = [pass_hat_k(sum(v), len(v), k) for v in trials.values()]
+            vals = [v for v in vals if v is not None]
+            if vals:
+                print("    pass^%d  %.3f" % (k, sum(vals) / len(vals)))
     if args.out:
         pathlib.Path(args.out).write_text(json.dumps(
             {"world_id": world.summary()["world_id"], "policy": args.policy,
              "model": args.model if args.policy == "model" else None,
              "split": args.split, "pass_rate": passed / n,
-             "mean_score": mean_score, "tasks": records}, indent=2) + "\n")
+             "mean_score": mean_score, "trials": args.trials,
+             "pass_hat_k": {str(k): (lambda vs: sum(vs) / len(vs) if vs else None)(
+                 [v for v in (pass_hat_k(sum(x), len(x), k) for x in trials.values())
+                  if v is not None])
+                 for k in range(1, args.trials + 1)},
+             "tasks": records}, indent=2) + "\n")
         print("  report: %s" % args.out)
     return 0 if passed == n or args.policy == "model" else 1
 

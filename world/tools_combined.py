@@ -1854,6 +1854,47 @@ def publish_status_update(db_path=None, state=None, title=None, body=''):
         conn.close()
 
 
+def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', fault_type='none', offending_key='', evidence=''):
+    """Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, none. offending_key is the specific config key, flag key or version responsible."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        if scope is None:
+            return {'ok': False, 'error': 'missing required parameter: scope'}
+        if fault_detected is None:
+            return {'ok': False, 'error': 'missing required parameter: fault_detected'}
+        def _audit(conn, _tool, _svc, _detail):
+            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
+        kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion',
+                 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass',
+                 'bad_release', 'feature_flag_regression', 'none')
+        if fault_type not in kinds:
+            return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}
+        det = 1 if str(fault_detected).lower() in ('1', 'true', 'yes', 'on') else 0
+        if service and conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
+            return {'ok': False, 'error': 'unknown service: ' + str(service)}
+        if det and fault_type == 'none':
+            return {'ok': False, 'error': "fault_detected=true requires a specific fault_type"}
+        if not det and fault_type != 'none':
+            return {'ok': False, 'error': "fault_detected=false requires fault_type='none'"}
+        cur = conn.execute('INSERT INTO diagnoses(scope, fault_detected, service, fault_type, offending_key, evidence) VALUES (?,?,?,?,?,?)',
+                           (str(scope), det, service or '', fault_type, offending_key or '', evidence or ''))
+        _audit(conn, 'submit_diagnosis', service or '', {'scope': str(scope), 'fault_detected': det,
+                                                         'fault_type': fault_type,
+                                                         'offending_key': offending_key or ''})
+        conn.commit()
+        return {'ok': True, 'diagnosis_id': cur.lastrowid, 'scope': str(scope),
+                'fault_detected': bool(det), 'service': service or '', 'fault_type': fault_type,
+                'offending_key': offending_key or ''}
+    finally:
+        conn.close()
+
+
 def post_message(db_path=None, channel=None, body=None):
     """Post a message to a chat channel."""
     import sqlite3 as _sq

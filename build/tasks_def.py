@@ -114,6 +114,15 @@ def _green_main_after(_svc, _pr):
     _g = _one("SELECT COUNT(*) FROM ci_runs WHERE service=? AND pr_number IS NULL AND run_id > ? AND status='passed'", _svc, _last)
     _r = _one("SELECT COUNT(*) FROM ci_runs WHERE service=? AND pr_number IS NULL AND run_id > ? AND status != 'passed'", _svc, _last)
     return _g >= 3 and _r == 0
+def _diagnosis(_scope):
+    _r = conn.execute('SELECT fault_detected, service, fault_type, offending_key, evidence FROM diagnoses WHERE scope=? ORDER BY diagnosis_id DESC', (_scope,)).fetchone()
+    return None if _r is None else {'detected': int(_r[0]), 'service': _r[1],
+                                    'fault_type': _r[2], 'offending_key': _r[3],
+                                    'evidence': _r[4] or ''}
+def _mutating_calls():
+    return _one("SELECT COUNT(*) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool IN ('merge_pull_request','deploy_service','promote_canary','rollback_deployment','set_feature_flag','shift_endpoint_traffic','apply_migration','resolve_alert','update_incident')") or 0
+def _submit_step(_scope):
+    return _one("SELECT COUNT(*) FROM audit_events WHERE seq > __BASE_SEQ__ AND seq <= (SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='submit_diagnosis' AND json_extract(detail,'$.scope')=?)", _scope) or 0
 def _quarantined_flaky():
     return _one("SELECT COUNT(*) FROM tests_catalog WHERE status='flaky' AND quarantined=1")
 def _digest(_t):
@@ -145,6 +154,7 @@ def _integrity():
         ('deployment_envs', "SELECT COUNT(*) FROM deployments WHERE environment NOT IN ('staging','production')"),
         ('pr_changes', "SELECT COUNT(*) FROM pr_changes c WHERE NOT EXISTS (SELECT 1 FROM pull_requests p WHERE p.number=c.pr_number)"),
         ('migrations', "SELECT COUNT(*) FROM migrations m WHERE NOT EXISTS (SELECT 1 FROM services v WHERE v.name=m.service)"),
+        ('diagnoses', "SELECT COUNT(*) FROM diagnoses d WHERE d.service != '' AND NOT EXISTS (SELECT 1 FROM services v WHERE v.name=d.service)"),
     ]
     _bad = []
     for _label, _sql in _orphans:
@@ -958,7 +968,149 @@ def gen_incident(spec):
     return instruction, checks, calls
 
 
+# ==================================================== AIOpsLab-style diagnostics
+# Reproduces microsoft/AIOpsLab's task taxonomy — detection, localization,
+# analysis — where the agent investigates and SUBMITS a finding rather than
+# executing a fix. Graded on the submitted answer, not on world state.
+
+AIOPS_INTRO = (
+    "You are the on-call SRE at NovaCart. This is an investigation, not a change: "
+    "do NOT modify production state, open pull requests, deploy, toggle flags or resolve "
+    "anything. Investigate with the read tools and report your finding with "
+    "submit_diagnosis(...).\n\n")
+
+
+def _aiops_common(checks, scope, steps_budget):
+    checks.append(("deployment", "investigation_was_read_only", "_mutating_calls() == 0",
+                   "an investigation must not change production state"))
+    checks.append(("quality", "evidence_recorded",
+                   "(_diagnosis(%s) or {}).get('evidence', '') != ''" % q(scope),
+                   "record the evidence that supports the finding"))
+    checks.append(("quality", "efficient_investigation",
+                   "0 < _submit_step(%s) <= %d" % (q(scope), steps_budget),
+                   "reach a conclusion within %d tool calls" % steps_budget))
+
+
+def gen_detection(spec):
+    scope, tkt = spec["scope"], spec["ticket"][0]
+    faulty = spec["fault_detected"]
+    instruction = (
+        AIOPS_INTRO +
+        "Ticket %s. Determine whether %s is currently violating any of its service level "
+        "objectives. Compare its live production metrics against its SLOs and check the alarm "
+        "state, then submit a detection result for scope '%s': set fault_detected true or false, "
+        "and include the metric and value you observed as evidence. If it is healthy, submit "
+        "fault_detected=false with fault_type='none'." % (tkt, scope, scope))
+    checks = [
+        ("correctness", "diagnosis_submitted",
+         "_diagnosis(%s) is not None" % q(scope),
+         "submit a detection result for scope '%s'" % scope),
+        ("correctness", "detection_correct",
+         "(_diagnosis(%s) or {}).get('detected') == %d" % (q(scope), 1 if faulty else 0),
+         "%s is %s: fault_detected must be %s"
+         % (scope, "breaching its SLO" if faulty else "healthy", str(bool(faulty)).lower())),
+    ]
+    _aiops_common(checks, scope, spec.get("budget", 8))
+    checks.append(("quality", "ticket_closed",
+                   "_ticket_status(%s) == 'done'" % q(tkt),
+                   "close ticket %s once reported" % tkt))
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}},
+             {"tool": "get_slo_status", "args": {"service": spec["service"]}},
+             {"tool": "query_metrics", "args": {"service": spec["service"]}},
+             {"tool": "list_alerts", "args": {"service": spec["service"]}},
+             {"tool": "submit_diagnosis", "args": {
+                 "scope": scope, "fault_detected": bool(faulty),
+                 "service": spec["service"] if faulty else "",
+                 "fault_type": spec["fault_type"] if faulty else "none",
+                 "offending_key": spec.get("offending_key", "") if faulty else "",
+                 "evidence": spec["evidence"]}},
+             {"tool": "update_ticket", "args": {"key": tkt, "status": "done"}}]
+    return instruction, checks, calls
+
+
+def gen_localization(spec):
+    scope, tkt = spec["scope"], spec["ticket"][0]
+    instruction = (
+        AIOPS_INTRO +
+        "Ticket %s. Alarm %s is firing. Localize it: identify which service is responsible. "
+        "Trace the symptom through the metrics, the service dependency graph and the logs, then "
+        "submit your finding for scope '%s' with the responsible service and the evidence you "
+        "relied on." % (tkt, scope, scope))
+    checks = [
+        ("correctness", "diagnosis_submitted",
+         "_diagnosis(%s) is not None" % q(scope),
+         "submit a localization result for scope '%s'" % scope),
+        ("correctness", "service_localized",
+         "(_diagnosis(%s) or {}).get('service') == %s" % (q(scope), q(spec["service"])),
+         "the responsible service is %s" % spec["service"]),
+        ("correctness", "fault_confirmed",
+         "(_diagnosis(%s) or {}).get('detected') == 1" % q(scope),
+         "a firing alarm means fault_detected must be true"),
+    ]
+    _aiops_common(checks, scope, spec.get("budget", 10))
+    checks.append(("quality", "ticket_closed",
+                   "_ticket_status(%s) == 'done'" % q(tkt),
+                   "close ticket %s once reported" % tkt))
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}},
+             {"tool": "list_alerts", "args": {"status": "firing"}},
+             {"tool": "get_slo_status", "args": {}},
+             {"tool": "get_service", "args": {"service": spec["service"]}},
+             {"tool": "search_logs", "args": {"service": spec["service"]}},
+             {"tool": "submit_diagnosis", "args": {
+                 "scope": scope, "fault_detected": True, "service": spec["service"],
+                 "fault_type": spec["fault_type"],
+                 "offending_key": spec.get("offending_key", ""),
+                 "evidence": spec["evidence"]}},
+             {"tool": "update_ticket", "args": {"key": tkt, "status": "done"}}]
+    return instruction, checks, calls
+
+
+def gen_analysis(spec):
+    scope, tkt = spec["scope"], spec["ticket"][0]
+    instruction = (
+        AIOPS_INTRO +
+        "Ticket %s. Perform a root-cause analysis for %s. Work from the symptom to the mechanism: "
+        "read the production logs and the error tracker, inspect the deployed configuration, and "
+        "read the source in the monorepo (and the commit that introduced the change) to confirm "
+        "it. Submit your finding for scope '%s' with the responsible service, the fault_type from "
+        "the taxonomy, the exact offending key, and your evidence." % (tkt, scope, scope))
+    checks = [
+        ("correctness", "diagnosis_submitted",
+         "_diagnosis(%s) is not None" % q(scope),
+         "submit a root-cause result for scope '%s'" % scope),
+        ("correctness", "service_localized",
+         "(_diagnosis(%s) or {}).get('service') == %s" % (q(scope), q(spec["service"])),
+         "the responsible service is %s" % spec["service"]),
+        ("correctness", "fault_type_correct",
+         "(_diagnosis(%s) or {}).get('fault_type') == %s" % (q(scope), q(spec["fault_type"])),
+         "the root cause is a %s fault" % spec["fault_type"]),
+        ("correctness", "offending_key_correct",
+         "(_diagnosis(%s) or {}).get('offending_key') == %s"
+         % (q(scope), q(spec["offending_key"])),
+         "the offending key is %s" % spec["offending_key"]),
+    ]
+    _aiops_common(checks, scope, spec.get("budget", 12))
+    checks.append(("quality", "ticket_closed",
+                   "_ticket_status(%s) == 'done'" % q(tkt),
+                   "close ticket %s once reported" % tkt))
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}},
+             {"tool": "query_metrics", "args": {"service": spec["service"]}},
+             {"tool": "search_logs", "args": {"service": spec["service"]}},
+             {"tool": "list_error_events", "args": {"service": spec["service"]}},
+             {"tool": "get_service", "args": {"service": spec["service"]}}]
+    if spec.get("code_path"):
+        calls.append({"tool": "read_file", "args": {"path": spec["code_path"]}})
+        calls.append({"tool": "list_commits", "args": {"service": spec["service"], "limit": 5}})
+    calls += [{"tool": "submit_diagnosis", "args": {
+                  "scope": scope, "fault_detected": True, "service": spec["service"],
+                  "fault_type": spec["fault_type"], "offending_key": spec["offending_key"],
+                  "evidence": spec["evidence"]}},
+              {"tool": "update_ticket", "args": {"key": tkt, "status": "done"}}]
+    return instruction, checks, calls
+
+
 GENERATORS = {
+    "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
     "config_fix": gen_config_fix, "flag_ship": gen_flag_ship, "flag_kill": gen_flag_kill,
     "flag_cleanup": gen_flag_cleanup, "security_cve": gen_security_cve,
     "security_endpoint": gen_security_endpoint, "security_secret": gen_security_secret,

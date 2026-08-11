@@ -65,6 +65,15 @@ CREATE TABLE deployments (
     status TEXT NOT NULL,
     canary_percent INTEGER NOT NULL DEFAULT 100
 );
+CREATE TABLE diagnoses (
+    diagnosis_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    scope TEXT NOT NULL,
+    fault_detected INTEGER NOT NULL,
+    service TEXT NOT NULL DEFAULT '',
+    fault_type TEXT NOT NULL DEFAULT '',
+    offending_key TEXT NOT NULL DEFAULT '',
+    evidence TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE documents (
     doc_id INTEGER PRIMARY KEY,
     kind TEXT NOT NULL,

@@ -2498,6 +2498,101 @@
     }
   },
   {
+    "tool_id": "tool_submit_diagnosis",
+    "name": "submit_diagnosis",
+    "description": "Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, none. offending_key is the specific config key, flag key or version responsible.",
+    "source_code": "def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', fault_type='none', offending_key='', evidence=''):\n    \"\"\"Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, none. offending_key is the specific config key, flag key or version responsible.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        if scope is None:\n            return {'ok': False, 'error': 'missing required parameter: scope'}\n        if fault_detected is None:\n            return {'ok': False, 'error': 'missing required parameter: fault_detected'}\n        def _audit(conn, _tool, _svc, _detail):\n            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))\n        kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion',\n                 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass',\n                 'bad_release', 'feature_flag_regression', 'none')\n        if fault_type not in kinds:\n            return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}\n        det = 1 if str(fault_detected).lower() in ('1', 'true', 'yes', 'on') else 0\n        if service and conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:\n            return {'ok': False, 'error': 'unknown service: ' + str(service)}\n        if det and fault_type == 'none':\n            return {'ok': False, 'error': \"fault_detected=true requires a specific fault_type\"}\n        if not det and fault_type != 'none':\n            return {'ok': False, 'error': \"fault_detected=false requires fault_type='none'\"}\n        cur = conn.execute('INSERT INTO diagnoses(scope, fault_detected, service, fault_type, offending_key, evidence) VALUES (?,?,?,?,?,?)',\n                           (str(scope), det, service or '', fault_type, offending_key or '', evidence or ''))\n        _audit(conn, 'submit_diagnosis', service or '', {'scope': str(scope), 'fault_detected': det,\n                                                         'fault_type': fault_type,\n                                                         'offending_key': offending_key or ''})\n        conn.commit()\n        return {'ok': True, 'diagnosis_id': cur.lastrowid, 'scope': str(scope),\n                'fault_detected': bool(det), 'service': service or '', 'fault_type': fault_type,\n                'offending_key': offending_key or ''}\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "scope",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "the service or alarm id you were asked to investigate"
+      },
+      {
+        "name": "fault_detected",
+        "type": "bool",
+        "required": true,
+        "default": null,
+        "description": "fault_detected"
+      },
+      {
+        "name": "service",
+        "type": "str",
+        "required": false,
+        "default": "",
+        "description": "the service responsible (localization)"
+      },
+      {
+        "name": "fault_type",
+        "type": "str",
+        "required": false,
+        "default": "none",
+        "description": "fault_type"
+      },
+      {
+        "name": "offending_key",
+        "type": "str",
+        "required": false,
+        "default": "",
+        "description": "config key, flag key or version at fault"
+      },
+      {
+        "name": "evidence",
+        "type": "str",
+        "required": false,
+        "default": "",
+        "description": "what you observed that supports this finding"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [
+      "services"
+    ],
+    "write_tables": [
+      "audit_events",
+      "diagnoses"
+    ],
+    "json_schema": {
+      "name": "submit_diagnosis",
+      "description": "Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, none. offending_key is the specific config key, flag key or version responsible.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "description": "the service or alarm id you were asked to investigate"
+          },
+          "fault_detected": {
+            "type": "boolean",
+            "description": "fault_detected"
+          },
+          "service": {
+            "type": "string",
+            "description": "the service responsible (localization)"
+          },
+          "fault_type": {
+            "type": "string",
+            "description": "fault_type"
+          },
+          "offending_key": {
+            "type": "string",
+            "description": "config key, flag key or version at fault"
+          },
+          "evidence": {
+            "type": "string",
+            "description": "what you observed that supports this finding"
+          }
+        },
+        "required": [
+          "scope",
+          "fault_detected"
+        ]
+      }
+    }
+  },
+  {
     "tool_id": "tool_post_message",
     "name": "post_message",
     "description": "Post a message to a chat channel.",

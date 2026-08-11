@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_9851da74",
+  "world_id": "env_software_devops_1cb98b42",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "9851da744b156477585c3ea3b03dcf5899361508ca4057b16a23a60d17ed467f",
+  "world_digest": "1cb98b42194a2104171a58806835db859f20adbb495288bcb6f097637e237a13",
   "entities": [
     "alerts",
     "audit_events",
@@ -20,6 +20,7 @@
     "commits",
     "contract_rules",
     "deployments",
+    "diagnoses",
     "documents",
     "env_state",
     "error_events",
@@ -49,19 +50,20 @@
   ],
   "tables_without_tools": [],
   "counts": {
-    "tables": 35,
-    "rows": 1072,
-    "tools": 50,
-    "tasks": 50,
+    "tables": 36,
+    "rows": 1084,
+    "tools": 51,
+    "tasks": 62,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
     "documents": 30
   },
   "difficulty": {
-    "hard": 16,
-    "medium": 23,
-    "expert": 11
+    "hard": 20,
+    "medium": 29,
+    "expert": 11,
+    "easy": 2
   },
   "categories": {
     "error_rate_reduction": 8,
@@ -70,7 +72,10 @@
     "security_incident": 7,
     "api_migration": 7,
     "flaky_test": 6,
-    "multi_service_rollout": 7
+    "multi_service_rollout": 7,
+    "aiops_detection": 4,
+    "aiops_localization": 4,
+    "aiops_analysis": 4
   },
   "splits": {
     "train": [
@@ -89,6 +94,9 @@
       "tsk_cve_libpayproc",
       "tsk_cve_pydantic",
       "tsk_cve_stripe_sdk",
+      "tsk_detect_checkout_latency_healthy",
+      "tsk_detect_inventory",
+      "tsk_detect_payments",
       "tsk_express_checkout",
       "tsk_flaky_analytics_rollup",
       "tsk_flaky_catalog_rounding",
@@ -98,6 +106,9 @@
       "tsk_gateway_v510_rollback",
       "tsk_instant_refunds_killswitch",
       "tsk_inventory_v1_to_v2",
+      "tsk_localize_analytics_errors",
+      "tsk_localize_gateway_latency",
+      "tsk_localize_media_latency",
       "tsk_loyalty_points",
       "tsk_media_cdn",
       "tsk_media_webp",
@@ -107,6 +118,9 @@
       "tsk_orders_v1_to_v2",
       "tsk_payments_notify_timeout",
       "tsk_payments_retry",
+      "tsk_rca_catalog_n_plus_one",
+      "tsk_rca_inventory_pool",
+      "tsk_rca_notifications_timeout",
       "tsk_retire_debug_endpoint",
       "tsk_retire_metrics_endpoint",
       "tsk_saved_carts",
@@ -118,18 +132,21 @@
     ],
     "heldout": [
       "tsk_cve_requests",
+      "tsk_detect_storefront_healthy",
       "tsk_flaky_gateway_timeout",
       "tsk_gateway_pool_reuse",
       "tsk_inventory_pool",
       "tsk_legacy_price_rounding_cleanup",
+      "tsk_localize_search_latency",
       "tsk_media_pipeline",
       "tsk_media_v1_to_v2",
       "tsk_payments_retry_from_code",
+      "tsk_rca_payments_retry",
       "tsk_search_shards"
     ]
   },
   "task_creation": {
-    "accepted": 50,
+    "accepted": 62,
     "rejected": 0
   },
   "personas": [

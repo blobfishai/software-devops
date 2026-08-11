@@ -415,3 +415,71 @@ def test_oracle_scores_full_credit(env):
                                    env["ns"], env["tmp"])
     assert not failures
     assert all(r.get("oracle_score") == 1.0 for r in report)
+
+
+# ---------------------------------------------------------------------------
+# AIOpsLab-style diagnostics (microsoft/AIOpsLab taxonomy reproduced here)
+# ---------------------------------------------------------------------------
+
+def test_wrong_localization_is_rejected(env):
+    """Submitting the wrong responsible service must lose the reward."""
+    task = env["tasks"]["tsk_localize_gateway_latency"]
+    db = fork(env, "aiops_wrong_svc")
+    calls = copy.deepcopy(task["expected_calls"])
+    for c in calls:
+        if c["tool"] == "submit_diagnosis":
+            c["args"]["service"] = "search"          # plausible but wrong
+    run_calls(env, db, calls)
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "responsible service is api-gateway" in err
+
+
+def test_wrong_fault_type_is_rejected(env):
+    """Right service, wrong mechanism: root-cause analysis must still fail."""
+    task = env["tasks"]["tsk_rca_payments_retry"]
+    db = fork(env, "aiops_wrong_type")
+    calls = copy.deepcopy(task["expected_calls"])
+    for c in calls:
+        if c["tool"] == "submit_diagnosis":
+            c["args"]["fault_type"] = "resource_exhaustion"
+            c["args"]["offending_key"] = "db_pool_size"
+    run_calls(env, db, calls)
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "missing_retry" in err
+
+
+def test_false_positive_detection_is_rejected(env):
+    """Calling a healthy service faulty must fail (true-negative case)."""
+    task = env["tasks"]["tsk_detect_storefront_healthy"]
+    db = fork(env, "aiops_false_pos")
+    calls = copy.deepcopy(task["expected_calls"])
+    for c in calls:
+        if c["tool"] == "submit_diagnosis":
+            c["args"].update({"fault_detected": True, "service": "storefront-web",
+                              "fault_type": "misconfig"})
+    run_calls(env, db, calls)
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "fault_detected must be false" in err
+
+
+def test_investigation_must_stay_read_only(env):
+    """Mutating production during a detection task fails the deployment check."""
+    task = env["tasks"]["tsk_detect_payments"]
+    db = fork(env, "aiops_mutating")
+    run_calls(env, db, copy.deepcopy(task["expected_calls"]))
+    ok, _, _ = bw.run_vcode(task["vcode"], str(db))
+    assert ok, "clean read-only oracle must pass"
+    call(env, db, "set_feature_flag", key="instant_refunds", environment="production",
+         enabled=False)
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "must not change production state" in err
+
+
+def test_submit_diagnosis_validates_its_taxonomy(env):
+    db = fork(env, "aiops_validate")
+    bad = call(env, db, "submit_diagnosis", scope="payments", fault_detected=True,
+               service="payments", fault_type="gremlins")
+    assert bad["ok"] is False and "fault_type must be one of" in bad["error"]
+    inconsistent = call(env, db, "submit_diagnosis", scope="payments", fault_detected=True,
+                        service="payments", fault_type="none")
+    assert inconsistent["ok"] is False

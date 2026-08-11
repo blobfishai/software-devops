@@ -5536,6 +5536,18 @@ INSERT INTO "tickets" VALUES(9147,'ENG-2604','feature','Roll out the new media p
 INSERT INTO "tickets" VALUES(9148,'ENG-2605','feature','Roll out relevance signals across catalog and search','Ship: relevance_signals in catalog, relevance_v2 in search.','open','medium','','');
 INSERT INTO "tickets" VALUES(9149,'ENG-2606','feature','Roll out templated receipts across notifications and payments','Ship: template_v2 in notifications, receipt_v2 in payments.','open','low','','');
 INSERT INTO "tickets" VALUES(9150,'ENG-2607','feature','Roll out checkout upsell across catalog, checkout and storefront-web','Ship: upsell_slots in catalog, upsell_flow in checkout, upsell_widget in storefront-web.','open','medium','','');
+INSERT INTO "tickets" VALUES(9151,'OPS-101','incident','Detection: is payments violating its SLOs?','Determine whether payments is currently violating any of its SLOs and report the finding with submit_diagnosis. Read-only investigation.','open','high','','payments');
+INSERT INTO "tickets" VALUES(9152,'OPS-102','incident','Detection: is inventory violating its SLOs?','Determine whether inventory is currently violating any of its SLOs and report the finding with submit_diagnosis. Read-only investigation.','open','high','','inventory');
+INSERT INTO "tickets" VALUES(9153,'OPS-103','incident','Detection: is storefront-web violating its SLOs?','Determine whether storefront-web is currently violating any of its SLOs and report the finding with submit_diagnosis. Read-only investigation.','open','medium','','storefront-web');
+INSERT INTO "tickets" VALUES(9154,'OPS-104','incident','Detection: is checkout violating its SLOs?','Determine whether checkout is currently violating any of its SLOs and report the finding with submit_diagnosis. Read-only investigation.','open','high','','checkout');
+INSERT INTO "tickets" VALUES(9155,'OPS-111','incident','Localize alarm 9604 (api-gateway latency)','Alarm 9604 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','critical','','api-gateway');
+INSERT INTO "tickets" VALUES(9156,'OPS-112','incident','Localize alarm 9602 (search latency)','Alarm 9602 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','high','','search');
+INSERT INTO "tickets" VALUES(9157,'OPS-113','incident','Localize alarm 9609 (analytics-worker errors)','Alarm 9609 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','high','','analytics-worker');
+INSERT INTO "tickets" VALUES(9158,'OPS-114','incident','Localize alarm 9607 (media-service latency)','Alarm 9607 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','medium','','media-service');
+INSERT INTO "tickets" VALUES(9159,'OPS-121','incident','Root cause: payments error rate','Perform a root-cause analysis for payments-error-rate and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','critical','','payments');
+INSERT INTO "tickets" VALUES(9160,'OPS-122','incident','Root cause: catalog pricing latency','Perform a root-cause analysis for catalog-latency and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','high','','catalog');
+INSERT INTO "tickets" VALUES(9161,'OPS-123','incident','Root cause: notification delivery failures','Perform a root-cause analysis for notifications-errors and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','high','','notifications');
+INSERT INTO "tickets" VALUES(9162,'OPS-124','incident','Root cause: inventory reservation failures','Perform a root-cause analysis for inventory-errors and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','high','','inventory');
 INSERT INTO "traffic_profile" VALUES(9201,'storefront-web','GET /',420,100);
 INSERT INTO "traffic_profile" VALUES(9202,'storefront-web','GET /product/:id',310,100);
 INSERT INTO "traffic_profile" VALUES(9203,'api-gateway','POST /v1/orders',145,100);
@@ -5564,7 +5576,7 @@ INSERT INTO "vulnerabilities" VALUES(9801,'CVE-2026-31337','libpayproc','payment
 INSERT INTO "vulnerabilities" VALUES(9802,'CVE-2026-40881','stripe-sdk','checkout','high','11.4.0','open');
 INSERT INTO "vulnerabilities" VALUES(9803,'CVE-2026-22190','pydantic','catalog','medium','2.11.0','remediated');
 INSERT INTO "vulnerabilities" VALUES(9804,'CVE-2026-51002','requests','payments','high','2.33.0','open');
-INSERT INTO "sqlite_sequence" VALUES('tickets',9150);
+INSERT INTO "sqlite_sequence" VALUES('tickets',9162);
 INSERT INTO "sqlite_sequence" VALUES('deployments',9272);
 INSERT INTO "sqlite_sequence" VALUES('feature_flags',9308);
 INSERT INTO "sqlite_sequence" VALUES('alerts',9609);

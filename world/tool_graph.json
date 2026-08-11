@@ -49,6 +49,7 @@
     "tool_create_incident",
     "tool_update_incident",
     "tool_publish_status_update",
+    "tool_submit_diagnosis",
     "tool_post_message"
   ],
   "edges": [],

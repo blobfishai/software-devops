@@ -1,4 +1,4 @@
-"""The 50 Horizon-SWE task specifications.
+"""Task specifications: 50 Horizon-SWE tasks + 12 AIOpsLab-style diagnostics.
 
 Each spec names its category (the benchmark's seven), the generator that emits
 its instruction/verifier/oracle, and the ticket seeded into the issue tracker.
@@ -329,6 +329,89 @@ _add("multi_service_rollout", "multi_service", id="checkout_upsell", difficulty=
             ("storefront-web", "upsell_widget", None)])
 
 
+# ==========================================================================
+# AIOpsLab-style diagnostic suite (microsoft/AIOpsLab taxonomy):
+# detection -> localization -> analysis. The agent investigates and submits a
+# finding; mitigation is covered by the 50 Horizon-SWE tasks above.
+# ==========================================================================
+_add("aiops_detection", "detection", id="detect_payments", scope="payments",
+     service="payments", fault_detected=True, fault_type="missing_retry",
+     offending_key="notifications_retry_max_attempts", difficulty="easy", budget=8,
+     evidence="payments error_rate_pct is 4.2 against a 1.0 SLO; alarm 9601 is firing",
+     ticket=("OPS-101", "high", "Detection: is payments violating its SLOs?"))
+
+_add("aiops_detection", "detection", id="detect_inventory", scope="inventory",
+     service="inventory", fault_detected=True, fault_type="resource_exhaustion",
+     offending_key="db_pool_size", difficulty="easy", budget=8,
+     evidence="inventory error_rate_pct is 4.7 against a 1.0 SLO; alarm 9606 is firing",
+     ticket=("OPS-102", "high", "Detection: is inventory violating its SLOs?"))
+
+_add("aiops_detection", "detection", id="detect_storefront_healthy", scope="storefront-web",
+     service="storefront-web", fault_detected=False, fault_type="none", difficulty="medium",
+     budget=8,
+     evidence="storefront-web latency_p99_ms is 220 against a 500 SLO and no alarm is firing",
+     ticket=("OPS-103", "medium", "Detection: is storefront-web violating its SLOs?"))
+
+_add("aiops_detection", "detection", id="detect_checkout_latency_healthy", scope="checkout",
+     service="checkout", fault_detected=True, fault_type="feature_flag_regression",
+     offending_key="instant_refunds", difficulty="medium", budget=8,
+     evidence="checkout error_rate_pct is 5.5 against a 1.0 SLO while latency_p99_ms 180 is within its 400 SLO",
+     ticket=("OPS-104", "high", "Detection: is checkout violating its SLOs?"))
+
+_add("aiops_localization", "localization", id="localize_gateway_latency", scope="9604",
+     service="api-gateway", fault_type="bad_release", offending_key="v5.1.0",
+     difficulty="medium", budget=10,
+     evidence="p99 1030ms began immediately after v5.1.0 was promoted; the pool opens a connection per request",
+     ticket=("OPS-111", "critical", "Localize alarm 9604 (api-gateway latency)"))
+
+_add("aiops_localization", "localization", id="localize_search_latency", scope="9602",
+     service="search", fault_type="cache_disabled", offending_key="cache_enabled",
+     difficulty="medium", budget=10,
+     evidence="search p99 850ms with the query cache disabled in production",
+     ticket=("OPS-112", "high", "Localize alarm 9602 (search latency)"))
+
+_add("aiops_localization", "localization", id="localize_analytics_errors", scope="9609",
+     service="analytics-worker", fault_type="unbounded_prefetch", offending_key="prefetch_count",
+     difficulty="medium", budget=10,
+     evidence="analytics-worker error_rate_pct 6.0; the consumer OOMs with unlimited queue prefetch",
+     ticket=("OPS-113", "high", "Localize alarm 9609 (analytics-worker errors)"))
+
+_add("aiops_localization", "localization", id="localize_media_latency", scope="9607",
+     service="media-service", fault_type="cdn_bypass", offending_key="cdn_enabled",
+     difficulty="medium", budget=10,
+     evidence="media-service p99 800ms with every asset request served from the origin object store",
+     ticket=("OPS-114", "medium", "Localize alarm 9607 (media-service latency)"))
+
+_add("aiops_analysis", "analysis", id="rca_payments_retry", scope="payments-error-rate",
+     service="payments", fault_type="missing_retry",
+     offending_key="notifications_retry_max_attempts", difficulty="hard", budget=12,
+     code_path="src/payments/notify_client.py",
+     evidence="notify_client sends with retry_max_attempts=0, so a single notifications timeout "
+              "permanently fails the payment; 18k events on pay-timeout-01",
+     ticket=("OPS-121", "critical", "Root cause: payments error rate"))
+
+_add("aiops_analysis", "analysis", id="rca_catalog_n_plus_one", scope="catalog-latency",
+     service="catalog", fault_type="n_plus_one_query", offending_key="batch_pricing_enabled",
+     difficulty="hard", budget=12, code_path="src/catalog/pricing.py",
+     evidence="the pricing path issues one price query per product because batched pricing is off; "
+              "312 sequential lookups at p99 645ms",
+     ticket=("OPS-122", "high", "Root cause: catalog pricing latency"))
+
+_add("aiops_analysis", "analysis", id="rca_notifications_timeout", scope="notifications-errors",
+     service="notifications", fault_type="missing_timeout", offending_key="smtp_timeout_ms",
+     difficulty="hard", budget=12, code_path="src/notifications/sender.py",
+     evidence="the outbound SMTP call is issued with no timeout configured, so deliveries hang",
+     ticket=("OPS-123", "high", "Root cause: notification delivery failures"))
+
+_add("aiops_analysis", "analysis", id="rca_inventory_pool", scope="inventory-errors",
+     service="inventory", fault_type="resource_exhaustion", offending_key="db_pool_size",
+     difficulty="hard", budget=12,
+     code_path="src/main/java/com/novacart/inventory/StockRepository.java",
+     evidence="a fixed pool of 5 connections is exhausted at 128 rps of reservations, so callers "
+              "time out waiting for a connection",
+     ticket=("OPS-124", "high", "Root cause: inventory reservation failures"))
+
+
 def all_specs():
     return list(SPECS)
 
@@ -348,7 +431,9 @@ def _ticket_type(s):
             "security_secret": "security", "flag_kill": "incident",
             "incident": "incident", "flaky": "bug", "config_fix": "bug",
             "flag_ship": "feature", "flag_cleanup": "task",
-            "api_migration": "task", "multi_service": "feature"}[s["generator"]]
+            "api_migration": "task", "multi_service": "feature",
+            "detection": "incident", "localization": "incident",
+            "analysis": "incident"}[s["generator"]]
 
 
 def _ticket_service(s):
@@ -386,4 +471,13 @@ def _ticket_desc(s):
     if g == "incident":
         return "Incident %d: %s p99 latency surged right after %s was promoted." \
                % (s["incident_id"], s["service"], s["bad"])
+    if g == "detection":
+        return "Determine whether %s is currently violating any of its SLOs and report the " \
+               "finding with submit_diagnosis. Read-only investigation." % s["scope"]
+    if g == "localization":
+        return "Alarm %s is firing. Identify the responsible service and report the finding " \
+               "with submit_diagnosis. Read-only investigation." % s["scope"]
+    if g == "analysis":
+        return "Perform a root-cause analysis for %s and report service, fault type and the " \
+               "offending key with submit_diagnosis. Read-only investigation." % s["scope"]
     return ""
