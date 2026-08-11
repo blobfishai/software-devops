@@ -1,3 +1,28 @@
+CREATE TABLE alert_firings (
+    firing_id INTEGER PRIMARY KEY,
+    rule_id INTEGER NOT NULL,
+    fingerprint TEXT NOT NULL,
+    day INTEGER NOT NULL,
+    silenced INTEGER NOT NULL DEFAULT 0,
+    inhibited_by INTEGER,
+    paged_incident INTEGER          -- NULL when it never reached a human
+);
+CREATE TABLE alert_rules (
+    rule_id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    service_label TEXT NOT NULL,   -- may name a service that no longer exists
+    expr TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    group_by TEXT NOT NULL DEFAULT '',
+    routes_to TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE alert_silences (
+    silence_id INTEGER PRIMARY KEY,
+    matcher TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    expires_day INTEGER NOT NULL
+);
 CREATE TABLE alerts (
     alert_id INTEGER PRIMARY KEY AUTOINCREMENT,
     service TEXT NOT NULL,

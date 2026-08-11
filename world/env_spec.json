@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_46c355c7",
+  "env_id": "env_software_devops_dbfee419",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -20,17 +20,17 @@
   },
   "database": {
     "snapshot_ref": "environment.db",
-    "schema_hash": "200cdd831dc56172318088e69bac875046b2575100e96f5648d0b113136b9b00",
+    "schema_hash": "93aa6dea4e371b35a6bedcadb2fc0e3f0d5b4f87d85ac8a7d49638bb89a2e6ff",
     "seed": 42,
     "engine": "sqlite",
-    "table_count": 57,
-    "row_count": 1218,
+    "table_count": 60,
+    "row_count": 1231,
     "complexification_rounds": 0
   },
   "tools": {
     "manifest_ref": "",
     "tests_ref": "",
-    "tool_count": 76,
+    "tool_count": 79,
     "survival_rate": 1.0,
     "valid_tool_ids": [
       "tool_list_services",
@@ -104,6 +104,9 @@
       "tool_query_local_deploy_log",
       "tool_resolve_service_alias",
       "tool_list_service_aliases",
+      "tool_list_alert_rules",
+      "tool_list_alert_firings",
+      "tool_list_alert_silences",
       "tool_list_remediation_proposals",
       "tool_jira_transition_issue",
       "tool_k8s_events_list",
@@ -184,6 +187,9 @@
       "tool_query_local_deploy_log",
       "tool_resolve_service_alias",
       "tool_list_service_aliases",
+      "tool_list_alert_rules",
+      "tool_list_alert_firings",
+      "tool_list_alert_silences",
       "tool_list_remediation_proposals",
       "tool_jira_transition_issue",
       "tool_k8s_events_list",
@@ -266,6 +272,7 @@
     "tsk_rcn_distinct_checkout_bugs",
     "tsk_rcn_production_deploys",
     "tsk_rcn_gateway_owner",
+    "tsk_rcn_alerts_for_incident",
     "tsk_judge_payments_retry",
     "tsk_judge_analytics_oom",
     "tsk_judge_gateway_latency",
@@ -275,8 +282,8 @@
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 74,
-    "accepted_task_count": 74,
+    "task_count": 75,
+    "accepted_task_count": 75,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -286,8 +293,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 74,
-    "discriminating_vcode_tasks": 74,
+    "total_tasks": 75,
+    "discriminating_vcode_tasks": 75,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,

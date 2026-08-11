@@ -583,6 +583,35 @@ _add("reconciliation", "reconcile", id="rcn_gateway_owner",
                        "routing system over the two written sources.")
 
 
+_add("reconciliation", "reconcile", id="rcn_alerts_for_incident",
+     question_id="Q-ALRT", difficulty="expert",
+     ticket=("OPS-207", "high", "How many alerts did the gateway incident actually raise?"),
+     question="For the incident review of the api-gateway latency surge: how many alert "
+              "firings did that failure produce in total, counting every firing whether or "
+              "not anyone saw it? Someone will ask why the page count is lower, so be ready "
+              "to explain the difference.",
+     expected=6, tolerance=0.001,
+     why="six firings were recorded across four rules; two were silenced by a stale silence, "
+         "one was inhibited by the cluster rule, and three grouped onto a single page - so "
+         "the page count is 1 and the firing count is 6",
+     ambiguity="that a firing, a notification, a page and an incident are four different "
+               "counts, and silences and inhibition make three of them lossy",
+     required_sources=["alert_firings", "alert_silences"],
+     oracle_reads=[
+         {"tool": "list_alert_rules", "args": {"routes_to": "EP-Platform"}},
+         {"tool": "list_alert_firings", "args": {"since_day": 414}},
+         {"tool": "list_alert_silences", "args": {}},
+         {"tool": "pd_list_incidents", "args": {"since_day": 414}}],
+     oracle_answer="6 firings",
+     oracle_assumption="Counted firings, which is what was asked. Six were recorded across "
+                       "four rules on days 416-417. They did not become six of anything else: "
+                       "firings 705 and 706 matched a silence created during the CDN "
+                       "migration and never lifted, so nobody was notified; firing 703 was "
+                       "inhibited by the cluster-wide rule; and the remaining three grouped "
+                       "onto PagerDuty incident 5103, which is one page. Firing, "
+                       "notification, page and incident are four different numbers here.",
+     needs_keywords=["silence", "inhibit"])
+
 # ==========================================================================
 # Judgement suite — decide, do not build. The agent produces no artifact.
 # ==========================================================================

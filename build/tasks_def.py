@@ -1190,9 +1190,13 @@ def gen_reconcile(spec):
                        "the answer requires evidence from %s" % sysname))
     checks.append(("deployment", "investigation_was_read_only", "_mutating_calls() == 0",
                    "an investigation must not change production state"))
-    checks.append(("quality", "assumption_recorded",
-                   "len((_answer(%s) or {}).get('assumptions','')) >= 20" % q(qid),
-                   "record the judgement you made - %s" % spec["ambiguity"]))
+    kws = spec.get("needs_keywords") or []
+    if kws:
+        expr = "(len((_answer(%s) or {}).get('assumptions','')) >= 40 and all(_k in (_answer(%s) or {}).get('assumptions','').lower() for _k in %r))" % (q(qid), q(qid), [k.lower() for k in kws])
+    else:
+        expr = "len((_answer(%s) or {}).get('assumptions','')) >= 40" % q(qid)
+    checks.append(("quality", "assumption_engages_the_ambiguity", expr,
+                   "record the judgement you actually made - %s" % spec["ambiguity"]))
     checks.append(("quality", "ticket_closed",
                    "_ticket_status(%s) == 'done'" % q(tkt),
                    "close ticket %s once reported" % tkt))

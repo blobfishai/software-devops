@@ -19,7 +19,7 @@ def test_oracle_policy_scores_perfect(tmp_path):
     report = json.loads(out.read_text())
     assert report["pass_rate"] == 1.0
     assert report["mean_score"] == 1.0
-    assert len(report["tasks"]) == 74
+    assert len(report["tasks"]) == 75
     for t in report["tasks"]:
         assert t["passed"] and t["score"] == 1.0
         assert "correctness" in t["dimensions"]

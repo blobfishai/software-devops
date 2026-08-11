@@ -48,7 +48,7 @@ FROZEN = ("oncall", "slos", "metric_rules", "documents", "channels", "logs",
           "prom_series", "sentry_issues", "sentry_projects", "pd_services",
           "pd_incidents", "pd_oncall", "pd_change_events", "status_page_posts",
           "confluence_pages", "owner_spreadsheet", "local_deploy_log",
-          "service_aliases", "k8s_events", "k8s_pods", "remediation_proposals")
+          "service_aliases", "k8s_events", "k8s_pods", "remediation_proposals", "alert_rules", "alert_firings", "alert_silences")
 # traffic_profile is legitimately updated by shift_endpoint_traffic, so only its
 # row count is pinned; the rest may not gain or lose rows either.
 FIXED_ROWS = ("services", "tests_catalog", "vulnerabilities", "repo_files",
@@ -142,6 +142,13 @@ def build_db(db_path):
     conn.executemany("INSERT INTO owner_spreadsheet(row_id, service_label, owning_team, "
                      "slack_channel, last_reviewed_day, week_start) VALUES (?,?,?,?,?,?)",
                      V.OWNER_SPREADSHEET)
+    conn.executemany("INSERT INTO alert_rules(rule_id, name, service_label, expr, severity, "
+                     "group_by, routes_to) VALUES (?,?,?,?,?,?,?)", V.ALERT_RULES)
+    conn.executemany("INSERT INTO alert_firings(firing_id, rule_id, fingerprint, day, "
+                     "silenced, inhibited_by, paged_incident) VALUES (?,?,?,?,?,?,?)",
+                     V.ALERT_FIRINGS)
+    conn.executemany("INSERT INTO alert_silences(silence_id, matcher, created_by, reason, "
+                     "expires_day) VALUES (?,?,?,?,?)", V.ALERT_SILENCES)
     conn.executemany("INSERT INTO remediation_proposals(proposal_id, incident_ref, author, "
                      "summary, detail) VALUES (?,?,?,?,?)", V.REMEDIATION_PROPOSALS)
     conn.executemany("INSERT INTO k8s_pods(pod, namespace, service, image_tag, phase, "

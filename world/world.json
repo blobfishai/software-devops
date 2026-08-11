@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_46c355c7",
+  "world_id": "env_software_devops_dbfee419",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,8 +9,11 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "46c355c7d16aee7ad9201c945f9457288b2952322c78d2c72931fb49a96d7279",
+  "world_digest": "dbfee419d76d6014e0a925ab5b0c1cea5d1f7b339ad72debb6d03a292b0b1f2e",
   "entities": [
+    "alert_firings",
+    "alert_rules",
+    "alert_silences",
     "alerts",
     "answers",
     "audit_events",
@@ -71,10 +74,10 @@
   ],
   "tables_without_tools": [],
   "counts": {
-    "tables": 57,
-    "rows": 1218,
-    "tools": 76,
-    "tasks": 74,
+    "tables": 60,
+    "rows": 1231,
+    "tools": 79,
+    "tasks": 75,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
@@ -83,7 +86,7 @@
   "difficulty": {
     "hard": 26,
     "medium": 29,
-    "expert": 17,
+    "expert": 18,
     "easy": 2
   },
   "categories": {
@@ -97,7 +100,7 @@
     "aiops_detection": 4,
     "aiops_localization": 6,
     "aiops_analysis": 4,
-    "reconciliation": 6,
+    "reconciliation": 7,
     "judgement": 4
   },
   "splits": {
@@ -149,9 +152,10 @@
       "tsk_rca_catalog_n_plus_one",
       "tsk_rca_inventory_pool",
       "tsk_rca_notifications_timeout",
+      "tsk_rcn_alerts_for_incident",
       "tsk_rcn_checkout_error_rate",
       "tsk_rcn_customer_facing_incidents",
-      "tsk_rcn_distinct_checkout_bugs",
+      "tsk_rcn_gateway_owner",
       "tsk_rcn_production_deploys",
       "tsk_rcn_running_version",
       "tsk_retire_debug_endpoint",
@@ -176,12 +180,12 @@
       "tsk_media_v1_to_v2",
       "tsk_payments_retry_from_code",
       "tsk_rca_payments_retry",
-      "tsk_rcn_gateway_owner",
+      "tsk_rcn_distinct_checkout_bugs",
       "tsk_search_shards"
     ]
   },
   "task_creation": {
-    "accepted": 74,
+    "accepted": 75,
     "rejected": 0
   },
   "personas": [

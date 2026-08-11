@@ -56,7 +56,7 @@ def server(tmp_path_factory):
 
 def test_rest_surface(server):
     health = _req(server + "/healthz")
-    assert health["status"] == "ok" and health["tools"] == 76 and health["tasks"] == 74
+    assert health["status"] == "ok" and health["tools"] == 79 and health["tasks"] == 75
 
     tasks = _req(server + "/tasks")
     assert {t["task_id"] for t in tasks} >= {"tsk_payments_retry",

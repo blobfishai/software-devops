@@ -321,6 +321,44 @@ return [dict(r) for r in conn.execute(
     'SELECT canonical, alias, system FROM service_aliases ORDER BY canonical, system').fetchall()]""",
           reads=["service_aliases"], writes=[], returns="list[dict]"))
 
+    T(_mk("list_alert_rules",
+          "List alerting rules. A rule's service_label may name a service that no longer "
+          "exists - monitors outlive what they watch.",
+          [{"name": "routes_to", "type": "str", "default": None}],
+          """\
+sql = 'SELECT * FROM alert_rules'
+args = []
+if routes_to:
+    sql += ' WHERE routes_to=?'; args.append(routes_to)
+return [dict(r) for r in conn.execute(sql + ' ORDER BY rule_id', args).fetchall()]""",
+          reads=["alert_rules"], writes=[], returns="list[dict]"))
+
+    T(_mk("list_alert_firings",
+          "Individual alert firings. `silenced` means it never notified, `inhibited_by` "
+          "names a rule that suppressed it, and `paged_incident` is NULL when it never "
+          "reached a human. One failure does not produce one firing, one page, or one "
+          "incident - the ratios are configuration artefacts.",
+          [{"name": "since_day", "type": "int", "default": None},
+           {"name": "rule_id", "type": "int", "default": None}],
+          """\
+sql = 'SELECT * FROM alert_firings'
+conds, args = [], []
+if since_day is not None:
+    conds.append('day >= ?'); args.append(int(since_day))
+if rule_id is not None:
+    conds.append('rule_id=?'); args.append(int(rule_id))
+if conds:
+    sql += ' WHERE ' + ' AND '.join(conds)
+return [dict(r) for r in conn.execute(sql + ' ORDER BY firing_id', args).fetchall()]""",
+          reads=["alert_firings"], writes=[], returns="list[dict]"))
+
+    T(_mk("list_alert_silences",
+          "Active and expired alert silences. A silence that outlived its reason is why an "
+          "alert can be firing and invisible at the same time.",
+          [], """\
+return [dict(r) for r in conn.execute('SELECT * FROM alert_silences ORDER BY silence_id').fetchall()]""",
+          reads=["alert_silences"], writes=[], returns="list[dict]"))
+
     T(_mk("list_remediation_proposals",
           "Read the remediation proposals people have put forward for an incident. "
           "Exactly one is the right call; the others are plausible suggestions that "

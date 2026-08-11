@@ -1,5 +1,5 @@
 {
-  "accepted": 74,
+  "accepted": 75,
   "rejected": 0,
   "by_category": {
     "error_rate_reduction": 8,
@@ -12,7 +12,7 @@
     "aiops_detection": 4,
     "aiops_localization": 6,
     "aiops_analysis": 4,
-    "reconciliation": 6,
+    "reconciliation": 7,
     "judgement": 4
   },
   "tasks": [
@@ -642,6 +642,15 @@
       "accepted": true,
       "category": "reconciliation",
       "oracle_steps": 9,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_rcn_alerts_for_incident",
+      "accepted": true,
+      "category": "reconciliation",
+      "oracle_steps": 7,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true

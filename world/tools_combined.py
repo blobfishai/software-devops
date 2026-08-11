@@ -2665,6 +2665,75 @@ def list_service_aliases(db_path=None):
         conn.close()
 
 
+def list_alert_rules(db_path=None, routes_to=None):
+    """List alerting rules. A rule's service_label may name a service that no longer exists - monitors outlive what they watch."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_alert_rules',)); conn.commit()
+        except Exception:
+            pass
+        sql = 'SELECT * FROM alert_rules'
+        args = []
+        if routes_to:
+            sql += ' WHERE routes_to=?'; args.append(routes_to)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY rule_id', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def list_alert_firings(db_path=None, since_day=None, rule_id=None):
+    """Individual alert firings. `silenced` means it never notified, `inhibited_by` names a rule that suppressed it, and `paged_incident` is NULL when it never reached a human. One failure does not produce one firing, one page, or one incident - the ratios are configuration artefacts."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_alert_firings',)); conn.commit()
+        except Exception:
+            pass
+        sql = 'SELECT * FROM alert_firings'
+        conds, args = [], []
+        if since_day is not None:
+            conds.append('day >= ?'); args.append(int(since_day))
+        if rule_id is not None:
+            conds.append('rule_id=?'); args.append(int(rule_id))
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY firing_id', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def list_alert_silences(db_path=None):
+    """Active and expired alert silences. A silence that outlived its reason is why an alert can be firing and invisible at the same time."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_alert_silences',)); conn.commit()
+        except Exception:
+            pass
+        return [dict(r) for r in conn.execute('SELECT * FROM alert_silences ORDER BY silence_id').fetchall()]
+    finally:
+        conn.close()
+
+
 def list_remediation_proposals(db_path=None, incident_ref=None):
     """Read the remediation proposals people have put forward for an incident. Exactly one is the right call; the others are plausible suggestions that mask the symptom, target the wrong component, or change behaviour."""
     import sqlite3 as _sq

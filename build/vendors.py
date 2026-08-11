@@ -18,6 +18,36 @@ inside the world. Nothing here is hidden - it is contradictory.
 """
 
 SCHEMA_SQL = """
+-- CS-28: one failure is not one alert is not one page is not one incident. The
+-- ratio is a configuration artefact of grouping, inhibition and silences, and
+-- Alertmanager's truncatedAlerts field loses some silently.
+-- CS-13/15: monitors outlive the services they watch, and dashboards rot.
+CREATE TABLE alert_rules (
+    rule_id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    service_label TEXT NOT NULL,   -- may name a service that no longer exists
+    expr TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    group_by TEXT NOT NULL DEFAULT '',
+    routes_to TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE alert_firings (
+    firing_id INTEGER PRIMARY KEY,
+    rule_id INTEGER NOT NULL,
+    fingerprint TEXT NOT NULL,
+    day INTEGER NOT NULL,
+    silenced INTEGER NOT NULL DEFAULT 0,
+    inhibited_by INTEGER,
+    paged_incident INTEGER          -- NULL when it never reached a human
+);
+CREATE TABLE alert_silences (
+    silence_id INTEGER PRIMARY KEY,
+    matcher TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    expires_day INTEGER NOT NULL
+);
+
 -- Human-written remediation proposals attached to an incident. The agent picks
 -- one; it writes no code. SWE-Lancer's manager split is 265 of 463 tasks and is
 -- HARDER than implementing the fix (47.2% vs 51.5%), integer-graded and
@@ -394,6 +424,36 @@ K8S_EVENTS = [
      "Container analytics exceeded its memory limit of 512Mi and was killed", 39, 420),
     (9004, "production", "api-gateway-9f2e-cc33", "Killing",
      "Stopping container gateway for rollout", 1, 417),
+]
+
+# The gateway v5.1.0 incident, seen through the alerting chain. One failure
+# produced six firings across four rules; two were silenced by a stale silence
+# that outlived its window, one was inhibited by the cluster-level rule, and
+# three grouped into a single page. "How many alerts did this cause" has four
+# defensible answers depending on where you stand in the chain.
+ALERT_RULES = [
+    (601, "GatewayHighLatency", "gateway_service",
+     "histogram_quantile(0.99, gateway_latency) > 250", "critical", "service", "EP-Platform"),
+    (602, "GatewayErrorRate", "gateway_service",
+     "rate(gateway_errors[5m]) > 0.01", "high", "service", "EP-Platform"),
+    (603, "ClusterWideLatency", "", "avg(latency) by (cluster) > 400", "critical",
+     "cluster", "EP-Platform"),
+    (604, "EdgeCacheHitRate", "edge_cache_service",
+     "cache_hit_ratio < 0.8", "medium", "service", "EP-Platform"),
+    (605, "LegacyCheckoutQueueDepth", "checkout_legacy_worker",
+     "queue_depth > 1000", "high", "service", "EP-Commerce"),
+]
+ALERT_FIRINGS = [
+    (701, 601, "gw-latency-p99", 416, 0, None, 5103),
+    (702, 601, "gw-latency-p99", 417, 0, None, 5103),
+    (703, 602, "gw-error-rate", 416, 0, 603, None),
+    (704, 603, "cluster-latency", 416, 0, None, 5103),
+    (705, 604, "edge-cache-hit", 416, 1, None, None),
+    (706, 604, "edge-cache-hit", 417, 1, None, None),
+]
+ALERT_SILENCES = [
+    (801, 'alertname="EdgeCacheHitRate"', "Sam Whitfield",
+     "muted during the CDN migration, never lifted", 402),
 ]
 
 # Four proposals per incident. Exactly one is correct; the rest are the kind of

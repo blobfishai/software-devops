@@ -3523,6 +3523,106 @@
     }
   },
   {
+    "tool_id": "tool_list_alert_rules",
+    "name": "list_alert_rules",
+    "description": "List alerting rules. A rule's service_label may name a service that no longer exists - monitors outlive what they watch.",
+    "source_code": "def list_alert_rules(db_path=None, routes_to=None):\n    \"\"\"List alerting rules. A rule's service_label may name a service that no longer exists - monitors outlive what they watch.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_alert_rules',)); conn.commit()\n        except Exception:\n            pass\n        sql = 'SELECT * FROM alert_rules'\n        args = []\n        if routes_to:\n            sql += ' WHERE routes_to=?'; args.append(routes_to)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY rule_id', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "routes_to",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "routes_to"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "alert_rules"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "list_alert_rules",
+      "description": "List alerting rules. A rule's service_label may name a service that no longer exists - monitors outlive what they watch.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "routes_to": {
+            "type": "string",
+            "description": "routes_to"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_list_alert_firings",
+    "name": "list_alert_firings",
+    "description": "Individual alert firings. `silenced` means it never notified, `inhibited_by` names a rule that suppressed it, and `paged_incident` is NULL when it never reached a human. One failure does not produce one firing, one page, or one incident - the ratios are configuration artefacts.",
+    "source_code": "def list_alert_firings(db_path=None, since_day=None, rule_id=None):\n    \"\"\"Individual alert firings. `silenced` means it never notified, `inhibited_by` names a rule that suppressed it, and `paged_incident` is NULL when it never reached a human. One failure does not produce one firing, one page, or one incident - the ratios are configuration artefacts.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_alert_firings',)); conn.commit()\n        except Exception:\n            pass\n        sql = 'SELECT * FROM alert_firings'\n        conds, args = [], []\n        if since_day is not None:\n            conds.append('day >= ?'); args.append(int(since_day))\n        if rule_id is not None:\n            conds.append('rule_id=?'); args.append(int(rule_id))\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY firing_id', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "since_day",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "since_day"
+      },
+      {
+        "name": "rule_id",
+        "type": "int",
+        "required": false,
+        "default": "None",
+        "description": "rule_id"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "alert_firings"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "list_alert_firings",
+      "description": "Individual alert firings. `silenced` means it never notified, `inhibited_by` names a rule that suppressed it, and `paged_incident` is NULL when it never reached a human. One failure does not produce one firing, one page, or one incident - the ratios are configuration artefacts.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "since_day": {
+            "type": "integer",
+            "description": "since_day"
+          },
+          "rule_id": {
+            "type": "integer",
+            "description": "rule_id"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_list_alert_silences",
+    "name": "list_alert_silences",
+    "description": "Active and expired alert silences. A silence that outlived its reason is why an alert can be firing and invisible at the same time.",
+    "source_code": "def list_alert_silences(db_path=None):\n    \"\"\"Active and expired alert silences. A silence that outlived its reason is why an alert can be firing and invisible at the same time.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_alert_silences',)); conn.commit()\n        except Exception:\n            pass\n        return [dict(r) for r in conn.execute('SELECT * FROM alert_silences ORDER BY silence_id').fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "alert_silences"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "list_alert_silences",
+      "description": "Active and expired alert silences. A silence that outlived its reason is why an alert can be firing and invisible at the same time.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
     "tool_id": "tool_list_remediation_proposals",
     "name": "list_remediation_proposals",
     "description": "Read the remediation proposals people have put forward for an incident. Exactly one is the right call; the others are plausible suggestions that mask the symptom, target the wrong component, or change behaviour.",
