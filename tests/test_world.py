@@ -918,3 +918,26 @@ def test_every_rejection_an_agent_can_hit_is_discoverable(env):
     assert not undiscoverable, (
         "rejections an agent can neither anticipate from the tool description nor "
         "look up in the knowledge base: %s" % undiscoverable)
+
+
+def test_the_guided_procedure_never_points_where_the_answer_is_not():
+    """The generic analysis procedure ends "read the source and the commit that
+    introduced the change". For a fault in the cluster underneath a service there
+    is no such commit and no such source, so the guided prompt was confidently
+    directing the agent at a file where the answer is not.
+
+    The standard instruction was fixed for this earlier; the guided one was missed
+    and only surfaced when the guidance ladder was actually measured. Both must
+    branch on the same fact: whether the fault lives in the service's own code.
+    """
+    tasks = json.loads((ROOT / "world" / "tasks.json").read_text())
+    analysis = [t for t in tasks if t["category"] == "aiops_analysis"]
+    assert analysis
+    cluster = [t for t in analysis if "cluster" in t["instruction_guided"]
+               or "node" in t["instruction_guided"].lower()]
+    assert cluster, "no analysis task states a cluster-level procedure"
+    for t in cluster:
+        proc = t["instruction_guided"]
+        proc = proc[proc.index("Procedure:"):]
+        assert "read the source and the commit" not in proc, (
+            "%s tells the agent to confirm a cluster fault in the source" % t["task_id"])

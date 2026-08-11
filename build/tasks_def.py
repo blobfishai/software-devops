@@ -1366,6 +1366,27 @@ GENERATORS = {
 }
 
 
+def _guidance_for(spec, gen):
+    """The procedure to state when the prompt is `guided`.
+
+    The generic analysis procedure ends "read the source and the commit that
+    introduced the change to confirm the mechanism". For a fault in the cluster
+    underneath a service - a disk-pressured node, an unbound storage class, a pod
+    that never scheduled - there is no such commit and no such source, so the
+    guided prompt was confidently directing the agent at a file where the answer
+    is not. The standard instruction was fixed for this; this one was missed, and
+    the guidance-ladder measurement is what surfaced it.
+    """
+    text = GUIDANCE[gen]
+    if gen == "analysis" and not spec.get("code_path"):
+        text = ("Procedure: read the production logs and the error tracker, inspect the "
+                "deployed configuration, and then look one layer down - at the cluster "
+                "the service runs on, its nodes, its pods and their events - because a "
+                "fault there leaves no trace in the service's own code or metrics. "
+                "Confirm the mechanism against that state before submitting.")
+    return text
+
+
 GUIDANCE = {
     "config_fix": "Procedure: open a pull request carrying the configuration change, get CI "
                   "green, merge it, then deploy staging-first — tier-1 services canary at "
@@ -1480,7 +1501,7 @@ def make_tasks(base_seq, frozen=None, fixed_rows=None, audit_prefix="", secret_f
         tasks.append({
             "task_id": "tsk_" + spec["id"],
             "instruction": instruction,
-            "instruction_guided": instruction + "\n\n" + GUIDANCE[gen],
+            "instruction_guided": instruction + "\n\n" + _guidance_for(spec, gen),
             "origin": "curated",
             "difficulty": spec["difficulty"],
             "category": spec["category"],
