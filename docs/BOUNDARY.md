@@ -294,6 +294,22 @@ PF falls monotonically with the difficulty label.
 
 Mean 35.9 tool calls per episode: 30.8 when it passed, 43.5 when it failed.
 
+
+### Reliability: the FLAKY band
+
+Boundary candidates re-run 3 times each against deepseek-v4-pro, with `--all-attempts` so a first-try pass does not end the probe.
+
+| task | bucket | passes | mean PC |
+|---|---|---|---|
+| `tsk_instant_refunds_killswitch` | **FLAKY** | 2/3 | 0.95 |
+| `tsk_search_cache` | **FLAKY** | 2/3 | 0.94 |
+| `tsk_rca_inventory_unbound_storage` | **FLAKY** | 1/3 | 0.90 |
+| `tsk_localize_checkout_latency` | **TOO_HARD** | 0/3 | 0.85 |
+| `tsk_payments_retry` | **TOO_HARD** | 0/3 | 0.87 |
+| `tsk_rcn_customer_facing_incidents` | **TOO_HARD** | 0/3 | 0.86 |
+
+**3 of 6 candidates are FLAKY** — the same model, the same task, the same prompt, passing on some attempts and failing on others. That band is the point: a task nobody can pass measures nothing, a task everybody passes measures nothing, and a task that goes both ways is measuring exactly where capability runs out.
+
 <!-- results:end -->
 
 ## What would count as proof

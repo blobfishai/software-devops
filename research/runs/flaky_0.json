@@ -1,0 +1,87 @@
+{
+  "model": "deepseek-v4-pro",
+  "policy": "deepseek",
+  "attempts": 3,
+  "max_turns": 30,
+  "guidance": "standard",
+  "world_id": "env_software_devops_75f8f41d",
+  "world_counts": {
+    "tables": 64,
+    "rows": 1285,
+    "tools": 84,
+    "tasks": 83,
+    "tasks_rejected": 0,
+    "repo_files": 38,
+    "commits": 417,
+    "documents": 30
+  },
+  "tasks_evaluated": 2,
+  "buckets": {
+    "FLAKY": 2
+  },
+  "spend": {
+    "prompt_tokens": 1624999,
+    "completion_tokens": 36778,
+    "episodes": 6
+  },
+  "tasks": [
+    {
+      "task_id": "tsk_instant_refunds_killswitch",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "bucket": "FLAKY",
+      "attempts": 3,
+      "passes": 2,
+      "mean_score": 0.947,
+      "failure_mode": [
+        [
+          "quality/closed_after_the_work",
+          2
+        ],
+        [
+          "correctness/incident_resolved",
+          1
+        ],
+        [
+          "quality/status_update_posted",
+          1
+        ],
+        [
+          "quality/public_status_published",
+          1
+        ],
+        [
+          "quality/ticket_closed",
+          1
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 361.6
+    },
+    {
+      "task_id": "tsk_rca_inventory_unbound_storage",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "bucket": "FLAKY",
+      "attempts": 3,
+      "passes": 1,
+      "mean_score": 0.9,
+      "failure_mode": [
+        [
+          "quality/ticket_closed",
+          3
+        ],
+        [
+          "quality/closed_after_the_work",
+          3
+        ],
+        [
+          "correctness/offending_key_correct",
+          2
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 272.0
+    }
+  ]
+}

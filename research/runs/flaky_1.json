@@ -1,0 +1,80 @@
+{
+  "model": "deepseek-v4-pro",
+  "policy": "deepseek",
+  "attempts": 3,
+  "max_turns": 30,
+  "guidance": "standard",
+  "world_id": "env_software_devops_75f8f41d",
+  "world_counts": {
+    "tables": 64,
+    "rows": 1285,
+    "tools": 84,
+    "tasks": 83,
+    "tasks_rejected": 0,
+    "repo_files": 38,
+    "commits": 417,
+    "documents": 30
+  },
+  "tasks_evaluated": 2,
+  "buckets": {
+    "FLAKY": 1,
+    "TOO_HARD": 1
+  },
+  "spend": {
+    "prompt_tokens": 1256885,
+    "completion_tokens": 25938,
+    "episodes": 6
+  },
+  "tasks": [
+    {
+      "task_id": "tsk_search_cache",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "bucket": "FLAKY",
+      "attempts": 3,
+      "passes": 2,
+      "mean_score": 0.943,
+      "failure_mode": [
+        [
+          "quality/jira_twin_resolved",
+          3
+        ],
+        [
+          "quality/closed_after_the_work",
+          2
+        ],
+        [
+          "deployment/ack_before_resolve",
+          1
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 201.4
+    },
+    {
+      "task_id": "tsk_localize_checkout_latency",
+      "category": "aiops_localization",
+      "difficulty": "hard",
+      "bucket": "TOO_HARD",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.847,
+      "failure_mode": [
+        [
+          "correctness/service_localized",
+          3
+        ],
+        [
+          "quality/ticket_closed",
+          3
+        ],
+        [
+          "quality/closed_after_the_work",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 252.6
+    }
+  ]
+}
