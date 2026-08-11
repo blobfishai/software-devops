@@ -267,3 +267,36 @@ def test_eval_model_does_not_delete_a_models_own_mistakes_from_the_pass_rate():
                             "model") == "harness"
     # and a pass is a pass
     assert classify_outcome(True, None, guess, {}, 3, 30, "model") == "resolved"
+
+
+def test_a_large_tool_result_is_narrowed_not_severed():
+    """Capping a tool result by slicing its JSON string is quietly destructive.
+    An unfiltered list_tickets() is 28,888 characters, so a 4,000-character cap
+    handed the model a blob cut off mid-string: invalid JSON, no indication that
+    anything was missing, and no way to distinguish "there are no more tickets"
+    from "you were shown 14% of them". That is the same shape as every other
+    defect this harness has produced - the model is denied evidence and cannot
+    tell that it was.
+    """
+    import tempfile
+    sys.path.insert(0, str(ROOT))
+    from serve import World
+    import cloud_backend
+
+    world = World(ROOT / "world", tempfile.mkdtemp(prefix="fit_"))
+    out = world.call_tool(world.create_session(), "list_tickets", {})
+    assert len(json.dumps(out)) > cloud_backend.RESULT_BUDGET, \
+        "pick a tool whose unfiltered result actually overflows"
+
+    fitted = cloud_backend._fit(out)
+    parsed = json.loads(fitted)                       # must still be valid JSON
+    assert len(fitted) <= cloud_backend.RESULT_BUDGET
+    assert parsed["truncated"]["omitted"] > 0
+    assert parsed["truncated"]["shown"] == len(parsed["rows"])
+    assert parsed["truncated"]["shown"] + parsed["truncated"]["omitted"] \
+        == parsed["truncated"]["total"]
+    assert "narrow" in parsed["truncated"]["hint"]
+
+    # a result that fits is passed through untouched
+    small = world.call_tool(world.create_session(), "get_service", {"service": "payments"})
+    assert json.loads(cloud_backend._fit(small)) == small

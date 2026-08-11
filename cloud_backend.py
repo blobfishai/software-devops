@@ -103,6 +103,55 @@ def _post(url, key, payload, timeout=180, attempts=4):
     return None, last
 
 
+RESULT_BUDGET = 12000
+
+
+def _fit(out, budget=RESULT_BUDGET):
+    """Serialise a tool result, dropping ROWS rather than characters when it is
+    too large.
+
+    Slicing the JSON string was the obvious thing and it is quietly destructive:
+    an unfiltered list_tickets() is 28,888 characters, so a 4,000-character cap
+    handed the model a blob cut off mid-string - invalid JSON, no indication that
+    anything was missing, and no way to tell "there are no more tickets" from
+    "you were shown 14% of them". Dropping whole rows keeps the result parseable
+    and says what was withheld, which is the difference between a limit and a
+    trap.
+    """
+    blob = json.dumps(out)
+    if len(blob) <= budget:
+        return blob
+    rows = out.get("rows") if isinstance(out, dict) else None
+    if isinstance(rows, list) and rows:
+        total = len(rows)
+
+        def build(n):
+            # Build exactly what will be RETURNED, so the search measures the real
+            # payload. Sizing a shorter trial than the result overshoots the budget
+            # by the difference, which is how the first version of this overflowed.
+            kept = dict(out)
+            kept["rows"] = rows[:n]
+            kept["truncated"] = {
+                "shown": n, "total": total, "omitted": total - n,
+                "hint": "this result was too large to return in full; narrow it with "
+                        "the filter arguments this tool accepts"}
+            return kept
+
+        lo, hi = 0, total
+        while lo < hi:                      # largest prefix of rows that fits
+            mid = (lo + hi + 1) // 2
+            if len(json.dumps(build(mid))) <= budget:
+                lo = mid
+            else:
+                hi = mid - 1
+        return json.dumps(build(lo))
+    # not a row list: say so plainly rather than emitting broken JSON
+    return json.dumps({"truncated": True, "bytes": len(blob),
+                       "hint": "result too large to return in full; request a "
+                               "narrower slice",
+                       "head": blob[:budget - 400]})
+
+
 def run_episode(world, task, sid, model, max_turns, verbose=False,
                 provider="deepseek", guidance="standard", max_tokens=2048):
     """Drive one episode through the provider's native tool-calling API.
@@ -168,7 +217,7 @@ def run_episode(world, task, sid, model, max_turns, verbose=False,
             if verbose:
                 print("      %s" % line[:180])
             messages.append({"role": "tool", "tool_call_id": tc.get("id", ""),
-                             "content": json.dumps(out)[:4000]})
+                             "content": _fit(out)})
 
     return {"turns": turn + 1, "tool_calls": calls,
             "transcript": "\n".join(transcript),
