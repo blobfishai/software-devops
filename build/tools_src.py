@@ -37,6 +37,10 @@ def _recompute(conn):
         elif _k == 'config_eq':
             _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
             _hit = _row is not None and _row[0] == _cv
+        elif _k == 'xconfig_eq':
+            _os, _ok2 = _ck.split(':', 1)
+            _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_os, _ok2)).fetchone()
+            _hit = _row is not None and _row[0] == _cv
         elif _k == 'config_lt':
             _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
             try:

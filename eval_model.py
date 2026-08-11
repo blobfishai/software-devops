@@ -162,6 +162,67 @@ def naive_calls(task):
     return [out[i] for i in keep]
 
 
+def merged_only_calls(task):
+    """The classic agent failure: treats a merged pull request as done. Everything
+    up to and including the merge, nothing that carries it to an environment."""
+    out = []
+    for c in task.get("expected_calls", []):
+        if c["tool"] in ("deploy_service", "promote_canary", "assess_canary",
+                         "apply_migration", "rollback_deployment", "shift_endpoint_traffic"):
+            continue
+        out.append(c)
+    return out
+
+
+def no_verify_calls(task):
+    """Ships the change correctly but never closes the loop: no metric check, no
+    alarm handling, no incident update, no comms, no ticket update."""
+    return [c for c in task.get("expected_calls", [])
+            if c["tool"] not in ("query_metrics", "acknowledge_alert", "resolve_alert",
+                                 "resolve_error_event", "update_incident", "post_message",
+                                 "publish_status_update", "update_ticket", "create_ticket",
+                                 "get_slo_status", "list_alerts")]
+
+
+def shortcut_calls(task):
+    """Takes the forbidden shortcut wherever the world offers one: quarantines a
+    flaky test instead of fixing it, and blames whichever service the alarm names
+    instead of tracing the fault to its source."""
+    out = []
+    for c in task.get("expected_calls", []):
+        t, a = c["tool"], json.loads(json.dumps(c.get("args", {})))
+        if t == "open_pull_request":
+            for ch in a.get("changes", []):
+                if ch.get("change_type") == "test_fix":
+                    ch["payload"]["action"] = "quarantine"
+        if t == "submit_diagnosis" and str(a.get("scope", "")).isdigit():
+            a["service"] = ALARMED_SERVICE.get(str(a["scope"]), a.get("service", ""))
+        out.append({"tool": t, "args": a})
+    return out
+
+
+# which service each seeded alarm is raised on - the lazy answer
+ALARMED_SERVICE = {"9601": "payments", "9602": "search", "9603": "checkout",
+                   "9604": "api-gateway", "9605": "catalog", "9606": "inventory",
+                   "9607": "media-service", "9608": "notifications",
+                   "9609": "analytics-worker", "9610": "checkout"}
+
+SCRIPTED = {"oracle": lambda t: t.get("expected_calls", []), "shortcut": shortcut_calls,
+            "naive": naive_calls, "merged_only": merged_only_calls,
+            "no_verify": no_verify_calls}
+
+
+def run_scripted_episode(world, task, sid, verbose, policy):
+    calls, log = 0, []
+    for c in SCRIPTED[policy](task):
+        out = world.call_tool(sid, c["tool"], c.get("args", {}))
+        calls += 1
+        if verbose:
+            print("      → %s %s" % (c["tool"], json.dumps(out)[:80]))
+        log.append("%s(%s)" % (c["tool"], json.dumps(c.get("args", {}))[:160]))
+    return {"turns": 0, "tool_calls": calls, "transcript": "\n".join(log)}
+
+
 def run_naive_episode(world, task, sid, verbose):
     calls = 0
     log = []
@@ -269,9 +330,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--world", default=str(pathlib.Path(__file__).parent / "world"))
     ap.add_argument("--model", default="claude-sonnet-5")
-    ap.add_argument("--policy", choices=["model", "oracle", "naive"], default="model",
-                    help="naive = a scripted agent that makes the right technical fix but "
-                         "ignores every documented policy; a free lower-bound difficulty signal")
+    ap.add_argument("--policy", choices=["model", "oracle", "naive", "merged_only", "no_verify", "shortcut"],
+                    default="model",
+                    help="scripted baselines that map the difficulty surface for free: "
+                         "naive ignores every documented policy; merged_only treats merging the "
+                         "pull request as the finish line; no_verify ships the fix but never "
+                         "checks or closes anything")
     ap.add_argument("--split", choices=["train", "heldout", "all"], default="all")
     ap.add_argument("--category", action="append", default=None,
                     help="restrict to these Horizon-SWE categories (repeatable)")
@@ -357,11 +421,10 @@ def main():
         sid = world.create_session()
         started = time.time()
         try:
-            if args.policy in ("oracle", "naive"):
+            if args.policy != "model":
                 if args.verbose:
                     print()
-                runner = run_oracle_episode if args.policy == "oracle" else run_naive_episode
-                stats = runner(world, task, sid, args.verbose)
+                stats = run_scripted_episode(world, task, sid, args.verbose, args.policy)
             else:
                 if args.verbose:
                     print()
@@ -463,7 +526,7 @@ def main():
                  for k in range(1, args.trials + 1)},
              "tasks": records}, indent=2) + "\n")
         print("  report: %s" % args.out)
-    return 0 if passed == n or args.policy in ("model", "naive") else 1
+    return 0 if passed == n or args.policy != "oracle" else 1
 
 
 if __name__ == "__main__":

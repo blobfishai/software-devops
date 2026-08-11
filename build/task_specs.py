@@ -382,6 +382,13 @@ _add("aiops_localization", "localization", id="localize_media_latency", scope="9
      evidence="media-service p99 800ms with every asset request served from the origin object store",
      ticket=("OPS-114", "medium", "Localize alarm 9607 (media-service latency)"))
 
+_add("aiops_localization", "localization", id="localize_checkout_latency", scope="9610",
+     service="payments", fault_type="misconfig", offending_key="notifications_timeout_ms",
+     difficulty="hard", budget=12,
+     evidence="checkout p99 530ms is spent waiting on payments, which blocks for up to 30s on "
+              "its notifications call; checkout's own configuration is within policy",
+     ticket=("OPS-115", "high", "Localize alarm 9610 (checkout latency)"))
+
 _add("aiops_analysis", "analysis", id="rca_payments_retry", scope="payments-error-rate",
      service="payments", fault_type="missing_retry",
      offending_key="notifications_retry_max_attempts", difficulty="hard", budget=12,

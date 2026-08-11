@@ -514,3 +514,42 @@ def test_instructions_do_not_leak_the_procedure(env):
     # ...but the guided variant deliberately does spell it out, for calibration
     guided = [t for t in env["tasks"].values() if "Procedure:" in t["instruction_guided"]]
     assert len(guided) == len(env["tasks"])
+
+
+def test_cross_service_localization_is_not_trivially_solvable(env):
+    """The checkout latency alarm must NOT be solvable by naming the alarmed
+    service: the fault lives in payments, one hop downstream."""
+    task = env["tasks"]["tsk_localize_checkout_latency"]
+    db = fork(env, "aiops_lazy")
+    calls = copy.deepcopy(task["expected_calls"])
+    for c in calls:
+        if c["tool"] == "submit_diagnosis":
+            c["args"]["service"] = "checkout"       # the service the alarm names
+    run_calls(env, db, calls)
+    ok, err, _ = bw.run_vcode(task["vcode"], str(db))
+    assert not ok and "responsible service is payments" in err
+
+
+def test_cascade_metric_is_actually_cross_service(env):
+    """Fixing payments' downstream timeout must clear checkout's latency breach."""
+    db = fork(env, "cascade")
+    conn = sqlite3.connect(db)
+    before = conn.execute("SELECT value FROM service_metrics WHERE service='checkout' AND "
+                          "environment='production' AND metric='latency_p99_ms'").fetchone()[0]
+    conn.close()
+    assert before == 530.0, before
+    pr = call(env, db, "open_pull_request", service="payments", title="timeout",
+              changes=[{"change_type": "config",
+                        "payload": {"key": "notifications_timeout_ms",
+                                    "value": "2000"}}])["pr_number"]
+    call(env, db, "run_ci", pr_number=pr)
+    call(env, db, "merge_pull_request", pr_number=pr)
+    call(env, db, "deploy_service", service="payments", environment="staging")
+    call(env, db, "deploy_service", service="payments", environment="production",
+         canary_percent=25)
+    call(env, db, "promote_canary", service="payments")
+    conn = sqlite3.connect(db)
+    after = conn.execute("SELECT value FROM service_metrics WHERE service='checkout' AND "
+                         "environment='production' AND metric='latency_p99_ms'").fetchone()[0]
+    conn.close()
+    assert after == 180.0, "a payments config change must move checkout's p99: %s" % after

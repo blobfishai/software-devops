@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_72740905",
+  "world_id": "env_software_devops_bb2fe89d",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "727409050520d00fbc0908d4854ba101409bb240f6f3733e056e2ea10c5d845c",
+  "world_digest": "bb2fe89de0fe05cf69a19ee8f348eaee46d47765ea2b05d01ca689da1d48877e",
   "entities": [
     "alerts",
     "audit_events",
@@ -51,16 +51,16 @@
   "tables_without_tools": [],
   "counts": {
     "tables": 36,
-    "rows": 1084,
+    "rows": 1088,
     "tools": 51,
-    "tasks": 62,
+    "tasks": 63,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
     "documents": 30
   },
   "difficulty": {
-    "hard": 20,
+    "hard": 21,
     "medium": 29,
     "expert": 11,
     "easy": 2
@@ -74,7 +74,7 @@
     "flaky_test": 6,
     "multi_service_rollout": 7,
     "aiops_detection": 4,
-    "aiops_localization": 4,
+    "aiops_localization": 5,
     "aiops_analysis": 4
   },
   "splits": {
@@ -107,8 +107,9 @@
       "tsk_instant_refunds_killswitch",
       "tsk_inventory_v1_to_v2",
       "tsk_localize_analytics_errors",
+      "tsk_localize_checkout_latency",
       "tsk_localize_gateway_latency",
-      "tsk_localize_media_latency",
+      "tsk_localize_search_latency",
       "tsk_loyalty_points",
       "tsk_media_cdn",
       "tsk_media_webp",
@@ -137,7 +138,7 @@
       "tsk_gateway_pool_reuse",
       "tsk_inventory_pool",
       "tsk_legacy_price_rounding_cleanup",
-      "tsk_localize_search_latency",
+      "tsk_localize_media_latency",
       "tsk_media_pipeline",
       "tsk_media_v1_to_v2",
       "tsk_payments_retry_from_code",
@@ -146,7 +147,7 @@
     ]
   },
   "task_creation": {
-    "accepted": 62,
+    "accepted": 63,
     "rejected": 0
   },
   "personas": [

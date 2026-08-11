@@ -7,6 +7,7 @@ INSERT INTO "alerts" VALUES(9606,'inventory','error_rate_pct','high','firing','i
 INSERT INTO "alerts" VALUES(9607,'media-service','latency_p99_ms','medium','firing','media-service latency_p99_ms 800.0 exceeds SLO 400.0');
 INSERT INTO "alerts" VALUES(9608,'notifications','error_rate_pct','medium','firing','notifications error_rate_pct 3.6 exceeds SLO 1.5');
 INSERT INTO "alerts" VALUES(9609,'analytics-worker','error_rate_pct','medium','firing','analytics-worker error_rate_pct 6.0 exceeds SLO 2.0');
+INSERT INTO "alerts" VALUES(9610,'checkout','latency_p99_ms','high','firing','checkout latency_p99_ms 530.0 exceeds SLO 400.0');
 INSERT INTO "audit_events" VALUES(1,'deploy_service','storefront-web','{"environment": "staging", "version": "v3.2.4", "canary_percent": 100, "applied": true, "new_alarms": []}');
 INSERT INTO "audit_events" VALUES(2,'deploy_service','storefront-web','{"environment": "production", "version": "v3.2.4", "canary_percent": 100, "applied": true, "new_alarms": []}');
 INSERT INTO "audit_events" VALUES(3,'deploy_service','api-gateway','{"environment": "staging", "version": "v5.0.9", "canary_percent": 100, "applied": true, "new_alarms": []}');
@@ -2697,6 +2698,7 @@ INSERT INTO "logs" VALUES(9020,'media-service','production','WARN','cdn_enabled=
 INSERT INTO "logs" VALUES(9021,'analytics-worker','production','ERROR','consumer restarted after MemoryError; prefetch_count=0 means unlimited prefetch from rabbitmq');
 INSERT INTO "logs" VALUES(9022,'notifications','production','ERROR','outbound SMTP call hung indefinitely; smtp_timeout_ms=0 (no timeout configured)');
 INSERT INTO "logs" VALUES(9023,'api-gateway','production','INFO','traffic split: /v1/orders 100%, /v2/orders 0%; /internal/debug reachable without auth');
+INSERT INTO "logs" VALUES(9024,'checkout','production','WARN','checkout p99 530ms; time is spent waiting on the payments call, which itself blocks on its downstream notifications timeout - checkout''s own handlers are idle');
 INSERT INTO "messages" VALUES(1,'#incidents','Priya Nair','Declared incident 9701 (sev1): api-gateway p99 through the roof since the v5.1.0 promote.');
 INSERT INTO "messages" VALUES(2,'#incidents','Diego Ramos','Incident 9702 (sev2): checkout error rate tracks the instant_refunds ramp exactly.');
 INSERT INTO "messages" VALUES(3,'#incidents','Alex Osei','Incident 9703 (sev2): inventory reservations timing out at peak; pool looks undersized.');
@@ -2732,6 +2734,7 @@ INSERT INTO "metric_rules" VALUES(9426,'analytics-worker','error_rate_pct','conf
 INSERT INTO "metric_rules" VALUES(9427,'analytics-worker','latency_p99_ms','base','','',300.0);
 INSERT INTO "metric_rules" VALUES(9428,'storefront-web','latency_p99_ms','base','','',220.0);
 INSERT INTO "metric_rules" VALUES(9429,'storefront-web','error_rate_pct','base','','',0.2);
+INSERT INTO "metric_rules" VALUES(9430,'checkout','latency_p99_ms','xconfig_eq','payments:notifications_timeout_ms','30000',350.0);
 INSERT INTO "migration_requirements" VALUES(9151,'checkout','loyalty_redeem','0088_loyalty_ledger');
 INSERT INTO "migration_requirements" VALUES(9152,'catalog','loyalty_accrual','0123_loyalty_points');
 INSERT INTO "migration_requirements" VALUES(9153,'payments','split_settlement','0042_settlement_splits');
@@ -5436,7 +5439,7 @@ INSERT INTO "service_metrics" VALUES('search','production','latency_p99_ms',850.
 INSERT INTO "service_metrics" VALUES('checkout','production','error_rate_pct',5.5);
 INSERT INTO "service_metrics" VALUES('api-gateway','production','latency_p99_ms',1030.0);
 INSERT INTO "service_metrics" VALUES('payments','production','latency_p99_ms',95.0);
-INSERT INTO "service_metrics" VALUES('checkout','production','latency_p99_ms',180.0);
+INSERT INTO "service_metrics" VALUES('checkout','production','latency_p99_ms',530.0);
 INSERT INTO "service_metrics" VALUES('api-gateway','production','error_rate_pct',0.2);
 INSERT INTO "service_metrics" VALUES('search','production','error_rate_pct',0.1);
 INSERT INTO "service_metrics" VALUES('catalog','production','latency_p99_ms',645.0);
@@ -5544,10 +5547,11 @@ INSERT INTO "tickets" VALUES(9155,'OPS-111','incident','Localize alarm 9604 (api
 INSERT INTO "tickets" VALUES(9156,'OPS-112','incident','Localize alarm 9602 (search latency)','Alarm 9602 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','high','','search');
 INSERT INTO "tickets" VALUES(9157,'OPS-113','incident','Localize alarm 9609 (analytics-worker errors)','Alarm 9609 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','high','','analytics-worker');
 INSERT INTO "tickets" VALUES(9158,'OPS-114','incident','Localize alarm 9607 (media-service latency)','Alarm 9607 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','medium','','media-service');
-INSERT INTO "tickets" VALUES(9159,'OPS-121','incident','Root cause: payments error rate','Perform a root-cause analysis for payments-error-rate and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','critical','','payments');
-INSERT INTO "tickets" VALUES(9160,'OPS-122','incident','Root cause: catalog pricing latency','Perform a root-cause analysis for catalog-latency and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','high','','catalog');
-INSERT INTO "tickets" VALUES(9161,'OPS-123','incident','Root cause: notification delivery failures','Perform a root-cause analysis for notifications-errors and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','high','','notifications');
-INSERT INTO "tickets" VALUES(9162,'OPS-124','incident','Root cause: inventory reservation failures','Perform a root-cause analysis for inventory-errors and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','high','','inventory');
+INSERT INTO "tickets" VALUES(9159,'OPS-115','incident','Localize alarm 9610 (checkout latency)','Alarm 9610 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','high','','payments');
+INSERT INTO "tickets" VALUES(9160,'OPS-121','incident','Root cause: payments error rate','Perform a root-cause analysis for payments-error-rate and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','critical','','payments');
+INSERT INTO "tickets" VALUES(9161,'OPS-122','incident','Root cause: catalog pricing latency','Perform a root-cause analysis for catalog-latency and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','high','','catalog');
+INSERT INTO "tickets" VALUES(9162,'OPS-123','incident','Root cause: notification delivery failures','Perform a root-cause analysis for notifications-errors and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','high','','notifications');
+INSERT INTO "tickets" VALUES(9163,'OPS-124','incident','Root cause: inventory reservation failures','Perform a root-cause analysis for inventory-errors and report service, fault type and the offending key with submit_diagnosis. Read-only investigation.','open','high','','inventory');
 INSERT INTO "traffic_profile" VALUES(9201,'storefront-web','GET /',420,100);
 INSERT INTO "traffic_profile" VALUES(9202,'storefront-web','GET /product/:id',310,100);
 INSERT INTO "traffic_profile" VALUES(9203,'api-gateway','POST /v1/orders',145,100);
@@ -5576,10 +5580,10 @@ INSERT INTO "vulnerabilities" VALUES(9801,'CVE-2026-31337','libpayproc','payment
 INSERT INTO "vulnerabilities" VALUES(9802,'CVE-2026-40881','stripe-sdk','checkout','high','11.4.0','open');
 INSERT INTO "vulnerabilities" VALUES(9803,'CVE-2026-22190','pydantic','catalog','medium','2.11.0','remediated');
 INSERT INTO "vulnerabilities" VALUES(9804,'CVE-2026-51002','requests','payments','high','2.33.0','open');
-INSERT INTO "sqlite_sequence" VALUES('tickets',9162);
+INSERT INTO "sqlite_sequence" VALUES('tickets',9163);
 INSERT INTO "sqlite_sequence" VALUES('deployments',9272);
 INSERT INTO "sqlite_sequence" VALUES('feature_flags',9308);
-INSERT INTO "sqlite_sequence" VALUES('alerts',9609);
+INSERT INTO "sqlite_sequence" VALUES('alerts',9610);
 INSERT INTO "sqlite_sequence" VALUES('incidents',9703);
 INSERT INTO "sqlite_sequence" VALUES('status_page',1);
 INSERT INTO "sqlite_sequence" VALUES('error_events',6);

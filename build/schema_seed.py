@@ -504,6 +504,10 @@ METRIC_RULES = [
     (9408, "api-gateway", "latency_p99_ms", "version_ge", "", "v5.1.0", 910.0),
     (9409, "payments", "latency_p99_ms", "base", "", "", 95.0),
     (9410, "checkout", "latency_p99_ms", "base", "", "", 180.0),
+    # cascade: checkout inherits payments' 30s downstream timeout as tail latency,
+    # so the alarm fires on checkout while the offending setting lives in payments.
+    (9430, "checkout", "latency_p99_ms", "xconfig_eq", "payments:notifications_timeout_ms",
+     "30000", 350.0),
     (9411, "api-gateway", "error_rate_pct", "base", "", "", 0.2),
     (9412, "search", "error_rate_pct", "base", "", "", 0.1),
     (9413, "catalog", "latency_p99_ms", "base", "", "", 140.0),
@@ -561,6 +565,8 @@ ALERTS = [
      "notifications error_rate_pct 3.6 exceeds SLO 1.5"),
     (9609, "analytics-worker", "error_rate_pct", "medium", "firing",
      "analytics-worker error_rate_pct 6.0 exceeds SLO 2.0"),
+    (9610, "checkout", "latency_p99_ms", "high", "firing",
+     "checkout latency_p99_ms 530.0 exceeds SLO 400.0"),
 ]
 
 INCIDENTS = [
@@ -627,6 +633,9 @@ LOGS = [
     (9014, "api-gateway", "production", "ERROR",
      "p99 latency 1030ms; regression began immediately after deploy v5.1.0 "
      "(upstream_pool_reuse=false: connections created per request and never released)"),
+    (9024, "checkout", "production", "WARN",
+     "checkout p99 530ms; time is spent waiting on the payments call, which itself blocks on "
+     "its downstream notifications timeout - checkout's own handlers are idle"),
     (9015, "checkout", "production", "ERROR",
      "refund worker panic: nil pointer in instant_refunds path; errors correlate 1:1 with "
      "feature flag instant_refunds=enabled"),

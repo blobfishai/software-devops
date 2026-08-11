@@ -97,40 +97,64 @@ python3 eval_model.py --model claude-sonnet-5 --guidance standard   # default
 python3 eval_model.py --model claude-sonnet-5 --guidance guided     # procedure spelled out
 ```
 
-## How hard is it? A free difficulty signal
+## How hard is it? Scripted baselines
 
-No model has been run against this world yet, so task difficulty is uncalibrated.
-What *is* measured is a **policy-blind baseline** (`--policy naive`): a scripted
-agent that makes the correct technical fix but ignores every documented policy —
-no knowledge-base lookup, no staging rehearsal, no canary, no alarm
-acknowledgement, no comms, traffic moved in one jump.
+No model has been run against this world yet, so difficulty is uncalibrated.
+What *is* measured is a family of scripted baselines, each modelling a specific
+way of being wrong. They cost nothing to run and map which dimension each
+failure mode damages.
+
+| policy | what it does |
+|---|---|
+| `oracle` | the reference solution, following every policy |
+| `naive` | correct technical fix, ignores every documented policy |
+| `merged_only` | treats merging the pull request as the finish line |
+| `no_verify` | ships the fix but never checks, resolves or closes anything |
+| `shortcut` | quarantines flaky tests; blames whichever service the alarm names |
+
+PF pass rate by category (63 tasks):
 
 ```
-  Horizon-SWE-PF : 29.0%  (18/62)
-  Horizon-SWE-PC : 87.1
-
-    error_rate_reduction   PF   0%    api_migration          PF   0%
-    latency_optimization   PF   0%    multi_service_rollout  PF   0%
-    feature_flag           PF   0%    security_incident      PF   0%
-    flaky_test             PF 100%    aiops_* (diagnostics)  PF 100%
+                          oracle    naive  merged_only  no_verify  shortcut
+aiops_analysis              100%     100%       100%       100%      100%
+aiops_detection             100%     100%       100%       100%      100%
+aiops_localization          100%     100%       100%       100%       80%
+api_migration               100%       0%         0%       100%      100%
+error_rate_reduction        100%       0%         0%        38%      100%
+feature_flag                100%       0%        14%        86%      100%
+flaky_test                  100%     100%       100%       100%        0%
+latency_optimization        100%       0%         0%        38%      100%
+multi_service_rollout       100%       0%         0%       100%      100%
+security_incident           100%       0%         0%       100%      100%
+ALL PF                      100%      30%        32%        83%       89%
+ALL PC                     100.0     87.3       77.5        92.8      97.9
 ```
 
-Two things worth reading off this. **Every category that ships a change scores
-PF 0%** — the deployment dimension is load-bearing, and getting the technically
-right answer buys you nothing if you ignore the process. And **PC stays at 87.1**,
-because feature correctness is 60% of the composite and this agent gets it
-right; PC is a generous metric by construction.
+What this says, honestly:
 
-The categories at PF 100% are the ones with no deployment policy to violate:
-flaky-test work involves no deploy, and the diagnostics are read-only. Their
-difficulty lives entirely in the correctness dimension.
+- **The deployment dimension is load-bearing.** `naive` scores PF 0% on every
+  category that ships a change. Getting the right answer buys nothing if you
+  ignore the process.
+- **PC is generous by construction.** `naive` still scores 87.3 because feature
+  correctness is 60% of the composite and it does get the fix right.
+- **PF tolerates poor follow-through.** `no_verify` reaches 83% because ticket
+  hygiene and comms are graded under quality, which PF excludes by design. That
+  is faithful to the benchmark's definition, not a bug — but it means PF alone
+  does not measure closing the loop.
+- **`shortcut` is the only baseline that touches flaky tests and localization**,
+  and it exposes a genuine limitation: 4 of the 5 localization tasks can be
+  solved by naming whichever service the alarm names. Only
+  `tsk_localize_checkout_latency` — where checkout's p99 breaches because
+  *payments* blocks on a 30s downstream timeout — requires real localization.
+  More cross-service faults would strengthen that category.
 
-`tests/test_eval_harness.py` pins this as a **difficulty guard** — if a future
-change lets the policy-blind agent start passing change tasks, the tests fail.
+`tests/test_eval_harness.py` pins the `naive` result as a **difficulty guard**:
+if a future change lets the policy-blind agent start passing change tasks, the
+tests fail.
 
-> The 29% is *not* a calibration against the blog's reported ~25.5% for a real
-> model. A scripted baseline and a language model fail in completely different
-> ways; the resemblance is a coincidence, not evidence.
+> None of these numbers calibrate against the blog's reported ~25.5% for a real
+> model. Scripted baselines and language models fail in completely different
+> ways.
 
 ### Estimating the real calibration run
 

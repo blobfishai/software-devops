@@ -196,7 +196,8 @@ def build_db(db_path):
               ("catalog", "latency_p99_ms"): 645.0, ("inventory", "error_rate_pct"): 4.7,
               ("media-service", "latency_p99_ms"): 800.0,
               ("notifications", "error_rate_pct"): 3.6,
-              ("analytics-worker", "error_rate_pct"): 6.0}
+              ("analytics-worker", "error_rate_pct"): 6.0,
+              ("checkout", "latency_p99_ms"): 530.0}
     for (svc, metric), want in expect.items():
         got = conn.execute("SELECT value FROM service_metrics WHERE service=? AND "
                            "environment='production' AND metric=?", (svc, metric)).fetchone()[0]

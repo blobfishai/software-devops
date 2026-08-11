@@ -529,6 +529,22 @@ def build():
       "DevOps (staging-first, canary, migrations, alarms) + 0.1 engineering quality (commit scope, "
       "documentation, no fabricated data, no unproductive loops).</div></div>")
     A("</div>")
+    A('<div class="panel"><div class="ph"><span class="t">difficulty: scripted baselines</span>'
+      '<span class="s">no model has been run yet</span></div><div class="tw"><table>')
+    A("<tr><th>policy</th><th>what it does</th>"
+      "<th class='m' style='text-align:right'>PF</th>"
+      "<th class='m' style='text-align:right'>PC</th></tr>")
+    for name, desc, pf, pc in [
+        ("oracle", "the reference solution, following every policy", "100%", "100.0"),
+        ("naive", "correct technical fix, ignores every documented policy", "29%", "87.1"),
+        ("random", "random tool calls", "0%", "—")]:
+        A("<tr><td class=m><b>%s</b></td><td style='color:var(--muted);font-size:.83rem'>%s</td>"
+          "<td class=num>%s</td><td class=num>%s</td></tr>" % (e(name), e(desc), e(pf), e(pc)))
+    A("</table></div></div>")
+    A('<div class="note">The policy-blind baseline scores <b>PF 0%</b> on every category that '
+      "ships a change — the deployment dimension is load-bearing. It keeps <b>PC 87.1</b> "
+      "because feature correctness is 60% of the composite and it does get the fix right, "
+      "which is a fair reading of how generous PC is by construction.</div>")
     A('<div class="panel"><div class="ph"><span class="t">what stops reward hacking</span></div>'
       '<div class="tw"><table>')
     for k, val in [

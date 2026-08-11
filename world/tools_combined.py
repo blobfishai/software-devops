@@ -1139,6 +1139,10 @@ def deploy_service(db_path=None, service=None, environment=None, version=None, c
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
+                elif _k == 'xconfig_eq':
+                    _os, _ok2 = _ck.split(':', 1)
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_os, _ok2)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
                 elif _k == 'config_lt':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     try:
@@ -1254,6 +1258,10 @@ def assess_canary(db_path=None, service=None, environment='production'):
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
+                elif _k == 'xconfig_eq':
+                    _os, _ok2 = _ck.split(':', 1)
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_os, _ok2)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
                 elif _k == 'config_lt':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     try:
@@ -1355,6 +1363,10 @@ def promote_canary(db_path=None, service=None, environment='production'):
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
+                elif _k == 'xconfig_eq':
+                    _os, _ok2 = _ck.split(':', 1)
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_os, _ok2)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
                 elif _k == 'config_lt':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     try:
@@ -1447,6 +1459,10 @@ def rollback_deployment(db_path=None, service=None, environment='production'):
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
+                elif _k == 'xconfig_eq':
+                    _os, _ok2 = _ck.split(':', 1)
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_os, _ok2)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
                 elif _k == 'config_lt':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     try:
@@ -1528,6 +1544,10 @@ def set_feature_flag(db_path=None, key=None, environment=None, enabled=None, rol
                     _hit = True
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
+                elif _k == 'xconfig_eq':
+                    _os, _ok2 = _ck.split(':', 1)
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_os, _ok2)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
                 elif _k == 'config_lt':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
@@ -1709,6 +1729,10 @@ def resolve_error_event(db_path=None, fingerprint=None):
                     _hit = True
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
+                elif _k == 'xconfig_eq':
+                    _os, _ok2 = _ck.split(':', 1)
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_os, _ok2)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
                 elif _k == 'config_lt':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
