@@ -1,0 +1,2383 @@
+{
+ "list_services": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "service_id": 9001,
+     "name": "storefront-web",
+     "kind": "frontend",
+     "team": "growth",
+     "tier": 1,
+     "language": "typescript",
+     "description": "Customer-facing storefront (Next.js): browse, cart, checkout UI.",
+     "repo_version": "v3.2.4",
+     "oncall_engineer": "Mei Tanaka",
+     "staging_version": "v3.2.4",
+     "production_version": "v3.2.4"
+    },
+    {
+     "service_id": 9002,
+     "name": "api-gateway",
+     "kind": "backend",
+     "team": "platform",
+     "tier": 1,
+     "language": "go",
+     "description": "Public API edge: routing, auth, rate limiting, traffic weighting.",
+     "repo_version": "v5.1.0",
+     "oncall_engineer": "Priya Nair",
+     "staging_version": "v5.1.0",
+     "production_version": "v5.1.0"
+    },
+    {
+     "service_id": 9003,
+     "name": "catalog",
+     "kind": "backend",
+     "team": "commerce",
+     "tier": 2,
+     "language": "python",
+     "description": "Product catalog, pricing, and merchandising.",
+     "repo_version": "v1.9.2",
+     "oncall_engineer": "Diego Ramos",
+     "staging_version": "v1.9.2",
+     "production_version": "v1.9.2"
+    },
+    {
+     "service_id": 9004,
+     "name": "checkout",
+     "kind": "backend",
+     "team": "commerce",
+     "tier": 1,
+     "language": "python",
+     "description": "Cart and checkout orchestration.",
+     "repo_version": "v2.6.3",
+     "oncall_engineer": "Diego Ramos",
+     "staging_version": "v2.6.3",
+     "production_version": "v2.6.3"
+    },
+    {
+     "service_id": 9005,
+     "name": "payments",
+     "kind": "backend",
+     "team": "commerce",
+     "tier": 1,
+     "language": "python",
+     "description": "Payment capture, refunds, and settlement.",
+     "repo_version": "v2.7.0",
+     "oncall_engineer": "Diego Ramos",
+     "staging_version": "v2.7.0",
+     "production_version": "v2.7.0"
+    },
+    {
+     "service_id": 9006,
+     "name": "notifications",
+     "kind": "worker",
+     "team": "platform",
+     "tier": 2,
+     "language": "python",
+     "description": "Email/SMS/push notification delivery.",
+     "repo_version": "v1.4.8",
+     "oncall_engineer": "Priya Nair",
+     "staging_version": "v1.4.8",
+     "production_version": "v1.4.8"
+    },
+    {
+     "service_id": 9007,
+     "name": "search",
+     "kind": "backend",
+     "team": "growth",
+     "tier": 2,
+     "language": "python",
+     "description": "Product search and ranking.",
+     "repo_version": "v3.0.5",
+     "oncall_engineer": "Mei Tanaka",
+     "staging_version": "v3.0.5",
+     "production_version": "v3.0.5"
+    },
+    {
+     "service_id": 9008,
+     "name": "inventory",
+     "kind": "backend",
+     "team": "commerce",
+     "tier": 2,
+     "language": "java",
+     "description": "Stock levels, reservations, and warehouse sync.",
+     "repo_version": "v4.3.1",
+     "oncall_engineer": "Diego Ramos",
+     "staging_version": "v4.3.1",
+     "production_version": "v4.3.1"
+    },
+    {
+     "service_id": 9009,
+     "name": "media-service",
+     "kind": "backend",
+     "team": "growth",
+     "tier": 3,
+     "language": "python",
+     "description": "Product imagery and video delivery from the object store.",
+     "repo_version": "v0.9.4",
+     "oncall_engineer": "Mei Tanaka",
+     "staging_version": "v0.9.4",
+     "production_version": "v0.9.4"
+    },
+    {
+     "service_id": 9010,
+     "name": "analytics-worker",
+     "kind": "worker",
+     "team": "platform",
+     "tier": 3,
+     "language": "python",
+     "description": "Consumes the event queue and builds analytics rollups.",
+     "repo_version": "v2.1.7",
+     "oncall_engineer": "Priya Nair",
+     "staging_version": "v2.1.7",
+     "production_version": "v2.1.7"
+    }
+   ],
+   "count": 10
+  }
+ },
+ "get_service": {
+  "args": {},
+  "result": {
+   "service_id": 9005,
+   "name": "payments",
+   "kind": "backend",
+   "team": "commerce",
+   "tier": 1,
+   "language": "python",
+   "description": "Payment capture, refunds, and settlement.",
+   "repo_version": "v2.7.0",
+   "production": {
+    "config": {
+     "db_pool_size": "20",
+     "notifications_retry_max_attempts": "0",
+     "notifications_timeout_ms": "30000"
+    },
+    "dependency": {
+     "libpayproc": "2.3.1",
+     "requests": "2.32.3"
+    },
+    "module": {
+     "payment_capture": "present",
+     "refund_flow": "present"
+    },
+    "version": {
+     "current": "v2.7.0"
+    }
+   },
+   "depends_on": [
+    {
+     "depends_on": "notifications",
+     "kind": "http"
+    },
+    {
+     "depends_on": "pg-primary",
+     "kind": "database"
+    }
+   ],
+   "metrics": {
+    "error_rate_pct": 4.2,
+    "latency_p99_ms": 95.0
+   },
+   "oncall_engineer": "Diego Ramos"
+  }
+ },
+ "list_infra": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "component_id": 9101,
+     "name": "pg-primary",
+     "kind": "database",
+     "status": "healthy",
+     "detail": "PostgreSQL 16 primary, 400 max connections"
+    },
+    {
+     "component_id": 9102,
+     "name": "pg-replica",
+     "kind": "database",
+     "status": "healthy",
+     "detail": "PostgreSQL 16 read replica, ~40ms lag"
+    },
+    {
+     "component_id": 9103,
+     "name": "redis-cache",
+     "kind": "cache",
+     "status": "healthy",
+     "detail": "Redis 7, 12 GB, LRU eviction"
+    },
+    {
+     "component_id": 9104,
+     "name": "rabbitmq",
+     "kind": "queue",
+     "status": "healthy",
+     "detail": "RabbitMQ 3.13, events + notifications exchanges"
+    },
+    {
+     "component_id": 9105,
+     "name": "s3-assets",
+     "kind": "object_store",
+     "status": "healthy",
+     "detail": "Object store bucket novacart-assets"
+    },
+    {
+     "component_id": 9106,
+     "name": "cdn-edge",
+     "kind": "cdn",
+     "status": "healthy",
+     "detail": "Edge CDN in front of s3-assets and storefront-web"
+    }
+   ],
+   "count": 6
+  }
+ },
+ "list_files": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "file_id": 3,
+     "service": "payments",
+     "path": "src/payments/capture.py",
+     "language": "python",
+     "owner": "Diego Ramos",
+     "loc": 69
+    },
+    {
+     "file_id": 2,
+     "service": "payments",
+     "path": "src/payments/notify_client.py",
+     "language": "python",
+     "owner": "Diego Ramos",
+     "loc": 70
+    },
+    {
+     "file_id": 1,
+     "service": "payments",
+     "path": "src/payments/settings.py",
+     "language": "python",
+     "owner": "Diego Ramos",
+     "loc": 70
+    },
+    {
+     "file_id": 4,
+     "service": "payments",
+     "path": "src/payments/settlement.py",
+     "language": "python",
+     "owner": "Lena Ortiz",
+     "loc": 70
+    },
+    {
+     "file_id": 5,
+     "service": "payments",
+     "path": "tests/test_capture_retries.py",
+     "language": "python",
+     "owner": "Diego Ramos",
+     "loc": 50
+    }
+   ],
+   "count": 5
+  }
+ },
+ "read_file": {
+  "args": {},
+  "result": {
+   "file_id": 2,
+   "service": "payments",
+   "path": "src/payments/notify_client.py",
+   "language": "python",
+   "owner": "Diego Ramos",
+   "loc": 70,
+   "content": "\"\"\"Client for the notifications service.\n\npayments calls notifications synchronously after a capture succeeds; a\npermanent failure here fails the payment (see ``payments.capture``).\n\"\"\"\nfrom __future__ import annotations\n\nimport logging\nimport time\nimport uuid\n\nimport requests\n\nfrom payments import settings\n\nlog = logging.getLogger(__name__)\n\nNOTIFICATIONS_BASE_URL = settings.get(\"notifications_base_url\")\nNOTIFICATIONS_TIMEOUT_MS = settings.get(\"notifications_timeout_ms\")\n\n# NOTE(dramos): the tenacity retry wrapper around _post() was removed to hit the\n# Q3 receipt-latency deadline -- backoff sleeps were showing up in payments p99.\n# The knob stayed in config. It is 0 today, so _post() gets exactly one attempt\n# and a single downstream timeout permanently fails the order.\nNOTIFICATIONS_RETRY_MAX_ATTEMPTS = settings.get(\"notifications_retry_max_attempts\")\n\n\nclass PaymentNotificationError(RuntimeError):\n    \"\"\"The receipt notification could not be delivered.\"\"\"\n\n\ndef _post(path, payload, correlation_id):\n    return requests.post(\n        \"%s%s\" % (NOTIFICATIONS_BASE_URL, path),\n        json=payload,\n        timeout=NOTIFICATIONS_TIMEOUT_MS / 1000.0,\n        headers={\"X-Correlation-Id\": correlation_id, \"X-Source\": \"payments\"},\n    )\n\n\ndef send_receipt(order_id, customer_email, amount_cents, currency=\"USD\"):\n    \"\"\"Deliver a receipt. Raises PaymentNotificationError if it cannot.\"\"\"\n    correlation_id = str(uuid.uuid4())\n    payload = {\"template\": \"payment_receipt\", \"order_id\": order_id,\n               \"to\": customer_email, \"amount_cents\": amount_cents,\n               \"currency\": currency}\n\n    attempt = 0\n    while True:\n        attempt += 1\n        started = time.monotonic()\n        try:\n            response = _post(\"/v1/receipts\", payload, correlation_id)\n            response.raise_for_status()\n            log.info(\"receipt delivered order=%s attempt=%d\", order_id, attempt)\n            return response.json()\n        except requests.RequestException as exc:\n            elapsed_ms = int((time.monotonic() - started) * 1000)\n            if attempt > NOTIFICATIONS_RETRY_MAX_ATTEMPTS:\n                log.error(\n                    \"ConnectionTimeout calling notifications after %dms - request \"\n                    \"failed permanently (retry_max_attempts=%d, no retry attempted); \"\n                    \"order %s marked failed\", elapsed_ms,\n                    NOTIFICATIONS_RETRY_MAX_ATTEMPTS, order_id)\n                raise PaymentNotificationError(\"receipt undeliverable\") from exc\n            backoff = min(0.2 * (2 ** (attempt - 1)), 2.0)\n            log.warning(\"notifications call failed (attempt %d of %d) after %dms; \"\n                        \"retrying in %.1fs\", attempt,\n                        NOTIFICATIONS_RETRY_MAX_ATTEMPTS, elapsed_ms, backoff)\n            time.sleep(backoff)\n"
+  }
+ },
+ "search_code": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "service": "payments",
+     "path": "src/payments/notify_client.py",
+     "matches": [
+      {
+       "line": 25,
+       "text": "NOTIFICATIONS_RETRY_MAX_ATTEMPTS = settings.get(\"notifications_retry_max_attempts\")"
+      },
+      {
+       "line": 62,
+       "text": "\"failed permanently (retry_max_attempts=%d, no retry attempted); \""
+      }
+     ]
+    },
+    {
+     "service": "payments",
+     "path": "src/payments/settings.py",
+     "matches": [
+      {
+       "line": 24,
+       "text": "\"notifications_retry_max_attempts\": 0,"
+      }
+     ]
+    }
+   ],
+   "count": 2
+  }
+ },
+ "list_commits": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "sha": "b3e0f74",
+     "service": "api-gateway",
+     "author": "Tom Becker",
+     "day": 419,
+     "message": "api-gateway: p99 latency at 1030ms since the v5.1.0 promote",
+     "files": "internal/proxy/pool.go",
+     "additions": 6,
+     "deletions": 2
+    },
+    {
+     "sha": "1a49f60",
+     "service": "api-gateway",
+     "author": "Priya Nair",
+     "day": 416,
+     "message": "api-gateway: cut v5.1.0",
+     "files": "internal/config/config.go",
+     "additions": 3,
+     "deletions": 3
+    },
+    {
+     "sha": "e5807cb",
+     "service": "api-gateway",
+     "author": "Priya Nair",
+     "day": 415,
+     "message": "api-gateway: give every route its own upstream transport",
+     "files": "internal/proxy/pool.go,internal/config/config.go",
+     "additions": 118,
+     "deletions": 74
+    },
+    {
+     "sha": "31c0ea5",
+     "service": "api-gateway",
+     "author": "Priya Nair",
+     "day": 405,
+     "message": "api-gateway: benchmark per-route transports against the shared one",
+     "files": "internal/proxy/pool.go",
+     "additions": 28,
+     "deletions": 6
+    },
+    {
+     "sha": "9e5407a",
+     "service": "api-gateway",
+     "author": "Priya Nair",
+     "day": 387,
+     "message": "api-gateway: per-route timeouts blocked on the shared transport",
+     "files": "internal/proxy/pool.go",
+     "additions": 19,
+     "deletions": 8
+    }
+   ],
+   "count": 5
+  }
+ },
+ "search_docs": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "doc_id": 9603,
+     "kind": "runbook",
+     "title": "Retry and timeout standard",
+     "service": "",
+     "author": "Priya Nair",
+     "day": 241
+    },
+    {
+     "doc_id": 9611,
+     "kind": "runbook",
+     "title": "Connection pool sizing",
+     "service": "",
+     "author": "Priya Nair",
+     "day": 236
+    },
+    {
+     "doc_id": 9614,
+     "kind": "design_doc",
+     "title": "Checkout architecture",
+     "service": "checkout",
+     "author": "Diego Ramos",
+     "day": 198
+    },
+    {
+     "doc_id": 9615,
+     "kind": "design_doc",
+     "title": "Payments settlement pipeline",
+     "service": "payments",
+     "author": "Diego Ramos",
+     "day": 205
+    },
+    {
+     "doc_id": 9625,
+     "kind": "onboarding",
+     "title": "Engineering onboarding: how we ship",
+     "service": "",
+     "author": "Priya Nair",
+     "day": 290
+    },
+    {
+     "doc_id": 9629,
+     "kind": "design_doc",
+     "title": "API gateway: routing, traffic weights, and rate limiting",
+     "service": "api-gateway",
+     "author": "Priya Nair",
+     "day": 209
+    },
+    {
+     "doc_id": 9630,
+     "kind": "onboarding",
+     "title": "Service catalog and service tiers",
+     "service": "",
+     "author": "Mei Tanaka",
+     "day": 285
+    }
+   ],
+   "count": 7
+  }
+ },
+ "get_document": {
+  "args": {},
+  "result": {
+   "doc_id": 9603,
+   "kind": "runbook",
+   "title": "Retry and timeout standard",
+   "service": "",
+   "author": "Priya Nair",
+   "day": 241,
+   "body": "# Retry and timeout standard\n\nApplies to every cross-service call in the NovaCart fleet. Two config keys per\ndownstream dependency, named after the downstream service.\n\n## The two keys\n\nFor a caller talking to downstream service `X`:\n\n- `<downstream>_retry_max_attempts` - **must be 3**\n- `<downstream>_timeout_ms` - **must be at most 2000**\n\nSo `payments` calling `notifications` runs with\n`notifications_retry_max_attempts=3` and `notifications_timeout_ms=2000` (or\nlower). `checkout` calling `payments` runs with `payments_retry_max_attempts=3`\nand `payment_timeout_ms` inside the 2000ms ceiling.\n\nRetries use exponential backoff with jitter; the backoff schedule is applied\nautomatically by the shared HTTP client, so you do not configure delays. Three\nattempts means one initial call plus two retries, worst case roughly\n`3 * timeout_ms` plus backoff.\n\n## Why 3 and why 2000\n\n**A retry value of 0 means one timeout permanently fails the request.** There is\nno second chance. A single blip in a downstream - a pod restart, a brief GC\npause, a rebalanced connection - becomes a user-visible failure and a failed\norder. This is not hypothetical: payments ran with\n`notifications_retry_max_attempts=0` and `notifications_timeout_ms=30000` for\nseveral weeks and pushed `error_rate_pct` from a baseline of 0.4% to 3.8%,\nstraight through the 1.0% SLO.\n\nThe 2000ms ceiling exists because timeouts multiply up the call stack. A 30000ms\ntimeout on a leaf call does not \"wait patiently\" - it holds a request-handling\nworker and a database connection for thirty seconds, and under load that is how\nyou exhaust a pool (see \"Connection pool sizing\"). If a downstream genuinely\ncannot answer in two seconds, the call belongs on a queue, not in the request\npath.\n\n## Checklist for a new dependency\n\n1. Add `<downstream>_retry_max_attempts=3` to the caller's config.\n2. Add `<downstream>_timeout_ms` at or below 2000.\n3. Confirm the call is idempotent, or that the downstream deduplicates by\n   idempotency key. Retrying a non-idempotent write is worse than failing.\n4. Confirm the caller's own inbound timeout is larger than\n   `attempts * timeout_ms` plus backoff, or the retry budget is fiction.\n5. Add the dependency to the service's dependency section in its design doc.\n\n## Anti-patterns\n\n- Retrying on 4xx. Only retry timeouts, connection errors, 429, and 5xx.\n- Retrying inside a retry. Nested retries multiply: 3 x 3 = 9 calls.\n- Raising the timeout to \"fix\" a slow downstream. Fix the downstream.\n"
+  }
+ },
+ "list_tickets": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "ticket_id": 9101,
+     "key": "ENG-2101",
+     "type": "bug",
+     "title": "Payments error rate breaching the 1% SLO",
+     "description": "payments error_rate_pct is 4.2% against a 1.0% SLO (alarm 9601) Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "critical",
+     "assignee": "",
+     "service": "payments"
+    },
+    {
+     "ticket_id": 9102,
+     "key": "ENG-2102",
+     "type": "bug",
+     "title": "Inventory reservations failing under peak traffic",
+     "description": "inventory error_rate_pct is 4.7% against a 1.0% SLO (alarm 9606) and incident 9703 is open Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "inventory"
+    },
+    {
+     "ticket_id": 9103,
+     "key": "ENG-2103",
+     "type": "bug",
+     "title": "Analytics worker restarting under queue load",
+     "description": "analytics-worker error_rate_pct is 6.0% against a 2.0% SLO (alarm 9609) Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "analytics-worker"
+    },
+    {
+     "ticket_id": 9104,
+     "key": "ENG-2104",
+     "type": "bug",
+     "title": "Notification delivery failures from hung SMTP calls",
+     "description": "notifications error_rate_pct is 3.6% against a 1.5% SLO (alarm 9608) Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "notifications"
+    },
+    {
+     "ticket_id": 9105,
+     "key": "ENG-2105",
+     "type": "bug",
+     "title": "Payments: eliminate the permanent-failure path on notification timeouts",
+     "description": "payments error_rate_pct is 4.2% (SLO 1.0%) and the error tracker shows 18k events on 'pay-timeout-01' Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "critical",
+     "assignee": "",
+     "service": "payments"
+    },
+    {
+     "ticket_id": 9106,
+     "key": "ENG-2106",
+     "type": "bug",
+     "title": "Bring the payments notification timeout into policy",
+     "description": "payments waits 30s on the notifications call, far beyond the standard Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "payments"
+    },
+    {
+     "ticket_id": 9107,
+     "key": "ENG-2107",
+     "type": "bug",
+     "title": "Bring the checkout->payments timeout into policy",
+     "description": "checkout waits 8s on the payments call, beyond the standard Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "checkout"
+    },
+    {
+     "ticket_id": 9108,
+     "key": "ENG-2108",
+     "type": "bug",
+     "title": "Reduce analytics rollup batch size for backpressure",
+     "description": "large rollup batches amplify memory pressure on the consumer Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "low",
+     "assignee": "",
+     "service": "analytics-worker"
+    },
+    {
+     "ticket_id": 9109,
+     "key": "ENG-2201",
+     "type": "bug",
+     "title": "Search p99 latency exceeds the 300ms SLO",
+     "description": "search latency_p99_ms is 850ms against a 300ms SLO (alarm 9602) Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "search"
+    },
+    {
+     "ticket_id": 9110,
+     "key": "ENG-2202",
+     "type": "bug",
+     "title": "Catalog pricing p99 regression",
+     "description": "catalog latency_p99_ms is 645ms against a 300ms SLO (alarm 9605) Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "catalog"
+    },
+    {
+     "ticket_id": 9111,
+     "key": "ENG-2203",
+     "type": "bug",
+     "title": "Media assets served from origin instead of the CDN",
+     "description": "media-service latency_p99_ms is 800ms against a 400ms SLO (alarm 9607) Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "media-service"
+    },
+    {
+     "ticket_id": 9112,
+     "key": "ENG-2204",
+     "type": "bug",
+     "title": "Catalog: remove the N+1 pricing query from the hot path",
+     "description": "catalog latency_p99_ms is 645ms (SLO 300ms) Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "catalog"
+    },
+    {
+     "ticket_id": 9113,
+     "key": "ENG-2205",
+     "type": "bug",
+     "title": "Enable upstream connection reuse on the API gateway",
+     "description": "the gateway opens a new upstream connection per request and never releases it Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9114,
+     "key": "ENG-2206",
+     "type": "bug",
+     "title": "Align the catalog cache TTL with the caching standard",
+     "description": "catalog caches entries for only 120s, well under the standard Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "low",
+     "assignee": "",
+     "service": "catalog"
+    },
+    {
+     "ticket_id": 9115,
+     "key": "ENG-2207",
+     "type": "bug",
+     "title": "Increase search index shards for query parallelism",
+     "description": "search queries fan out over only 4 shards at 180 rps Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "search"
+    },
+    {
+     "ticket_id": 9116,
+     "key": "ENG-2208",
+     "type": "incident",
+     "title": "SEV1: roll back api-gateway v5.1.0 and file the postmortem",
+     "description": "Incident 9701: api-gateway p99 latency surged right after v5.1.0 was promoted.",
+     "status": "open",
+     "priority": "critical",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9117,
+     "key": "ENG-2301",
+     "type": "feature",
+     "title": "Ship express checkout behind a feature flag at 10%",
+     "description": "Implement the express_checkout module in the checkout service, gated behind a NEW feature flag named 'express_checkout', and roll it out to 10% of production traffic.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "checkout"
+    },
+    {
+     "ticket_id": 9118,
+     "key": "ENG-2302",
+     "type": "feature",
+     "title": "Ship search autocomplete behind a feature flag",
+     "description": "Implement the autocomplete module in the search service, gated behind a NEW feature flag named 'search_autocomplete', and roll it out to 10% of production traffic.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "search"
+    },
+    {
+     "ticket_id": 9119,
+     "key": "ENG-2303",
+     "type": "feature",
+     "title": "Ship saved carts (schema change) behind a feature flag",
+     "description": "Implement the saved_carts module in the checkout service, gated behind a NEW feature flag named 'saved_carts', and roll it out to 10% of production traffic.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "checkout"
+    },
+    {
+     "ticket_id": 9120,
+     "key": "ENG-2304",
+     "type": "feature",
+     "title": "Ship WebP delivery behind a feature flag",
+     "description": "Implement the webp_pipeline module in media-service, gated behind a NEW feature flag named 'webp_delivery', and roll it out to 10% of production traffic.",
+     "status": "open",
+     "priority": "low",
+     "assignee": "",
+     "service": "media-service"
+    },
+    {
+     "ticket_id": 9121,
+     "key": "ENG-2311",
+     "type": "incident",
+     "title": "Kill-switch instant_refunds and resolve the checkout error spike",
+     "description": "Incident 9702: the checkout error rate spiked right after the instant_refunds flag ramped in production.",
+     "status": "open",
+     "priority": "critical",
+     "assignee": "",
+     "service": "checkout"
+    },
+    {
+     "ticket_id": 9122,
+     "key": "ENG-2321",
+     "type": "task",
+     "title": "Clean up the fully rolled-out legacy_price_rounding flag",
+     "description": "The legacy_price_rounding flag has been fully rolled out for months and should be removed.",
+     "status": "open",
+     "priority": "low",
+     "assignee": "",
+     "service": "catalog"
+    },
+    {
+     "ticket_id": 9123,
+     "key": "ENG-2322",
+     "type": "task",
+     "title": "Clean up the fully rolled-out checkout_v2_layout flag",
+     "description": "The checkout_v2_layout flag has been fully rolled out for months and should be removed.",
+     "status": "open",
+     "priority": "low",
+     "assignee": "",
+     "service": "checkout"
+    },
+    {
+     "ticket_id": 9124,
+     "key": "SEC-901",
+     "type": "security",
+     "title": "Patch CVE-2026-31337 in libpayproc (payments)",
+     "description": "Scanner reports libpayproc in payments vulnerable to CVE-2026-31337; fixed in 2.4.0.",
+     "status": "open",
+     "priority": "critical",
+     "assignee": "",
+     "service": "payments"
+    },
+    {
+     "ticket_id": 9125,
+     "key": "SEC-902",
+     "type": "security",
+     "title": "Patch CVE-2026-40881 in stripe-sdk (checkout)",
+     "description": "Scanner reports stripe-sdk in checkout vulnerable to CVE-2026-40881; fixed in 11.4.0.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "checkout"
+    },
+    {
+     "ticket_id": 9126,
+     "key": "SEC-903",
+     "type": "security",
+     "title": "Patch CVE-2026-22190 in pydantic (catalog)",
+     "description": "Scanner reports pydantic in catalog vulnerable to CVE-2026-22190; fixed in 2.11.0.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "catalog"
+    },
+    {
+     "ticket_id": 9127,
+     "key": "SEC-904",
+     "type": "security",
+     "title": "Patch CVE-2026-51002 in requests (payments)",
+     "description": "Scanner reports requests in payments vulnerable to CVE-2026-51002; fixed in 2.33.0.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "payments"
+    },
+    {
+     "ticket_id": 9128,
+     "key": "SEC-905",
+     "type": "security",
+     "title": "Retire the exposed /internal/debug endpoint",
+     "description": "The unauthenticated /internal/debug endpoint is still reachable in production.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9129,
+     "key": "SEC-906",
+     "type": "security",
+     "title": "Retire the unauthenticated /internal/metrics endpoint",
+     "description": "The unauthenticated /internal/metrics endpoint is still reachable in production.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9130,
+     "key": "SEC-907",
+     "type": "security",
+     "title": "Remove the hardcoded partner API key from checkout",
+     "description": "A partner API key is hardcoded in src/checkout/config.py and must move to the secret manager.",
+     "status": "open",
+     "priority": "critical",
+     "assignee": "",
+     "service": "checkout"
+    },
+    {
+     "ticket_id": 9131,
+     "key": "ENG-2401",
+     "type": "task",
+     "title": "Migrate /v1/orders traffic to /v2/orders and retire v1",
+     "description": "Deprecate /v1/orders, migrate traffic to /v2/orders, and retire the legacy path.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9132,
+     "key": "ENG-2402",
+     "type": "task",
+     "title": "Migrate /v1/auth traffic to /v2/auth and retire v1",
+     "description": "Deprecate /v1/auth, migrate traffic to /v2/auth, and retire the legacy path.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9133,
+     "key": "ENG-2403",
+     "type": "task",
+     "title": "Migrate /v1/checkout traffic to /v2/checkout and retire v1",
+     "description": "Deprecate /v1/checkout, migrate traffic to /v2/checkout, and retire the legacy path.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9134,
+     "key": "ENG-2404",
+     "type": "task",
+     "title": "Migrate /v1/search traffic to /v2/search and retire v1",
+     "description": "Deprecate /v1/search, migrate traffic to /v2/search, and retire the legacy path.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9135,
+     "key": "ENG-2405",
+     "type": "task",
+     "title": "Migrate /v1/media traffic to /v2/media and retire v1",
+     "description": "Deprecate /v1/media, migrate traffic to /v2/media, and retire the legacy path.",
+     "status": "open",
+     "priority": "low",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9136,
+     "key": "ENG-2406",
+     "type": "task",
+     "title": "Migrate /v1/inventory traffic to /v2/inventory and retire v1",
+     "description": "Deprecate /v1/inventory, migrate traffic to /v2/inventory, and retire the legacy path.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9137,
+     "key": "ENG-2407",
+     "type": "task",
+     "title": "Migrate /v1/notify traffic to /v2/notify and retire v1",
+     "description": "Deprecate /v1/notify, migrate traffic to /v2/notify, and retire the legacy path.",
+     "status": "open",
+     "priority": "low",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9138,
+     "key": "ENG-2501",
+     "type": "bug",
+     "title": "Fix flaky test_checkout_idempotency",
+     "description": "test_checkout_idempotency fails intermittently in CI: the fixture derives idempotency keys from int(time.time()), so parallel runs collide.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "checkout"
+    },
+    {
+     "ticket_id": 9139,
+     "key": "ENG-2502",
+     "type": "bug",
+     "title": "Fix flaky test_price_rounding",
+     "description": "test_price_rounding fails intermittently in CI: the assertion depends on float rounding that varies with locale.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "catalog"
+    },
+    {
+     "ticket_id": 9140,
+     "key": "ENG-2503",
+     "type": "bug",
+     "title": "Fix flaky test_reservation_race",
+     "description": "test_reservation_race fails intermittently in CI: two threads race on the same stock row without a deterministic barrier.",
+     "status": "open",
+     "priority": "high",
+     "assignee": "",
+     "service": "inventory"
+    },
+    {
+     "ticket_id": 9141,
+     "key": "ENG-2504",
+     "type": "bug",
+     "title": "Fix flaky test_upstream_timeout",
+     "description": "test_upstream_timeout fails intermittently in CI: the test asserts on wall-clock timing with only a 50ms margin.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "api-gateway"
+    },
+    {
+     "ticket_id": 9142,
+     "key": "ENG-2505",
+     "type": "bug",
+     "title": "Fix flaky test_index_refresh",
+     "description": "test_index_refresh fails intermittently in CI: the test reads the index before the refresh interval has elapsed.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "search"
+    },
+    {
+     "ticket_id": 9143,
+     "key": "ENG-2506",
+     "type": "bug",
+     "title": "Fix flaky test_rollup_window",
+     "description": "test_rollup_window fails intermittently in CI: the rollup window boundary is computed from the current clock.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": "analytics-worker"
+    },
+    {
+     "ticket_id": 9144,
+     "key": "ENG-2601",
+     "type": "feature",
+     "title": "Roll out loyalty points across catalog, checkout and storefront-web",
+     "description": "Ship: loyalty_accrual in catalog, loyalty_redeem in checkout, loyalty_widget in storefront-web.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": ""
+    },
+    {
+     "ticket_id": 9145,
+     "key": "ENG-2602",
+     "type": "feature",
+     "title": "Roll out split settlement across payments and checkout",
+     "description": "Ship: split_settlement in payments, split_settlement_ui in checkout.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": ""
+    },
+    {
+     "ticket_id": 9146,
+     "key": "ENG-2603",
+     "type": "feature",
+     "title": "Roll out backorders across inventory, checkout and storefront-web",
+     "description": "Ship: backorder_queue in inventory, backorder_flow in checkout, backorder_banner in storefront-web.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": ""
+    },
+    {
+     "ticket_id": 9147,
+     "key": "ENG-2604",
+     "type": "feature",
+     "title": "Roll out the new media pipeline across media-service, catalog and storefront-web",
+     "description": "Ship: asset_pipeline in media-service, media_refs in catalog, gallery_v2 in storefront-web.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": ""
+    },
+    {
+     "ticket_id": 9148,
+     "key": "ENG-2605",
+     "type": "feature",
+     "title": "Roll out relevance signals across catalog and search",
+     "description": "Ship: relevance_signals in catalog, relevance_v2 in search.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": ""
+    },
+    {
+     "ticket_id": 9149,
+     "key": "ENG-2606",
+     "type": "feature",
+     "title": "Roll out templated receipts across notifications and payments",
+     "description": "Ship: template_v2 in notifications, receipt_v2 in payments.",
+     "status": "open",
+     "priority": "low",
+     "assignee": "",
+     "service": ""
+    },
+    {
+     "ticket_id": 9150,
+     "key": "ENG-2607",
+     "type": "feature",
+     "title": "Roll out checkout upsell across catalog, checkout and storefront-web",
+     "description": "Ship: upsell_slots in catalog, upsell_flow in checkout, upsell_widget in storefront-web.",
+     "status": "open",
+     "priority": "medium",
+     "assignee": "",
+     "service": ""
+    }
+   ],
+   "count": 50
+  }
+ },
+ "get_ticket": {
+  "args": {},
+  "result": {
+   "ticket_id": 9101,
+   "key": "ENG-2101",
+   "type": "bug",
+   "title": "Payments error rate breaching the 1% SLO",
+   "description": "payments error_rate_pct is 4.2% against a 1.0% SLO (alarm 9601) Investigate the root cause, ship the fix through the standard workflow, and follow the deployment policy.",
+   "status": "open",
+   "priority": "critical",
+   "assignee": "",
+   "service": "payments"
+  }
+ },
+ "list_pull_requests": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "number": 9201,
+     "service": "api-gateway",
+     "title": "Connection pool rewrite",
+     "body": "Perf: new upstream pool.",
+     "author": "Priya Nair",
+     "ticket_key": "",
+     "status": "merged",
+     "merged_version": "v5.1.0"
+    },
+    {
+     "number": 9202,
+     "service": "catalog",
+     "title": "Price rounding cleanup",
+     "body": "Draft, do not merge yet.",
+     "author": "Diego Ramos",
+     "ticket_key": "",
+     "status": "open",
+     "merged_version": ""
+    }
+   ],
+   "count": 2
+  }
+ },
+ "get_pull_request": {
+  "args": {},
+  "result": {
+   "number": 9201,
+   "service": "api-gateway",
+   "title": "Connection pool rewrite",
+   "body": "Perf: new upstream pool.",
+   "author": "Priya Nair",
+   "ticket_key": "",
+   "status": "merged",
+   "merged_version": "v5.1.0",
+   "changes": [],
+   "ci_runs": [
+    {
+     "run_id": 1,
+     "service": "api-gateway",
+     "pr_number": 9201,
+     "status": "passed",
+     "detail": "all checks passed"
+    }
+   ]
+  }
+ },
+ "list_ci_runs": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "run_id": 3,
+     "service": "checkout",
+     "pr_number": null,
+     "status": "passed",
+     "detail": "all checks passed"
+    },
+    {
+     "run_id": 2,
+     "service": "checkout",
+     "pr_number": null,
+     "status": "failed",
+     "detail": "intermittent failure: test_checkout_idempotency (rerun may pass)"
+    }
+   ],
+   "count": 2
+  }
+ },
+ "get_ci_run": {
+  "args": {},
+  "result": {
+   "run_id": 1,
+   "service": "api-gateway",
+   "pr_number": 9201,
+   "status": "passed",
+   "detail": "all checks passed",
+   "stages": [
+    {
+     "stage": "build",
+     "status": "passed",
+     "detail": "ok"
+    },
+    {
+     "stage": "unit",
+     "status": "passed",
+     "detail": "ok"
+    },
+    {
+     "stage": "integration",
+     "status": "passed",
+     "detail": "ok"
+    },
+    {
+     "stage": "regression",
+     "status": "passed",
+     "detail": "ok"
+    }
+   ]
+  }
+ },
+ "list_deployments": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "deployment_id": 9266,
+     "service": "api-gateway",
+     "environment": "production",
+     "version": "v5.1.0",
+     "status": "succeeded",
+     "canary_percent": 100
+    },
+    {
+     "deployment_id": 9265,
+     "service": "api-gateway",
+     "environment": "staging",
+     "version": "v5.1.0",
+     "status": "succeeded",
+     "canary_percent": 100
+    },
+    {
+     "deployment_id": 9254,
+     "service": "api-gateway",
+     "environment": "production",
+     "version": "v5.0.9",
+     "status": "succeeded",
+     "canary_percent": 100
+    },
+    {
+     "deployment_id": 9253,
+     "service": "api-gateway",
+     "environment": "staging",
+     "version": "v5.0.9",
+     "status": "succeeded",
+     "canary_percent": 100
+    }
+   ],
+   "count": 4
+  }
+ },
+ "list_migrations": {
+  "args": {},
+  "result": {
+   "applied": [
+    {
+     "migration_id": 3,
+     "service": "checkout",
+     "name": "0087_cart_line_discounts",
+     "environment": "staging",
+     "status": "applied"
+    },
+    {
+     "migration_id": 4,
+     "service": "checkout",
+     "name": "0087_cart_line_discounts",
+     "environment": "production",
+     "status": "applied"
+    }
+   ],
+   "declared_requirements": [
+    {
+     "service": "checkout",
+     "module": "loyalty_redeem",
+     "migration_name": "0088_loyalty_ledger"
+    },
+    {
+     "service": "catalog",
+     "module": "loyalty_accrual",
+     "migration_name": "0123_loyalty_points"
+    },
+    {
+     "service": "payments",
+     "module": "split_settlement",
+     "migration_name": "0042_settlement_splits"
+    },
+    {
+     "service": "inventory",
+     "module": "backorder_queue",
+     "migration_name": "0034_backorders"
+    },
+    {
+     "service": "checkout",
+     "module": "saved_carts",
+     "migration_name": "0089_saved_carts"
+    }
+   ]
+  }
+ },
+ "query_metrics": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "service": "analytics-worker",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 6.0
+    },
+    {
+     "service": "analytics-worker",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 300.0
+    },
+    {
+     "service": "api-gateway",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 0.2
+    },
+    {
+     "service": "api-gateway",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 1030.0
+    },
+    {
+     "service": "catalog",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 0.2
+    },
+    {
+     "service": "catalog",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 645.0
+    },
+    {
+     "service": "checkout",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 5.5
+    },
+    {
+     "service": "checkout",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 180.0
+    },
+    {
+     "service": "inventory",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 4.7
+    },
+    {
+     "service": "inventory",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 160.0
+    },
+    {
+     "service": "media-service",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 0.2
+    },
+    {
+     "service": "media-service",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 800.0
+    },
+    {
+     "service": "notifications",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 3.6
+    },
+    {
+     "service": "notifications",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 240.0
+    },
+    {
+     "service": "payments",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 4.2
+    },
+    {
+     "service": "payments",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 95.0
+    },
+    {
+     "service": "search",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 0.1
+    },
+    {
+     "service": "search",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 850.0
+    },
+    {
+     "service": "storefront-web",
+     "environment": "production",
+     "metric": "error_rate_pct",
+     "value": 0.2
+    },
+    {
+     "service": "storefront-web",
+     "environment": "production",
+     "metric": "latency_p99_ms",
+     "value": 220.0
+    }
+   ],
+   "count": 20
+  }
+ },
+ "get_traffic_stats": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "route_id": 9209,
+     "service": "payments",
+     "route": "POST /capture",
+     "rps": 132,
+     "share_pct": 100,
+     "error_rate_pct": 4.2,
+     "latency_p99_ms": 95.0,
+     "failed_requests_per_min": 332.6
+    }
+   ],
+   "count": 1
+  }
+ },
+ "get_slo_status": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "slo_id": 9501,
+     "service": "payments",
+     "metric": "error_rate_pct",
+     "threshold": 1.0,
+     "description": "Payments succeed 99% of the time.",
+     "current_value": 4.2,
+     "breaching": true
+    },
+    {
+     "slo_id": 9502,
+     "service": "search",
+     "metric": "latency_p99_ms",
+     "threshold": 300.0,
+     "description": "Search p99 under 300ms.",
+     "current_value": 850.0,
+     "breaching": true
+    },
+    {
+     "slo_id": 9503,
+     "service": "checkout",
+     "metric": "error_rate_pct",
+     "threshold": 1.0,
+     "description": "Checkout succeeds 99% of the time.",
+     "current_value": 5.5,
+     "breaching": true
+    },
+    {
+     "slo_id": 9504,
+     "service": "api-gateway",
+     "metric": "latency_p99_ms",
+     "threshold": 250.0,
+     "description": "Gateway p99 under 250ms.",
+     "current_value": 1030.0,
+     "breaching": true
+    },
+    {
+     "slo_id": 9505,
+     "service": "payments",
+     "metric": "latency_p99_ms",
+     "threshold": 200.0,
+     "description": "Payments p99 under 200ms.",
+     "current_value": 95.0,
+     "breaching": false
+    },
+    {
+     "slo_id": 9506,
+     "service": "checkout",
+     "metric": "latency_p99_ms",
+     "threshold": 400.0,
+     "description": "Checkout p99 under 400ms.",
+     "current_value": 180.0,
+     "breaching": false
+    },
+    {
+     "slo_id": 9507,
+     "service": "catalog",
+     "metric": "latency_p99_ms",
+     "threshold": 300.0,
+     "description": "Catalog p99 under 300ms.",
+     "current_value": 645.0,
+     "breaching": true
+    },
+    {
+     "slo_id": 9508,
+     "service": "inventory",
+     "metric": "error_rate_pct",
+     "threshold": 1.0,
+     "description": "Inventory reservations succeed 99% of the time.",
+     "current_value": 4.7,
+     "breaching": true
+    },
+    {
+     "slo_id": 9509,
+     "service": "media-service",
+     "metric": "latency_p99_ms",
+     "threshold": 400.0,
+     "description": "Media p99 under 400ms.",
+     "current_value": 800.0,
+     "breaching": true
+    },
+    {
+     "slo_id": 9510,
+     "service": "notifications",
+     "metric": "error_rate_pct",
+     "threshold": 1.5,
+     "description": "Notification delivery succeeds 98.5% of the time.",
+     "current_value": 3.6,
+     "breaching": true
+    },
+    {
+     "slo_id": 9511,
+     "service": "analytics-worker",
+     "metric": "error_rate_pct",
+     "threshold": 2.0,
+     "description": "Event processing succeeds 98% of the time.",
+     "current_value": 6.0,
+     "breaching": true
+    },
+    {
+     "slo_id": 9512,
+     "service": "storefront-web",
+     "metric": "latency_p99_ms",
+     "threshold": 500.0,
+     "description": "Storefront p99 under 500ms.",
+     "current_value": 220.0,
+     "breaching": false
+    }
+   ],
+   "count": 12
+  }
+ },
+ "list_alerts": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "alert_id": 9601,
+     "service": "payments",
+     "metric": "error_rate_pct",
+     "severity": "high",
+     "status": "firing",
+     "message": "payments error_rate_pct 4.2 exceeds SLO 1.0"
+    },
+    {
+     "alert_id": 9602,
+     "service": "search",
+     "metric": "latency_p99_ms",
+     "severity": "medium",
+     "status": "firing",
+     "message": "search latency_p99_ms 850.0 exceeds SLO 300.0"
+    },
+    {
+     "alert_id": 9603,
+     "service": "checkout",
+     "metric": "error_rate_pct",
+     "severity": "high",
+     "status": "firing",
+     "message": "checkout error_rate_pct 5.5 exceeds SLO 1.0"
+    },
+    {
+     "alert_id": 9604,
+     "service": "api-gateway",
+     "metric": "latency_p99_ms",
+     "severity": "critical",
+     "status": "firing",
+     "message": "api-gateway latency_p99_ms 1030.0 exceeds SLO 250.0"
+    },
+    {
+     "alert_id": 9605,
+     "service": "catalog",
+     "metric": "latency_p99_ms",
+     "severity": "medium",
+     "status": "firing",
+     "message": "catalog latency_p99_ms 645.0 exceeds SLO 300.0"
+    },
+    {
+     "alert_id": 9606,
+     "service": "inventory",
+     "metric": "error_rate_pct",
+     "severity": "high",
+     "status": "firing",
+     "message": "inventory error_rate_pct 4.7 exceeds SLO 1.0"
+    },
+    {
+     "alert_id": 9607,
+     "service": "media-service",
+     "metric": "latency_p99_ms",
+     "severity": "medium",
+     "status": "firing",
+     "message": "media-service latency_p99_ms 800.0 exceeds SLO 400.0"
+    },
+    {
+     "alert_id": 9608,
+     "service": "notifications",
+     "metric": "error_rate_pct",
+     "severity": "medium",
+     "status": "firing",
+     "message": "notifications error_rate_pct 3.6 exceeds SLO 1.5"
+    },
+    {
+     "alert_id": 9609,
+     "service": "analytics-worker",
+     "metric": "error_rate_pct",
+     "severity": "medium",
+     "status": "firing",
+     "message": "analytics-worker error_rate_pct 6.0 exceeds SLO 2.0"
+    }
+   ],
+   "count": 9
+  }
+ },
+ "list_error_events": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "event_id": 3,
+     "fingerprint": "gw-pool-exhaust",
+     "service": "api-gateway",
+     "title": "dial tcp: connection pool exhausted",
+     "culprit": "internal/proxy/pool.go in Acquire",
+     "events": 24187,
+     "status": "unresolved"
+    },
+    {
+     "event_id": 1,
+     "fingerprint": "pay-timeout-01",
+     "service": "payments",
+     "title": "ConnectionTimeout: notifications call exceeded 30000ms",
+     "culprit": "src/payments/notify_client.py in send_receipt",
+     "events": 18422,
+     "status": "unresolved"
+    },
+    {
+     "event_id": 2,
+     "fingerprint": "chk-nil-refund",
+     "service": "checkout",
+     "title": "TypeError: NoneType has no attribute 'amount'",
+     "culprit": "src/checkout/refunds.py in instant_refund",
+     "events": 9310,
+     "status": "unresolved"
+    },
+    {
+     "event_id": 4,
+     "fingerprint": "inv-pool-wait",
+     "service": "inventory",
+     "title": "SQLTimeoutException: connection wait timeout",
+     "culprit": "StockRepository.reserve",
+     "events": 7740,
+     "status": "unresolved"
+    },
+    {
+     "event_id": 6,
+     "fingerprint": "ntf-hang",
+     "service": "notifications",
+     "title": "SMTP call hung with no timeout configured",
+     "culprit": "src/notifications/sender.py in deliver",
+     "events": 5210,
+     "status": "unresolved"
+    },
+    {
+     "event_id": 5,
+     "fingerprint": "ana-oom",
+     "service": "analytics-worker",
+     "title": "MemoryError: consumer restarted after OOM",
+     "culprit": "src/analytics/consumer.py in run",
+     "events": 1180,
+     "status": "unresolved"
+    }
+   ],
+   "count": 6
+  }
+ },
+ "search_logs": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "log_id": 9010,
+     "service": "payments",
+     "environment": "production",
+     "level": "ERROR",
+     "message": "ConnectionTimeout calling notifications after 30000ms - request failed permanently (notifications_retry_max_attempts=0, no retry attempted); order marked failed"
+    },
+    {
+     "log_id": 9011,
+     "service": "payments",
+     "environment": "production",
+     "level": "ERROR",
+     "message": "ConnectionTimeout calling notifications after 30000ms - request failed permanently (notifications_retry_max_attempts=0, no retry attempted); order marked failed"
+    },
+    {
+     "log_id": 9012,
+     "service": "payments",
+     "environment": "production",
+     "level": "INFO",
+     "message": "startup config: notifications_retry_max_attempts=0 notifications_timeout_ms=30000 db_pool_size=20"
+    }
+   ],
+   "count": 3
+  }
+ },
+ "list_feature_flags": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "flag_id": 9307,
+     "key": "checkout_v2_layout",
+     "service": "checkout",
+     "description": "Checkout redesign, fully rolled out last quarter; stale flag.",
+     "environment": "production",
+     "enabled": 1,
+     "rollout_percent": 100
+    },
+    {
+     "flag_id": 9308,
+     "key": "checkout_v2_layout",
+     "service": "checkout",
+     "description": "Checkout redesign, fully rolled out last quarter; stale flag.",
+     "environment": "staging",
+     "enabled": 1,
+     "rollout_percent": 100
+    },
+    {
+     "flag_id": 9301,
+     "key": "instant_refunds",
+     "service": "checkout",
+     "description": "Pilot: refund immediately at checkout instead of async batch.",
+     "environment": "production",
+     "enabled": 1,
+     "rollout_percent": 100
+    },
+    {
+     "flag_id": 9302,
+     "key": "instant_refunds",
+     "service": "checkout",
+     "description": "Pilot: refund immediately at checkout instead of async batch.",
+     "environment": "staging",
+     "enabled": 1,
+     "rollout_percent": 100
+    },
+    {
+     "flag_id": 9305,
+     "key": "legacy_price_rounding",
+     "service": "catalog",
+     "description": "Fully rolled out 6 months ago; stale flag pending cleanup.",
+     "environment": "production",
+     "enabled": 1,
+     "rollout_percent": 100
+    },
+    {
+     "flag_id": 9306,
+     "key": "legacy_price_rounding",
+     "service": "catalog",
+     "description": "Fully rolled out 6 months ago; stale flag pending cleanup.",
+     "environment": "staging",
+     "enabled": 1,
+     "rollout_percent": 100
+    },
+    {
+     "flag_id": 9303,
+     "key": "new_search_ui",
+     "service": "search",
+     "description": "Redesigned search results page.",
+     "environment": "production",
+     "enabled": 0,
+     "rollout_percent": 0
+    },
+    {
+     "flag_id": 9304,
+     "key": "new_search_ui",
+     "service": "search",
+     "description": "Redesigned search results page.",
+     "environment": "staging",
+     "enabled": 1,
+     "rollout_percent": 100
+    }
+   ],
+   "count": 8
+  }
+ },
+ "list_packages": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "service": "payments",
+     "package": "libpayproc",
+     "repo_version": "2.3.1",
+     "production_version": "2.3.1"
+    },
+    {
+     "service": "payments",
+     "package": "requests",
+     "repo_version": "2.32.3",
+     "production_version": "2.32.3"
+    }
+   ],
+   "count": 2
+  }
+ },
+ "list_vulnerabilities": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "vuln_id": 9801,
+     "cve": "CVE-2026-31337",
+     "package": "libpayproc",
+     "service": "payments",
+     "severity": "critical",
+     "fixed_version": "2.4.0",
+     "status": "open"
+    },
+    {
+     "vuln_id": 9802,
+     "cve": "CVE-2026-40881",
+     "package": "stripe-sdk",
+     "service": "checkout",
+     "severity": "high",
+     "fixed_version": "11.4.0",
+     "status": "open"
+    },
+    {
+     "vuln_id": 9803,
+     "cve": "CVE-2026-22190",
+     "package": "pydantic",
+     "service": "catalog",
+     "severity": "medium",
+     "fixed_version": "2.11.0",
+     "status": "remediated"
+    },
+    {
+     "vuln_id": 9804,
+     "cve": "CVE-2026-51002",
+     "package": "requests",
+     "service": "payments",
+     "severity": "high",
+     "fixed_version": "2.33.0",
+     "status": "open"
+    }
+   ],
+   "count": 4
+  }
+ },
+ "list_api_endpoints": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "service": "api-gateway",
+     "path": "/internal/debug",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 0
+    },
+    {
+     "service": "api-gateway",
+     "path": "/internal/metrics",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 0
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v1/auth",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 100
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v1/checkout",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 100
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v1/inventory",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 100
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v1/media",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 100
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v1/notify",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 100
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v1/orders",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 100
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v1/search",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 100
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v2/auth",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 0
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v2/checkout",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 0
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v2/inventory",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 0
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v2/media",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 0
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v2/notify",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 0
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v2/orders",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 0
+    },
+    {
+     "service": "api-gateway",
+     "path": "/v2/search",
+     "repo_status": "active",
+     "production_status": "active",
+     "production_traffic_percent": 0
+    }
+   ],
+   "count": 16
+  }
+ },
+ "list_tests": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "test_id": 9901,
+     "service": "checkout",
+     "suite": "unit",
+     "name": "test_cart_totals",
+     "status": "passing",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9902,
+     "service": "checkout",
+     "suite": "integration",
+     "name": "test_checkout_idempotency",
+     "status": "flaky",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9903,
+     "service": "payments",
+     "suite": "unit",
+     "name": "test_capture_retries",
+     "status": "passing",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9904,
+     "service": "search",
+     "suite": "unit",
+     "name": "test_ranking",
+     "status": "passing",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9905,
+     "service": "catalog",
+     "suite": "integration",
+     "name": "test_price_rounding",
+     "status": "flaky",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9906,
+     "service": "inventory",
+     "suite": "integration",
+     "name": "test_reservation_race",
+     "status": "flaky",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9907,
+     "service": "api-gateway",
+     "suite": "integration",
+     "name": "test_upstream_timeout",
+     "status": "flaky",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9908,
+     "service": "notifications",
+     "suite": "unit",
+     "name": "test_template_render",
+     "status": "passing",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9909,
+     "service": "storefront-web",
+     "suite": "unit",
+     "name": "test_cart_selector",
+     "status": "passing",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9910,
+     "service": "analytics-worker",
+     "suite": "integration",
+     "name": "test_rollup_window",
+     "status": "flaky",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9911,
+     "service": "media-service",
+     "suite": "unit",
+     "name": "test_thumbnail_sizes",
+     "status": "passing",
+     "quarantined": 0
+    },
+    {
+     "test_id": 9912,
+     "service": "search",
+     "suite": "integration",
+     "name": "test_index_refresh",
+     "status": "flaky",
+     "quarantined": 0
+    }
+   ],
+   "count": 12
+  }
+ },
+ "list_incidents": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "incident_id": 9701,
+     "severity": "sev1",
+     "title": "API gateway latency surge after v5.1.0 rollout",
+     "service": "api-gateway",
+     "status": "open",
+     "commander": ""
+    },
+    {
+     "incident_id": 9702,
+     "severity": "sev2",
+     "title": "Checkout error spike since instant_refunds ramp",
+     "service": "checkout",
+     "status": "open",
+     "commander": ""
+    },
+    {
+     "incident_id": 9703,
+     "severity": "sev2",
+     "title": "Inventory reservation failures during peak",
+     "service": "inventory",
+     "status": "open",
+     "commander": ""
+    }
+   ],
+   "count": 3
+  }
+ },
+ "get_status_page": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "post_id": 1,
+     "state": "resolved",
+     "title": "Scheduled maintenance completed",
+     "body": "Catalog read replica maintenance completed with no customer impact."
+    }
+   ],
+   "count": 1
+  }
+ },
+ "list_messages": {
+  "args": {},
+  "result": {
+   "rows": [
+    {
+     "message_id": 3,
+     "channel": "#incidents",
+     "author": "Alex Osei",
+     "body": "Incident 9703 (sev2): inventory reservations timing out at peak; pool looks undersized."
+    },
+    {
+     "message_id": 2,
+     "channel": "#incidents",
+     "author": "Diego Ramos",
+     "body": "Incident 9702 (sev2): checkout error rate tracks the instant_refunds ramp exactly."
+    },
+    {
+     "message_id": 1,
+     "channel": "#incidents",
+     "author": "Priya Nair",
+     "body": "Declared incident 9701 (sev1): api-gateway p99 through the roof since the v5.1.0 promote."
+    }
+   ],
+   "count": 3
+  }
+ },
+ "create_ticket": {
+  "args": {
+   "title": "Rotate the partner API credential",
+   "ticket_type": "security",
+   "service": "checkout",
+   "priority": "high",
+   "description": "Follow-up to SEC-907."
+  },
+  "result": {
+   "ok": true,
+   "key": "TKT-9151",
+   "ticket_id": 9151,
+   "status": "open"
+  }
+ },
+ "update_ticket": {
+  "args": {
+   "key": "ENG-2101",
+   "status": "in_progress",
+   "assignee": "agent"
+  },
+  "result": {
+   "ok": true,
+   "key": "ENG-2101",
+   "status": "in_progress",
+   "assignee": "agent"
+  }
+ },
+ "open_pull_request": {
+  "args": {
+   "service": "checkout",
+   "title": "checkout: saved carts",
+   "body": "Adds saved_carts behind a migration. ENG-2303.",
+   "ticket_key": "ENG-2303",
+   "changes": [
+    {
+     "change_type": "module",
+     "payload": {
+      "name": "saved_carts"
+     }
+    },
+    {
+     "change_type": "migration",
+     "payload": {
+      "name": "0089_saved_carts"
+     }
+    }
+   ]
+  },
+  "result": {
+   "ok": true,
+   "pr_number": 9204,
+   "service": "checkout",
+   "status": "open",
+   "next": "run_ci(pr_number=9204) then merge_pull_request(pr_number=9204)"
+  }
+ },
+ "run_ci": {
+  "args": {
+   "pr_number": 9204
+  },
+  "result": {
+   "ok": true,
+   "run_id": 16,
+   "service": "checkout",
+   "pr_number": 9204,
+   "status": "passed",
+   "detail": "all stages passed",
+   "stages": [
+    {
+     "stage": "build",
+     "status": "passed",
+     "detail": "compiled and packaged"
+    },
+    {
+     "stage": "unit",
+     "status": "passed",
+     "detail": "unit suite green"
+    },
+    {
+     "stage": "integration",
+     "status": "passed",
+     "detail": "integration suite green"
+    },
+    {
+     "stage": "regression",
+     "status": "passed",
+     "detail": "no regressions in dependent services"
+    }
+   ]
+  }
+ },
+ "merge_pull_request": {
+  "args": {
+   "pr_number": 9204
+  },
+  "result": {
+   "ok": true,
+   "pr_number": 9204,
+   "service": "checkout",
+   "merged_version": "v2.6.4",
+   "next": "apply_migration then deploy_service",
+   "requires_migration": "0089_saved_carts"
+  }
+ },
+ "deploy_service": {
+  "args": {
+   "service": "checkout",
+   "environment": "production",
+   "canary_percent": 25
+  },
+  "result": {
+   "ok": true,
+   "deployment_id": 9276,
+   "service": "checkout",
+   "environment": "production",
+   "version": "v2.6.4",
+   "status": "canary",
+   "canary_percent": 25,
+   "applied": false,
+   "next": "assess_canary(service=...) then promote_canary(service=...)"
+  }
+ },
+ "set_feature_flag": {
+  "args": {
+   "key": "instant_refunds",
+   "environment": "production",
+   "enabled": false
+  },
+  "result": {
+   "ok": true,
+   "key": "instant_refunds",
+   "environment": "production",
+   "enabled": 0,
+   "rollout_percent": 100
+  }
+ },
+ "acknowledge_alert": {
+  "args": {
+   "alert_id": 9602
+  },
+  "result": {
+   "ok": true,
+   "alert_id": 9602,
+   "status": "acknowledged"
+  }
+ },
+ "resolve_alert": {
+  "args": {
+   "alert_id": 9602
+  },
+  "result": {
+   "ok": true,
+   "alert_id": 9602,
+   "status": "resolved"
+  }
+ },
+ "resolve_error_event": {
+  "args": {
+   "fingerprint": "ntf-hang"
+  },
+  "result": {
+   "ok": false,
+   "error": "notifications is still breaching: error_rate_pct=3.6 (SLO 1.5)"
+  }
+ },
+ "shift_endpoint_traffic": {
+  "args": {
+   "service": "api-gateway",
+   "path": "/v2/orders",
+   "traffic_percent": 50
+  },
+  "result": {
+   "ok": true,
+   "service": "api-gateway",
+   "path": "/v2/orders",
+   "from_percent": 0,
+   "to_percent": 50
+  }
+ },
+ "create_incident": {
+  "args": {
+   "title": "Search latency regression",
+   "service": "search",
+   "severity": "sev3"
+  },
+  "result": {
+   "ok": true,
+   "incident_id": 9704,
+   "status": "open"
+  }
+ },
+ "update_incident": {
+  "args": {
+   "incident_id": 9703,
+   "status": "mitigated",
+   "commander": "agent"
+  },
+  "result": {
+   "ok": true,
+   "incident_id": 9703,
+   "status": "mitigated",
+   "commander": "agent"
+  }
+ },
+ "publish_status_update": {
+  "args": {
+   "state": "monitoring",
+   "title": "Search performance improving",
+   "body": "We have enabled additional caching and are monitoring recovery."
+  },
+  "result": {
+   "ok": true,
+   "post_id": 2,
+   "state": "monitoring"
+  }
+ },
+ "post_message": {
+  "args": {
+   "channel": "#deploys",
+   "body": "search v3.0.6 promoted to production."
+  },
+  "result": {
+   "ok": true,
+   "message_id": 7,
+   "channel": "#deploys"
+  }
+ },
+ "apply_migration": {
+  "args": {
+   "service": "checkout",
+   "name": "0089_saved_carts",
+   "environment": "production"
+  },
+  "result": {
+   "ok": true,
+   "service": "checkout",
+   "name": "0089_saved_carts",
+   "environment": "production",
+   "status": "applied"
+  }
+ },
+ "assess_canary": {
+  "args": {
+   "service": "checkout"
+  },
+  "result": {
+   "ok": true,
+   "service": "checkout",
+   "environment": "production",
+   "deployment_id": 9276,
+   "version": "v2.6.4",
+   "verdict": "healthy",
+   "detail": "no new SLO breach detected in the canary population",
+   "next": "promote_canary"
+  }
+ },
+ "promote_canary": {
+  "args": {
+   "service": "checkout"
+  },
+  "result": {
+   "ok": true,
+   "deployment_id": 9276,
+   "service": "checkout",
+   "environment": "production",
+   "version": "v2.6.4",
+   "status": "succeeded"
+  }
+ },
+ "rollback_deployment": {
+  "args": {
+   "service": "checkout",
+   "environment": "production"
+  },
+  "result": {
+   "ok": true,
+   "service": "checkout",
+   "environment": "production",
+   "from_version": "v2.6.4",
+   "to_version": "v2.6.3"
+  }
+ }
+}

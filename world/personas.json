@@ -73,5 +73,24 @@
       "incident review",
       "backlog triage"
     ]
+  },
+  {
+    "persona_id": "persona_alex",
+    "name": "Alex Osei",
+    "role": "sre",
+    "department": "sre",
+    "seniority": "senior",
+    "communication_style": "direct",
+    "technical_level": "expert",
+    "domain_knowledge": [
+      "capacity",
+      "queues",
+      "databases"
+    ],
+    "common_tasks": [
+      "pool tuning",
+      "queue tuning",
+      "capacity planning"
+    ]
   }
 ]

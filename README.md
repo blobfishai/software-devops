@@ -7,12 +7,20 @@ in the [Blobfish](https://blobfish.ai/api-docs) world format (Format A), so it
 runs under the `blobfish` CLI/MCP tooling *and* fully standalone with zero
 dependencies.
 
-The world simulates **NovaCart**, a mid-size e-commerce SaaS: seven services,
-four teams, and the full org stack — tickets, PRs carrying structured changes,
-CI, staged deployments with canaries, feature flags, metrics/SLOs/alerts, logs,
-runbooks, dependency/vulnerability scanning, incidents, and chat. Agents solve
-long-horizon workflows: **investigate → PR → CI → merge → staging → canary →
-promote → observe → resolve → close the ticket.**
+The world simulates **NovaCart**, a mid-size e-commerce SaaS, and implements the
+environment the blog describes: an editable **monorepo** (38 files, 417 commits)
+the agent reads and patches; a full **application stack** (10 services over a
+database, replica, cache, queue, object store and CDN); a **traffic generator**
+that turns deployed state into live metrics; and the tools engineers actually
+use — issue tracker, knowledge base (30 runbooks/ADRs/postmortems/API specs),
+chat, deployment tooling with **database migrations** and **canary assessment**,
+logs, metrics, alarms, **error tracking**, and a public **status page**.
+Agents solve long-horizon workflows: **investigate → PR → CI (build · unit ·
+integration · regression) → merge → migrate → staging → canary → promote →
+observe → resolve → close the ticket.**
+
+**50 tasks across the benchmark's seven categories**, graded on both
+Horizon-SWE-PF (binary) and Horizon-SWE-PC (composite).
 
 ## Why it's hard (and honest)
 
@@ -45,20 +53,19 @@ promote → observe → resolve → close the ticket.**
   corruption families (no-op, wrong-target, partial-completion, over-repair,
   zero-tool-call) at 1.000 recall.
 
-## The 10 tasks (all seven Horizon-SWE categories)
+## The 50 tasks
 
-| Task | Category | Difficulty | Split |
-|---|---|---|---|
-| `tsk_payments_error_rate` | error-rate reduction (missing retries) | hard | train |
-| `tsk_search_latency_slo` | latency optimization (cache disabled) | medium | heldout |
-| `tsk_express_checkout_flag` | feature-flag rollout (dark ship, 10%) | hard | train |
-| `tsk_instant_refunds_killswitch` | feature-flag kill switch + incident | medium | train |
-| `tsk_libpayproc_cve` | security response (CVE dependency patch) | hard | train |
-| `tsk_retire_debug_endpoint` | security response (exposed endpoint) | medium | heldout |
-| `tsk_loyalty_multi_service` | multi-service rollout in dependency order | expert | heldout |
-| `tsk_orders_api_migration` | API migration (deprecate → drain → retire) | expert | train |
-| `tsk_flaky_checkout_test` | flaky-test remediation (3 green runs) | hard | train |
-| `tsk_gateway_rollback_sev1` | incident response (rollback + postmortem) | hard | train |
+| Category | Tasks | Examples |
+|---|---|---|
+| error-rate reduction | 8 | missing retries, undersized pool, unbounded queue prefetch, no SMTP timeout |
+| latency optimization | 8 | disabled query cache, N+1 pricing loop, CDN bypass, SEV1 rollback |
+| feature flag | 7 | dark ship at 10%, ship behind a migration, kill switch, stale-flag cleanup |
+| security incident | 7 | four CVE patches, two exposed endpoints, hardcoded credential in source |
+| API migration | 7 | deprecate → drain ≤50pp/step → retire, incl. consumer contract migration |
+| multi-service rollout | 7 | ordered rollouts across 2–3 services with migrations |
+| flaky test | 6 | diagnose from CI history, fix (not quarantine), prove 3 green runs |
+
+41 train / 9 heldout, split per category. Difficulty: 23 medium, 16 hard, 11 expert.
 
 ## Quickstart
 

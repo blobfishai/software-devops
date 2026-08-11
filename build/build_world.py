@@ -1,9 +1,9 @@
-"""Deterministic builder for the software-devops world.
+"""Deterministic builder for the software-devops world (v2).
 
-Produces a blobfish Format-A world package in ./world and hard-gates quality:
+Produces a blobfish Format-A package in ./world and hard-gates quality:
   1. every task's vcode FAILS on the pristine seed (no free reward),
   2. every task's expected_calls oracle replays cleanly through the real tools,
-  3. every task's vcode PASSES after its oracle replay.
+  3. every task's vcode PASSES after its oracle replay at PC score 1.0.
 
 Run:  python3 build/build_world.py [--out world]
 """
@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import pathlib
+import re
 import shutil
 import sqlite3
 import sys
@@ -21,166 +22,213 @@ HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import schema_seed as S          # noqa: E402
+import task_specs                # noqa: E402
 import tasks_def                 # noqa: E402
 from tools_src import make_tools, ENGINE_SNIPPET  # noqa: E402
 
-CREATED_AT = 1786000000.0        # fixed: builds are byte-stable
+try:
+    from content_code import REPO_FILES, COMMITS
+except Exception:                # pragma: no cover - content authored separately
+    REPO_FILES, COMMITS = [], []
+try:
+    from content_docs import DOCUMENTS
+except Exception:                # pragma: no cover
+    DOCUMENTS = []
+
+CREATED_AT = 1786000000.0
 SEED = 42
+FROZEN_TABLES = ("oncall", "slos", "metric_rules", "runbooks_placeholder")
+# Tables no tool can write (byte-compared) and inventories that must not grow.
+FROZEN = ("oncall", "slos", "metric_rules", "documents", "channels", "logs",
+          "infra_components", "service_dependencies",
+          "migration_requirements", "contract_rules", "commits")
+# traffic_profile is legitimately updated by shift_endpoint_traffic, so only its
+# row count is pinned; the rest may not gain or lose rows either.
+FIXED_ROWS = ("services", "tests_catalog", "vulnerabilities", "repo_files",
+              "traffic_profile")
 
-
-# ---------------------------------------------------------------------------
-# database construction
-# ---------------------------------------------------------------------------
 
 def build_db(db_path):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     conn.executescript(S.SCHEMA_SQL)
 
-    conn.executemany(
-        "INSERT INTO services(service_id, name, team, tier, language, description, repo_version) "
-        "VALUES (?,?,?,?,?,?,?)", S.SERVICES)
+    conn.executemany("INSERT INTO services(service_id, name, kind, team, tier, language, "
+                     "description, repo_version) VALUES (?,?,?,?,?,?,?,?)", S.SERVICES)
+    conn.executemany("INSERT INTO infra_components(component_id, name, kind, status, detail) "
+                     "VALUES (?,?,?,?,?)", S.INFRA)
+    conn.executemany("INSERT INTO service_dependencies(service, depends_on, kind) VALUES (?,?,?)",
+                     S.SERVICE_DEPS)
     conn.executemany("INSERT INTO oncall(team, engineer) VALUES (?,?)", S.ONCALL)
-    conn.executemany(
-        "INSERT INTO tickets(ticket_id, key, type, title, description, status, priority, assignee, service) "
-        "VALUES (?,?,?,?,?,?,?,?,?)", S.TICKETS)
-    conn.executemany(
-        "INSERT INTO pull_requests(number, service, title, body, author, ticket_key, status, merged_version) "
-        "VALUES (?,?,?,?,?,?,?,?)", S.PULL_REQUESTS)
-    conn.executemany(
-        "INSERT INTO ci_runs(service, pr_number, status, detail) VALUES (?,?,?,?)", S.CI_RUNS)
-    conn.executemany(
-        "INSERT INTO deployments(deployment_id, service, environment, version, status, canary_percent) "
-        "VALUES (?,?,?,?,?,?)", S.DEPLOYMENTS)
-    conn.executemany(
-        "INSERT INTO feature_flags(flag_id, key, service, description, environment, enabled, rollout_percent) "
-        "VALUES (?,?,?,?,?,?,?)", S.FEATURE_FLAGS)
-    conn.executemany(
-        "INSERT INTO metric_rules(rule_id, service, metric, kind, ckey, cvalue, value) "
-        "VALUES (?,?,?,?,?,?,?)", S.METRIC_RULES)
-    conn.executemany(
-        "INSERT INTO slos(slo_id, service, metric, threshold, description) VALUES (?,?,?,?,?)", S.SLOS)
-    conn.executemany(
-        "INSERT INTO alerts(alert_id, service, metric, severity, status, message) "
-        "VALUES (?,?,?,?,?,?)", S.ALERTS)
-    conn.executemany(
-        "INSERT INTO incidents(incident_id, severity, title, service, status, commander) "
-        "VALUES (?,?,?,?,?,?)", S.INCIDENTS)
-    conn.executemany(
-        "INSERT INTO logs(log_id, service, environment, level, message) VALUES (?,?,?,?,?)", S.LOGS)
-    conn.executemany(
-        "INSERT INTO runbooks(runbook_id, title, body) VALUES (?,?,?)", S.RUNBOOKS)
-    conn.executemany(
-        "INSERT INTO tests_catalog(test_id, service, suite, name, status, quarantined) "
-        "VALUES (?,?,?,?,?,?)", S.TESTS)
-    conn.executemany(
-        "INSERT INTO vulnerabilities(vuln_id, cve, package, service, severity, fixed_version, status) "
-        "VALUES (?,?,?,?,?,?,?)", S.VULNERABILITIES)
+    conn.executemany("INSERT INTO tickets(ticket_id, key, type, title, description, status, "
+                     "priority, assignee, service) VALUES (?,?,?,?,?,?,?,?,?)",
+                     task_specs.tickets())
+    conn.executemany("INSERT INTO pull_requests(number, service, title, body, author, ticket_key, "
+                     "status, merged_version) VALUES (?,?,?,?,?,?,?,?)", S.PULL_REQUESTS)
+    conn.executemany("INSERT INTO deployments(deployment_id, service, environment, version, "
+                     "status, canary_percent) VALUES (?,?,?,?,?,?)", S.DEPLOYMENTS)
+    conn.executemany("INSERT INTO feature_flags(flag_id, key, service, description, environment, "
+                     "enabled, rollout_percent) VALUES (?,?,?,?,?,?,?)", S.FEATURE_FLAGS)
+    conn.executemany("INSERT INTO metric_rules(rule_id, service, metric, kind, ckey, cvalue, "
+                     "value) VALUES (?,?,?,?,?,?,?)", S.METRIC_RULES)
+    conn.executemany("INSERT INTO slos(slo_id, service, metric, threshold, description) "
+                     "VALUES (?,?,?,?,?)", S.SLOS)
+    conn.executemany("INSERT INTO traffic_profile(route_id, service, route, rps, share_pct) "
+                     "VALUES (?,?,?,?,?)", S.TRAFFIC_PROFILE)
+    conn.executemany("INSERT INTO alerts(alert_id, service, metric, severity, status, message) "
+                     "VALUES (?,?,?,?,?,?)", S.ALERTS)
+    conn.executemany("INSERT INTO incidents(incident_id, severity, title, service, status, "
+                     "commander) VALUES (?,?,?,?,?,?)", S.INCIDENTS)
+    conn.executemany("INSERT INTO status_page(state, title, body) VALUES (?,?,?)", S.STATUS_PAGE)
+    conn.executemany("INSERT INTO error_events(fingerprint, service, title, culprit, events, "
+                     "status) VALUES (?,?,?,?,?,?)", S.ERROR_EVENTS)
+    conn.executemany("INSERT INTO logs(log_id, service, environment, level, message) "
+                     "VALUES (?,?,?,?,?)", S.LOGS)
+    conn.executemany("INSERT INTO tests_catalog(test_id, service, suite, name, status, "
+                     "quarantined) VALUES (?,?,?,?,?,?)", S.TESTS)
+    conn.executemany("INSERT INTO vulnerabilities(vuln_id, cve, package, service, severity, "
+                     "fixed_version, status) VALUES (?,?,?,?,?,?,?)", S.VULNERABILITIES)
     conn.executemany("INSERT INTO channels(channel, purpose) VALUES (?,?)", S.CHANNELS)
     conn.executemany("INSERT INTO messages(channel, author, body) VALUES (?,?,?)", S.MESSAGES)
+    conn.executemany("INSERT INTO migration_requirements(req_id, service, module, migration_name) "
+                     "VALUES (?,?,?,?)", S.MIGRATION_REQUIREMENTS)
+    conn.executemany("INSERT INTO contract_rules(rule_id, producer_service, endpoint, "
+                     "consumer_service, consumer_key, consumer_required_value, message) "
+                     "VALUES (?,?,?,?,?,?,?)", S.CONTRACT_RULES)
+    conn.executemany("INSERT INTO migrations(service, name, environment, status) VALUES (?,?,?,?)",
+                     S.MIGRATIONS)
 
-    # repo_state + mirrored env_state (baseline: HEAD is what is deployed).
+    # monorepo
+    for f in REPO_FILES:
+        conn.execute("INSERT INTO repo_files(service, path, language, owner, loc, content) "
+                     "VALUES (?,?,?,?,?,?)",
+                     (f["service"], f["path"], f.get("language", "text"), f.get("owner", ""),
+                      len(f["content"].splitlines()), f["content"]))
+    for c in COMMITS:
+        conn.execute("INSERT INTO commits(sha, service, author, day, message, files, additions, "
+                     "deletions) VALUES (?,?,?,?,?,?,?,?)",
+                     (c["sha"], c["service"], c["author"], int(c["day"]), c["message"],
+                      c.get("files", ""), int(c.get("additions", 0)), int(c.get("deletions", 0))))
+    # knowledge base (normalise the CDN runbook onto media-service)
+    for d in DOCUMENTS:
+        svc = d.get("service", "")
+        if "CDN" in d["title"] and svc == "catalog":
+            svc = "media-service"
+        conn.execute("INSERT INTO documents(doc_id, kind, title, service, author, day, body) "
+                     "VALUES (?,?,?,?,?,?,?)",
+                     (d["doc_id"], d["kind"], d["title"], svc, d.get("author", ""),
+                      int(d.get("day", 0)), d["body"]))
+
+    # repo + env state
     for svc, rows in S.REPO_STATE.items():
         for kind, key, value in rows:
             conn.execute("INSERT INTO repo_state(service, kind, key, value) VALUES (?,?,?,?)",
                          (svc, kind, key, value))
             for env in S.ENVIRONMENTS:
-                conn.execute(
-                    "INSERT INTO env_state(service, environment, kind, key, value) VALUES (?,?,?,?,?)",
-                    (svc, env, kind, key, value))
-    for (sid, name, team, tier, lang, desc, version) in S.SERVICES:
+                conn.execute("INSERT INTO env_state(service, environment, kind, key, value) "
+                             "VALUES (?,?,?,?,?)", (svc, env, kind, key, value))
+    for row in S.SERVICES:
+        name, version = row[1], row[7]
         for env in S.ENVIRONMENTS:
-            conn.execute(
-                "INSERT INTO env_state(service, environment, kind, key, value) "
-                "VALUES (?,?,'version','current',?)", (name, env, version))
+            conn.execute("INSERT INTO env_state(service, environment, kind, key, value) "
+                         "VALUES (?,?,'version','current',?)", (name, env, version))
     for svc, rows in S.PRODUCTION_TRAFFIC.items():
         for path, pct in rows:
-            conn.execute(
-                "INSERT INTO env_state(service, environment, kind, key, value) "
-                "VALUES (?,'production','traffic',?,?)", (svc, path, pct))
+            conn.execute("INSERT INTO env_state(service, environment, kind, key, value) "
+                         "VALUES (?,'production','traffic',?,?)", (svc, path, pct))
 
-    # version snapshots (current HEAD per service + curated historical versions)
     def snapshot(svc):
-        rows = conn.execute(
-            "SELECT kind, key, value FROM repo_state WHERE service=? AND "
-            "kind IN ('config','dependency','endpoint','module') ORDER BY kind, key",
-            (svc,)).fetchall()
+        rows = conn.execute("SELECT kind, key, value FROM repo_state WHERE service=? AND "
+                            "kind IN ('config','dependency','endpoint','module') ORDER BY kind, key",
+                            (svc,)).fetchall()
         return json.dumps([[r["kind"], r["key"], r["value"]] for r in rows])
 
-    for (sid, name, team, tier, lang, desc, version) in S.SERVICES:
+    for row in S.SERVICES:
         conn.execute("INSERT INTO versions(service, version, state_json) VALUES (?,?,?)",
-                     (name, version, snapshot(name)))
+                     (row[1], row[7], snapshot(row[1])))
     for svc, extra in S.EXTRA_VERSIONS.items():
         for v in extra:
             conn.execute("INSERT INTO versions(service, version, state_json) VALUES (?,?,?)",
                          (svc, v, snapshot(svc)))
 
-    # seeded audit history mirroring the seeded deployments (the v5.1.0 prod
-    # rollout was canaried and promoted — process was followed; code was bad).
+    # seeded CI history with per-stage detail
+    for (svc, pr, status, detail) in S.CI_RUNS:
+        cur = conn.execute("INSERT INTO ci_runs(service, pr_number, status, detail) "
+                           "VALUES (?,?,?,?)", (svc, pr, status, detail))
+        rid = cur.lastrowid
+        for stage in ("build", "unit", "integration", "regression"):
+            if status == "passed":
+                conn.execute("INSERT INTO ci_stages(run_id, stage, status, detail) "
+                             "VALUES (?,?,'passed','ok')", (rid, stage))
+            else:
+                st = "failed" if stage == "integration" else (
+                    "passed" if stage in ("build", "unit") else "skipped")
+                conn.execute("INSERT INTO ci_stages(run_id, stage, status, detail) "
+                             "VALUES (?,?,?,?)", (rid, stage, st,
+                                                  detail if st == "failed" else "ok"))
+
+    # seeded deploy audit trail (v5.1.0 was canaried and promoted: process was
+    # followed, the code was bad)
     for (did, svc, env, version, status, canary) in S.DEPLOYMENTS:
         if did == 9266:
             conn.execute("INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)",
                          ("deploy_service", svc, json.dumps(
-                             {"environment": env, "version": version,
-                              "canary_percent": 25, "applied": False})))
+                             {"environment": env, "version": version, "canary_percent": 25,
+                              "applied": False, "new_alarms": []})))
             conn.execute("INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)",
                          ("promote_canary", svc, json.dumps(
-                             {"environment": env, "version": version, "deployment_id": did})))
+                             {"environment": env, "version": version, "deployment_id": did,
+                              "new_alarms": []})))
         else:
             conn.execute("INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)",
                          ("deploy_service", svc, json.dumps(
-                             {"environment": env, "version": version,
-                              "canary_percent": canary, "applied": True})))
+                             {"environment": env, "version": version, "canary_percent": canary,
+                              "applied": True, "new_alarms": []})))
 
-    # run the same engine the tools embed, so seeded metrics are consistent
     ns = {}
     exec(ENGINE_SNIPPET, ns)
     ns["_recompute"](conn)
     conn.commit()
-
     base_seq = conn.execute("SELECT COALESCE(MAX(seq), 0) FROM audit_events").fetchone()[0]
 
-    # consistency gates on the seeded story
-    expect = {
-        ("payments", "error_rate_pct"): 4.2,
-        ("search", "latency_p99_ms"): 850.0,
-        ("checkout", "error_rate_pct"): 5.5,
-        ("api-gateway", "latency_p99_ms"): 1030.0,
-    }
+    expect = {("payments", "error_rate_pct"): 4.2, ("search", "latency_p99_ms"): 850.0,
+              ("checkout", "error_rate_pct"): 5.5, ("api-gateway", "latency_p99_ms"): 1030.0,
+              ("catalog", "latency_p99_ms"): 645.0, ("inventory", "error_rate_pct"): 4.7,
+              ("media-service", "latency_p99_ms"): 800.0,
+              ("notifications", "error_rate_pct"): 3.6,
+              ("analytics-worker", "error_rate_pct"): 6.0}
     for (svc, metric), want in expect.items():
-        got = conn.execute(
-            "SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?",
-            (svc, metric)).fetchone()[0]
-        assert abs(got - want) < 1e-6, "seed metric mismatch %s %s: %s != %s" % (svc, metric, got, want)
+        got = conn.execute("SELECT value FROM service_metrics WHERE service=? AND "
+                           "environment='production' AND metric=?", (svc, metric)).fetchone()[0]
+        assert abs(got - want) < 1e-6, "seed metric %s %s: %s != %s" % (svc, metric, got, want)
     n_alerts = conn.execute("SELECT COUNT(*) FROM alerts").fetchone()[0]
     assert n_alerts == len(S.ALERTS), "engine created unexpected alerts (%d)" % n_alerts
-    vuln = conn.execute("SELECT status FROM vulnerabilities WHERE vuln_id=9801").fetchone()[0]
-    assert vuln == "open", "vulnerability must start open"
-
     conn.close()
     return base_seq
 
 
-# ---------------------------------------------------------------------------
-# validation harness (same gates blobfish enforces for curated tasks)
-# ---------------------------------------------------------------------------
-
 def reference_baselines(db_path):
-    """Digests/counts of tables the agent must not fabricate. Must use the
-    exact same algorithm as the `_digest` helper compiled into every vcode."""
     conn = sqlite3.connect(db_path)
     frozen = {}
-    for t in tasks_def.FROZEN_TABLES:
-        rows = [tuple(r) for r in
-                conn.execute('SELECT * FROM "%s" ORDER BY rowid' % t).fetchall()]
+    for t in FROZEN:
+        try:
+            rows = [tuple(r) for r in
+                    conn.execute('SELECT * FROM "%s" ORDER BY rowid' % t).fetchall()]
+        except sqlite3.OperationalError:
+            continue
         frozen[t] = hashlib.sha256(repr(rows).encode()).hexdigest()[:16]
-    fixed = {t: conn.execute('SELECT COUNT(*) FROM "%s"' % t).fetchone()[0]
-             for t in tasks_def.FIXED_ROW_TABLES}
-    prefix = [tuple(r) for r in
-              conn.execute("SELECT * FROM audit_events ORDER BY seq").fetchall()]
+    fixed = {t: conn.execute('SELECT COUNT(*) FROM "%s"' % t).fetchone()[0] for t in FIXED_ROWS}
+    prefix = [tuple(r) for r in conn.execute("SELECT * FROM audit_events ORDER BY seq").fetchall()]
     audit_prefix = hashlib.sha256(repr(prefix).encode()).hexdigest()[:16]
+    n_secret = conn.execute("SELECT COUNT(*) FROM repo_files WHERE content LIKE '%pk_live_%'").fetchone()[0]
+    lit = ""
+    row = conn.execute("SELECT content FROM repo_files WHERE content LIKE '%pk_live_%' LIMIT 1").fetchone()
+    if row:
+        m = re.search(r'["\']?(pk_live_[A-Za-z0-9_\-]+)["\']?', row[0])
+        if m:
+            lit = m.group(1)
     conn.close()
-    return frozen, fixed, audit_prefix
+    return frozen, fixed, audit_prefix, n_secret, lit
 
 
 def load_tools_module(tools):
@@ -209,9 +257,8 @@ def run_vcode(vcode, db_path, final_answer=""):
         c.row_factory = sqlite3.Row
         return c
 
-    ns = {"conn": conn, "sqlite3": sqlite3, "json": json, "get_db": get_db,
-          "db_path": db_path, "DB_PATH": db_path,
-          "final_answer": final_answer, "answer": final_answer}
+    ns = {"conn": conn, "sqlite3": sqlite3, "json": json, "get_db": get_db, "db_path": db_path,
+          "DB_PATH": db_path, "final_answer": final_answer, "answer": final_answer}
     ok, err = True, None
     try:
         exec(compile(vcode, "<vcode>", "exec"), ns)
@@ -237,13 +284,12 @@ def replay_oracle(task, pristine_db, tool_ns, workdir):
         except Exception as e:  # noqa: BLE001
             return None, "step %d (%s): raised %s: %s" % (i, call["tool"], type(e).__name__, e)
         if is_structured_error(result):
-            return None, "step %d (%s): structured error: %s" % (i, call["tool"], result.get("error"))
+            return None, "step %d (%s): %s" % (i, call["tool"], result.get("error"))
     return db, None
 
 
 def validate(tasks, pristine_db, tool_ns, workdir):
-    report = []
-    failures = []
+    report, failures = [], []
     for task in tasks:
         tid = task["task_id"]
         ok_pristine, _, _ = run_vcode(task["vcode"], str(pristine_db))
@@ -259,24 +305,18 @@ def validate(tasks, pristine_db, tool_ns, workdir):
         ok_after, verr, score_after = run_vcode(task["vcode"], str(replay_db))
         if not ok_after:
             failures.append("%s: vcode fails after oracle replay: %s" % (tid, verr))
-            report.append({"task_id": tid, "accepted": False, "reason": "oracle does not satisfy vcode: %s" % verr})
+            report.append({"task_id": tid, "accepted": False, "reason": verr})
             continue
         if score_after is None or score_after < 1.0:
-            failures.append("%s: oracle passes but partial-credit score is %s (dimension bookkeeping bug)"
-                            % (tid, score_after))
+            failures.append("%s: oracle passes but PC score is %s" % (tid, score_after))
             report.append({"task_id": tid, "accepted": False,
                            "reason": "oracle score %s != 1.0" % score_after})
             continue
-        report.append({"task_id": tid, "accepted": True,
-                       "oracle_steps": len(task["expected_calls"]),
-                       "oracle_score": score_after,
+        report.append({"task_id": tid, "accepted": True, "category": task["category"],
+                       "oracle_steps": len(task["expected_calls"]), "oracle_score": score_after,
                        "discriminating_vcode": True, "oracle_replay_passed": True})
     return report, failures
 
-
-# ---------------------------------------------------------------------------
-# emission
-# ---------------------------------------------------------------------------
 
 def dump_sql(db_path):
     conn = sqlite3.connect(db_path)
@@ -297,9 +337,8 @@ def compute_digest(schema_sql, seed_sql, tools, tasks):
     h.update(schema_sql.encode())
     h.update(seed_sql.encode())
     for t in sorted(tools, key=lambda x: x["name"]):
-        h.update(json.dumps({k: t[k] for k in
-                             ("name", "description", "parameters", "source_code",
-                              "read_tables", "write_tables")},
+        h.update(json.dumps({k: t[k] for k in ("name", "description", "parameters", "source_code",
+                                               "read_tables", "write_tables")},
                             sort_keys=True).encode())
     for t in sorted(tasks, key=lambda x: x["task_id"]):
         h.update(json.dumps(t, sort_keys=True).encode())
@@ -307,34 +346,46 @@ def compute_digest(schema_sql, seed_sql, tools, tasks):
 
 
 def write_json(path, obj):
-    path.write_text(json.dumps(obj, indent=2, sort_keys=False) + "\n")
+    path.write_text(json.dumps(obj, indent=2) + "\n")
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(HERE.parent / "world"))
+    ap.add_argument("--quiet", action="store_true")
     args = ap.parse_args()
     out = pathlib.Path(args.out)
 
     tmp = pathlib.Path(tempfile.mkdtemp(prefix="sdw_build_"))
     db_path = tmp / "environment.db"
     base_seq = build_db(str(db_path))
-    print("seed DB built; base audit seq =", base_seq)
+    frozen, fixed_rows, audit_prefix, n_secret, secret_lit = reference_baselines(str(db_path))
+    print("seed built: base audit seq=%d, monorepo files=%d, commits=%d, docs=%d, secret='%s'"
+          % (base_seq, len(REPO_FILES), len(COMMITS), len(DOCUMENTS), secret_lit or "<none>"))
 
     tools = make_tools()
     combined_src, tool_ns = load_tools_module(tools)
-    frozen, fixed_rows, audit_prefix = reference_baselines(str(db_path))
-    tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix)
+    tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix, n_secret,
+                                 secret_lit or "pk_live_none")
 
     report, failures = validate(tasks, db_path, tool_ns, tmp)
+    by_cat = {}
     for r in report:
-        flag = "ok " if r["accepted"] else "FAIL"
-        print("  [%s] %s%s" % (flag, r["task_id"],
-                               "" if r["accepted"] else " -- " + r["reason"]))
+        c = r.get("category", "?")
+        d = by_cat.setdefault(c, [0, 0])
+        d[1] += 1
+        if r["accepted"]:
+            d[0] += 1
+    if not args.quiet:
+        for r in report:
+            if not r["accepted"]:
+                print("  [FAIL] %s -- %s" % (r["task_id"], r["reason"][:200]))
+    for c in sorted(by_cat):
+        print("  %-24s %d/%d" % (c, by_cat[c][0], by_cat[c][1]))
     if failures:
-        print("\nBUILD FAILED:")
-        for f in failures:
-            print("  *", f)
+        print("\nBUILD FAILED (%d):" % len(failures))
+        for f in failures[:12]:
+            print("  *", f[:240])
         sys.exit(1)
 
     schema_sql, seed_sql = dump_sql(str(db_path))
@@ -351,102 +402,81 @@ def main():
     write_json(out / "personas.json", S.PERSONAS)
 
     conn = sqlite3.connect(str(db_path))
-    tables = [r[0] for r in conn.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence' ORDER BY name")]
+    tables = [r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND "
+                                         "name != 'sqlite_sequence' ORDER BY name")]
     row_count = sum(conn.execute("SELECT COUNT(*) FROM %s" % t).fetchone()[0] for t in tables)
     conn.close()
 
-    difficulty = {}
+    difficulty, categories = {}, {}
     for t in tasks:
         difficulty[t["difficulty"]] = difficulty.get(t["difficulty"], 0) + 1
+        categories[t["category"]] = categories.get(t["category"], 0) + 1
+    splits = tasks_def.splits(tasks)
 
     write_json(out / "difficulty_distribution.json", difficulty)
-    write_json(out / "tool_graph.json", {
-        "nodes": [t["tool_id"] for t in tools],
-        "edges": [], "strong_edges": 0, "weak_edges": 0, "independent_edges": 0})
-    write_json(out / "task_creation_report.json", {
-        "accepted": sum(1 for r in report if r["accepted"]),
-        "rejected": sum(1 for r in report if not r["accepted"]),
-        "tasks": report})
-
+    write_json(out / "tool_graph.json", {"nodes": [t["tool_id"] for t in tools], "edges": [],
+                                         "strong_edges": 0, "weak_edges": 0,
+                                         "independent_edges": 0})
+    write_json(out / "task_creation_report.json",
+               {"accepted": len(report), "rejected": 0, "by_category": categories,
+                "tasks": report})
     write_json(out / "env_spec.json", {
-        "kind": "AgentWorldEnvSpec",
-        "env_id": world_id,
-        "version": 1,
-        "parent_digest": None,
-        "digest": "",
-        "tenant_id": "",
+        "kind": "AgentWorldEnvSpec", "env_id": world_id, "version": 2, "parent_digest": None,
+        "digest": "", "tenant_id": "",
         "conformance": {"status": "FLEET_EXTENSION", "paper_section": ""},
         "domain_spec_ref": "",
-        "theme": {
-            "source_type": "prd",
-            "source_ref": "https://polymathlabs.ai/blog/horizon-swe",
-            "taxonomy_l1": "Software Engineering",
-            "taxonomy_l2": "DevOps & SRE",
-            "taxonomy_l3": "End-to-end engineering workflow",
-            "description": "NovaCart, a mid-size e-commerce SaaS: seven services with "
-                           "tickets, PRs carrying structured changes, CI, staged "
-                           "deployments with canaries, feature flags, metrics/SLOs/alerts, "
-                           "logs, runbooks, dependency scanning, incidents, and chat. A "
-                           "deterministic engine derives production metrics from deployed "
-                           "state; tasks are long-horizon engineering workflows scored by "
-                           "executable verifiers over final state and the audit-event "
-                           "ordering log.",
-        },
+        "theme": {"source_type": "prd", "source_ref": "https://polymathlabs.ai/blog/horizon-swe",
+                  "taxonomy_l1": "Software Engineering", "taxonomy_l2": "DevOps & SRE",
+                  "taxonomy_l3": "End-to-end engineering workflow",
+                  "description": "NovaCart: ten services over a database, cache, queue, object "
+                                 "store and CDN, with an editable monorepo and commit history, a "
+                                 "traffic generator, issue tracker, knowledge base, chat, "
+                                 "deployment tooling with migrations and canaries, logs, metrics, "
+                                 "alarms, error tracking and a public status page. 50 long-horizon "
+                                 "engineering tasks graded by executable verifiers."},
         "database": {"snapshot_ref": "environment.db",
                      "schema_hash": hashlib.sha256(schema_sql.encode()).hexdigest(),
-                     "seed": SEED, "engine": "sqlite",
-                     "table_count": len(tables), "row_count": row_count,
-                     "complexification_rounds": 0},
+                     "seed": SEED, "engine": "sqlite", "table_count": len(tables),
+                     "row_count": row_count, "complexification_rounds": 0},
         "tools": {"manifest_ref": "", "tests_ref": "", "tool_count": len(tools),
-                  "survival_rate": 1.0,
-                  "valid_tool_ids": [t["tool_id"] for t in tools]},
-        "tool_graph": {"nodes": [t["tool_id"] for t in tools], "edges": [],
-                       "strong_edges": 0, "weak_edges": 0, "independent_edges": 0},
-        "task_refs": [t["task_id"] for t in tasks],
-        "verifier_refs": [],
-        "quality": {"five_run_successes": 0, "mutation_score": 0.0,
-                    "task_count": len(tasks), "accepted_task_count": len(tasks),
-                    "acceptance_rate": 1.0},
+                  "survival_rate": 1.0, "valid_tool_ids": [t["tool_id"] for t in tools]},
+        "tool_graph": {"nodes": [t["tool_id"] for t in tools], "edges": [], "strong_edges": 0,
+                       "weak_edges": 0, "independent_edges": 0},
+        "task_refs": [t["task_id"] for t in tasks], "verifier_refs": [],
+        "quality": {"five_run_successes": 0, "mutation_score": 0.0, "task_count": len(tasks),
+                    "accepted_task_count": len(tasks), "acceptance_rate": 1.0},
         "stage_history": [],
-        "provenance": {"generator": "hand-authored",
-                       "blueprint": "horizon-swe-inspired",
+        "provenance": {"generator": "hand-authored", "blueprint": "horizon-swe",
                        "repo": "software-devops"},
         "verification_summary": {"total_tasks": len(tasks),
                                  "discriminating_vcode_tasks": len(tasks),
-                                 "grounded_answer_tasks": 0,
-                                 "weak_vcode_tasks": 0,
-                                 "source_weak_vcode_tasks": 0,
-                                 "weak_vcode_task_ids": []},
+                                 "grounded_answer_tasks": 0, "weak_vcode_tasks": 0,
+                                 "source_weak_vcode_tasks": 0, "weak_vcode_task_ids": []},
     })
-
     write_json(out / "world.json", {
-        "world_id": world_id,
-        "blobfish_version": "external-0.1.0",
-        "vertical": "software_devops",
+        "world_id": world_id, "blobfish_version": "external-0.2.0", "vertical": "software_devops",
         "tenant": "",
-        "brief": "End-to-end engineering-workflow world (Horizon-SWE-inspired): "
-                 "investigate -> PR -> CI -> merge -> staged deploy -> observe -> resolve.",
-        "topic": "software engineering devops ci cd deployments canary feature flags "
-                 "incidents slo alerts api migration flaky tests security response",
-        "domain": "engineering",
-        "engine": "curated",
-        "seed": SEED,
-        "created_at": CREATED_AT,
-        "world_digest": digest,
-        "entities": tables,
-        "tables_without_tools": [],
-        "counts": {"tables": len(tables), "rows": row_count,
-                   "tools": len(tools), "tasks": len(tasks), "tasks_rejected": 0},
-        "difficulty": difficulty,
-        "splits": tasks_def.SPLITS,
+        "brief": "Horizon-SWE-style end-to-end engineering world: investigate -> PR -> CI "
+                 "(build/unit/integration/regression) -> merge -> migrate -> staging -> canary -> "
+                 "promote -> observe -> resolve.",
+        "topic": "software engineering devops ci cd deployments canary migrations feature flags "
+                 "incidents slo alarms api migration flaky tests security response monorepo",
+        "domain": "engineering", "engine": "curated", "seed": SEED, "created_at": CREATED_AT,
+        "world_digest": digest, "entities": tables, "tables_without_tools": [],
+        "counts": {"tables": len(tables), "rows": row_count, "tools": len(tools),
+                   "tasks": len(tasks), "tasks_rejected": 0,
+                   "repo_files": len(REPO_FILES), "commits": len(COMMITS),
+                   "documents": len(DOCUMENTS)},
+        "difficulty": difficulty, "categories": categories, "splits": splits,
         "task_creation": {"accepted": len(tasks), "rejected": 0},
         "personas": [p["persona_id"] for p in S.PERSONAS],
     })
 
     shutil.rmtree(tmp, ignore_errors=True)
-    print("\nworld written to %s (world_id=%s)" % (out, world_id))
-    print("tables=%d rows=%d tools=%d tasks=%d" % (len(tables), row_count, len(tools), len(tasks)))
+    print("\nworld -> %s (%s)" % (out, world_id))
+    print("tables=%d rows=%d tools=%d tasks=%d files=%d commits=%d docs=%d"
+          % (len(tables), row_count, len(tools), len(tasks), len(REPO_FILES), len(COMMITS),
+             len(DOCUMENTS)))
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
-def list_services(db_path=None):
-    """List all services with team, tier, on-call engineer, repo HEAD version and deployed versions per environment."""
+def list_services(db_path=None, team=None, tier=None):
+    """List all services with team, tier, kind, on-call engineer, repo HEAD version and deployed versions."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -8,8 +8,16 @@ def list_services(db_path=None):
         conn = get_db()
     conn.row_factory = _sq.Row
     try:
+        sql = 'SELECT * FROM services'
+        conds, args = [], []
+        if team:
+            conds.append('team=?'); args.append(team)
+        if tier is not None:
+            conds.append('tier=?'); args.append(int(tier))
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
         out = []
-        for s in conn.execute('SELECT * FROM services ORDER BY service_id').fetchall():
+        for s in conn.execute(sql + ' ORDER BY service_id', args).fetchall():
             d = dict(s)
             oc = conn.execute('SELECT engineer FROM oncall WHERE team=?', (s['team'],)).fetchone()
             d['oncall_engineer'] = oc[0] if oc else ''
@@ -22,8 +30,198 @@ def list_services(db_path=None):
         conn.close()
 
 
+def get_service(db_path=None, service=None):
+    """Full detail for one service: metadata, deployed config, modules, endpoints, dependencies, current metrics."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        if service is None:
+            return {'ok': False, 'error': 'missing required parameter: service'}
+        row = conn.execute('SELECT * FROM services WHERE name=?', (service,)).fetchone()
+        if row is None:
+            return {'ok': False, 'error': 'unknown service: ' + str(service)}
+        d = dict(row)
+        d['production'] = {}
+        for r in conn.execute("SELECT kind, key, value FROM env_state WHERE service=? AND environment='production' ORDER BY kind, key", (service,)).fetchall():
+            d['production'].setdefault(r['kind'], {})[r['key']] = r['value']
+        d['depends_on'] = [dict(r) for r in conn.execute('SELECT depends_on, kind FROM service_dependencies WHERE service=? ORDER BY depends_on', (service,)).fetchall()]
+        d['metrics'] = {r['metric']: r['value'] for r in conn.execute("SELECT metric, value FROM service_metrics WHERE service=? AND environment='production'", (service,)).fetchall()}
+        oc = conn.execute('SELECT engineer FROM oncall WHERE team=?', (row['team'],)).fetchone()
+        d['oncall_engineer'] = oc[0] if oc else ''
+        return d
+    finally:
+        conn.close()
+
+
+def list_infra(db_path=None):
+    """List infrastructure components of the application stack (databases, caches, queues, object stores, CDN)."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        return [dict(r) for r in conn.execute('SELECT * FROM infra_components ORDER BY component_id').fetchall()]
+    finally:
+        conn.close()
+
+
+def list_files(db_path=None, service=None, path_contains=None):
+    """List monorepo files, optionally filtered by service or path substring."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        sql = 'SELECT file_id, service, path, language, owner, loc FROM repo_files'
+        conds, args = [], []
+        if service:
+            conds.append('service=?'); args.append(service)
+        if path_contains:
+            conds.append('path LIKE ?'); args.append('%' + str(path_contains) + '%')
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY path', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def read_file(db_path=None, path=None):
+    """Read a monorepo source file. Returns its full current content."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        if path is None:
+            return {'ok': False, 'error': 'missing required parameter: path'}
+        row = conn.execute('SELECT * FROM repo_files WHERE path=?', (path,)).fetchone()
+        if row is None:
+            return {'ok': False, 'error': 'no such file: ' + str(path)}
+        return dict(row)
+    finally:
+        conn.close()
+
+
+def search_code(db_path=None, query=None, service=None, limit=20):
+    """Search monorepo file contents for a substring; returns matching files with matching line numbers."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        if query is None:
+            return {'ok': False, 'error': 'missing required parameter: query'}
+        sql = 'SELECT service, path, content FROM repo_files WHERE content LIKE ?'
+        args = ['%' + str(query) + '%']
+        if service:
+            sql += ' AND service=?'; args.append(service)
+        out = []
+        for r in conn.execute(sql + ' ORDER BY path LIMIT ?', args + [int(limit)]).fetchall():
+            hits = []
+            for i, line in enumerate(r['content'].split(chr(10)), 1):
+                if str(query) in line:
+                    hits.append({'line': i, 'text': line.strip()[:200]})
+            out.append({'service': r['service'], 'path': r['path'], 'matches': hits[:8]})
+        return out
+    finally:
+        conn.close()
+
+
+def list_commits(db_path=None, service=None, query=None, path=None, limit=20):
+    """Browse monorepo commit history (most recent first)."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        sql = 'SELECT sha, service, author, day, message, files, additions, deletions FROM commits'
+        conds, args = [], []
+        if service:
+            conds.append('service=?'); args.append(service)
+        if query:
+            conds.append('message LIKE ?'); args.append('%' + str(query) + '%')
+        if path:
+            conds.append('files LIKE ?'); args.append('%' + str(path) + '%')
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY day DESC, commit_id DESC LIMIT ?', args + [int(limit)]).fetchall()]
+    finally:
+        conn.close()
+
+
+def search_docs(db_path=None, query='', kind=None, service=None, limit=10):
+    """Search the engineering knowledge base (runbooks, policies, design docs, ADRs, postmortems, API specs)."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        sql = 'SELECT doc_id, kind, title, service, author, day FROM documents'
+        conds, args = [], []
+        if query:
+            conds.append('(title LIKE ? OR body LIKE ?)'); args += ['%' + str(query) + '%', '%' + str(query) + '%']
+        if kind:
+            conds.append('kind=?'); args.append(kind)
+        if service:
+            conds.append('service=?'); args.append(service)
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY doc_id LIMIT ?', args + [int(limit)]).fetchall()]
+    finally:
+        conn.close()
+
+
+def get_document(db_path=None, doc_id=None, title=None):
+    """Read one knowledge-base document in full by doc_id (or exact title)."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        row = None
+        if doc_id is not None:
+            row = conn.execute('SELECT * FROM documents WHERE doc_id=?', (int(doc_id),)).fetchone()
+        elif title:
+            row = conn.execute('SELECT * FROM documents WHERE title=?', (title,)).fetchone()
+            if row is None:
+                row = conn.execute('SELECT * FROM documents WHERE title LIKE ?', ('%' + str(title) + '%',)).fetchone()
+        else:
+            return {'ok': False, 'error': 'provide doc_id or title'}
+        if row is None:
+            return {'ok': False, 'error': 'document not found'}
+        return dict(row)
+    finally:
+        conn.close()
+
+
 def list_tickets(db_path=None, status=None, service=None, ticket_type=None):
-    """List tickets, optionally filtered by status, service, or ticket type."""
+    """List issue-tracker tickets, optionally filtered by status, service, or type."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -42,14 +240,13 @@ def list_tickets(db_path=None, status=None, service=None, ticket_type=None):
             conds.append('type=?'); args.append(ticket_type)
         if conds:
             sql += ' WHERE ' + ' AND '.join(conds)
-        sql += ' ORDER BY ticket_id'
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY ticket_id', args).fetchall()]
     finally:
         conn.close()
 
 
 def get_ticket(db_path=None, key=None):
-    """Fetch a single ticket by its key (e.g. ENG-2101)."""
+    """Fetch one ticket by key (e.g. ENG-2101)."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -69,7 +266,7 @@ def get_ticket(db_path=None, key=None):
 
 
 def list_pull_requests(db_path=None, service=None, status=None):
-    """List pull requests, optionally filtered by service or status (open|merged|closed)."""
+    """List pull requests, optionally filtered by service or status."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -86,14 +283,13 @@ def list_pull_requests(db_path=None, service=None, status=None):
             conds.append('status=?'); args.append(status)
         if conds:
             sql += ' WHERE ' + ' AND '.join(conds)
-        sql += ' ORDER BY number'
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY number', args).fetchall()]
     finally:
         conn.close()
 
 
 def get_pull_request(db_path=None, pr_number=None):
-    """Fetch a pull request with its structured changes and CI run history."""
+    """Fetch a PR with its structured changes and CI history."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -117,7 +313,7 @@ def get_pull_request(db_path=None, pr_number=None):
 
 
 def list_ci_runs(db_path=None, service=None, pr_number=None, limit=20):
-    """List CI runs (most recent first), optionally filtered by service or PR number."""
+    """List CI runs (most recent first)."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -134,15 +330,35 @@ def list_ci_runs(db_path=None, service=None, pr_number=None, limit=20):
             conds.append('pr_number=?'); args.append(int(pr_number))
         if conds:
             sql += ' WHERE ' + ' AND '.join(conds)
-        sql += ' ORDER BY run_id DESC LIMIT ?'
-        args.append(int(limit))
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY run_id DESC LIMIT ?', args + [int(limit)]).fetchall()]
+    finally:
+        conn.close()
+
+
+def get_ci_run(db_path=None, run_id=None):
+    """Fetch one CI run with its per-stage results (build, unit, integration, regression)."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        if run_id is None:
+            return {'ok': False, 'error': 'missing required parameter: run_id'}
+        row = conn.execute('SELECT * FROM ci_runs WHERE run_id=?', (int(run_id),)).fetchone()
+        if row is None:
+            return {'ok': False, 'error': 'no such CI run: ' + str(run_id)}
+        d = dict(row)
+        d['stages'] = [dict(s) for s in conn.execute('SELECT stage, status, detail FROM ci_stages WHERE run_id=? ORDER BY stage_id', (int(run_id),)).fetchall()]
+        return d
     finally:
         conn.close()
 
 
 def list_deployments(db_path=None, service=None, environment=None, limit=20):
-    """List deployments (most recent first), optionally filtered by service or environment."""
+    """List deployments (most recent first)."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -159,15 +375,38 @@ def list_deployments(db_path=None, service=None, environment=None, limit=20):
             conds.append('environment=?'); args.append(environment)
         if conds:
             sql += ' WHERE ' + ' AND '.join(conds)
-        sql += ' ORDER BY deployment_id DESC LIMIT ?'
-        args.append(int(limit))
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY deployment_id DESC LIMIT ?', args + [int(limit)]).fetchall()]
+    finally:
+        conn.close()
+
+
+def list_migrations(db_path=None, service=None, environment=None):
+    """List database migrations and whether they are applied per environment."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        sql = 'SELECT * FROM migrations'
+        conds, args = [], []
+        if service:
+            conds.append('service=?'); args.append(service)
+        if environment:
+            conds.append('environment=?'); args.append(environment)
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        rows = [dict(r) for r in conn.execute(sql + ' ORDER BY migration_id', args).fetchall()]
+        pend = [dict(r) for r in conn.execute('SELECT service, module, migration_name FROM migration_requirements ORDER BY req_id').fetchall()]
+        return {'applied': rows, 'declared_requirements': pend}
     finally:
         conn.close()
 
 
 def query_metrics(db_path=None, service=None, metric=None):
-    """Read current production service metrics (recomputed after every deploy/flag change)."""
+    """Read current production service metrics (recomputed continuously from live traffic)."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -182,14 +421,41 @@ def query_metrics(db_path=None, service=None, metric=None):
             sql += ' AND service=?'; args.append(service)
         if metric:
             sql += ' AND metric=?'; args.append(metric)
-        sql += ' ORDER BY service, metric'
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY service, metric', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def get_traffic_stats(db_path=None, service=None):
+    """Traffic-generator statistics: request rate per route with the current error rate and p99 of the owning service."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        sql = 'SELECT * FROM traffic_profile'
+        args = []
+        if service:
+            sql += ' WHERE service=?'; args.append(service)
+        out = []
+        for r in conn.execute(sql + ' ORDER BY route_id', args).fetchall():
+            d = dict(r)
+            for m in ('error_rate_pct', 'latency_p99_ms'):
+                v = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (r['service'], m)).fetchone()
+                d[m] = v[0] if v else None
+            if d.get('error_rate_pct') is not None:
+                d['failed_requests_per_min'] = round(r['rps'] * 60.0 * d['error_rate_pct'] / 100.0, 1)
+            out.append(d)
+        return out
     finally:
         conn.close()
 
 
 def get_slo_status(db_path=None, service=None):
-    """List SLOs with current metric values and whether each is breaching."""
+    """List SLOs with current values and whether each is breaching."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -202,9 +468,8 @@ def get_slo_status(db_path=None, service=None):
         args = []
         if service:
             sql += ' WHERE service=?'; args.append(service)
-        sql += ' ORDER BY slo_id'
         out = []
-        for r in conn.execute(sql, args).fetchall():
+        for r in conn.execute(sql + ' ORDER BY slo_id', args).fetchall():
             v = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (r['service'], r['metric'])).fetchone()
             d = dict(r)
             d['current_value'] = v[0] if v else None
@@ -216,7 +481,7 @@ def get_slo_status(db_path=None, service=None):
 
 
 def list_alerts(db_path=None, status=None, service=None):
-    """List alerts, optionally filtered by status (firing|acknowledged|resolved) or service."""
+    """List alarms, optionally filtered by status (firing|acknowledged|resolved) or service."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -233,14 +498,36 @@ def list_alerts(db_path=None, status=None, service=None):
             conds.append('service=?'); args.append(service)
         if conds:
             sql += ' WHERE ' + ' AND '.join(conds)
-        sql += ' ORDER BY alert_id'
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY alert_id', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def list_error_events(db_path=None, service=None, status=None):
+    """Error-tracking issues (Sentry-style): grouped exceptions with culprit and event counts."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        sql = 'SELECT * FROM error_events'
+        conds, args = [], []
+        if service:
+            conds.append('service=?'); args.append(service)
+        if status:
+            conds.append('status=?'); args.append(status)
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY events DESC', args).fetchall()]
     finally:
         conn.close()
 
 
 def search_logs(db_path=None, service=None, query='', level=None, limit=20):
-    """Search production/staging log lines by substring, optionally filtered by service or level."""
+    """Search application logs by substring, service, or level."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -259,36 +546,13 @@ def search_logs(db_path=None, service=None, query='', level=None, limit=20):
             conds.append('message LIKE ?'); args.append('%' + str(query) + '%')
         if conds:
             sql += ' WHERE ' + ' AND '.join(conds)
-        sql += ' ORDER BY log_id LIMIT ?'
-        args.append(int(limit))
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
-    finally:
-        conn.close()
-
-
-def search_runbooks(db_path=None, query=''):
-    """Search the knowledge base of runbooks by substring in title or body."""
-    import sqlite3 as _sq
-    import json as _json
-    if db_path:
-        conn = _sq.connect(db_path)
-    else:
-        conn = get_db()
-    conn.row_factory = _sq.Row
-    try:
-        sql = 'SELECT * FROM runbooks'
-        args = []
-        if query:
-            sql += ' WHERE title LIKE ? OR body LIKE ?'
-            args = ['%' + str(query) + '%', '%' + str(query) + '%']
-        sql += ' ORDER BY runbook_id'
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY log_id LIMIT ?', args + [int(limit)]).fetchall()]
     finally:
         conn.close()
 
 
 def list_feature_flags(db_path=None, service=None, environment=None):
-    """List feature flags with per-environment enabled state and rollout percent."""
+    """List feature flags with per-environment state."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -305,14 +569,13 @@ def list_feature_flags(db_path=None, service=None, environment=None):
             conds.append('environment=?'); args.append(environment)
         if conds:
             sql += ' WHERE ' + ' AND '.join(conds)
-        sql += ' ORDER BY key, environment'
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY key, environment', args).fetchall()]
     finally:
         conn.close()
 
 
-def list_dependencies(db_path=None, service=None):
-    """List package dependencies per service: version at repo HEAD and version deployed in production."""
+def list_packages(db_path=None, service=None):
+    """List package dependencies: version at repo HEAD and version deployed in production."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -325,20 +588,18 @@ def list_dependencies(db_path=None, service=None):
         args = []
         if service:
             sql += ' AND service=?'; args.append(service)
-        sql += ' ORDER BY service, key'
         out = []
-        for r in conn.execute(sql, args).fetchall():
+        for r in conn.execute(sql + ' ORDER BY service, key', args).fetchall():
             p = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (r['service'], r['key'])).fetchone()
-            out.append({'service': r['service'], 'package': r['key'],
-                        'repo_version': r['value'],
+            out.append({'service': r['service'], 'package': r['key'], 'repo_version': r['value'],
                         'production_version': p[0] if p else None})
         return out
     finally:
         conn.close()
 
 
-def list_vulnerabilities(db_path=None, status=None):
-    """List security scanner findings, optionally filtered by status (open|remediated)."""
+def list_vulnerabilities(db_path=None, status=None, service=None):
+    """List security-scanner findings."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -348,17 +609,20 @@ def list_vulnerabilities(db_path=None, status=None):
     conn.row_factory = _sq.Row
     try:
         sql = 'SELECT * FROM vulnerabilities'
-        args = []
+        conds, args = [], []
         if status:
-            sql += ' WHERE status=?'; args.append(status)
-        sql += ' ORDER BY vuln_id'
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+            conds.append('status=?'); args.append(status)
+        if service:
+            conds.append('service=?'); args.append(service)
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY vuln_id', args).fetchall()]
     finally:
         conn.close()
 
 
 def list_api_endpoints(db_path=None, service=None):
-    """List API endpoints per service with repo HEAD status, production status, and production traffic percent."""
+    """List API endpoints with repo status, production status, and production traffic share."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -371,13 +635,11 @@ def list_api_endpoints(db_path=None, service=None):
         args = []
         if service:
             sql += ' AND service=?'; args.append(service)
-        sql += ' ORDER BY service, key'
         out = []
-        for r in conn.execute(sql, args).fetchall():
+        for r in conn.execute(sql + ' ORDER BY service, key', args).fetchall():
             p = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='endpoint' AND key=?", (r['service'], r['key'])).fetchone()
             t = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='traffic' AND key=?", (r['service'], r['key'])).fetchone()
-            out.append({'service': r['service'], 'path': r['key'],
-                        'repo_status': r['value'],
+            out.append({'service': r['service'], 'path': r['key'], 'repo_status': r['value'],
                         'production_status': p[0] if p else None,
                         'production_traffic_percent': int(t[0]) if t else None})
         return out
@@ -386,7 +648,7 @@ def list_api_endpoints(db_path=None, service=None):
 
 
 def list_tests(db_path=None, service=None, status=None):
-    """List the test catalog, optionally filtered by service or status (passing|flaky|failing)."""
+    """List the test catalog."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -403,14 +665,13 @@ def list_tests(db_path=None, service=None, status=None):
             conds.append('status=?'); args.append(status)
         if conds:
             sql += ' WHERE ' + ' AND '.join(conds)
-        sql += ' ORDER BY test_id'
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY test_id', args).fetchall()]
     finally:
         conn.close()
 
 
 def list_incidents(db_path=None, status=None):
-    """List incidents, optionally filtered by status (open|mitigated|resolved)."""
+    """List incidents."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -423,14 +684,28 @@ def list_incidents(db_path=None, status=None):
         args = []
         if status:
             sql += ' WHERE status=?'; args.append(status)
-        sql += ' ORDER BY incident_id'
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY incident_id', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def get_status_page(db_path=None, limit=10):
+    """Read the public system-status page."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        return [dict(r) for r in conn.execute('SELECT * FROM status_page ORDER BY post_id DESC LIMIT ?', (int(limit),)).fetchall()]
     finally:
         conn.close()
 
 
 def list_messages(db_path=None, channel=None, limit=20):
-    """Read chat messages (most recent first), optionally scoped to one channel."""
+    """Read chat messages."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -443,15 +718,13 @@ def list_messages(db_path=None, channel=None, limit=20):
         args = []
         if channel:
             sql += ' WHERE channel=?'; args.append(channel)
-        sql += ' ORDER BY message_id DESC LIMIT ?'
-        args.append(int(limit))
-        return [dict(r) for r in conn.execute(sql, args).fetchall()]
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY message_id DESC LIMIT ?', args + [int(limit)]).fetchall()]
     finally:
         conn.close()
 
 
 def create_ticket(db_path=None, title=None, description='', ticket_type='task', service='', priority='medium'):
-    """Create a new ticket. Returns the generated ticket key."""
+    """Create a ticket. Returns the generated key."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -464,13 +737,10 @@ def create_ticket(db_path=None, title=None, description='', ticket_type='task', 
             return {'ok': False, 'error': 'missing required parameter: title'}
         def _audit(conn, _tool, _svc, _detail):
             conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
-        if not title:
-            return {'ok': False, 'error': 'title is required'}
         if ticket_type not in ('task', 'bug', 'feature', 'security', 'incident', 'postmortem'):
             return {'ok': False, 'error': 'invalid ticket_type: ' + str(ticket_type)}
-        if service:
-            if conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
-                return {'ok': False, 'error': 'unknown service: ' + str(service)}
+        if service and conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
+            return {'ok': False, 'error': 'unknown service: ' + str(service)}
         cur = conn.execute('INSERT INTO tickets(key, type, title, description, status, priority, service) VALUES (?,?,?,?,?,?,?)',
                            ('', ticket_type, title, description, 'open', priority, service))
         tid = cur.lastrowid
@@ -504,18 +774,18 @@ def update_ticket(db_path=None, key=None, status=None, assignee=None):
             return {'ok': False, 'error': 'provide status and/or assignee'}
         if status is not None and status not in ('open', 'in_progress', 'in_review', 'done'):
             return {'ok': False, 'error': 'invalid status: ' + str(status)}
-        new_status = row['status'] if status is None else status
-        new_assignee = row['assignee'] if assignee is None else assignee
-        conn.execute('UPDATE tickets SET status=?, assignee=? WHERE key=?', (new_status, new_assignee, key))
-        _audit(conn, 'update_ticket', row['service'], {'key': key, 'status': new_status, 'assignee': new_assignee})
+        ns = row['status'] if status is None else status
+        na = row['assignee'] if assignee is None else assignee
+        conn.execute('UPDATE tickets SET status=?, assignee=? WHERE key=?', (ns, na, key))
+        _audit(conn, 'update_ticket', row['service'], {'key': key, 'status': ns})
         conn.commit()
-        return {'ok': True, 'key': key, 'status': new_status, 'assignee': new_assignee}
+        return {'ok': True, 'key': key, 'status': ns, 'assignee': na}
     finally:
         conn.close()
 
 
 def open_pull_request(db_path=None, service=None, title=None, body='', ticket_key='', changes=None):
-    """Open a pull request carrying structured changes. Change types: config {key,value}, dependency {package,version}, endpoint {path,status: active|deprecated|retired}, module {name}, flag {key,description}, test_fix {test_name, action: fix|quarantine}. Changes take effect at merge; deploys copy them to an environment."""
+    """Open a pull request carrying structured changes. change_type is one of: config {key,value}; dependency {package,version}; endpoint {path,status: active|deprecated|retired}; module {name}; flag {key,description}; flag_cleanup {key}; test_fix {test_name, action: fix|quarantine}; migration {name}; code_edit {path, find, replace}. Changes apply at merge; deploys carry them to an environment."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -534,8 +804,6 @@ def open_pull_request(db_path=None, service=None, title=None, body='', ticket_ke
             conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
         if conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
             return {'ok': False, 'error': 'unknown service: ' + str(service)}
-        if not title:
-            return {'ok': False, 'error': 'title is required'}
         if isinstance(changes, str):
             try:
                 changes = _json.loads(changes)
@@ -547,8 +815,7 @@ def open_pull_request(db_path=None, service=None, title=None, body='', ticket_ke
         for ch in changes:
             if not isinstance(ch, dict):
                 return {'ok': False, 'error': 'each change must be an object with change_type and payload'}
-            ct = ch.get('change_type')
-            pl = ch.get('payload')
+            ct, pl = ch.get('change_type'), ch.get('payload')
             if isinstance(pl, str):
                 try:
                     pl = _json.loads(pl)
@@ -558,36 +825,55 @@ def open_pull_request(db_path=None, service=None, title=None, body='', ticket_ke
                 return {'ok': False, 'error': 'change payload must be an object'}
             if ct == 'config':
                 if not pl.get('key') or 'value' not in pl:
-                    return {'ok': False, 'error': "config change needs payload {key, value}"}
+                    return {'ok': False, 'error': 'config change needs payload {key, value}'}
                 pl = {'key': str(pl['key']), 'value': str(pl['value'])}
             elif ct == 'dependency':
                 if not pl.get('package') or not pl.get('version'):
-                    return {'ok': False, 'error': "dependency change needs payload {package, version}"}
+                    return {'ok': False, 'error': 'dependency change needs payload {package, version}'}
                 if conn.execute("SELECT 1 FROM repo_state WHERE service=? AND kind='dependency' AND key=?", (service, pl['package'])).fetchone() is None:
-                    return {'ok': False, 'error': 'service ' + service + ' has no dependency ' + str(pl['package'])}
+                    return {'ok': False, 'error': service + ' has no dependency ' + str(pl['package'])}
                 pl = {'package': str(pl['package']), 'version': str(pl['version'])}
             elif ct == 'endpoint':
                 if not pl.get('path') or pl.get('status') not in ('active', 'deprecated', 'retired'):
-                    return {'ok': False, 'error': "endpoint change needs payload {path, status: active|deprecated|retired}"}
+                    return {'ok': False, 'error': 'endpoint change needs payload {path, status: active|deprecated|retired}'}
                 if conn.execute("SELECT 1 FROM repo_state WHERE service=? AND kind='endpoint' AND key=?", (service, pl['path'])).fetchone() is None:
-                    return {'ok': False, 'error': 'service ' + service + ' has no endpoint ' + str(pl['path'])}
+                    return {'ok': False, 'error': service + ' has no endpoint ' + str(pl['path'])}
                 pl = {'path': str(pl['path']), 'status': str(pl['status'])}
             elif ct == 'module':
                 if not pl.get('name'):
-                    return {'ok': False, 'error': "module change needs payload {name}"}
+                    return {'ok': False, 'error': 'module change needs payload {name}'}
                 pl = {'name': str(pl['name'])}
             elif ct == 'flag':
                 if not pl.get('key'):
-                    return {'ok': False, 'error': "flag change needs payload {key, description}"}
+                    return {'ok': False, 'error': 'flag change needs payload {key, description}'}
                 if conn.execute('SELECT 1 FROM feature_flags WHERE key=?', (pl['key'],)).fetchone() is not None:
                     return {'ok': False, 'error': 'flag already exists: ' + str(pl['key'])}
                 pl = {'key': str(pl['key']), 'description': str(pl.get('description', ''))}
+            elif ct == 'flag_cleanup':
+                if not pl.get('key'):
+                    return {'ok': False, 'error': 'flag_cleanup change needs payload {key}'}
+                if conn.execute('SELECT 1 FROM feature_flags WHERE key=?', (pl['key'],)).fetchone() is None:
+                    return {'ok': False, 'error': 'no such flag: ' + str(pl['key'])}
+                pl = {'key': str(pl['key'])}
             elif ct == 'test_fix':
                 if not pl.get('test_name') or pl.get('action') not in ('fix', 'quarantine'):
                     return {'ok': False, 'error': "test_fix change needs payload {test_name, action: fix|quarantine}"}
                 if conn.execute('SELECT 1 FROM tests_catalog WHERE service=? AND name=?', (service, pl['test_name'])).fetchone() is None:
-                    return {'ok': False, 'error': 'service ' + service + ' has no test ' + str(pl['test_name'])}
+                    return {'ok': False, 'error': service + ' has no test ' + str(pl['test_name'])}
                 pl = {'test_name': str(pl['test_name']), 'action': str(pl['action'])}
+            elif ct == 'migration':
+                if not pl.get('name'):
+                    return {'ok': False, 'error': 'migration change needs payload {name}'}
+                pl = {'name': str(pl['name'])}
+            elif ct == 'code_edit':
+                if not pl.get('path') or 'find' not in pl or 'replace' not in pl:
+                    return {'ok': False, 'error': 'code_edit change needs payload {path, find, replace}'}
+                f = conn.execute('SELECT content, service FROM repo_files WHERE path=?', (pl['path'],)).fetchone()
+                if f is None:
+                    return {'ok': False, 'error': 'no such file: ' + str(pl['path'])}
+                if str(pl['find']) not in f['content']:
+                    return {'ok': False, 'error': 'find text not present in ' + str(pl['path'])}
+                pl = {'path': str(pl['path']), 'find': str(pl['find']), 'replace': str(pl['replace'])}
             else:
                 return {'ok': False, 'error': 'invalid change_type: ' + str(ct)}
             norm.append((ct, pl))
@@ -596,7 +882,9 @@ def open_pull_request(db_path=None, service=None, title=None, body='', ticket_ke
                      (number, service, title, body, 'agent', ticket_key, 'open'))
         for ct, pl in norm:
             conn.execute('INSERT INTO pr_changes(pr_number, change_type, payload) VALUES (?,?,?)', (number, ct, _json.dumps(pl)))
-        _audit(conn, 'open_pull_request', service, {'pr_number': number, 'ticket_key': ticket_key, 'change_count': len(norm)})
+        _audit(conn, 'open_pull_request', service, {'pr_number': number, 'ticket_key': ticket_key,
+                                                    'change_count': len(norm),
+                                                    'change_types': sorted(set(c[0] for c in norm))})
         conn.commit()
         return {'ok': True, 'pr_number': number, 'service': service, 'status': 'open',
                 'next': 'run_ci(pr_number=' + str(number) + ') then merge_pull_request(pr_number=' + str(number) + ')'}
@@ -605,7 +893,7 @@ def open_pull_request(db_path=None, service=None, title=None, body='', ticket_ke
 
 
 def run_ci(db_path=None, pr_number=None, service=None):
-    """Run the CI pipeline for an open PR (pr_number) or for a service's main branch (service). The tool succeeds even when the pipeline fails; check the returned status."""
+    """Run the CI pipeline for an open PR (pr_number) or a service's main branch (service). Stages run in order: build, unit, integration, regression. The tool succeeds even when the pipeline fails - inspect the returned status and stages."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -626,39 +914,92 @@ def run_ci(db_path=None, pr_number=None, service=None):
             if pr['status'] != 'open':
                 return {'ok': False, 'error': 'PR ' + str(pr_number) + ' is not open; for main-branch runs use run_ci(service=...)'}
             service = pr['service']
-        else:
-            if conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
-                return {'ok': False, 'error': 'unknown service: ' + str(service)}
-        n_prior = conn.execute('SELECT COUNT(*) FROM ci_runs WHERE service=?', (service,)).fetchone()[0]
-        status, detail = 'passed', 'all checks passed'
+        elif conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
+            return {'ok': False, 'error': 'unknown service: ' + str(service)}
+        changes = []
         if pr_number is not None:
-            for c in conn.execute("SELECT payload FROM pr_changes WHERE pr_number=? AND change_type='endpoint'", (pr_number,)).fetchall():
-                pl = _json.loads(c['payload'])
-                if pl.get('status') == 'retired':
+            changes = [(c['change_type'], _json.loads(c['payload'])) for c in
+                       conn.execute('SELECT change_type, payload FROM pr_changes WHERE pr_number=? ORDER BY change_id', (pr_number,)).fetchall()]
+        stages = []
+        # --- build: schema changes need their migration in the same PR
+        bstatus, bdetail = 'passed', 'compiled and packaged'
+        for ct, pl in changes:
+            if ct != 'module':
+                continue
+            req = conn.execute('SELECT migration_name FROM migration_requirements WHERE service=? AND module=?', (service, pl['name'])).fetchone()
+            if req is not None and not any(c[0] == 'migration' and c[1].get('name') == req[0] for c in changes):
+                bstatus = 'failed'
+                bdetail = 'missing database migration: module ' + pl['name'] + ' requires migration ' + req[0] + " (add a 'migration' change to this PR)"
+                break
+        stages.append(('build', bstatus, bdetail))
+        # --- unit
+        if bstatus == 'passed':
+            failing = [r['name'] for r in conn.execute("SELECT name FROM tests_catalog WHERE service=? AND suite='unit' AND status='failing' AND quarantined=0", (service,)).fetchall()]
+            stages.append(('unit', 'failed' if failing else 'passed',
+                           ('failing unit tests: ' + ', '.join(failing)) if failing else 'unit suite green'))
+        else:
+            stages.append(('unit', 'skipped', 'build failed'))
+        # --- integration: contract checks + flaky suite
+        istatus, idetail = 'passed', 'integration suite green'
+        if stages[-1][1] != 'passed':
+            istatus, idetail = 'skipped', 'upstream stage failed'
+        else:
+            for ct, pl in changes:
+                if ct == 'endpoint' and pl.get('status') == 'retired':
                     t = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='traffic' AND key=?", (service, pl['path'])).fetchone()
                     if t is not None and int(t[0]) > 0:
-                        status = 'failed'
-                        detail = 'cannot retire ' + pl['path'] + ': still serving ' + str(t[0]) + '% of production traffic - drain it first'
+                        istatus = 'failed'
+                        idetail = 'cannot retire ' + pl['path'] + ': still serving ' + str(t[0]) + '% of production traffic - drain it first'
                         break
-        if status == 'passed':
-            failing = [r['name'] for r in conn.execute("SELECT name FROM tests_catalog WHERE service=? AND status='failing' AND quarantined=0", (service,)).fetchall()]
-            if failing:
-                status, detail = 'failed', 'failing tests: ' + ', '.join(failing)
-        if status == 'passed':
-            flaky = [r['name'] for r in conn.execute("SELECT name FROM tests_catalog WHERE service=? AND status='flaky' AND quarantined=0", (service,)).fetchall()]
-            if flaky and n_prior % 2 == 0:
-                status, detail = 'failed', 'intermittent failure: ' + ', '.join(flaky) + ' (rerun may pass)'
+            if istatus == 'passed':
+                flaky = [r['name'] for r in conn.execute("SELECT name FROM tests_catalog WHERE service=? AND suite='integration' AND status='flaky' AND quarantined=0", (service,)).fetchall()]
+                if pr_number is not None:
+                    seen_red = conn.execute("SELECT COUNT(*) FROM ci_runs WHERE pr_number=? AND status='failed'", (pr_number,)).fetchone()[0]
+                    trips = bool(flaky) and seen_red == 0
+                else:
+                    n_prior = conn.execute('SELECT COUNT(*) FROM ci_runs WHERE service=? AND pr_number IS NULL', (service,)).fetchone()[0]
+                    trips = bool(flaky) and n_prior % 2 == 0
+                if trips:
+                    istatus, idetail = 'failed', 'intermittent failure: ' + ', '.join(flaky) + ' (rerun may pass)'
+                else:
+                    failing = [r['name'] for r in conn.execute("SELECT name FROM tests_catalog WHERE service=? AND suite='integration' AND status='failing' AND quarantined=0", (service,)).fetchall()]
+                    if failing:
+                        istatus, idetail = 'failed', 'failing integration tests: ' + ', '.join(failing)
+        stages.append(('integration', istatus, idetail))
+        # --- regression: cross-service consumer contracts
+        rstatus, rdetail = 'passed', 'no regressions in dependent services'
+        if istatus != 'passed':
+            rstatus, rdetail = 'skipped', 'upstream stage failed'
+        else:
+            for ct, pl in changes:
+                if ct != 'endpoint' or pl.get('status') != 'retired':
+                    continue
+                for cr in conn.execute('SELECT * FROM contract_rules WHERE producer_service=? AND endpoint=?', (service, pl['path'])).fetchall():
+                    cv = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (cr['consumer_service'], cr['consumer_key'])).fetchone()
+                    if cv is None or cv[0] != cr['consumer_required_value']:
+                        rstatus = 'failed'
+                        rdetail = cr['message']
+                        break
+                if rstatus == 'failed':
+                    break
+        stages.append(('regression', rstatus, rdetail))
+        status = 'passed' if all(s[1] == 'passed' for s in stages) else 'failed'
+        detail = 'all stages passed' if status == 'passed' else next(s[2] for s in stages if s[1] == 'failed')
         cur = conn.execute('INSERT INTO ci_runs(service, pr_number, status, detail) VALUES (?,?,?,?)', (service, pr_number, status, detail))
-        _audit(conn, 'run_ci', service, {'pr_number': pr_number, 'status': status})
+        rid = cur.lastrowid
+        for st, sv, sd in stages:
+            conn.execute('INSERT INTO ci_stages(run_id, stage, status, detail) VALUES (?,?,?,?)', (rid, st, sv, sd))
+        _audit(conn, 'run_ci', service, {'pr_number': pr_number, 'status': status,
+                                         'stages': {s[0]: s[1] for s in stages}})
         conn.commit()
-        return {'ok': True, 'run_id': cur.lastrowid, 'service': service, 'pr_number': pr_number,
-                'status': status, 'detail': detail}
+        return {'ok': True, 'run_id': rid, 'service': service, 'pr_number': pr_number, 'status': status,
+                'detail': detail, 'stages': [{'stage': s[0], 'status': s[1], 'detail': s[2]} for s in stages]}
     finally:
         conn.close()
 
 
 def merge_pull_request(db_path=None, pr_number=None):
-    """Merge an open PR. Blocked unless the PR's latest CI run passed. Applies the PR's changes to the service's repo HEAD and cuts a new deployable version."""
+    """Merge an open PR. Blocked unless its latest CI run passed. Applies the PR's changes to repo HEAD (including code edits) and cuts a new deployable version."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -683,6 +1024,7 @@ def merge_pull_request(db_path=None, pr_number=None):
         if last[0] != 'passed':
             return {'ok': False, 'error': 'latest CI run for PR ' + str(pr_number) + ' is ' + last[0] + '; merge blocked'}
         service = pr['service']
+        requires_migration = ''
         for c in conn.execute('SELECT change_type, payload FROM pr_changes WHERE pr_number=? ORDER BY change_id', (pr_number,)).fetchall():
             ct, pl = c['change_type'], _json.loads(c['payload'])
             if ct == 'config':
@@ -696,28 +1038,76 @@ def merge_pull_request(db_path=None, pr_number=None):
             elif ct == 'flag':
                 for _env in ('staging', 'production'):
                     conn.execute('INSERT OR IGNORE INTO feature_flags(key, service, description, environment, enabled, rollout_percent) VALUES (?,?,?,?,0,0)', (pl['key'], service, pl.get('description', ''), _env))
+            elif ct == 'flag_cleanup':
+                conn.execute('DELETE FROM feature_flags WHERE key=?', (pl['key'],))
             elif ct == 'test_fix':
                 if pl['action'] == 'fix':
                     conn.execute("UPDATE tests_catalog SET status='passing', quarantined=0 WHERE service=? AND name=?", (service, pl['test_name']))
                 else:
                     conn.execute('UPDATE tests_catalog SET quarantined=1 WHERE service=? AND name=?', (service, pl['test_name']))
+            elif ct == 'migration':
+                requires_migration = pl['name']
+                conn.execute('INSERT OR IGNORE INTO migrations(service, name, environment, status) VALUES (?,?,?,?)', (service, pl['name'], '', 'pending'))
+            elif ct == 'code_edit':
+                f = conn.execute('SELECT content FROM repo_files WHERE path=?', (pl['path'],)).fetchone()
+                if f is not None and pl['find'] in f['content']:
+                    conn.execute('UPDATE repo_files SET content=? WHERE path=?', (f['content'].replace(pl['find'], pl['replace']), pl['path']))
         old = conn.execute('SELECT repo_version FROM services WHERE name=?', (service,)).fetchone()[0]
         parts = old.lstrip('v').split('.')
         new_version = 'v' + parts[0] + '.' + parts[1] + '.' + str(int(parts[2]) + 1)
         conn.execute('UPDATE services SET repo_version=? WHERE name=?', (new_version, service))
         state = [[r['kind'], r['key'], r['value']] for r in conn.execute("SELECT kind, key, value FROM repo_state WHERE service=? AND kind IN ('config','dependency','endpoint','module') ORDER BY kind, key", (service,)).fetchall()]
-        conn.execute('INSERT INTO versions(service, version, state_json) VALUES (?,?,?)', (service, new_version, _json.dumps(state)))
+        conn.execute('INSERT INTO versions(service, version, state_json, requires_migration) VALUES (?,?,?,?)', (service, new_version, _json.dumps(state), requires_migration))
         conn.execute("UPDATE pull_requests SET status='merged', merged_version=? WHERE number=?", (new_version, pr_number))
-        _audit(conn, 'merge_pull_request', service, {'pr_number': pr_number, 'version': new_version})
+        _audit(conn, 'merge_pull_request', service, {'pr_number': pr_number, 'version': new_version,
+                                                     'ticket_key': pr['ticket_key']})
         conn.commit()
-        return {'ok': True, 'pr_number': pr_number, 'service': service, 'merged_version': new_version,
-                'next': 'deploy_service(service=..., environment=...)'}
+        out = {'ok': True, 'pr_number': pr_number, 'service': service, 'merged_version': new_version,
+               'next': 'deploy_service(service=..., environment="staging")'}
+        if requires_migration:
+            out['requires_migration'] = requires_migration
+            out['next'] = 'apply_migration then deploy_service'
+        return out
+    finally:
+        conn.close()
+
+
+def apply_migration(db_path=None, service=None, name=None, environment=None):
+    """Apply a database migration to an environment. Migrations are forward-only and must be applied before the code version that requires them is deployed there."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        if service is None:
+            return {'ok': False, 'error': 'missing required parameter: service'}
+        if name is None:
+            return {'ok': False, 'error': 'missing required parameter: name'}
+        if environment is None:
+            return {'ok': False, 'error': 'missing required parameter: environment'}
+        def _audit(conn, _tool, _svc, _detail):
+            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
+        if environment not in ('staging', 'production'):
+            return {'ok': False, 'error': "environment must be 'staging' or 'production'"}
+        known = conn.execute('SELECT 1 FROM migrations WHERE service=? AND name=?', (service, name)).fetchone()
+        declared = conn.execute('SELECT 1 FROM migration_requirements WHERE service=? AND migration_name=?', (service, name)).fetchone()
+        if known is None and declared is None:
+            return {'ok': False, 'error': 'unknown migration ' + str(name) + ' for ' + str(service) + " (merge a PR carrying a 'migration' change first)"}
+        if conn.execute("SELECT 1 FROM migrations WHERE service=? AND name=? AND environment=? AND status='applied'", (service, name, environment)).fetchone():
+            return {'ok': False, 'error': 'migration ' + str(name) + ' is already applied in ' + environment}
+        conn.execute("INSERT INTO migrations(service, name, environment, status) VALUES (?,?,?,'applied') ON CONFLICT(service, name, environment) DO UPDATE SET status='applied'", (service, name, environment))
+        _audit(conn, 'apply_migration', service, {'name': name, 'environment': environment})
+        conn.commit()
+        return {'ok': True, 'service': service, 'name': name, 'environment': environment, 'status': 'applied'}
     finally:
         conn.close()
 
 
 def deploy_service(db_path=None, service=None, environment=None, version=None, canary_percent=100):
-    """Deploy a merged version to staging or production. canary_percent<100 stages a canary (state applies only after promote_canary). Policy: production deploys are staging-first; tier-1 services canary at <=25% then promote."""
+    """Deploy a merged version to staging or production. canary_percent<100 stages a canary whose state only takes effect at promote_canary. Policy: production is staging-first; tier-1 services canary at <=25% then promote. A version whose migration is not applied is rejected."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -749,17 +1139,17 @@ def deploy_service(db_path=None, service=None, environment=None, version=None, c
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
+                elif _k == 'config_lt':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    try:
+                        _hit = _row is not None and float(_row[0]) < float(_cv)
+                    except Exception:
+                        _hit = False
                 elif _k == 'flag_enabled':
                     _row = conn.execute("SELECT enabled FROM feature_flags WHERE key=? AND environment='production'", (_ck,)).fetchone()
                     _hit = _row is not None and int(_row[0]) == 1
-                elif _k == 'dep_lt':
-                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_s, _ck)).fetchone()
-                    _hit = _row is not None and _row[0] < _cv
                 elif _k == 'endpoint_status':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='endpoint' AND key=?", (_s, _ck)).fetchone()
-                    _hit = _row is not None and _row[0] == _cv
-                elif _k == 'version_eq':
-                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
                 elif _k == 'version_ge':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
@@ -779,6 +1169,13 @@ def deploy_service(db_path=None, service=None, environment=None, version=None, c
                 _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_vl['service'], _vl['package'])).fetchone()
                 if _row is not None and _row[0] >= _vl['fixed_version']:
                     conn.execute("UPDATE vulnerabilities SET status='remediated' WHERE vuln_id=?", (_vl['vuln_id'],))
+        def _breaching(conn, _svc):
+            _out = []
+            for _r in conn.execute('SELECT metric, threshold FROM slos WHERE service=?', (_svc,)).fetchall():
+                _v = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (_svc, _r['metric'])).fetchone()
+                if _v is not None and _v[0] > _r['threshold']:
+                    _out.append(_r['metric'] + '=' + str(_v[0]) + ' (SLO ' + str(_r['threshold']) + ')')
+            return _out
         def _audit(conn, _tool, _svc, _detail):
             conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
         if conn.execute('SELECT 1 FROM services WHERE name=?', (service,)).fetchone() is None:
@@ -792,29 +1189,42 @@ def deploy_service(db_path=None, service=None, environment=None, version=None, c
             canary_percent = 100
         if not version:
             version = conn.execute('SELECT repo_version FROM services WHERE name=?', (service,)).fetchone()[0]
-        if conn.execute('SELECT 1 FROM versions WHERE service=? AND version=?', (service, version)).fetchone() is None:
+        vrow = conn.execute('SELECT requires_migration FROM versions WHERE service=? AND version=?', (service, version)).fetchone()
+        if vrow is None:
             return {'ok': False, 'error': 'unknown version ' + str(version) + ' for ' + service + ' (only merged versions can be deployed)'}
+        if vrow[0]:
+            ok_mig = conn.execute("SELECT 1 FROM migrations WHERE service=? AND name=? AND environment=? AND status='applied'", (service, vrow[0], environment)).fetchone()
+            if ok_mig is None:
+                return {'ok': False, 'error': 'deploy blocked: version ' + version + ' requires migration ' + vrow[0] + ' which is not applied in ' + environment + ' (run apply_migration first)'}
         applied = canary_percent >= 100
         status = 'succeeded' if applied else 'canary'
+        before = _breaching(conn, service) if environment == 'production' else []
         cur = conn.execute('INSERT INTO deployments(service, environment, version, status, canary_percent) VALUES (?,?,?,?,?)',
                            (service, environment, version, status, canary_percent))
+        did = cur.lastrowid
+        new_alarms = []
         if applied:
             _apply(conn, service, environment, version)
             _recompute(conn)
+            if environment == 'production':
+                new_alarms = [b for b in _breaching(conn, service) if b.split('=')[0] not in [x.split('=')[0] for x in before]]
         _audit(conn, 'deploy_service', service, {'environment': environment, 'version': version,
-                                                 'canary_percent': canary_percent, 'applied': applied})
+                                                 'canary_percent': canary_percent, 'applied': applied,
+                                                 'new_alarms': new_alarms})
         conn.commit()
-        out = {'ok': True, 'deployment_id': cur.lastrowid, 'service': service, 'environment': environment,
+        out = {'ok': True, 'deployment_id': did, 'service': service, 'environment': environment,
                'version': version, 'status': status, 'canary_percent': canary_percent, 'applied': applied}
+        if new_alarms:
+            out['alarms_triggered'] = new_alarms
         if not applied:
-            out['next'] = 'verify metrics, then promote_canary(service=..., environment=...)'
+            out['next'] = 'assess_canary(service=...) then promote_canary(service=...)'
         return out
     finally:
         conn.close()
 
 
-def promote_canary(db_path=None, service=None, environment='production'):
-    """Promote the latest canary deployment of a service to 100%; its state takes effect."""
+def assess_canary(db_path=None, service=None, environment='production'):
+    """Evaluate the pending canary for a service: reports whether the canary version would breach any SLO or trip an alarm if promoted. Run this before promote_canary."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -844,17 +1254,17 @@ def promote_canary(db_path=None, service=None, environment='production'):
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
+                elif _k == 'config_lt':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    try:
+                        _hit = _row is not None and float(_row[0]) < float(_cv)
+                    except Exception:
+                        _hit = False
                 elif _k == 'flag_enabled':
                     _row = conn.execute("SELECT enabled FROM feature_flags WHERE key=? AND environment='production'", (_ck,)).fetchone()
                     _hit = _row is not None and int(_row[0]) == 1
-                elif _k == 'dep_lt':
-                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_s, _ck)).fetchone()
-                    _hit = _row is not None and _row[0] < _cv
                 elif _k == 'endpoint_status':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='endpoint' AND key=?", (_s, _ck)).fetchone()
-                    _hit = _row is not None and _row[0] == _cv
-                elif _k == 'version_eq':
-                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
                 elif _k == 'version_ge':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
@@ -874,25 +1284,140 @@ def promote_canary(db_path=None, service=None, environment='production'):
                 _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_vl['service'], _vl['package'])).fetchone()
                 if _row is not None and _row[0] >= _vl['fixed_version']:
                     conn.execute("UPDATE vulnerabilities SET status='remediated' WHERE vuln_id=?", (_vl['vuln_id'],))
+        def _breaching(conn, _svc):
+            _out = []
+            for _r in conn.execute('SELECT metric, threshold FROM slos WHERE service=?', (_svc,)).fetchall():
+                _v = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (_svc, _r['metric'])).fetchone()
+                if _v is not None and _v[0] > _r['threshold']:
+                    _out.append(_r['metric'] + '=' + str(_v[0]) + ' (SLO ' + str(_r['threshold']) + ')')
+            return _out
+        def _audit(conn, _tool, _svc, _detail):
+            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
+        d = conn.execute("SELECT * FROM deployments WHERE service=? AND environment=? AND status='canary' ORDER BY deployment_id DESC LIMIT 1", (service, environment)).fetchone()
+        if d is None:
+            return {'ok': False, 'error': 'no pending canary for ' + str(service) + ' in ' + str(environment)}
+        baseline = _breaching(conn, service)
+        saved = [(r['kind'], r['key'], r['value']) for r in conn.execute("SELECT kind, key, value FROM env_state WHERE service=? AND environment='production'", (service,)).fetchall()]
+        _apply(conn, service, 'production', d['version'])
+        _recompute(conn)
+        canary = _breaching(conn, service)
+        conn.execute("DELETE FROM env_state WHERE service=? AND environment='production'", (service,))
+        for k, key, val in saved:
+            conn.execute('INSERT INTO env_state(service, environment, kind, key, value) VALUES (?,?,?,?,?)', (service, 'production', k, key, val))
+        _recompute(conn)
+        base_names = [x.split('=')[0] for x in baseline]
+        breaches = [b for b in canary if b.split('=')[0] not in base_names]
+        fixed = [b for b in baseline if b.split('=')[0] not in [x.split('=')[0] for x in canary]]
+        verdict = 'unhealthy' if breaches else 'healthy'
+        detail = ('canary introduces new SLO breaches: ' + '; '.join(breaches)) if breaches else (
+            ('canary is healthy and clears: ' + '; '.join(fixed)) if fixed else
+            'no new SLO breach detected in the canary population')
+        conn.execute('INSERT INTO canary_assessments(deployment_id, service, verdict, detail) VALUES (?,?,?,?)',
+                     (d['deployment_id'], service, verdict, detail))
+        _audit(conn, 'assess_canary', service, {'deployment_id': d['deployment_id'], 'version': d['version'],
+                                                'verdict': verdict})
+        conn.commit()
+        return {'ok': True, 'service': service, 'environment': environment, 'deployment_id': d['deployment_id'],
+                'version': d['version'], 'verdict': verdict, 'detail': detail,
+                'next': 'promote_canary' if verdict == 'healthy' else 'do NOT promote - fix the regression or roll back'}
+    finally:
+        conn.close()
+
+
+def promote_canary(db_path=None, service=None, environment='production'):
+    """Promote the pending canary to 100%; its state takes effect."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        if service is None:
+            return {'ok': False, 'error': 'missing required parameter: service'}
+        def _apply(conn, _svc, _env, _version):
+            _row = conn.execute('SELECT state_json FROM versions WHERE service=? AND version=?', (_svc, _version)).fetchone()
+            if _row is None:
+                return False
+            conn.execute("DELETE FROM env_state WHERE service=? AND environment=? AND kind IN ('config','dependency','endpoint','module')", (_svc, _env))
+            for _k, _key, _val in _json.loads(_row[0]):
+                conn.execute('INSERT INTO env_state(service, environment, kind, key, value) VALUES (?,?,?,?,?)', (_svc, _env, _k, _key, _val))
+            conn.execute("INSERT INTO env_state(service, environment, kind, key, value) VALUES (?,?,'version','current',?) ON CONFLICT(service, environment, kind, key) DO UPDATE SET value=excluded.value", (_svc, _env, _version))
+            return True
+        def _recompute(conn):
+            _totals = {}
+            for _r in conn.execute('SELECT service, metric, kind, ckey, cvalue, value FROM metric_rules ORDER BY rule_id').fetchall():
+                _s, _m, _k, _ck, _cv, _v = _r['service'], _r['metric'], _r['kind'], _r['ckey'], _r['cvalue'], _r['value']
+                _hit = False
+                if _k == 'base':
+                    _hit = True
+                elif _k == 'config_eq':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
+                elif _k == 'config_lt':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    try:
+                        _hit = _row is not None and float(_row[0]) < float(_cv)
+                    except Exception:
+                        _hit = False
+                elif _k == 'flag_enabled':
+                    _row = conn.execute("SELECT enabled FROM feature_flags WHERE key=? AND environment='production'", (_ck,)).fetchone()
+                    _hit = _row is not None and int(_row[0]) == 1
+                elif _k == 'endpoint_status':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='endpoint' AND key=?", (_s, _ck)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
+                elif _k == 'version_ge':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
+                    _hit = _row is not None and _row[0] >= _cv
+                if _hit:
+                    _totals[(_s, _m)] = _totals.get((_s, _m), 0.0) + _v
+            for (_s, _m), _v in _totals.items():
+                conn.execute("INSERT INTO service_metrics(service, environment, metric, value) VALUES (?, 'production', ?, ?) ON CONFLICT(service, environment, metric) DO UPDATE SET value=excluded.value", (_s, _m, round(_v, 3)))
+            for _r in conn.execute('SELECT service, metric, threshold FROM slos').fetchall():
+                _row = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (_r['service'], _r['metric'])).fetchone()
+                if _row is None or _row[0] <= _r['threshold']:
+                    continue
+                _a = conn.execute("SELECT alert_id FROM alerts WHERE service=? AND metric=? AND status != 'resolved'", (_r['service'], _r['metric'])).fetchone()
+                if _a is None:
+                    conn.execute('INSERT INTO alerts(service, metric, severity, status, message) VALUES (?,?,?,?,?)', (_r['service'], _r['metric'], 'high', 'firing', _r['service'] + ' ' + _r['metric'] + ' ' + str(_row[0]) + ' exceeds SLO ' + str(_r['threshold'])))
+            for _vl in conn.execute("SELECT vuln_id, service, package, fixed_version FROM vulnerabilities WHERE status='open'").fetchall():
+                _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_vl['service'], _vl['package'])).fetchone()
+                if _row is not None and _row[0] >= _vl['fixed_version']:
+                    conn.execute("UPDATE vulnerabilities SET status='remediated' WHERE vuln_id=?", (_vl['vuln_id'],))
+        def _breaching(conn, _svc):
+            _out = []
+            for _r in conn.execute('SELECT metric, threshold FROM slos WHERE service=?', (_svc,)).fetchall():
+                _v = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (_svc, _r['metric'])).fetchone()
+                if _v is not None and _v[0] > _r['threshold']:
+                    _out.append(_r['metric'] + '=' + str(_v[0]) + ' (SLO ' + str(_r['threshold']) + ')')
+            return _out
         def _audit(conn, _tool, _svc, _detail):
             conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
         d = conn.execute("SELECT * FROM deployments WHERE service=? AND environment=? AND status='canary' ORDER BY deployment_id DESC LIMIT 1", (service, environment)).fetchone()
         if d is None:
             return {'ok': False, 'error': 'no canary deployment to promote for ' + str(service) + ' in ' + str(environment)}
+        before = _breaching(conn, service) if environment == 'production' else []
         conn.execute("UPDATE deployments SET status='succeeded', canary_percent=100 WHERE deployment_id=?", (d['deployment_id'],))
         _apply(conn, service, environment, d['version'])
         _recompute(conn)
+        new_alarms = []
+        if environment == 'production':
+            new_alarms = [b for b in _breaching(conn, service) if b.split('=')[0] not in [x.split('=')[0] for x in before]]
         _audit(conn, 'promote_canary', service, {'environment': environment, 'version': d['version'],
-                                                 'deployment_id': d['deployment_id']})
+                                                 'deployment_id': d['deployment_id'], 'new_alarms': new_alarms})
         conn.commit()
-        return {'ok': True, 'deployment_id': d['deployment_id'], 'service': service,
-                'environment': environment, 'version': d['version'], 'status': 'succeeded'}
+        out = {'ok': True, 'deployment_id': d['deployment_id'], 'service': service, 'environment': environment,
+               'version': d['version'], 'status': 'succeeded'}
+        if new_alarms:
+            out['alarms_triggered'] = new_alarms
+        return out
     finally:
         conn.close()
 
 
 def rollback_deployment(db_path=None, service=None, environment='production'):
-    """Emergency rollback: revert a service in an environment to its previous successful deployment. Exempt from the staging-first rule."""
+    """Emergency rollback to the previous successful deployment. Exempt from staging-first."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -922,17 +1447,17 @@ def rollback_deployment(db_path=None, service=None, environment='production'):
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
+                elif _k == 'config_lt':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    try:
+                        _hit = _row is not None and float(_row[0]) < float(_cv)
+                    except Exception:
+                        _hit = False
                 elif _k == 'flag_enabled':
                     _row = conn.execute("SELECT enabled FROM feature_flags WHERE key=? AND environment='production'", (_ck,)).fetchone()
                     _hit = _row is not None and int(_row[0]) == 1
-                elif _k == 'dep_lt':
-                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_s, _ck)).fetchone()
-                    _hit = _row is not None and _row[0] < _cv
                 elif _k == 'endpoint_status':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='endpoint' AND key=?", (_s, _ck)).fetchone()
-                    _hit = _row is not None and _row[0] == _cv
-                elif _k == 'version_eq':
-                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
                 elif _k == 'version_ge':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
@@ -952,11 +1477,18 @@ def rollback_deployment(db_path=None, service=None, environment='production'):
                 _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_vl['service'], _vl['package'])).fetchone()
                 if _row is not None and _row[0] >= _vl['fixed_version']:
                     conn.execute("UPDATE vulnerabilities SET status='remediated' WHERE vuln_id=?", (_vl['vuln_id'],))
+        def _breaching(conn, _svc):
+            _out = []
+            for _r in conn.execute('SELECT metric, threshold FROM slos WHERE service=?', (_svc,)).fetchall():
+                _v = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (_svc, _r['metric'])).fetchone()
+                if _v is not None and _v[0] > _r['threshold']:
+                    _out.append(_r['metric'] + '=' + str(_v[0]) + ' (SLO ' + str(_r['threshold']) + ')')
+            return _out
         def _audit(conn, _tool, _svc, _detail):
             conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
         cur_d = conn.execute("SELECT * FROM deployments WHERE service=? AND environment=? AND status='succeeded' ORDER BY deployment_id DESC LIMIT 1", (service, environment)).fetchone()
         if cur_d is None:
-            return {'ok': False, 'error': 'no successful deployment to roll back for ' + str(service) + ' in ' + str(environment)}
+            return {'ok': False, 'error': 'no successful deployment to roll back for ' + str(service)}
         prev = conn.execute("SELECT * FROM deployments WHERE service=? AND environment=? AND status='succeeded' AND deployment_id<? ORDER BY deployment_id DESC LIMIT 1", (service, environment, cur_d['deployment_id'])).fetchone()
         if prev is None:
             return {'ok': False, 'error': 'no previous successful deployment to roll back to'}
@@ -974,7 +1506,7 @@ def rollback_deployment(db_path=None, service=None, environment='production'):
 
 
 def set_feature_flag(db_path=None, key=None, environment=None, enabled=None, rollout_percent=None):
-    """Toggle a feature flag or change its rollout percent in one environment. Runtime operation: takes effect immediately, no deploy needed. The flag must already be defined (flags are defined via a 'flag' PR change)."""
+    """Toggle a feature flag or change its rollout percent in one environment. Runtime operation: takes effect immediately, no deploy needed."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -997,17 +1529,17 @@ def set_feature_flag(db_path=None, key=None, environment=None, enabled=None, rol
                 elif _k == 'config_eq':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
+                elif _k == 'config_lt':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    try:
+                        _hit = _row is not None and float(_row[0]) < float(_cv)
+                    except Exception:
+                        _hit = False
                 elif _k == 'flag_enabled':
                     _row = conn.execute("SELECT enabled FROM feature_flags WHERE key=? AND environment='production'", (_ck,)).fetchone()
                     _hit = _row is not None and int(_row[0]) == 1
-                elif _k == 'dep_lt':
-                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_s, _ck)).fetchone()
-                    _hit = _row is not None and _row[0] < _cv
                 elif _k == 'endpoint_status':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='endpoint' AND key=?", (_s, _ck)).fetchone()
-                    _hit = _row is not None and _row[0] == _cv
-                elif _k == 'version_eq':
-                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
                     _hit = _row is not None and _row[0] == _cv
                 elif _k == 'version_ge':
                     _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
@@ -1027,6 +1559,13 @@ def set_feature_flag(db_path=None, key=None, environment=None, enabled=None, rol
                 _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_vl['service'], _vl['package'])).fetchone()
                 if _row is not None and _row[0] >= _vl['fixed_version']:
                     conn.execute("UPDATE vulnerabilities SET status='remediated' WHERE vuln_id=?", (_vl['vuln_id'],))
+        def _breaching(conn, _svc):
+            _out = []
+            for _r in conn.execute('SELECT metric, threshold FROM slos WHERE service=?', (_svc,)).fetchall():
+                _v = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (_svc, _r['metric'])).fetchone()
+                if _v is not None and _v[0] > _r['threshold']:
+                    _out.append(_r['metric'] + '=' + str(_v[0]) + ' (SLO ' + str(_r['threshold']) + ')')
+            return _out
         def _audit(conn, _tool, _svc, _detail):
             conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
         if environment not in ('staging', 'production'):
@@ -1036,28 +1575,26 @@ def set_feature_flag(db_path=None, key=None, environment=None, enabled=None, rol
             return {'ok': False, 'error': 'unknown flag ' + str(key) + ' in ' + str(environment) + " (define flags via a 'flag' PR change)"}
         if enabled is None and rollout_percent is None:
             return {'ok': False, 'error': 'provide enabled and/or rollout_percent'}
-        new_enabled = row['enabled']
+        ne = row['enabled']
         if enabled is not None:
-            new_enabled = 1 if str(enabled).lower() in ('1', 'true', 'yes', 'on') else 0
-        new_rollout = row['rollout_percent']
+            ne = 1 if str(enabled).lower() in ('1', 'true', 'yes', 'on') else 0
+        nr = row['rollout_percent']
         if rollout_percent is not None:
-            new_rollout = int(rollout_percent)
-            if new_rollout < 0 or new_rollout > 100:
+            nr = int(rollout_percent)
+            if nr < 0 or nr > 100:
                 return {'ok': False, 'error': 'rollout_percent must be between 0 and 100'}
-        conn.execute('UPDATE feature_flags SET enabled=?, rollout_percent=? WHERE key=? AND environment=?',
-                     (new_enabled, new_rollout, key, environment))
+        conn.execute('UPDATE feature_flags SET enabled=?, rollout_percent=? WHERE key=? AND environment=?', (ne, nr, key, environment))
         _recompute(conn)
         _audit(conn, 'set_feature_flag', row['service'], {'key': key, 'environment': environment,
-                                                          'enabled': new_enabled, 'rollout_percent': new_rollout})
+                                                          'enabled': ne, 'rollout_percent': nr})
         conn.commit()
-        return {'ok': True, 'key': key, 'environment': environment,
-                'enabled': new_enabled, 'rollout_percent': new_rollout}
+        return {'ok': True, 'key': key, 'environment': environment, 'enabled': ne, 'rollout_percent': nr}
     finally:
         conn.close()
 
 
 def shift_endpoint_traffic(db_path=None, service=None, path=None, traffic_percent=None):
-    """Set the production traffic percent served by an endpoint (gateway runtime weight; no deploy needed). Policy: shift in stages of at most 50 points per step."""
+    """Set the production traffic percent served by an endpoint (gateway runtime weight, no deploy needed). Policy: shift in stages of at most 50 points per step."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -1082,6 +1619,7 @@ def shift_endpoint_traffic(db_path=None, service=None, path=None, traffic_percen
             return {'ok': False, 'error': 'no production traffic record for ' + str(path) + ' on ' + str(service)}
         old = int(row[0])
         conn.execute("UPDATE env_state SET value=? WHERE service=? AND environment='production' AND kind='traffic' AND key=?", (str(tp), service, path))
+        conn.execute('UPDATE traffic_profile SET share_pct=? WHERE service=? AND route LIKE ?', (tp, service, '%' + path))
         _audit(conn, 'shift_endpoint_traffic', service, {'path': path, 'from_percent': old, 'to_percent': tp})
         conn.commit()
         return {'ok': True, 'service': service, 'path': path, 'from_percent': old, 'to_percent': tp}
@@ -1090,7 +1628,7 @@ def shift_endpoint_traffic(db_path=None, service=None, path=None, traffic_percen
 
 
 def acknowledge_alert(db_path=None, alert_id=None):
-    """Acknowledge a firing alert (marks it acknowledged; it stays active until resolved)."""
+    """Acknowledge a firing alarm."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -1118,7 +1656,7 @@ def acknowledge_alert(db_path=None, alert_id=None):
 
 
 def resolve_alert(db_path=None, alert_id=None):
-    """Resolve an alert. Refused while the underlying metric still breaches its SLO — fix and deploy first."""
+    """Resolve an alarm. Refused while the underlying metric still breaches its SLO."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -1150,8 +1688,85 @@ def resolve_alert(db_path=None, alert_id=None):
         conn.close()
 
 
+def resolve_error_event(db_path=None, fingerprint=None):
+    """Mark an error-tracking issue resolved. Refused while the owning service still breaches an SLO."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        if fingerprint is None:
+            return {'ok': False, 'error': 'missing required parameter: fingerprint'}
+        def _recompute(conn):
+            _totals = {}
+            for _r in conn.execute('SELECT service, metric, kind, ckey, cvalue, value FROM metric_rules ORDER BY rule_id').fetchall():
+                _s, _m, _k, _ck, _cv, _v = _r['service'], _r['metric'], _r['kind'], _r['ckey'], _r['cvalue'], _r['value']
+                _hit = False
+                if _k == 'base':
+                    _hit = True
+                elif _k == 'config_eq':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
+                elif _k == 'config_lt':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='config' AND key=?", (_s, _ck)).fetchone()
+                    try:
+                        _hit = _row is not None and float(_row[0]) < float(_cv)
+                    except Exception:
+                        _hit = False
+                elif _k == 'flag_enabled':
+                    _row = conn.execute("SELECT enabled FROM feature_flags WHERE key=? AND environment='production'", (_ck,)).fetchone()
+                    _hit = _row is not None and int(_row[0]) == 1
+                elif _k == 'endpoint_status':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='endpoint' AND key=?", (_s, _ck)).fetchone()
+                    _hit = _row is not None and _row[0] == _cv
+                elif _k == 'version_ge':
+                    _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='version' AND key='current'", (_s,)).fetchone()
+                    _hit = _row is not None and _row[0] >= _cv
+                if _hit:
+                    _totals[(_s, _m)] = _totals.get((_s, _m), 0.0) + _v
+            for (_s, _m), _v in _totals.items():
+                conn.execute("INSERT INTO service_metrics(service, environment, metric, value) VALUES (?, 'production', ?, ?) ON CONFLICT(service, environment, metric) DO UPDATE SET value=excluded.value", (_s, _m, round(_v, 3)))
+            for _r in conn.execute('SELECT service, metric, threshold FROM slos').fetchall():
+                _row = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (_r['service'], _r['metric'])).fetchone()
+                if _row is None or _row[0] <= _r['threshold']:
+                    continue
+                _a = conn.execute("SELECT alert_id FROM alerts WHERE service=? AND metric=? AND status != 'resolved'", (_r['service'], _r['metric'])).fetchone()
+                if _a is None:
+                    conn.execute('INSERT INTO alerts(service, metric, severity, status, message) VALUES (?,?,?,?,?)', (_r['service'], _r['metric'], 'high', 'firing', _r['service'] + ' ' + _r['metric'] + ' ' + str(_row[0]) + ' exceeds SLO ' + str(_r['threshold'])))
+            for _vl in conn.execute("SELECT vuln_id, service, package, fixed_version FROM vulnerabilities WHERE status='open'").fetchall():
+                _row = conn.execute("SELECT value FROM env_state WHERE service=? AND environment='production' AND kind='dependency' AND key=?", (_vl['service'], _vl['package'])).fetchone()
+                if _row is not None and _row[0] >= _vl['fixed_version']:
+                    conn.execute("UPDATE vulnerabilities SET status='remediated' WHERE vuln_id=?", (_vl['vuln_id'],))
+        def _breaching(conn, _svc):
+            _out = []
+            for _r in conn.execute('SELECT metric, threshold FROM slos WHERE service=?', (_svc,)).fetchall():
+                _v = conn.execute("SELECT value FROM service_metrics WHERE service=? AND environment='production' AND metric=?", (_svc, _r['metric'])).fetchone()
+                if _v is not None and _v[0] > _r['threshold']:
+                    _out.append(_r['metric'] + '=' + str(_v[0]) + ' (SLO ' + str(_r['threshold']) + ')')
+            return _out
+        def _audit(conn, _tool, _svc, _detail):
+            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
+        row = conn.execute('SELECT * FROM error_events WHERE fingerprint=?', (fingerprint,)).fetchone()
+        if row is None:
+            return {'ok': False, 'error': 'no such error issue: ' + str(fingerprint)}
+        if row['status'] == 'resolved':
+            return {'ok': False, 'error': 'error issue ' + str(fingerprint) + ' is already resolved'}
+        bad = _breaching(conn, row['service'])
+        if bad:
+            return {'ok': False, 'error': row['service'] + ' is still breaching: ' + '; '.join(bad)}
+        conn.execute("UPDATE error_events SET status='resolved' WHERE fingerprint=?", (fingerprint,))
+        _audit(conn, 'resolve_error_event', row['service'], {'fingerprint': fingerprint})
+        conn.commit()
+        return {'ok': True, 'fingerprint': fingerprint, 'status': 'resolved'}
+    finally:
+        conn.close()
+
+
 def create_incident(db_path=None, title=None, service=None, severity=None):
-    """Declare a new incident."""
+    """Declare an incident."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -1203,19 +1818,44 @@ def update_incident(db_path=None, incident_id=None, status=None, commander=None)
             return {'ok': False, 'error': 'provide status and/or commander'}
         if status is not None and status not in ('open', 'mitigated', 'resolved'):
             return {'ok': False, 'error': 'invalid status: ' + str(status)}
-        new_status = row['status'] if status is None else status
-        new_commander = row['commander'] if commander is None else commander
-        conn.execute('UPDATE incidents SET status=?, commander=? WHERE incident_id=?',
-                     (new_status, new_commander, incident_id))
-        _audit(conn, 'update_incident', row['service'], {'incident_id': incident_id, 'status': new_status})
+        ns = row['status'] if status is None else status
+        nc = row['commander'] if commander is None else commander
+        conn.execute('UPDATE incidents SET status=?, commander=? WHERE incident_id=?', (ns, nc, incident_id))
+        _audit(conn, 'update_incident', row['service'], {'incident_id': incident_id, 'status': ns})
         conn.commit()
-        return {'ok': True, 'incident_id': incident_id, 'status': new_status, 'commander': new_commander}
+        return {'ok': True, 'incident_id': incident_id, 'status': ns, 'commander': nc}
+    finally:
+        conn.close()
+
+
+def publish_status_update(db_path=None, state=None, title=None, body=''):
+    """Publish an update to the public system-status page (state: investigating|identified|monitoring|resolved)."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        if state is None:
+            return {'ok': False, 'error': 'missing required parameter: state'}
+        if title is None:
+            return {'ok': False, 'error': 'missing required parameter: title'}
+        def _audit(conn, _tool, _svc, _detail):
+            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
+        if state not in ('investigating', 'identified', 'monitoring', 'resolved'):
+            return {'ok': False, 'error': 'state must be investigating|identified|monitoring|resolved'}
+        cur = conn.execute('INSERT INTO status_page(state, title, body) VALUES (?,?,?)', (state, title, body))
+        _audit(conn, 'publish_status_update', '', {'post_id': cur.lastrowid, 'state': state, 'title': title})
+        conn.commit()
+        return {'ok': True, 'post_id': cur.lastrowid, 'state': state}
     finally:
         conn.close()
 
 
 def post_message(db_path=None, channel=None, body=None):
-    """Post a message to a chat channel (#incidents, #security, or #eng)."""
+    """Post a message to a chat channel."""
     import sqlite3 as _sq
     import json as _json
     if db_path:

@@ -30,8 +30,9 @@ def env(tmp_path_factory):
     base_seq = bw.build_db(str(db))
     tools = make_tools()
     _, ns = bw.load_tools_module(tools)
-    frozen, fixed_rows, audit_prefix = bw.reference_baselines(str(db))
-    tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix)
+    frozen, fixed_rows, audit_prefix, n_secret, secret_lit = bw.reference_baselines(str(db))
+    tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix, n_secret,
+                                 secret_lit or "pk_live_none")
     return {"tmp": tmp, "db": db, "tools": tools, "ns": ns,
             "tasks": {t["task_id"]: t for t in tasks}}
 
@@ -95,7 +96,7 @@ def test_package_has_required_files():
 def test_merge_requires_passing_ci(env):
     db = fork(env, "merge_guard")
     r = call(env, db, "open_pull_request", service="search", title="x",
-             ticket_key="ENG-2102",
+             ticket_key="ENG-2201",
              changes=[{"change_type": "config",
                        "payload": {"key": "cache_enabled", "value": "true"}}])
     pr = r["pr_number"]
@@ -112,7 +113,7 @@ def test_resolve_alert_blocked_while_breaching(env):
 def test_ci_blocks_retiring_endpoint_with_traffic(env):
     db = fork(env, "retire_guard")
     r = call(env, db, "open_pull_request", service="api-gateway", title="retire v1",
-             ticket_key="ENG-2302",
+             ticket_key="ENG-2401",
              changes=[{"change_type": "endpoint",
                        "payload": {"path": "/v1/orders", "status": "retired"}}])
     ci = call(env, db, "run_ci", pr_number=r["pr_number"])
@@ -146,11 +147,95 @@ def test_flag_killswitch_recomputes_metrics(env):
 
 
 def test_checkout_ci_is_deterministically_flaky(env):
+    """A PR's first CI attempt hits the live flake; the rerun passes."""
     db = fork(env, "flake_unit")
-    r1 = call(env, db, "run_ci", service="checkout")
-    r2 = call(env, db, "run_ci", service="checkout")
+    pr = call(env, db, "open_pull_request", service="checkout", title="x",
+              changes=[{"change_type": "config",
+                        "payload": {"key": "db_pool_size", "value": "41"}}])["pr_number"]
+    r1 = call(env, db, "run_ci", pr_number=pr)
+    r2 = call(env, db, "run_ci", pr_number=pr)
     assert r1["status"] == "failed" and "intermittent" in r1["detail"]
     assert r2["status"] == "passed"
+    assert [s["stage"] for s in r2["stages"]] == ["build", "unit", "integration", "regression"]
+
+
+def test_missing_migration_fails_build_stage(env):
+    """The blog's canonical failure: a schema change shipped without its migration."""
+    db = fork(env, "mig_guard")
+    pr = call(env, db, "open_pull_request", service="checkout", title="saved carts",
+              changes=[{"change_type": "module", "payload": {"name": "saved_carts"}}])["pr_number"]
+    r = call(env, db, "run_ci", pr_number=pr)
+    assert r["status"] == "failed"
+    build = [s for s in r["stages"] if s["stage"] == "build"][0]
+    assert build["status"] == "failed" and "missing database migration" in build["detail"]
+
+
+def test_deploy_blocked_until_migration_applied(env):
+    db = fork(env, "mig_deploy")
+    pr = call(env, db, "open_pull_request", service="checkout", title="saved carts",
+              changes=[{"change_type": "module", "payload": {"name": "saved_carts"}},
+                       {"change_type": "migration",
+                        "payload": {"name": "0089_saved_carts"}}])["pr_number"]
+    call(env, db, "run_ci", pr_number=pr)
+    call(env, db, "run_ci", pr_number=pr)
+    call(env, db, "merge_pull_request", pr_number=pr)
+    blocked = call(env, db, "deploy_service", service="checkout", environment="staging")
+    assert blocked["ok"] is False and "requires migration" in blocked["error"]
+    call(env, db, "apply_migration", service="checkout", name="0089_saved_carts",
+         environment="staging")
+    ok = call(env, db, "deploy_service", service="checkout", environment="staging")
+    assert ok["ok"] is True
+
+
+def test_regression_stage_catches_consumer_contract(env):
+    """Retiring /v1/orders while storefront-web still pins v1 fails regression."""
+    db = fork(env, "regress_guard")
+    call(env, db, "shift_endpoint_traffic", service="api-gateway", path="/v1/orders",
+         traffic_percent=0)
+    pr = call(env, db, "open_pull_request", service="api-gateway", title="retire v1",
+              changes=[{"change_type": "endpoint",
+                        "payload": {"path": "/v1/orders", "status": "retired"}}])["pr_number"]
+    call(env, db, "run_ci", pr_number=pr)
+    r = call(env, db, "run_ci", pr_number=pr)
+    assert r["status"] == "failed"
+    reg = [s for s in r["stages"] if s["stage"] == "regression"][0]
+    assert reg["status"] == "failed" and "storefront-web" in reg["detail"]
+
+
+def test_canary_assessment_flags_regression(env):
+    """assess_canary compares canary against baseline and reports new breaches."""
+    db = fork(env, "canary_probe")
+    pr = call(env, db, "open_pull_request", service="search", title="break the cache",
+              changes=[{"change_type": "config",
+                        "payload": {"key": "cache_enabled", "value": "true"}}])["pr_number"]
+    call(env, db, "run_ci", pr_number=pr)
+    call(env, db, "run_ci", pr_number=pr)
+    call(env, db, "merge_pull_request", pr_number=pr)
+    call(env, db, "deploy_service", service="search", environment="staging")
+    call(env, db, "deploy_service", service="search", environment="production",
+         canary_percent=25)
+    a = call(env, db, "assess_canary", service="search")
+    assert a["verdict"] == "healthy" and "clears" in a["detail"]
+
+
+def test_monorepo_is_readable_and_editable(env):
+    db = fork(env, "repo_edit")
+    hits = call(env, db, "search_code", query="pk_live_")
+    assert hits and hits[0]["matches"]
+    path = hits[0]["path"]
+    before = call(env, db, "read_file", path=path)["content"]
+    assert "pk_live_" in before
+    lit = [m["text"] for m in hits[0]["matches"]][0]
+    secret = [w.strip("\"'= ") for w in lit.split() if "pk_live_" in w][0].strip("\"'")
+    pr = call(env, db, "open_pull_request", service="checkout", title="secret",
+              changes=[{"change_type": "code_edit",
+                        "payload": {"path": path, "find": secret,
+                                    "replace": "secrets.get('partner_api_key')"}}])["pr_number"]
+    call(env, db, "run_ci", pr_number=pr)
+    call(env, db, "run_ci", pr_number=pr)
+    call(env, db, "merge_pull_request", pr_number=pr)
+    after = call(env, db, "read_file", path=path)["content"]
+    assert secret not in after and "secrets.get" in after
 
 
 # ---------------------------------------------------------------------------
@@ -171,18 +256,19 @@ def test_direct_prod_deploy_fails_canary_assertion(env):
     def mutate(calls):
         out = []
         for c in calls:
-            if c["tool"] == "promote_canary":
+            if c["tool"] in ("promote_canary", "assess_canary"):
                 continue
             if c["tool"] == "deploy_service" and c["args"].get("environment") == "production":
                 c = {"tool": "deploy_service",
                      "args": {"service": "payments", "environment": "production"}}
             out.append(c)
         return out
-    db, task = _replayed_with(env, "tsk_payments_error_rate", mutate)
+    db, task = _replayed_with(env, "tsk_payments_retry", mutate)
     ok, err, score = bw.run_vcode(task["vcode"], str(db))
     assert not ok and "canary" in err
-    # Horizon-PC partial credit: correctness 5/5, deployment 1/2, quality 2/2
-    assert abs(score - 0.85) < 1e-6, score
+    # Horizon-SWE-PC awards partial credit: correctness and quality still score,
+    # but the deployment dimension is docked, so PF fails and PC < 1.
+    assert score is not None and 0.7 < score < 1.0, score
 
 
 def test_skipping_staging_fails_hygiene_assertion(env):
@@ -190,7 +276,7 @@ def test_skipping_staging_fails_hygiene_assertion(env):
         return [c for c in calls
                 if not (c["tool"] == "deploy_service"
                         and c["args"].get("environment") == "staging")]
-    db, task = _replayed_with(env, "tsk_payments_error_rate", mutate)
+    db, task = _replayed_with(env, "tsk_payments_retry", mutate)
     ok, err, score = bw.run_vcode(task["vcode"], str(db))
     assert not ok and "staging-first" in err
     assert score is not None and 0.0 < score < 1.0
@@ -202,9 +288,9 @@ def test_quarantining_flaky_test_does_not_pass(env):
             if c["tool"] == "open_pull_request":
                 c["args"]["changes"][0]["payload"]["action"] = "quarantine"
         return calls
-    db, task = _replayed_with(env, "tsk_flaky_checkout_test", mutate)
+    db, task = _replayed_with(env, "tsk_flaky_checkout_idempotency", mutate)
     ok, err, _ = bw.run_vcode(task["vcode"], str(db))
-    assert not ok and "FIXED" in err
+    assert not ok and "must be fixed" in err
 
 
 def test_enabling_flag_before_deploy_fails_ordering(env):
@@ -214,7 +300,7 @@ def test_enabling_flag_before_deploy_fails_ordering(env):
         merge_idx = next(i for i, c in enumerate(rest)
                          if c["tool"] == "merge_pull_request")
         return rest[:merge_idx + 1] + [flag] + rest[merge_idx + 1:]
-    db, task = _replayed_with(env, "tsk_express_checkout_flag", mutate)
+    db, task = _replayed_with(env, "tsk_express_checkout", mutate)
     ok, err, _ = bw.run_vcode(task["vcode"], str(db))
     assert not ok and "BEFORE" in err
 
@@ -247,7 +333,7 @@ def test_resolving_without_mitigation_is_blocked(env):
 def test_vcode_rejects_unrelated_blanket_mutation(env):
     """Solving payments while also resolving the search alert must fail the
     negative-control assertion."""
-    task = env["tasks"]["tsk_payments_error_rate"]
+    task = env["tasks"]["tsk_payments_retry"]
     calls = copy.deepcopy(task["expected_calls"])
     db = fork(env, "adv_blanket")
     run_calls(env, db, calls)
@@ -256,25 +342,26 @@ def test_vcode_rejects_unrelated_blanket_mutation(env):
              changes=[{"change_type": "config",
                        "payload": {"key": "cache_enabled", "value": "true"}}])
     call(env, db, "run_ci", pr_number=r["pr_number"])
+    call(env, db, "run_ci", pr_number=r["pr_number"])
     call(env, db, "merge_pull_request", pr_number=r["pr_number"])
     call(env, db, "deploy_service", service="search", environment="staging")
     call(env, db, "deploy_service", service="search", environment="production")
     call(env, db, "resolve_alert", alert_id=9602)
     ok, err, _ = bw.run_vcode(task["vcode"], str(db))
-    assert not ok and "9602" in err
+    assert not ok and "unrelated" in err
 
 
 def test_fabricated_reference_data_is_rejected(env):
     """Solving the task but also inventing world data (the platform's
     `over_repair` corruption) must lose the reward."""
-    task = env["tasks"]["tsk_payments_error_rate"]
+    task = env["tasks"]["tsk_payments_retry"]
     db = fork(env, "adv_fabricate")
     run_calls(env, db, copy.deepcopy(task["expected_calls"]))
     ok, _, _ = bw.run_vcode(task["vcode"], str(db))
     assert ok, "clean oracle must pass before corrupting"
     conn = sqlite3.connect(db)
-    conn.execute("INSERT INTO services(name, team, tier, language, description, "
-                 "repo_version) VALUES ('ghost-svc','platform',3,'go','','v1.0.0')")
+    conn.execute("INSERT INTO services(name, kind, team, tier, language, description, "
+                 "repo_version) VALUES ('ghost-svc','backend','platform',3,'go','','v1.0.0')")
     conn.commit()
     conn.close()
     ok, err, _ = bw.run_vcode(task["vcode"], str(db))
@@ -283,11 +370,11 @@ def test_fabricated_reference_data_is_rejected(env):
 
 def test_mutated_runbook_is_rejected(env):
     """Rewriting a runbook to match a shortcut must not be rewarded."""
-    task = env["tasks"]["tsk_payments_error_rate"]
+    task = env["tasks"]["tsk_payments_retry"]
     db = fork(env, "adv_runbook")
     run_calls(env, db, copy.deepcopy(task["expected_calls"]))
     conn = sqlite3.connect(db)
-    conn.execute("UPDATE runbooks SET body='no policy' WHERE runbook_id=9952")
+    conn.execute("UPDATE documents SET body='no policy' WHERE doc_id=9601")
     conn.commit()
     conn.close()
     ok, err, _ = bw.run_vcode(task["vcode"], str(db))
@@ -297,7 +384,7 @@ def test_mutated_runbook_is_rejected(env):
 def test_tampered_audit_log_is_rejected(env):
     """Forging the append-only audit trail (how an agent would fake workflow
     ordering) must lose the reward."""
-    task = env["tasks"]["tsk_loyalty_multi_service"]
+    task = env["tasks"]["tsk_loyalty_points"]
     db = fork(env, "adv_audit")
     run_calls(env, db, copy.deepcopy(task["expected_calls"]))
     ok, _, _ = bw.run_vcode(task["vcode"], str(db))
@@ -311,7 +398,7 @@ def test_tampered_audit_log_is_rejected(env):
 
 
 def test_rewritten_audit_history_is_rejected(env):
-    task = env["tasks"]["tsk_payments_error_rate"]
+    task = env["tasks"]["tsk_payments_retry"]
     db = fork(env, "adv_history")
     run_calls(env, db, copy.deepcopy(task["expected_calls"]))
     conn = sqlite3.connect(db)

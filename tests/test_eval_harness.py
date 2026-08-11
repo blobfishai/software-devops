@@ -19,11 +19,11 @@ def test_oracle_policy_scores_perfect(tmp_path):
     report = json.loads(out.read_text())
     assert report["pass_rate"] == 1.0
     assert report["mean_score"] == 1.0
-    assert len(report["tasks"]) == 10
+    assert len(report["tasks"]) == 50
     for t in report["tasks"]:
         assert t["passed"] and t["score"] == 1.0
         assert "correctness" in t["dimensions"]
-    assert "PF  strict pass rate : 100.0%" in proc.stdout
+    assert "Horizon-SWE-PF" in proc.stdout and "100.0%" in proc.stdout
 
 
 def test_split_selection_and_missing_key(tmp_path):
@@ -33,7 +33,7 @@ def test_split_selection_and_missing_key(tmp_path):
          "--split", "heldout", "--out", str(out)],
         capture_output=True, text=True, timeout=300)
     assert proc.returncode == 0, proc.stderr
-    assert len(json.loads(out.read_text())["tasks"]) == 3
+    assert len(json.loads(out.read_text())["tasks"]) == 9
 
     env_no_key = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin"}
     proc = subprocess.run(

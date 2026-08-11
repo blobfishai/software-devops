@@ -56,11 +56,11 @@ def server(tmp_path_factory):
 
 def test_rest_surface(server):
     health = _req(server + "/healthz")
-    assert health["status"] == "ok" and health["tools"] == 34 and health["tasks"] == 10
+    assert health["status"] == "ok" and health["tools"] == 50 and health["tasks"] == 50
 
     tasks = _req(server + "/tasks")
-    assert {t["task_id"] for t in tasks} >= {"tsk_payments_error_rate",
-                                             "tsk_gateway_rollback_sev1"}
+    assert {t["task_id"] for t in tasks} >= {"tsk_payments_retry",
+                                             "tsk_gateway_v510_rollback"}
     assert all("vcode" not in t for t in tasks)
 
     tools = _req(server + "/tools")
@@ -121,7 +121,10 @@ def test_mcp_full_killswitch_episode(server):
     tool("update_incident", {"incident_id": 9702, "status": "resolved"})
     tool("post_message", {"channel": "#incidents",
                           "body": "Kill-switched instant_refunds; metrics recovered; incident 9702 resolved."})
-    tool("update_ticket", {"key": "ENG-2202", "status": "done"})
+    tool("publish_status_update", {"state": "resolved", "title": "Checkout errors resolved",
+                                   "body": "A recent feature caused elevated checkout errors; "
+                                           "it has been disabled."})
+    tool("update_ticket", {"key": "ENG-2311", "status": "done"})
 
     verdict = tool("task_verify", {})
     assert verdict["passed"] is True and verdict["reward"] == 1.0, verdict

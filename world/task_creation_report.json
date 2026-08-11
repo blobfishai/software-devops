@@ -1,27 +1,192 @@
 {
-  "accepted": 10,
+  "accepted": 50,
   "rejected": 0,
+  "by_category": {
+    "error_rate_reduction": 8,
+    "latency_optimization": 8,
+    "feature_flag": 7,
+    "security_incident": 7,
+    "api_migration": 7,
+    "flaky_test": 6,
+    "multi_service_rollout": 7
+  },
   "tasks": [
     {
-      "task_id": "tsk_payments_error_rate",
+      "task_id": "tsk_payments_retry",
       "accepted": true,
+      "category": "error_rate_reduction",
+      "oracle_steps": 14,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_inventory_pool",
+      "accepted": true,
+      "category": "error_rate_reduction",
+      "oracle_steps": 14,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_analytics_prefetch",
+      "accepted": true,
+      "category": "error_rate_reduction",
+      "oracle_steps": 13,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_notifications_timeout",
+      "accepted": true,
+      "category": "error_rate_reduction",
       "oracle_steps": 12,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
     {
-      "task_id": "tsk_search_latency_slo",
+      "task_id": "tsk_payments_retry_from_code",
       "accepted": true,
+      "category": "error_rate_reduction",
+      "oracle_steps": 16,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_payments_notify_timeout",
+      "accepted": true,
+      "category": "error_rate_reduction",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_checkout_payments_timeout",
+      "accepted": true,
+      "category": "error_rate_reduction",
+      "oracle_steps": 13,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_analytics_batch_size",
+      "accepted": true,
+      "category": "error_rate_reduction",
       "oracle_steps": 11,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
     {
-      "task_id": "tsk_express_checkout_flag",
+      "task_id": "tsk_search_cache",
       "accepted": true,
+      "category": "latency_optimization",
+      "oracle_steps": 13,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_catalog_batch_pricing",
+      "accepted": true,
+      "category": "latency_optimization",
+      "oracle_steps": 13,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_media_cdn",
+      "accepted": true,
+      "category": "latency_optimization",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_catalog_pricing_from_code",
+      "accepted": true,
+      "category": "latency_optimization",
+      "oracle_steps": 14,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_gateway_pool_reuse",
+      "accepted": true,
+      "category": "latency_optimization",
+      "oracle_steps": 13,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_catalog_cache_ttl",
+      "accepted": true,
+      "category": "latency_optimization",
       "oracle_steps": 11,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_search_shards",
+      "accepted": true,
+      "category": "latency_optimization",
+      "oracle_steps": 11,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_gateway_v510_rollback",
+      "accepted": true,
+      "category": "latency_optimization",
+      "oracle_steps": 13,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_express_checkout",
+      "accepted": true,
+      "category": "feature_flag",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_search_autocomplete",
+      "accepted": true,
+      "category": "feature_flag",
+      "oracle_steps": 10,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_saved_carts",
+      "accepted": true,
+      "category": "feature_flag",
+      "oracle_steps": 14,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_media_webp",
+      "accepted": true,
+      "category": "feature_flag",
+      "oracle_steps": 9,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -29,15 +194,62 @@
     {
       "task_id": "tsk_instant_refunds_killswitch",
       "accepted": true,
-      "oracle_steps": 9,
+      "category": "feature_flag",
+      "oracle_steps": 11,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
     {
-      "task_id": "tsk_libpayproc_cve",
+      "task_id": "tsk_legacy_price_rounding_cleanup",
       "accepted": true,
+      "category": "feature_flag",
+      "oracle_steps": 10,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_checkout_v2_layout_cleanup",
+      "accepted": true,
+      "category": "feature_flag",
       "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_cve_libpayproc",
+      "accepted": true,
+      "category": "security_incident",
+      "oracle_steps": 13,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_cve_stripe_sdk",
+      "accepted": true,
+      "category": "security_incident",
+      "oracle_steps": 14,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_cve_pydantic",
+      "accepted": true,
+      "category": "security_incident",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_cve_requests",
+      "accepted": true,
+      "category": "security_incident",
+      "oracle_steps": 13,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -45,39 +257,206 @@
     {
       "task_id": "tsk_retire_debug_endpoint",
       "accepted": true,
-      "oracle_steps": 9,
-      "oracle_score": 1.0,
-      "discriminating_vcode": true,
-      "oracle_replay_passed": true
-    },
-    {
-      "task_id": "tsk_loyalty_multi_service",
-      "accepted": true,
-      "oracle_steps": 20,
-      "oracle_score": 1.0,
-      "discriminating_vcode": true,
-      "oracle_replay_passed": true
-    },
-    {
-      "task_id": "tsk_orders_api_migration",
-      "accepted": true,
-      "oracle_steps": 20,
-      "oracle_score": 1.0,
-      "discriminating_vcode": true,
-      "oracle_replay_passed": true
-    },
-    {
-      "task_id": "tsk_flaky_checkout_test",
-      "accepted": true,
+      "category": "security_incident",
       "oracle_steps": 11,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
     },
     {
-      "task_id": "tsk_gateway_rollback_sev1",
+      "task_id": "tsk_retire_metrics_endpoint",
       "accepted": true,
+      "category": "security_incident",
       "oracle_steps": 11,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_checkout_hardcoded_secret",
+      "accepted": true,
+      "category": "security_incident",
+      "oracle_steps": 14,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_orders_v1_to_v2",
+      "accepted": true,
+      "category": "api_migration",
+      "oracle_steps": 31,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_auth_v1_to_v2",
+      "accepted": true,
+      "category": "api_migration",
+      "oracle_steps": 31,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_checkout_v1_to_v2",
+      "accepted": true,
+      "category": "api_migration",
+      "oracle_steps": 31,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_search_v1_to_v2",
+      "accepted": true,
+      "category": "api_migration",
+      "oracle_steps": 24,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_media_v1_to_v2",
+      "accepted": true,
+      "category": "api_migration",
+      "oracle_steps": 24,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_inventory_v1_to_v2",
+      "accepted": true,
+      "category": "api_migration",
+      "oracle_steps": 24,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_notify_v1_to_v2",
+      "accepted": true,
+      "category": "api_migration",
+      "oracle_steps": 24,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_flaky_checkout_idempotency",
+      "accepted": true,
+      "category": "flaky_test",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_flaky_catalog_rounding",
+      "accepted": true,
+      "category": "flaky_test",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_flaky_inventory_race",
+      "accepted": true,
+      "category": "flaky_test",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_flaky_gateway_timeout",
+      "accepted": true,
+      "category": "flaky_test",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_flaky_search_index",
+      "accepted": true,
+      "category": "flaky_test",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_flaky_analytics_rollup",
+      "accepted": true,
+      "category": "flaky_test",
+      "oracle_steps": 12,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_loyalty_points",
+      "accepted": true,
+      "category": "multi_service_rollout",
+      "oracle_steps": 28,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_split_settlement",
+      "accepted": true,
+      "category": "multi_service_rollout",
+      "oracle_steps": 20,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_backorders",
+      "accepted": true,
+      "category": "multi_service_rollout",
+      "oracle_steps": 26,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_media_pipeline",
+      "accepted": true,
+      "category": "multi_service_rollout",
+      "oracle_steps": 21,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_search_relevance",
+      "accepted": true,
+      "category": "multi_service_rollout",
+      "oracle_steps": 15,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_notification_templates",
+      "accepted": true,
+      "category": "multi_service_rollout",
+      "oracle_steps": 15,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_checkout_upsell",
+      "accepted": true,
+      "category": "multi_service_rollout",
+      "oracle_steps": 24,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
