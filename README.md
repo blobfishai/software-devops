@@ -88,18 +88,25 @@ python3 eval_model.py --policy oracle
 
 # evaluate a model end to end (needs ANTHROPIC_API_KEY)
 python3 eval_model.py --model claude-sonnet-5 --split heldout
-python3 eval_model.py --model claude-fable-5 --task tsk_gateway_rollback_sev1 -v
+python3 eval_model.py --model claude-fable-5 --category security_incident -v
 ```
 
 Each task runs in its own session fork and is graded by the world's executable
 verifier, reporting both Horizon-style numbers:
 
 ```
-  tsk_payments_error_rate    hard   PASS  score=1.00  corr 6/6 depl 2/2 qual 3/3  calls=12
+  tsk_payments_retry     hard   PASS  score=1.00  corr 7/7 depl 4/4 qual 5/5  calls=14
   ...
-  PF  strict pass rate : 100.0%  (10/10)
-  PC  partial credit   : 100.0  (0.6 correctness / 0.3 deployment / 0.1 quality)
+  Horizon-SWE-PF  (pass rate, correctness+deployment must be perfect) : 100.0%  (50/50)
+  Horizon-SWE-PC  (0.6 correctness / 0.3 deployment / 0.1 quality)     : 100.0
+
+  by category:
+    api_migration            PF 100%  PC 100.0   (7 tasks)
+    ...
 ```
+
+`--quality-judge llm` swaps the deterministic 10% quality dimension for an LLM
+judge (as the blog does); correctness and deployment always stay executable.
 
 ### Drive it over REST
 
@@ -115,7 +122,7 @@ curl -s -XPOST localhost:8080/sessions/$SID/verify \
 ### Drive it over MCP
 
 `POST /mcp` (JSON-RPC 2.0: `initialize`, `tools/list`, `tools/call`), with the
-session pinned via the `Mcp-Session-Id` header. Alongside the 34 world tools,
+session pinned via the `Mcp-Session-Id` header. Alongside the 50 world tools,
 the server exposes the blobfish meta-tools: `world_info`, `task_list`,
 `task_start`, `task_verify`, `episode_abort`. Episode lifecycle:
 `task_start` → world tool calls → `task_verify` (binary reward, no judge).
@@ -160,6 +167,15 @@ blobfish serve path/to/software-devops/world                   # stdio MCP
 - **PR changes** are typed: `config {key,value}`, `dependency
   {package,version}`, `endpoint {path,status}`, `module {name}`, `flag
   {key,description}`, `test_fix {test_name,action}`.
+- **CI is staged.** `run_ci` runs build → unit → integration → regression.
+  A module that persists new state fails the *build* stage without its
+  migration ("missing database migration"); retiring an endpoint that still
+  serves traffic fails *integration*; retiring one a dependent service still
+  calls fails *regression*.
+- **Deploys are gated.** A version whose migration is not applied in that
+  environment is rejected; `assess_canary` compares the canary against the
+  live baseline and reports only *newly* introduced SLO breaches, so deploying
+  to an already-unhealthy service is not unfairly penalized.
 - **Verification** is dialect-1 vcode: pure SQL checks over the final SQLite
   state plus the audit-event ordering log, executed read-only in an isolated
   subprocess. Every check is tagged with a Horizon-SWE-PC dimension —
