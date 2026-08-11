@@ -7,6 +7,8 @@ import subprocess
 import sys
 import tempfile
 
+import pytest
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
@@ -300,3 +302,37 @@ def test_a_large_tool_result_is_narrowed_not_severed():
     # a result that fits is passed through untouched
     small = world.call_tool(world.create_session(), "get_service", {"service": "payments"})
     assert json.loads(cloud_backend._fit(small)) == small
+
+
+def test_shard_merge_refuses_to_average_across_worlds(tmp_path):
+    """A long sweep can be split across processes because episodes are
+    independent. Rejoining them must refuse two things rather than paper over
+    them: shards from different worlds, and shards from different models. A pass
+    rate averaged across two worlds is a measurement of neither - which is
+    exactly the failure that voided a sweep earlier, when a rebuild swapped the
+    database underneath a running task set."""
+    sys.path.insert(0, str(ROOT))
+    import analyse_run
+
+    def shard(path, world, model, ids):
+        p = tmp_path / path
+        p.write_text(json.dumps({
+            "world_id": world, "model": model, "guidance": "standard", "split": "all",
+            "tasks": [{"task_id": i, "outcome": "resolved", "passed": True,
+                       "score": 1.0, "category": "c", "difficulty": "hard",
+                       "tool_calls": 3} for i in ids]}))
+        return str(p)
+
+    a = shard("a.json", "w1", "m1", ["t1", "t2"])
+    b = shard("b.json", "w1", "m1", ["t2", "t3"])       # t2 overlaps
+    merged = analyse_run.load([a, b])
+    assert [t["task_id"] for t in merged["tasks"]] == ["t1", "t2", "t3"], \
+        "an overlapping task was counted twice"
+
+    other_world = shard("c.json", "w2", "m1", ["t4"])
+    with pytest.raises(AssertionError, match="different worlds"):
+        analyse_run.load([a, other_world])
+
+    other_model = shard("d.json", "w1", "m2", ["t5"])
+    with pytest.raises(AssertionError, match="different models"):
+        analyse_run.load([a, other_model])
