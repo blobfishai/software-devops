@@ -826,3 +826,48 @@ def test_the_corpus_map_never_cites_a_task_that_does_not_exist():
     missing = sorted(cited - real)
     assert not missing, "the corpus map cites tasks the world does not contain: %s" % missing
     assert cited, "the corpus map cites no tasks at all"
+
+
+def test_reporting_a_breach_never_requires_naming_a_mechanism_you_were_not_asked_for():
+    """A detection task asks one question - is this service violating an SLO - and
+    grades only that boolean. The tool used to refuse fault_detected=true unless the
+    caller also picked a specific mechanism from the enum, so the honest answer was
+    harder to express than the wrong one. A local model, looking at payments at 4.2%
+    against a 1.0% threshold, failed all three attempts by submitting
+    fault_detected=false: it could evidence the breach and could not name a cause,
+    and the tool made "healthy" the only reachable option.
+
+    `unclassified` closes that: a fault you can evidence but were not asked to
+    explain is now expressible. Analysis tasks are unaffected because they assert a
+    specific fault_type.
+    """
+    import tempfile
+    sys.path.insert(0, str(ROOT))
+    from serve import World
+    world = World(ROOT / "world", tempfile.mkdtemp(prefix="unclass_"))
+
+    out = world.call_tool(world.create_session(), "submit_diagnosis",
+                          {"scope": "payments", "fault_detected": True,
+                           "service": "payments", "fault_type": "unclassified",
+                           "evidence": "error_rate_pct 4.2 against a 1.0 threshold"})
+    assert out.get("ok") is True, out
+    assert out["fault_detected"] is True and out["fault_type"] == "unclassified"
+
+    # the two consistency rules that make the vocabulary mean something still hold
+    vague = world.call_tool(world.create_session(), "submit_diagnosis",
+                            {"scope": "payments", "fault_detected": True, "fault_type": "none"})
+    assert vague.get("ok") is False, "a detected fault may not be typed 'none'"
+    contra = world.call_tool(world.create_session(), "submit_diagnosis",
+                             {"scope": "payments", "fault_detected": False,
+                              "fault_type": "unclassified"})
+    assert contra.get("ok") is False, "a healthy verdict may not carry a fault type"
+
+    # analysis tasks still demand the real mechanism, so nothing was weakened
+    tasks = json.loads((ROOT / "world" / "tasks.json").read_text())
+    rca = [t for t in tasks if t["category"] == "aiops_analysis"]
+    assert rca, "no analysis tasks to check"
+    for t in rca:
+        specific = [c["args"]["fault_type"] for c in t.get("expected_calls", [])
+                    if c["tool"] == "submit_diagnosis"]
+        assert specific and all(f not in ("unclassified", "none") for f in specific), \
+            "%s would accept an unclassified root cause" % t["task_id"]

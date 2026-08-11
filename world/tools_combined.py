@@ -2075,7 +2075,7 @@ def publish_status_update(db_path=None, state=None, title=None, body=''):
 
 
 def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', fault_type='none', offending_key='', evidence=''):
-    """Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, node_unhealthy, none. Use node_unhealthy when the cause is the node a service runs on rather than the service's own code or config. offending_key is the specific config key, flag key, node name or version responsible."""
+    """Submit a diagnostic finding for an investigation. `scope` is what you were asked to investigate (a service name or alarm id). Set fault_detected=false with fault_type='none' when the scope is healthy. fault_type is one of: misconfig, missing_retry, missing_timeout, resource_exhaustion, unbounded_prefetch, cache_disabled, n_plus_one_query, cdn_bypass, bad_release, feature_flag_regression, node_unhealthy, unclassified, none. Use node_unhealthy when the cause is the node a service runs on rather than the service's own code or config. Use unclassified when you have established that a fault is present but were not asked for, and have not determined, the mechanism - reporting a breach you can evidence is better than reporting health you cannot. offending_key is the specific config key, flag key, node name or version responsible."""
     import sqlite3 as _sq
     import json as _json
     if db_path:
@@ -2094,7 +2094,7 @@ def submit_diagnosis(db_path=None, scope=None, fault_detected=None, service='', 
             return {'ok': False, 'error': 'missing required parameter: fault_detected'}
         def _audit(conn, _tool, _svc, _detail):
             conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
-        kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion', 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass', 'bad_release', 'feature_flag_regression', 'node_unhealthy', 'none')
+        kinds = ('misconfig', 'missing_retry', 'missing_timeout', 'resource_exhaustion', 'unbounded_prefetch', 'cache_disabled', 'n_plus_one_query', 'cdn_bypass', 'bad_release', 'feature_flag_regression', 'node_unhealthy', 'unclassified', 'none')
         if fault_type not in kinds:
             return {'ok': False, 'error': 'fault_type must be one of: ' + ', '.join(kinds)}
         _t, _f = ('1', 'true', 'yes', 'on'), ('0', 'false', 'no', 'off')

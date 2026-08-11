@@ -104,7 +104,8 @@ def _audit(conn, _tool, _svc, _detail):
 # cannot satisfy the vocabulary edits its answer rather than its argument.
 FAULT_KINDS = ("misconfig", "missing_retry", "missing_timeout", "resource_exhaustion",
                "unbounded_prefetch", "cache_disabled", "n_plus_one_query", "cdn_bypass",
-               "bad_release", "feature_flag_regression", "node_unhealthy", "none")
+               "bad_release", "feature_flag_regression", "node_unhealthy", "unclassified",
+               "none")
 
 
 def _mk(name, description, params, body, *, reads, writes, returns="dict",
@@ -1300,9 +1301,12 @@ return {'ok': True, 'post_id': cur.lastrowid, 'state': state}""",
           "investigate (a service name or alarm id). Set fault_detected=false with "
           "fault_type='none' when the scope is healthy. fault_type is one of: "
           + ", ".join(FAULT_KINDS) +
-          ". Use node_unhealthy when the cause is the node a service runs on rather than the "
-          "service's own code or config. offending_key is the specific config key, flag key, "
-          "node name or version responsible.",
+          ". Use node_unhealthy when the cause is the node a service runs on rather than "
+          "the service's own code or config. Use unclassified when you have established "
+          "that a fault is present but were not asked for, and have not determined, the "
+          "mechanism - reporting a breach you can evidence is better than reporting health "
+          "you cannot. offending_key is the specific config key, flag key, node name or "
+          "version responsible.",
           [{"name": "scope", "type": "str", "required": True,
             "description": "the service or alarm id you were asked to investigate"},
            {"name": "fault_detected", "type": "bool", "required": True},
