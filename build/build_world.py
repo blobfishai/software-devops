@@ -438,6 +438,27 @@ def main():
     tmp = pathlib.Path(tempfile.mkdtemp(prefix="sdw_build_"))
     db_path = tmp / "environment.db"
     base_seq = build_db(str(db_path))
+
+    # Waves read the built database, so a generated task can never assert a value
+    # the world does not hold. Their tickets are then seeded into that same
+    # database - before baselines are taken, so a wave task starts from the same
+    # pristine state a hand-written one does.
+    import waves as W
+    wave_specs = W.generate(str(db_path), waves=(1, 2, 3))
+    if wave_specs:
+        task_specs.SPECS.extend(wave_specs)
+        _c = sqlite3.connect(str(db_path))
+        _next = _c.execute("SELECT COALESCE(MAX(ticket_id), 9100) + 1 FROM tickets").fetchone()[0]
+        for i, sp in enumerate(wave_specs):
+            key, priority, title = sp["ticket"]
+            _c.execute("INSERT INTO tickets(ticket_id, key, type, title, description, "
+                       "status, priority, assignee, service) VALUES (?,?,?,?,?,?,?,?,?)",
+                       (_next + i, key, "task", title, title, "open", priority, "",
+                        sp.get("service", "")))
+        _c.commit()
+        _c.close()
+        print("waves: %d generated task(s) from the built world" % len(wave_specs))
+
     frozen, fixed_rows, audit_prefix, n_secret, secret_lit = reference_baselines(str(db_path))
     print("seed built: base audit seq=%d, monorepo files=%d, commits=%d, docs=%d, secret='%s'"
           % (base_seq, len(REPO_FILES), len(COMMITS), len(DOCUMENTS), secret_lit or "<none>"))

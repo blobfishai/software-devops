@@ -1094,3 +1094,60 @@ def test_the_parity_report_does_not_drift_from_the_generated_corpus_map():
                           capture_output=True, text=True, timeout=300, cwd=str(ROOT))
     assert proc.returncode == 0, proc.stderr
     assert "IN SCOPE" in proc.stdout and "OUT OF SCOPE" in proc.stdout
+
+
+def test_generated_waves_derive_their_answers_rather_than_asserting_them(env):
+    """A wave is only worth generating if its expected answer moves when the seed
+    moves. A hand-listed answer key inside a generator is worse than one in a
+    spec file, because it is multiplied by however many tasks the generator
+    emits.
+
+    This checks the property that matters: every wave task's expected answer
+    agrees with the world's own state, computed independently here.
+    """
+    import sqlite3 as _sq
+    tasks = [t for t in json.loads((ROOT / "world" / "tasks.json").read_text())
+             if t["task_id"].startswith("tsk_w1_detect_")]
+    assert tasks, "wave 1 produced no detection tasks"
+
+    conn = _sq.connect("file:%s?mode=ro" % (ROOT / "world" / "environment.db"), uri=True)
+    truth = {}
+    for service, metric, threshold, value in conn.execute(
+            "SELECT s.service, s.metric, s.threshold, m.value FROM slos s "
+            "JOIN service_metrics m ON m.service=s.service AND m.metric=s.metric "
+            "WHERE m.environment='production'"):
+        truth.setdefault(service, {})[metric] = value > threshold
+    conn.close()
+
+    for t in tasks:
+        call = next(c for c in t["expected_calls"] if c["tool"] == "submit_diagnosis")
+        service = call["args"]["scope"]
+        expected = call["args"]["fault_detected"]
+        assert service in truth, "%s asks about a service with no SLO" % t["task_id"]
+        assert expected in truth[service].values(), (
+            "%s expects fault_detected=%s, which no SLO for %s supports"
+            % (t["task_id"], expected, service))
+
+    # and the set must not be answerable by a constant
+    answers = [next(c for c in t["expected_calls"] if c["tool"] == "submit_diagnosis")
+               ["args"]["fault_detected"] for t in tasks]
+    assert 0 < sum(answers) < len(answers), (
+        "every wave-1 detection task has the same answer, so 'always yes' scores "
+        "100%% and the wave measures nothing")
+
+
+def test_waves_never_emit_a_duplicate_task():
+    """Generation multiplies mistakes. Two tasks with the same id would silently
+    overwrite one another; two with different ids and identical content would
+    inflate the count without adding coverage."""
+    tasks = json.loads((ROOT / "world" / "tasks.json").read_text())
+    ids = [t["task_id"] for t in tasks]
+    assert len(ids) == len(set(ids)), "duplicate task ids"
+
+    seen = {}
+    for t in tasks:
+        key = (t["instruction"], json.dumps(t.get("expected_calls"), sort_keys=True))
+        if key in seen:
+            raise AssertionError("%s and %s are the same task with different ids"
+                                 % (seen[key], t["task_id"]))
+        seen[key] = t["task_id"]

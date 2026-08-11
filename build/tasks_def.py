@@ -1349,7 +1349,11 @@ def gen_detection(spec):
              {"tool": "list_alerts", "args": {"service": spec["service"]}},
              {"tool": "submit_diagnosis", "args": {
                  "scope": scope, "fault_detected": bool(faulty),
-                 "service": spec["service"] if faulty else "",
+                 # When the request named no service, working out which one it is
+                 # about is graded - and that is true whether or not it turns out
+                 # to be faulting. "It is storefront-web, and storefront-web is
+                 # fine" is a complete answer; an empty service is not.
+                 "service": spec["service"] if (faulty or spec.get("symptom")) else "",
                  "fault_type": spec["fault_type"] if faulty else "none",
                  "offending_key": spec.get("offending_key", "") if faulty else "",
                  "evidence": spec["evidence"]}},
