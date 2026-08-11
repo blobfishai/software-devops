@@ -3,7 +3,37 @@
 This is the one claim in the project that is **not yet evidenced**, and this
 document exists so that proving it is a single command rather than a project.
 
-## Why it is unproven
+## Update: it is now partially proven, with a local model
+
+`ANTHROPIC_API_KEY` is absent, but a locally cached model is not. `mlx_lm` with
+`mlx-community/Qwen3-8B-4bit` runs on this machine with no credential, so the
+calibration loop has now been driven by a real, uncontaminated model:
+
+```bash
+python3 calibrate.py --policy local --attempts 3        # no API key needed
+```
+
+The very first episode produced exactly the kind of evidence the oracle cannot.
+Asked whether payments was violating an SLO, the model called `get_slo_status`,
+read the answer correctly - 4.2% against a 1.0% threshold - and then **declared
+itself done in prose instead of calling `submit_diagnosis`**. It solved the
+analysis and failed the protocol, scoring 0.63 with `diagnosis_submitted` and
+`detection_correct` both failing.
+
+That is `completion_without_submit`, a failure mode the harness corpus names
+explicitly (research/notes/automation/_WORKFLOW_PATTERNS.md). No scripted policy
+would ever exhibit it, because a script always calls the tool it was written to
+call. It took a real model to surface it.
+
+**Caveat, recorded rather than hidden:** an 8B 4-bit model has no native
+tool-calling API, so `local_backend.py` asks for tool calls as JSON. Some
+failures are therefore attributable to that protocol rather than to the task -
+which is precisely why `calibrate.py` types outcomes and separates `TASK_FAULT`
+from `TOO_HARD`. A frontier model with native tool calling will fail differently,
+and the numbers from this backend are a floor, not an estimate of what a strong
+model scores.
+
+## Why the cloud measurement is still unproven
 
 Every number reported so far measures the *environment*, not model difficulty:
 

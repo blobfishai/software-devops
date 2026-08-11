@@ -70,7 +70,10 @@ def failure_signature(verdict):
 
 def run_trial(world, task, policy, api_key, model, max_turns, verbose):
     sid = world.create_session()
-    if policy == "model":
+    if policy == "local":
+        import local_backend
+        stats = local_backend.run_episode(world, task, sid, model, max_turns, verbose)
+    elif policy == "model":
         stats = EM.run_model_episode(world, task, sid, api_key, model, max_turns, verbose)
     else:
         stats = EM.run_scripted_episode(world, task, sid, verbose, policy)
@@ -83,7 +86,8 @@ def main():
     ap.add_argument("--world", default="world")
     ap.add_argument("--model", default="claude-sonnet-5")
     ap.add_argument("--policy", default="model",
-                    help="model, or a scripted policy to dry-run the loop for free")
+                    help="model (cloud API), local (mlx_lm, no credential needed), or a "
+                         "scripted policy to dry-run the loop for free")
     ap.add_argument("--category", action="append", default=None)
     ap.add_argument("--task", action="append", default=None)
     ap.add_argument("--attempts", type=int, default=3)
@@ -102,13 +106,15 @@ def main():
     if args.limit:
         tasks = tasks[:args.limit]
 
+    if args.policy == "local" and args.model.startswith("claude"):
+        args.model = "mlx-community/Qwen3-8B-4bit"
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if args.policy == "model" and not api_key:
         print("ANTHROPIC_API_KEY is not set. Dry-run the loop for free with:\n"
               "  python3 calibrate.py --policy naive", file=sys.stderr)
         return 2
 
-    label = args.model if args.policy == "model" else "policy=" + args.policy
+    label = args.model if args.policy in ("model", "local") else "policy=" + args.policy
     print("calibrating %d task(s) against %s, %d attempts each\n"
           % (len(tasks), label, args.attempts))
 

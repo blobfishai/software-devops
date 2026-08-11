@@ -1,0 +1,47 @@
+{
+  "model": null,
+  "policy": "local",
+  "attempts": 1,
+  "buckets": {
+    "TOO_HARD": 1
+  },
+  "tasks": [
+    {
+      "task_id": "tsk_detect_payments",
+      "category": "aiops_detection",
+      "difficulty": "easy",
+      "bucket": "TOO_HARD",
+      "attempts": 1,
+      "passes": 0,
+      "mean_score": 0.633,
+      "failure_mode": [
+        [
+          "correctness/diagnosis_submitted",
+          1
+        ],
+        [
+          "correctness/detection_correct",
+          1
+        ],
+        [
+          "quality/evidence_recorded",
+          1
+        ],
+        [
+          "quality/efficient_investigation",
+          1
+        ],
+        [
+          "quality/ticket_closed",
+          1
+        ],
+        [
+          "quality/closed_after_the_work",
+          1
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 32.6
+    }
+  ]
+}
