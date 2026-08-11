@@ -571,6 +571,14 @@ tau-bench's `pass^k` (sampling without replacement), the corpus's own recommenda
 
 Ranked by how much it would matter to a lab deciding whether to adopt the world.
 
+**7.0 Porting is now a pipeline rather than a judgement.** `port.py` reads each
+benchmark's native layout into a common form and classifies it: 449 source tasks
+enumerated, 102 with substrate in this world, 241 blocked by having no terminal,
+59 out of domain because TheAgentCompany simulates a whole business and hr,
+finance and admin are not software operations. Three sde tasks are ported with
+provenance; 38 more are queued. DeepSeek scores 33% on the three, against 100% on
+code implementation — the clerical half of the job is the harder half here.
+
 **7.1 Code execution: now real for one family, simulated everywhere else.**
 Eight of nine benchmark repos share exactly one task: fix a real repository and prove
 it with its own tests in a container. This was previously absent altogether — CI is a

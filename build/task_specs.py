@@ -585,6 +585,63 @@ _add("code_implementation", "implement", id="impl_ratelimit",
      ticket=('OPS-143', 'high', 'Implement per-client rate limiting at the edge'))
 
 # ==========================================================================
+# Ported from TheAgentCompany. Its sde family is largely one shape: filter one
+# system, act in another. Each task below records the source directory it was
+# ported from, so the parity claim can be checked rather than believed.
+#
+# The systems are substituted, not the work: gitlab -> this world's issue
+# tracker, rocketchat -> its channels, plane -> its ticket system. What survives
+# the substitution is the part being measured - applying a stated filter exactly,
+# and acting on what survives it rather than on what is nearby.
+# ==========================================================================
+_add("cross_system", "crosssystem", id="port_collect_open_issues", mode="report",
+     difficulty="medium", channel="#eng",
+     source_repo="TheAgentCompany", source_path="research/repos/evals/TheAgentCompany__TheAgentCompany/workspaces/tasks/sde-collect-open-issues",
+     ask="Engineering wants a single message in #eng listing every OPEN issue in the "
+         "tracker, one per line, as 'number title'. Every open issue and nothing else - "
+         "closed issues are noise and someone will act on them if they appear.",
+     expected=[4405, 4408, 4411, 4412, 4415, 4417, 4418, 4419, 4421],
+     excluded=[4402, 4414, 4420],
+     report_body=("Open issues: 4405 Rate limiter allows bursts above the configured "
+                  "ceiling; 4408 Refund webhook retried indefinitely on 4xx; 4411 Dark "
+                  "mode toggle resets on navigation; 4412 Checkout page hangs for ~8s "
+                  "before redirect; 4415 Gateway 502s under sustained load; 4417 "
+                  "Settlement batch size is not configurable; 4418 Search reindex job "
+                  "has never completed; 4419 Autocomplete returns deleted products; "
+                  "4421 Upgrade the base image to bookworm"),
+     ticket=("ENG-2801", "medium", "Post the current open-issue list to #eng"))
+
+_add("cross_system", "crosssystem", id="port_high_priority_since", mode="report",
+     difficulty="hard", channel="#eng",
+     source_repo="TheAgentCompany", source_path="research/repos/evals/TheAgentCompany__TheAgentCompany/workspaces/tasks/sde-check-high-priority-issue",
+     ask="Post one message to #eng naming every issue that is OPEN, carries the "
+         "'priority' label, AND was created on day 410 or later. Reference each by "
+         "number and ask whether anyone is still on it. Issues that miss any one of "
+         "those three conditions must not appear - the point of the message is that "
+         "everything in it needs an owner today.",
+     expected=[4417, 4418],
+     excluded=[4405, 4408, 4411, 4415, 4419, 4420, 4421],
+     report_body=("Still open, priority, raised on day 410 or later: 4417 and 4418. "
+                  "Is anyone still working on these?"),
+     ticket=("ENG-2802", "high", "Chase the recent high-priority issues in #eng"))
+
+_add("cross_system", "crosssystem", id="port_copy_priority_issues", mode="copy",
+     difficulty="hard", copy_service="", channel="#eng",
+     source_repo="TheAgentCompany", source_path="research/repos/evals/TheAgentCompany__TheAgentCompany/workspaces/tasks/sde-copy-issues-to-plane",
+     ask="Every OPEN issue carrying the 'priority' label needs a matching ticket in our "
+         "own tracker so it appears on the board. Create one ticket per such issue, "
+         "citing the issue number it came from in the description. Issues that are "
+         "closed, or that lack the label, must not be copied.",
+     expected=[4405, 4408, 4417, 4418],
+     excluded=[4402, 4411, 4412, 4415, 4419, 4420, 4421],
+     copy_titles={4405: "Rate limiter allows bursts above the configured ceiling",
+                  4408: "Refund webhook retried indefinitely on 4xx",
+                  4417: "Settlement batch size is not configurable",
+                  4418: "Search reindex job has never completed"},
+     ticket=("ENG-2803", "high", "Mirror priority GitHub issues onto the board"))
+
+
+# ==========================================================================
 # Attribution — several faults at once, and the cheap strategy fails.
 #
 # Built from an observed failure. Asked why media uploads were stalling, a
@@ -948,7 +1005,8 @@ def _ticket_type(s):
             "detection": "incident", "localization": "incident",
             "analysis": "incident", "reconcile": "task",
             "judgement": "incident", "gated": "security",
-            "implement": "feature", "attribution": "incident"}[s["generator"]]
+            "implement": "feature", "attribution": "incident",
+            "crosssystem": "task"}[s["generator"]]
 
 
 def _ticket_service(s):

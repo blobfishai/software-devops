@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_b868bf88",
+  "world_id": "env_software_devops_cd187bcf",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "b868bf88bf1d8aad1d70cfc949ffc2bf533e04720faa791dbcaea3205027f137",
+  "world_digest": "cd187bcf1987d2f28163fc0401933a6631a999181f2e9cdc2ef1425e07127daf",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -81,17 +81,17 @@
   "tables_without_tools": [],
   "counts": {
     "tables": 66,
-    "rows": 1301,
+    "rows": 1313,
     "tools": 87,
-    "tasks": 90,
+    "tasks": 93,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
     "documents": 30
   },
   "difficulty": {
-    "hard": 29,
-    "medium": 30,
+    "hard": 31,
+    "medium": 31,
     "expert": 29,
     "easy": 2
   },
@@ -107,6 +107,7 @@
     "aiops_localization": 6,
     "aiops_analysis": 12,
     "code_implementation": 4,
+    "cross_system": 3,
     "attribution": 1,
     "reconciliation": 7,
     "judgement": 4,
@@ -164,6 +165,9 @@
       "tsk_orders_v1_to_v2",
       "tsk_payments_notify_timeout",
       "tsk_payments_retry",
+      "tsk_port_collect_open_issues",
+      "tsk_port_copy_priority_issues",
+      "tsk_port_high_priority_since",
       "tsk_rca_analytics_untolerated_taint",
       "tsk_rca_catalog_n_plus_one",
       "tsk_rca_checkout_unschedulable_replicas",
@@ -209,7 +213,7 @@
     ]
   },
   "task_creation": {
-    "accepted": 90,
+    "accepted": 93,
     "rejected": 0
   },
   "personas": [

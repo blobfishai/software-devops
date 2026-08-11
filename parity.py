@@ -108,9 +108,11 @@ REPRODUCED = {
     "sierra-research__tau-bench": (2, "both patterns adopted rather than the domains: "
                                       "pass^k reliability, and policy that lives in a "
                                       "knowledge base rather than the prompt"),
-    "TheAgentCompany__TheAgentCompany": (0, "the sde job family is this world's whole "
-                                            "subject, but no individual TAC task is "
-                                            "reproduced; its checkpoint-scoring shape is"),
+    "TheAgentCompany__TheAgentCompany": (3, "sde tasks ported with systems substituted "
+                                            "(gitlab -> issue tracker, rocketchat -> "
+                                            "channels, plane -> tickets); each records the "
+                                            "source directory. 38 more sde tasks have "
+                                            "substrate and are queued in port.py"),
     "laude-institute__terminal-bench": (0, "no terminal, so none of its tasks transfer"),
     "princeton-nlp__SWE-bench": (4, "code_implementation tasks are genuinely executed "
                                     "against hidden tests, which is the shape; they are "

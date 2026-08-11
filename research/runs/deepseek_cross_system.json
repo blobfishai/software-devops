@@ -1,0 +1,138 @@
+{
+  "world_id": "env_software_devops_cd187bcf",
+  "policy": "deepseek",
+  "model": "deepseek-v4-pro",
+  "split": "all",
+  "guidance": "standard",
+  "pass_rate": 0.0,
+  "mean_score": 0.55,
+  "trials": 1,
+  "outcomes": {
+    "agent": 1
+  },
+  "attributable_episodes": 1,
+  "spend": {
+    "prompt_tokens": 118335,
+    "completion_tokens": 4294,
+    "episodes": 1
+  },
+  "pass_hat_k": {
+    "1": 0.0
+  },
+  "tasks": [
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "every_match_reported"
+        },
+        {
+          "dimension": "deployment",
+          "name": "read_the_source_of_truth"
+        }
+      ],
+      "prompt_tokens": 118335,
+      "completion_tokens": 4294,
+      "task_id": "tsk_port_collect_open_issues",
+      "category": "cross_system",
+      "difficulty": "medium",
+      "passed": false,
+      "score": 0.55,
+      "dimension_fractions": {
+        "correctness": 0.75,
+        "deployment": 0.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "3/4",
+        "deployment": "0/1",
+        "quality": "4/4"
+      },
+      "tool_calls": 11,
+      "turns": 6,
+      "steps_to_answer": null,
+      "seconds": 43.7,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.55): correctness/every_match_reported - report issue 4405, 4408, 4411, 4412, 4415, 4417, 4418, 4419, 4421; deployment/read_the_source_of_truth - read the issue tracker rather than working from memory",
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "outcome_reason": "passed",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "prompt_tokens": 66139,
+      "completion_tokens": 2355,
+      "task_id": "tsk_port_high_priority_since",
+      "category": "cross_system",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.95,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.5
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/4",
+        "deployment": "1/1",
+        "quality": "2/4"
+      },
+      "tool_calls": 8,
+      "turns": 5,
+      "steps_to_answer": null,
+      "seconds": 32.9,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "outcome_reason": "the agent got it wrong",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "every_match_copied"
+        },
+        {
+          "dimension": "deployment",
+          "name": "announced_the_mirror"
+        }
+      ],
+      "prompt_tokens": 107878,
+      "completion_tokens": 2970,
+      "task_id": "tsk_port_copy_priority_issues",
+      "category": "cross_system",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.7,
+      "dimension_fractions": {
+        "correctness": 0.75,
+        "deployment": 0.5,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "3/4",
+        "deployment": "1/2",
+        "quality": "4/4"
+      },
+      "tool_calls": 22,
+      "turns": 8,
+      "steps_to_answer": null,
+      "seconds": 41.8,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.7): correctness/every_match_copied - create a ticket for issue 4405, 4408, 4417, 4418; deployment/announced_the_mirror - tell #eng that these issues now have tickets",
+      "trial": 0
+    }
+  ]
+}

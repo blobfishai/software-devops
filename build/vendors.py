@@ -409,11 +409,23 @@ LINEAR_ISSUES = [
      "bug,performance", 416),
 ]
 GITHUB_ISSUES = [
-    (4412, "novacart/storefront", "Checkout page hangs for ~8s before redirect", "open",
-     "bug,customer-report", 412),
-    (4415, "novacart/platform", "Gateway 502s under sustained load", "open", "bug", 415),
-    (4402, "novacart/storefront", "Stale search results after catalog update", "closed",
-     "bug,duplicate", 408),
+    # Ported task substrate. TheAgentCompany's sde-collect-open-issues,
+    # sde-check-high-priority-issue and sde-copy-issues-to-plane all filter an
+    # issue tracker by state, label and creation date, then move or report the
+    # result. Three issues cannot express that; the filter has to be able to be
+    # got wrong. Days run 402-419, matching the rest of the world's clock.
+    (4402, 'novacart/storefront', 'Stale search results after catalog update', 'closed', 'bug,duplicate', 408),
+    (4405, 'novacart/platform', 'Rate limiter allows bursts above the configured ceiling', 'open', 'bug,priority', 405),
+    (4408, 'novacart/commerce', 'Refund webhook retried indefinitely on 4xx', 'open', 'bug,priority', 409),
+    (4411, 'novacart/storefront', 'Dark mode toggle resets on navigation', 'open', 'enhancement', 411),
+    (4412, 'novacart/storefront', 'Checkout page hangs for ~8s before redirect', 'open', 'bug,customer-report', 412),
+    (4414, 'novacart/platform', 'Document the traffic-shift ceiling in the runbook', 'closed', 'docs', 414),
+    (4415, 'novacart/platform', 'Gateway 502s under sustained load', 'open', 'bug', 415),
+    (4417, 'novacart/commerce', 'Settlement batch size is not configurable', 'open', 'enhancement,priority', 417),
+    (4418, 'novacart/growth', 'Search reindex job has never completed', 'open', 'bug,priority', 418),
+    (4419, 'novacart/growth', 'Autocomplete returns deleted products', 'open', 'bug,customer-report', 419),
+    (4420, 'novacart/commerce', 'Duplicate charge on retried capture', 'closed', 'bug,priority', 407),
+    (4421, 'novacart/platform', 'Upgrade the base image to bookworm', 'open', 'chore', 403),
 ]
 # The links exist — so the reconciliation is discoverable, not guesswork (F5).
 ISSUE_LINKS = [

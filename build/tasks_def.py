@@ -147,6 +147,13 @@ def _answer_num(_qid):
 def _jira(_key):
     _r = conn.execute('SELECT status, resolution FROM jira_issues WHERE key=?', (_key,)).fetchone()
     return None if _r is None else (_r[0], _r[1] or '')
+def _ticket_for_issue(_num):
+    # A ticket whose description cites the GitHub issue it was copied from.
+    _r = conn.execute("SELECT key FROM tickets WHERE description LIKE ?",
+                      ('%%issue %d%%' % _num,)).fetchone()
+    return _r[0] if _r else None
+
+
 def _submission(_path):
     # The most recent implementation written for an exercise, with what happened
     # when the world ran it. The agent can never read this - run_exercise_tests
@@ -1050,6 +1057,80 @@ def _aiops_common(checks, scope, steps_budget):
                    "reach a conclusion within %d tool calls" % steps_budget))
 
 
+def gen_crosssystem(spec):
+    """A task ported from TheAgentCompany: filter one system, act in another.
+
+    Its sde family is largely this shape - collect the open issues and report
+    them, find the high-priority ones raised since a date and raise them with the
+    team, copy the labelled ones into the tracker. None of it is diagnosis and
+    none of it is a code change; it is the clerical half of the job, and it is
+    exactly where a filter applied slightly wrong produces a confident, complete,
+    wrong answer.
+
+    Every ported task records the file it came from, so the parity claim can be
+    checked rather than believed.
+    """
+    tkt = spec["ticket"][0]
+    want = spec["expected"]
+    instruction = (
+        "%s — %s\n\n%s"
+        % (tkt, spec["ticket"][2], spec["ask"]))
+    checks = []
+    if spec["mode"] == "report":
+        # every wanted issue mentioned, and nothing that does not belong
+        checks.append(("correctness", "every_match_reported",
+                       " and ".join("_msg_count(%s, '%d') > 0" % (q(spec["channel"]), n)
+                                    for n in want),
+                       "report issue %s" % ", ".join(str(n) for n in want)))
+        checks.append(("correctness", "nothing_extra_reported",
+                       " and ".join("_msg_count(%s, '%d') == 0" % (q(spec["channel"]), n)
+                                    for n in spec["excluded"]),
+                       "do not report issues outside the filter: %s"
+                       % ", ".join(str(n) for n in spec["excluded"])))
+    else:
+        checks.append(("correctness", "every_match_copied",
+                       " and ".join("_ticket_for_issue(%d) is not None" % n for n in want),
+                       "create a ticket for issue %s" % ", ".join(str(n) for n in want)))
+        checks.append(("correctness", "nothing_extra_copied",
+                       " and ".join("_ticket_for_issue(%d) is None" % n
+                                    for n in spec["excluded"]),
+                       "do not copy issues outside the filter"))
+    checks.append(("deployment", "read_the_source_of_truth",
+                   "_called('github_list_issues')",
+                   "read the issue tracker rather than working from memory"))
+    if spec["mode"] == "copy":
+        # The source task moved issues into a tracker AND told the channel. Work
+        # that appears on someone else's board without warning is how two people
+        # end up on the same issue, so announcing it is part of doing it - and it
+        # is the step a policy-blind agent skips.
+        checks.append(("deployment", "announced_the_mirror",
+                       "_msg_count(%s, 'mirror') > 0 or _msg_count(%s, 'copied') > 0"
+                       % (q(spec["channel"]), q(spec["channel"])),
+                       "tell %s that these issues now have tickets" % spec["channel"]))
+    checks.append(("quality", "ticket_closed", "_ticket_status(%s) == 'done'" % q(tkt),
+                   "close ticket %s once the work is done" % tkt))
+    checks.append(("quality", "closed_after_the_work", "_closed_after_work(%s)" % q(tkt),
+                   "close %s only once the work is done, not before" % tkt))
+
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}},
+             {"tool": "github_list_issues", "args": {"state": "open"}}]
+    if spec["mode"] == "report":
+        calls.append({"tool": "post_message", "args": {
+            "channel": spec["channel"], "body": spec["report_body"]}})
+    else:
+        for n in want:
+            calls.append({"tool": "create_ticket", "args": {
+                "title": spec["copy_titles"][n], "ticket_type": "bug",
+                "description": "Copied from GitHub issue %d" % n,
+                "service": spec["copy_service"], "priority": "high"}})
+        calls.append({"tool": "post_message", "args": {
+            "channel": spec["channel"],
+            "body": "Mirrored %d priority GitHub issues onto the board: %s"
+                    % (len(want), ", ".join(str(n) for n in want))}})
+    calls.append({"tool": "update_ticket", "args": {"key": tkt, "status": "done"}})
+    return instruction, checks, calls
+
+
 def gen_attribution(spec):
     """Several things are wrong at once. Attribute each to its own cause.
 
@@ -1487,7 +1568,7 @@ GENERATORS = {
     "gated": gen_gated,
     "judgement": gen_judgement,
     "reconcile": gen_reconcile,
-    "attribution": gen_attribution, "implement": gen_implement, "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
+    "crosssystem": gen_crosssystem, "attribution": gen_attribution, "implement": gen_implement, "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
     "config_fix": gen_config_fix, "flag_ship": gen_flag_ship, "flag_kill": gen_flag_kill,
     "flag_cleanup": gen_flag_cleanup, "security_cve": gen_security_cve,
     "security_endpoint": gen_security_endpoint, "security_secret": gen_security_secret,
@@ -1577,6 +1658,9 @@ GUIDANCE = {
                  "the service naming across them, check for duplicates and sampling before "
                  "counting, decide the boundary condition explicitly, and record which "
                  "source you trusted and why.",
+    "crosssystem": "Procedure: list the issues from the tracker, apply the stated "
+                   "filter exactly - state, label and date - and act only on what "
+                   "survives it.",
     "attribution": "Procedure: take each symptom on its own. For each, follow the "
                    "evidence from the affected service down through its pods, its node "
                    "and its events before looking anywhere else, and only then decide "

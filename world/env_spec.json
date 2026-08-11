@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_b868bf88",
+  "env_id": "env_software_devops_cd187bcf",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -24,7 +24,7 @@
     "seed": 42,
     "engine": "sqlite",
     "table_count": 66,
-    "row_count": 1301,
+    "row_count": 1313,
     "complexification_rounds": 0
   },
   "tools": {
@@ -294,6 +294,9 @@
     "tsk_impl_chunk",
     "tsk_impl_cachekey",
     "tsk_impl_ratelimit",
+    "tsk_port_collect_open_issues",
+    "tsk_port_high_priority_since",
+    "tsk_port_copy_priority_issues",
     "tsk_attr_three_at_once",
     "tsk_localize_analytics_crashloop",
     "tsk_rcn_running_version",
@@ -313,8 +316,8 @@
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 90,
-    "accepted_task_count": 90,
+    "task_count": 93,
+    "accepted_task_count": 93,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -324,8 +327,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 90,
-    "discriminating_vcode_tasks": 90,
+    "total_tasks": 93,
+    "discriminating_vcode_tasks": 93,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,
