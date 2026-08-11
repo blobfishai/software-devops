@@ -147,6 +147,21 @@ def _answer_num(_qid):
 def _jira(_key):
     _r = conn.execute('SELECT status, resolution FROM jira_issues WHERE key=?', (_key,)).fetchone()
     return None if _r is None else (_r[0], _r[1] or '')
+def _jira_status(_k):
+    _r = conn.execute('SELECT status FROM jira_issues WHERE key=?', (_k,)).fetchone()
+    return _r[0] if _r else None
+
+
+def _jira_resolution(_k):
+    _r = conn.execute('SELECT resolution FROM jira_issues WHERE key=?', (_k,)).fetchone()
+    return (_r[0] or '') if _r else ''
+
+
+def _answer_value(_qid):
+    _a = _answer(_qid)
+    return str(_a['answer']).strip() if _a else None
+
+
 def _ticket_for_issue(_num):
     # A ticket whose description cites the GitHub issue it was copied from.
     _r = conn.execute("SELECT key FROM tickets WHERE description LIKE ?",
@@ -1087,7 +1102,7 @@ def gen_crosssystem(spec):
                                     for n in spec["excluded"]),
                        "do not report issues outside the filter: %s"
                        % ", ".join(str(n) for n in spec["excluded"])))
-    else:
+    elif spec["mode"] == "copy":
         checks.append(("correctness", "every_match_copied",
                        " and ".join("_ticket_for_issue(%d) is not None" % n for n in want),
                        "create a ticket for issue %s" % ", ".join(str(n) for n in want)))
@@ -1095,9 +1110,29 @@ def gen_crosssystem(spec):
                        " and ".join("_ticket_for_issue(%d) is None" % n
                                     for n in spec["excluded"]),
                        "do not copy issues outside the filter"))
+    if spec["mode"] == "transition":
+        checks.append(("correctness", "every_match_transitioned",
+                       " and ".join("_jira_status(%s) == %s" % (q(k), q(spec["to_status"]))
+                                    for k in want),
+                       "move %s to %s" % (", ".join(want), spec["to_status"])))
+        # "not in the target status" is wrong: some issues are ALREADY there, and
+        # asserting otherwise fails before the agent has done anything. What must
+        # hold is that they are UNCHANGED.
+        checks.append(("correctness", "nothing_extra_transitioned",
+                       " and ".join("_jira_status(%s) == %s" % (q(k), q(st))
+                                    for k, st in spec["excluded_status"].items()),
+                       "leave issues outside the filter exactly as they were"))
+        checks.append(("correctness", "outcome_recorded",
+                       " and ".join("_jira_resolution(%s) != ''" % q(k) for k in want),
+                       "a status alone does not record an outcome; set a resolution"))
+    if spec["mode"] == "count":
+        checks.append(("correctness", "answer_correct",
+                       "_answer_value(%s) == %s" % (q(spec["question_id"]),
+                                                    q(str(spec["answer"]))),
+                       "the answer is %s" % spec["answer"]))
     checks.append(("deployment", "read_the_source_of_truth",
-                   "_called('github_list_issues')",
-                   "read the issue tracker rather than working from memory"))
+                   "_called(%s)" % q(spec.get("source_tool", "github_list_issues")),
+                   "read the system of record rather than working from memory"))
     if spec["mode"] == "copy":
         # The source task moved issues into a tracker AND told the channel. Work
         # that appears on someone else's board without warning is how two people
@@ -1113,11 +1148,12 @@ def gen_crosssystem(spec):
                    "close %s only once the work is done, not before" % tkt))
 
     calls = [{"tool": "get_ticket", "args": {"key": tkt}},
-             {"tool": "github_list_issues", "args": {"state": "open"}}]
+             {"tool": spec.get("source_tool", "github_list_issues"),
+              "args": spec.get("source_args", {"state": "open"})}]
     if spec["mode"] == "report":
         calls.append({"tool": "post_message", "args": {
             "channel": spec["channel"], "body": spec["report_body"]}})
-    else:
+    elif spec["mode"] == "copy":
         for n in want:
             calls.append({"tool": "create_ticket", "args": {
                 "title": spec["copy_titles"][n], "ticket_type": "bug",
@@ -1127,6 +1163,14 @@ def gen_crosssystem(spec):
             "channel": spec["channel"],
             "body": "Mirrored %d priority GitHub issues onto the board: %s"
                     % (len(want), ", ".join(str(n) for n in want))}})
+    if spec["mode"] == "transition":
+        for k in want:
+            calls.append({"tool": "jira_transition_issue", "args": {
+                "key": k, "status": spec["to_status"], "resolution": spec["resolution"]}})
+    if spec["mode"] == "count":
+        calls.append({"tool": "submit_answer", "args": {
+            "question_id": spec["question_id"], "answer": str(spec["answer"]),
+            "sources": spec["sources"], "assumptions": spec["assumptions"]}})
     calls.append({"tool": "update_ticket", "args": {"key": tkt, "status": "done"}})
     return instruction, checks, calls
 

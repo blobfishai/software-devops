@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_cd187bcf",
+  "world_id": "env_software_devops_14bbee1d",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "cd187bcf1987d2f28163fc0401933a6631a999181f2e9cdc2ef1425e07127daf",
+  "world_digest": "14bbee1d9a42a1f18a35e3232367b1d17ab1c5d3c8d11268ff6ccf40e5581749",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -81,18 +81,18 @@
   "tables_without_tools": [],
   "counts": {
     "tables": 66,
-    "rows": 1313,
+    "rows": 1318,
     "tools": 87,
-    "tasks": 93,
+    "tasks": 98,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
     "documents": 30
   },
   "difficulty": {
-    "hard": 31,
-    "medium": 31,
-    "expert": 29,
+    "hard": 33,
+    "medium": 33,
+    "expert": 30,
     "easy": 2
   },
   "categories": {
@@ -107,7 +107,7 @@
     "aiops_localization": 6,
     "aiops_analysis": 12,
     "code_implementation": 4,
-    "cross_system": 3,
+    "cross_system": 8,
     "attribution": 1,
     "reconciliation": 7,
     "judgement": 4,
@@ -165,8 +165,11 @@
       "tsk_orders_v1_to_v2",
       "tsk_payments_notify_timeout",
       "tsk_payments_retry",
+      "tsk_port_close_backlog_issues",
+      "tsk_port_close_blocked_issues",
       "tsk_port_collect_open_issues",
-      "tsk_port_copy_priority_issues",
+      "tsk_port_count_inflight_work",
+      "tsk_port_count_open_priority",
       "tsk_port_high_priority_since",
       "tsk_rca_analytics_untolerated_taint",
       "tsk_rca_catalog_n_plus_one",
@@ -205,6 +208,8 @@
       "tsk_media_pipeline",
       "tsk_media_v1_to_v2",
       "tsk_payments_retry_from_code",
+      "tsk_port_copy_priority_issues",
+      "tsk_port_report_customer_reports",
       "tsk_rca_inventory_migrator_security_context",
       "tsk_rca_media_recreate_strategy",
       "tsk_rca_search_unscheduled_reindex",
@@ -213,7 +218,7 @@
     ]
   },
   "task_creation": {
-    "accepted": 93,
+    "accepted": 98,
     "rejected": 0
   },
   "personas": [

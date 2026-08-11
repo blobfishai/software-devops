@@ -74,15 +74,40 @@ def test_policy_blind_baseline_fails_the_change_tasks(tmp_path):
     for c in change:
         assert not any(by_cat[c]), "%s must be policy-sensitive, got %s" % (c, by_cat[c])
 
-    # Its overall pass rate must therefore be exactly the read-only share: read-only
-    # families have no deployment policy to violate, so they legitimately survive.
-    read_only = [c for c in by_cat if c.startswith("aiops_")
-                 or c in ("reconciliation", "judgement", "flaky_test")]
-    expected = sum(len(by_cat[c]) for c in read_only) / len(rep["tasks"])
-    assert abs(rep["pass_rate"] - expected) < 0.02, (
-        "policy-blind pass rate %.3f should equal the read-only share %.3f - anything "
-        "higher means a change task stopped being policy-sensitive"
-        % (rep["pass_rate"], expected))
+    # The category-free form of the same guard, and a stronger one: every task the
+    # policy-blind agent actually PERTURBS must fail. A hardcoded read-only list
+    # drifted every time a family was added - cross_system, attribution and
+    # code_implementation each broke it in turn - which measured the task mix
+    # rather than difficulty.
+    sys.path.insert(0, str(ROOT))
+    import eval_model as EM
+    world_tasks = {t["task_id"]: t for t in
+                   json.loads((ROOT / "world" / "tasks.json").read_text())}
+    # Dropping a knowledge-base read is not itself a policy violation: looking a
+    # standard up is instrumental, and no check grades it. What must be fatal is
+    # skipping an actual procedural step - staging, a canary, an acknowledgement,
+    # comms, migration ordering.
+    # POLICY_STEPS mixes two different things. Some are procedural ACTIONS - the
+    # canary, the acknowledgement, the announcement - and skipping one is a policy
+    # violation. The rest are instrumental READS: looking up a standard, opening a
+    # CI run, checking the traffic split. Skipping a read is not a violation, it is
+    # working from memory, and it is only wrong when it produces a wrong answer.
+    INSTRUMENTAL = {"search_docs", "get_document", "get_ci_run", "list_migrations",
+                    "get_traffic_stats"}
+    survived = []
+    for rec in rep["tasks"]:
+        task = world_tasks[rec["task_id"]]
+        ref = [c for c in task.get("expected_calls", [])
+               if c["tool"] not in INSTRUMENTAL]
+        naive = [c for c in EM.naive_calls(task) if c["tool"] not in INSTRUMENTAL]
+        skipped_procedure = (json.dumps(naive, sort_keys=True)
+                             != json.dumps(ref, sort_keys=True))
+        if skipped_procedure and rec["passed"]:
+            survived.append(rec["task_id"])
+    assert not survived, (
+        "policy-blind agent passed %d task(s) whose reference solution it changed: %s. "
+        "Each has a policy step that no longer affects the verdict."
+        % (len(survived), survived[:8]))
     assert all(by_cat["aiops_detection"])
 
 

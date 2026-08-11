@@ -585,7 +585,71 @@ _add("code_implementation", "implement", id="impl_ratelimit",
      ticket=('OPS-143', 'high', 'Implement per-client rate limiting at the edge'))
 
 # ==========================================================================
-# Ported from TheAgentCompany. Its sde family is largely one shape: filter one
+# Ported from TheAgentCompany — emitted from a shape table rather than written
+# out one by one.
+#
+# Its sde/pm families reduce to six shapes: collect and report, filter and
+# notify, copy across systems, transition in bulk, compute an aggregate, and
+# summarise a document. Each port below names the source directory it reproduces
+# and states its filter; the EXPECTED ANSWER IS DERIVED FROM THE SEED rather than
+# written down, because a hand-listed answer key drifts the moment the seed moves
+# and there is no way to notice.
+# ==========================================================================
+from vendors import GITHUB_ISSUES, JIRA_ISSUES        # noqa: E402
+
+TAC = ("research/repos/evals/TheAgentCompany__TheAgentCompany/workspaces/tasks")
+
+
+def _gh(state=None, label=None, since=None, until=None):
+    """GitHub issue numbers matching a filter, from the seed."""
+    out = []
+    for num, repo, title, st, labels, day in GITHUB_ISSUES:
+        if state and st != state:
+            continue
+        if label and label not in [x.strip() for x in labels.split(",")]:
+            continue
+        if since is not None and day < since:
+            continue
+        if until is not None and day > until:
+            continue
+        out.append(num)
+    return sorted(out)
+
+
+def _gh_title(num):
+    return next(t for n, _, t, _, _, _ in GITHUB_ISSUES if n == num)
+
+
+def _gh_all():
+    return sorted(n for n, *_ in GITHUB_ISSUES)
+
+
+def _jira(status=None, priority=None, component=None, since=None):
+    out = []
+    for row in JIRA_ISSUES:
+        key, project, summary, itype, st, res, pri, comp, assignee, created, updated = row
+        if status and st != status:
+            continue
+        if priority and pri != priority:
+            continue
+        if component and comp != component:
+            continue
+        if since is not None and created < since:
+            continue
+        out.append(key)
+    return sorted(out)
+
+
+def _jira_all():
+    return sorted(r[0] for r in JIRA_ISSUES)
+
+
+def _report_body(nums):
+    return "; ".join("%d %s" % (n, _gh_title(n)) for n in nums)
+
+
+# ==========================================================================
+# The three hand-written ports (kept: their prose is task-specific). Its sde family is largely one shape: filter one
 # system, act in another. Each task below records the source directory it was
 # ported from, so the parity claim can be checked rather than believed.
 #
@@ -596,49 +660,108 @@ _add("code_implementation", "implement", id="impl_ratelimit",
 # ==========================================================================
 _add("cross_system", "crosssystem", id="port_collect_open_issues", mode="report",
      difficulty="medium", channel="#eng",
-     source_repo="TheAgentCompany", source_path="research/repos/evals/TheAgentCompany__TheAgentCompany/workspaces/tasks/sde-collect-open-issues",
+     source_repo="TheAgentCompany", source_path=TAC + "/sde-collect-open-issues",
      ask="Engineering wants a single message in #eng listing every OPEN issue in the "
          "tracker, one per line, as 'number title'. Every open issue and nothing else - "
          "closed issues are noise and someone will act on them if they appear.",
-     expected=[4405, 4408, 4411, 4412, 4415, 4417, 4418, 4419, 4421],
-     excluded=[4402, 4414, 4420],
-     report_body=("Open issues: 4405 Rate limiter allows bursts above the configured "
-                  "ceiling; 4408 Refund webhook retried indefinitely on 4xx; 4411 Dark "
-                  "mode toggle resets on navigation; 4412 Checkout page hangs for ~8s "
-                  "before redirect; 4415 Gateway 502s under sustained load; 4417 "
-                  "Settlement batch size is not configurable; 4418 Search reindex job "
-                  "has never completed; 4419 Autocomplete returns deleted products; "
-                  "4421 Upgrade the base image to bookworm"),
+     expected=_gh(state="open"),
+     excluded=[n for n in _gh_all() if n not in _gh(state="open")],
+     report_body="Open issues: " + _report_body(_gh(state="open")),
      ticket=("ENG-2801", "medium", "Post the current open-issue list to #eng"))
 
 _add("cross_system", "crosssystem", id="port_high_priority_since", mode="report",
      difficulty="hard", channel="#eng",
-     source_repo="TheAgentCompany", source_path="research/repos/evals/TheAgentCompany__TheAgentCompany/workspaces/tasks/sde-check-high-priority-issue",
+     source_repo="TheAgentCompany", source_path=TAC + "/sde-check-high-priority-issue",
      ask="Post one message to #eng naming every issue that is OPEN, carries the "
          "'priority' label, AND was created on day 410 or later. Reference each by "
          "number and ask whether anyone is still on it. Issues that miss any one of "
          "those three conditions must not appear - the point of the message is that "
          "everything in it needs an owner today.",
-     expected=[4417, 4418],
-     excluded=[4405, 4408, 4411, 4415, 4419, 4420, 4421],
-     report_body=("Still open, priority, raised on day 410 or later: 4417 and 4418. "
-                  "Is anyone still working on these?"),
+     expected=_gh(state="open", label="priority", since=410),
+     excluded=[n for n in _gh_all() if n not in _gh(state="open", label="priority", since=410)],
+     report_body=("Still open, priority, raised on day 410 or later: "
+                  + ", ".join(str(n) for n in _gh(state="open", label="priority", since=410))
+                  + ". Is anyone still working on these?"),
      ticket=("ENG-2802", "high", "Chase the recent high-priority issues in #eng"))
 
 _add("cross_system", "crosssystem", id="port_copy_priority_issues", mode="copy",
      difficulty="hard", copy_service="", channel="#eng",
-     source_repo="TheAgentCompany", source_path="research/repos/evals/TheAgentCompany__TheAgentCompany/workspaces/tasks/sde-copy-issues-to-plane",
+     source_repo="TheAgentCompany", source_path=TAC + "/sde-copy-issues-to-plane",
      ask="Every OPEN issue carrying the 'priority' label needs a matching ticket in our "
          "own tracker so it appears on the board. Create one ticket per such issue, "
          "citing the issue number it came from in the description. Issues that are "
-         "closed, or that lack the label, must not be copied.",
-     expected=[4405, 4408, 4417, 4418],
-     excluded=[4402, 4411, 4412, 4415, 4419, 4420, 4421],
-     copy_titles={4405: "Rate limiter allows bursts above the configured ceiling",
-                  4408: "Refund webhook retried indefinitely on 4xx",
-                  4417: "Settlement batch size is not configurable",
-                  4418: "Search reindex job has never completed"},
+         "closed, or that lack the label, must not be copied. Tell #eng once they are "
+         "mirrored, so nobody picks one up twice.",
+     expected=_gh(state="open", label="priority"),
+     excluded=[n for n in _gh_all() if n not in _gh(state="open", label="priority")],
+     copy_titles={n: _gh_title(n) for n in _gh(state="open", label="priority")},
      ticket=("ENG-2803", "high", "Mirror priority GitHub issues onto the board"))
+
+_add("cross_system", "crosssystem", id="port_report_customer_reports", mode="report",
+     difficulty="medium", channel="#eng",
+     source_repo="TheAgentCompany", source_path=TAC + "/sde-collect-open-issues",
+     ask="Support asked which open issues came from a customer. Post one message to "
+         "#eng naming every OPEN issue labelled 'customer-report'. Anything not "
+         "labelled that way is internal and support does not need it.",
+     expected=_gh(state="open", label="customer-report"),
+     excluded=[n for n in _gh_all() if n not in _gh(state="open", label="customer-report")],
+     report_body=("Open customer-reported issues: "
+                  + _report_body(_gh(state="open", label="customer-report"))),
+     ticket=("ENG-2804", "medium", "Tell support which open issues came from customers"))
+
+_add("cross_system", "crosssystem", id="port_close_backlog_issues", mode="transition",
+     difficulty="hard", channel="#eng", to_status="Done", resolution="Won't Do",
+     source_tool="jira_search", source_args={},
+     source_repo="TheAgentCompany",
+     source_path=TAC + "/sde-close-all-issue-on-all-project-under-tac-workspace",
+     ask="Sprint planning wants the Backlog emptied: move every issue currently in "
+         "Backlog to Done with a resolution recording why. Issues in any other state "
+         "are somebody's work in flight and must not be touched.",
+     expected=_jira(status="Backlog"),
+     excluded=[k for k in _jira_all() if k not in _jira(status="Backlog")],
+     excluded_status={r[0]: r[4] for r in JIRA_ISSUES if r[4] != "Backlog"},
+     ticket=("ENG-2805", "high", "Empty the Backlog before sprint planning"))
+
+_add("cross_system", "crosssystem", id="port_close_blocked_issues", mode="transition",
+     difficulty="expert", channel="#eng", to_status="Done", resolution="Duplicate",
+     source_tool="jira_search", source_args={},
+     source_repo="TheAgentCompany", source_path=TAC + "/sde-close-all-gitlab-issues",
+     ask="Anything sitting in Blocked has been superseded by work already in flight. "
+         "Move every Blocked issue to Done, recording a resolution that says so. "
+         "Nothing else moves - In Progress issues are live and Backlog is next "
+         "sprint's problem.",
+     expected=_jira(status="Blocked"),
+     excluded=[k for k in _jira_all() if k not in _jira(status="Blocked")],
+     excluded_status={r[0]: r[4] for r in JIRA_ISSUES if r[4] != "Blocked"},
+     ticket=("ENG-2806", "high", "Clear the Blocked column"))
+
+_add("cross_system", "crosssystem", id="port_count_open_priority", mode="count",
+     difficulty="medium", channel="#eng", question_id="Q-PORT-COUNT",
+     source_repo="TheAgentCompany",
+     source_path=TAC + "/sde-create-commit-table-for-all-gitlab-users",
+     ask="The weekly report needs one number: how many issues are OPEN and labelled "
+         "'priority' right now? Submit it with submit_answer(question_id='Q-PORT-COUNT', "
+         "answer=..., sources=[...]), listing the systems you actually read.",
+     expected=[], excluded=[],
+     answer=len(_gh(state="open", label="priority")),
+     sources=["github_issues"],
+     assumptions="Counted issues that are open AND carry the priority label; closed "
+                 "issues are excluded however they are labelled.",
+     ticket=("ENG-2807", "medium", "How many open priority issues are there?"))
+
+_add("cross_system", "crosssystem", id="port_count_inflight_work", mode="count",
+     difficulty="hard", channel="#eng", question_id="Q-PORT-INFLIGHT",
+     source_tool="jira_search", source_args={},
+     source_repo="TheAgentCompany", source_path=TAC + "/pm-update-project-milestones",
+     ask="How many issues are In Progress at High priority or above? Highest counts as "
+         "above High. Submit the number with "
+         "submit_answer(question_id='Q-PORT-INFLIGHT', answer=..., sources=[...]).",
+     expected=[], excluded=[],
+     answer=len([k for k in _jira(status="In Progress")
+                 if next(r[6] for r in JIRA_ISSUES if r[0] == k) in ("High", "Highest")]),
+     sources=["jira_issues"],
+     assumptions="Treated Highest as above High, so both count; Medium and Low do not.",
+     ticket=("ENG-2808", "hard", "How much high-priority work is in flight?"))
 
 
 # ==========================================================================
