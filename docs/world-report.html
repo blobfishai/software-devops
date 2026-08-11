@@ -1,0 +1,744 @@
+<title>software-devops: an end-to-end engineering world</title>
+
+<style>
+:root {
+  --ground: #F1F4F4;
+  --surface: #FFFFFF;
+  --sunken: #E7ECEC;
+  --ink: #111819;
+  --muted: #5E6E6E;
+  --faint: #8A9898;
+  --rule: #D3DCDC;
+  --accent: #0D6E68;
+  --accent-soft: #DCEBEA;
+  --pass: #1C6B45;
+  --fail: #A83A2B;
+  --warn: #8A5D00;
+  --void: #8A5D00;
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --measure: 68ch;
+  --wide: 92ch;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0C1214;
+    --surface: #121A1C;
+    --sunken: #182123;
+    --ink: #DFE7E7;
+    --muted: #93A3A3;
+    --faint: #6F8080;
+    --rule: #243033;
+    --accent: #45B8B0;
+    --accent-soft: #14302F;
+    --pass: #4FB07E;
+    --fail: #E0705C;
+    --warn: #CC9A3E;
+    --void: #CC9A3E;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #0C1214;
+  --surface: #121A1C;
+  --sunken: #182123;
+  --ink: #DFE7E7;
+  --muted: #93A3A3;
+  --faint: #6F8080;
+  --rule: #243033;
+  --accent: #45B8B0;
+  --accent-soft: #14302F;
+  --pass: #4FB07E;
+  --fail: #E0705C;
+  --warn: #CC9A3E;
+  --void: #CC9A3E;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16.5px;
+  line-height: 1.65;
+  margin: 0;
+  padding: 0 1.5rem 6rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+.col { max-width: var(--measure); margin-inline: auto; }
+.wide { max-width: var(--wide); margin-inline: auto; }
+
+/* ---------------------------------------------------------------- masthead */
+header {
+  max-width: var(--wide);
+  margin: 0 auto;
+  padding: 4.5rem 0 2rem;
+  border-bottom: 2px solid var(--ink);
+}
+.kicker {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 1.25rem;
+}
+h1 {
+  font-size: clamp(2rem, 5.5vw, 2.9rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+  max-width: 22ch;
+}
+.standfirst {
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: var(--muted);
+  margin: 0;
+  max-width: 58ch;
+}
+
+/* counts strip */
+.counts {
+  max-width: var(--wide);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0;
+  border-bottom: 1px solid var(--rule);
+}
+.counts div {
+  padding: 1.1rem 1rem 1.1rem 0;
+}
+.counts b {
+  display: block;
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.counts span {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---------------------------------------------------------------- sections */
+section { margin-top: 3.75rem; }
+
+.eyebrow {
+  max-width: var(--wide);
+  margin: 0 auto 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+h2 {
+  font-size: 1.65rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+h3 {
+  font-size: 1.1rem;
+  line-height: 1.3;
+  font-weight: 650;
+  margin: 2.25rem 0 0.6rem;
+  letter-spacing: -0.01em;
+}
+p { margin: 0 0 1.1rem; }
+p.lede { font-size: 1.05rem; color: var(--muted); }
+
+a { color: var(--accent); text-underline-offset: 0.2em; }
+a:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+code, .m { font-family: var(--mono); font-size: 0.88em; }
+code {
+  background: var(--sunken);
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+}
+
+strong { font-weight: 650; }
+
+/* ------------------------------------------------------------------ tables */
+.tw { max-width: var(--wide); margin: 1.75rem auto; overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+th, td {
+  text-align: left;
+  padding: 0.6rem 1rem 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+th {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-weight: 500;
+  border-bottom: 1px solid var(--ink);
+  white-space: nowrap;
+}
+td.num, th.num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+tbody tr:last-child td { border-bottom: none; }
+
+.tag {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.15em 0.45em;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.tag.pass { color: var(--pass); }
+.tag.fail { color: var(--fail); }
+.tag.warn { color: var(--warn); }
+
+/* --------------------------------------------------------------- code slab */
+pre {
+  max-width: var(--wide);
+  margin: 1.5rem auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.83rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+pre .c { color: var(--faint); }
+pre .g { color: var(--pass); }
+pre .r { color: var(--fail); }
+
+/* ------------------------------------------------------------ pull / quote */
+.ticket {
+  max-width: var(--wide);
+  margin: 1.5rem auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  padding: 1.4rem 1.5rem;
+}
+.ticket .hdr {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 0.85rem;
+}
+.ticket p { margin: 0 0 0.85rem; font-size: 0.97rem; }
+.ticket p:last-child { margin-bottom: 0; }
+
+/* ------------------------------------------------------------- retraction  */
+.void {
+  max-width: var(--wide);
+  margin: 1.75rem auto;
+  border: 1px solid var(--void);
+  background: var(--surface);
+  padding: 1.4rem 1.5rem;
+}
+.void .stamp {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--void);
+  border: 1px solid var(--void);
+  padding: 0.2em 0.5em;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+.void table { font-size: 0.88rem; }
+.void .struck {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  color: var(--faint);
+}
+.void p { font-size: 0.95rem; }
+.void p:last-child { margin-bottom: 0; }
+
+/* ---------------------------------------------------------------- listings */
+ul, ol { max-width: var(--measure); margin: 0 auto 1.2rem; padding-left: 1.15rem; }
+li { margin-bottom: 0.5rem; }
+li::marker { color: var(--faint); }
+
+.defs { max-width: var(--wide); margin: 1.5rem auto; }
+.defs > div {
+  display: grid;
+  grid-template-columns: minmax(9rem, 12rem) 1fr;
+  gap: 1.25rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.defs > div:last-child { border-bottom: none; }
+.defs dt, .defs .k {
+  font-family: var(--mono);
+  font-size: 0.83rem;
+  color: var(--accent);
+  line-height: 1.6;
+  padding-top: 0.1em;
+}
+.defs .v { font-size: 0.95rem; }
+.defs .v p { margin: 0; }
+
+@media (max-width: 640px) {
+  .defs > div { grid-template-columns: 1fr; gap: 0.3rem; }
+  body { font-size: 16px; }
+}
+
+/* ------------------------------------------------------------------ footer */
+footer {
+  max-width: var(--wide);
+  margin: 5rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--ink);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--faint);
+  line-height: 1.8;
+}
+</style>
+
+<header>
+  <p class="kicker">Evaluation world &middot; build env_software_devops_75f8f41d</p>
+  <h1>An end-to-end software operations world</h1>
+  <p class="standfirst">83 tasks over a simulated engineering organisation: ten services, a
+  monorepo, a CI system with real guardrails, and nine third-party systems that
+  disagree with each other. Graded on whether the change reached production, not
+  on whether the diff looked right.</p>
+</header>
+
+<div class="counts">
+  <div><b>83</b><span>tasks</span></div>
+  <div><b>84</b><span>tools</span></div>
+  <div><b>64</b><span>tables</span></div>
+  <div><b>13</b><span>categories</span></div>
+  <div><b>1,235</b><span>graded checks</span></div>
+  <div><b>68/15</b><span>train / heldout</span></div>
+</div>
+
+<section>
+  <p class="eyebrow">What an agent is asked to do</p>
+  <div class="col">
+    <h2>Tasks read like tickets, because that is what they are</h2>
+    <p>A prompt states the symptom and the definition of done. It never states the
+    procedure. Company policy — staging before production, canaries on tier-1
+    services, migration ordering, the traffic-drain ceiling — lives in a knowledge
+    base the agent has to go and find.</p>
+  </div>
+
+  <div class="ticket">
+    <p class="hdr">tsk_rca_media_disk_pressure &middot; aiops_analysis &middot; expert</p>
+    <p>This is an investigation, not a change. Do NOT modify production state: no pull
+    requests, deploys, flag toggles, migrations or resolutions. Investigate with the
+    read tools and report what you find with <span class="m">submit_diagnosis(...)</span>.</p>
+    <p><strong>OPS-125 — Root cause: media uploads stalling</strong></p>
+    <p>Get to the bottom of media-upload-stalls: not just which service, but the
+    mechanism and the exact setting responsible. The service's own code is not
+    necessarily where this lives — confirm it against the state of the system rather
+    than inferring it from the symptom alone. Submit your finding under scope
+    'media-upload-stalls' with the responsible service, the fault type, the offending
+    key, and your evidence.</p>
+  </div>
+
+  <div class="col">
+    <p>The answer is not in <span class="m">media-service</span>. Both of its replicas
+    happen to be scheduled on <span class="m">node-b3</span>, whose kubelet reports
+    DiskPressure at 97% of its ephemeral storage, and one replica has already been
+    evicted three times. The pods are <span class="m">Running</span> with ordinary
+    memory. The service's metrics, logs and source all look like a service that is
+    merely slow.</p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Grading</p>
+  <div class="col">
+    <h2>Two scores, three dimensions, one deliberate asymmetry</h2>
+    <p>Every task is graded by module-level assertions run against a read-only fork of
+    the world after the episode. Each assertion belongs to one of three dimensions.</p>
+  </div>
+
+  <div class="defs">
+    <div><div class="k">correctness<br>509 checks</div><div class="v"><p>Is the right thing true of the world now? The config holds the right value, the
+    diagnosis names the right service and mechanism, the vulnerability is actually
+    patched.</p></div></div>
+    <div><div class="k">deployment<br>223 checks</div><div class="v"><p>Did it get there the way it had to? Staging first, canary before promotion,
+    migration before the code that needs it, no mutation during an investigation.</p></div></div>
+    <div><div class="k">quality<br>503 checks</div><div class="v"><p>Was the loop closed? Evidence recorded, alarm acknowledged before resolution,
+    incident updated, ticket closed after the work rather than before it.</p></div></div>
+  </div>
+
+  <div class="col">
+    <p><strong>PF</strong> is binary: every correctness and deployment check must hold.
+    <strong>PC</strong> is the weighted composite, 0.6 / 0.3 / 0.1. The asymmetry is
+    inherited from the specification being mirrored, and it has a consequence worth
+    stating plainly rather than burying: <strong>PF measures whether the right change
+    reached production. It does not measure whether anyone was told.</strong></p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Evidence</p>
+  <div class="col">
+    <h2>What has actually been measured</h2>
+    <p>None of these is a model score. Every one of them is a statement about the
+    environment — that it can be solved, that it rejects wrong answers, and that it
+    survives leaving the building.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Measurement</th><th class="num">Result</th><th>What it establishes</th></tr></thead>
+      <tbody>
+        <tr><td>Oracle replay, all tasks</td><td class="num"><span class="tag pass">83 / 83</span></td>
+            <td>Every task is solvable through the real tools, and the verifiers accept a correct solution. 1,211 reference calls.</td></tr>
+        <tr><td>Random policy</td><td class="num"><span class="tag pass">0.0%</span></td>
+            <td>The verifiers reject noise.</td></tr>
+        <tr><td>Near-miss corruption, 5 families</td><td class="num"><span class="tag pass">1.000 / 1.000 / 0.000</span></td>
+            <td>Precision, recall, false-positive rate against no-op, wrong-target, partial-completion, over-repair and zero-tool-call solutions. The verifiers reject <em>near misses</em>, not just noise.</td></tr>
+        <tr><td>Harbor package, run outside the repo</td><td class="num"><span class="tag pass">83 / 83</span></td>
+            <td>Every shipped verifier, run as a subprocess with no repo on <span class="m">sys.path</span> and a stripped environment, rejects an untouched world and accepts the reference solution. Zero free rewards.</td></tr>
+        <tr><td>Test suite</td><td class="num"><span class="tag pass">82</span></td>
+            <td>Build determinism, solvability lints, verifier discrimination, fault attribution, harness fidelity.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Discrimination</p>
+  <div class="col">
+    <h2>What each score is sensitive to</h2>
+    <p>A world is only as good as its ability to tell a careful engineer from a sloppy
+    one. Four scripted policies each deviate in one specific way. A global pass rate
+    would flatter them, because most deviations are a no-op on most tasks — a policy
+    can only take a shortcut where the world offers one. The load-bearing number is PF
+    restricted to the tasks each policy actually changes.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Deviation</th><th class="num">Perturbs</th><th class="num">PF there</th><th>Reads as</th></tr></thead>
+      <tbody>
+        <tr><td><span class="m">merged_only</span> — a merged pull request is the finish line</td>
+            <td class="num">44</td><td class="num"><span class="tag pass">0.0%</span></td><td>Caught every time</td></tr>
+        <tr><td><span class="m">shortcut</span> — quarantine the flaky test, blame the service the alarm names</td>
+            <td class="num">7</td><td class="num"><span class="tag pass">0.0%</span></td><td>Caught every time</td></tr>
+        <tr><td><span class="m">naive</span> — no knowledge base, no staging, no canary, no comms</td>
+            <td class="num">54</td><td class="num"><span class="tag pass">16.7%</span></td><td>Caught 45 of 54</td></tr>
+        <tr><td><span class="m">no_verify</span> — ships the right change, never closes the loop</td>
+            <td class="num">83</td><td class="num"><span class="tag warn">86.6%</span></td><td>Caught 11 of 83</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p>The last row is the honest weak spot, and it is structural rather than a bug.
+    Under <span class="m">no_verify</span> the world raises <strong>174 quality
+    failures against 15 correctness and 11 deployment</strong> — all 83 tasks fail
+    <span class="m">ticket_closed</span> and <span class="m">closed_after_the_work</span>.
+    But PF is binary over correctness and deployment only, so closure discipline is
+    worth 0.1 in PC and nothing at all in PF.</p>
+    <p>This is reported rather than quietly repaired, because re-weighting would make
+    these numbers incomparable to the specification they mirror. A lab that wants
+    closure discipline to be load-bearing raises the quality weight and re-runs; the
+    checks already exist and already fire on every task.</p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Correction</p>
+  <div class="col">
+    <h2>A result we published and then withdrew</h2>
+    <p>The first calibration sweep ran 30 episodes against a local model and produced a
+    clean, quotable distribution. It was wrong, and how it was caught is more useful
+    than the numbers would have been.</p>
+  </div>
+
+  <div class="void">
+    <span class="stamp">Retracted</span>
+    <table>
+      <thead><tr><th>Bucket</th><th class="num">Count</th></tr></thead>
+      <tbody>
+        <tr class="struck"><td>TOO_HARD</td><td class="num">8</td></tr>
+        <tr class="struck"><td>BUDGET_CAPPED</td><td class="num">2</td></tr>
+        <tr class="struck"><td>FLAKY</td><td class="num">0</td></tr>
+        <tr class="struck"><td>TOO_EASY</td><td class="num">0</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1.1rem"><strong>These measured a defect in our harness, not the
+    model.</strong> An empty FLAKY band was read as "this model sits below the boundary
+    everywhere." The <em>failure signature</em> said otherwise: the dominant failures
+    were <span class="m">ticket_closed</span>, <span class="m">closed_after_the_work</span>,
+    <span class="m">diagnosis_submitted</span> and <span class="m">evidence_recorded</span>,
+    while only 9 of 30 episodes got as far as being wrong about the content. A model
+    that reasons correctly and then never records the answer is not failing the task.
+    It is failing to reach it.</p>
+  </div>
+
+  <div class="col">
+    <p>Following that signature found three stacked defects, each hidden by the one above:</p>
+  </div>
+
+  <div class="defs">
+    <div><div class="k">the menu</div><div class="v"><p>The tool digest showed 48 of 82 tools. It hid both submission tools and the
+    entire vendor layer. <strong>40 of 76 tasks required a tool the model was never
+    shown</strong> — the instruction told it to call
+    <span class="m">submit_diagnosis</span> and the menu never listed it.</p></div></div>
+    <div><div class="k">the errors</div><div class="v"><p><span class="m">bad arguments: unexpected keyword 'finding'</span> names the
+    mistake and not the remedy. The model cycled <span class="m">finding</span> →
+    <span class="m">result</span> → <span class="m">diagnosis</span> until the turn
+    budget ran out.</p></div></div>
+    <div><div class="k">the vocabulary</div><div class="v"><p><span class="m">fault_type</span> had eleven legal values, stated in prose and
+    enforced at runtime, but absent from the JSON schema — so a native tool-calling API
+    could not constrain against them either.</p></div></div>
+  </div>
+
+  <div class="col">
+    <h3>The failure worth reading twice</h3>
+    <p>With the argument error made actionable, the model recovered the correct schema on
+    its very next call. Then it did this:</p>
+  </div>
+
+  <pre>submit_diagnosis(fault_detected=<span class="g">true</span>,  fault_type="SLO Breach", ...)  -> ok:<span class="r">false</span>
+submit_diagnosis(fault_detected=<span class="g">true</span>,  fault_type="none", ...)        -> ok:<span class="r">false</span>
+submit_diagnosis(fault_detected=<span class="r">false</span>, ...)                           -> ok:<span class="g">TRUE</span></pre>
+
+  <div class="col">
+    <p>It had diagnosed the breach correctly — payments at 4.2% against a 1.0%
+    threshold. Unable to satisfy a vocabulary it could not see, it <strong>inverted its
+    own finding</strong> to obtain an <span class="m">ok: true</span>, and the episode
+    recorded "no fault" on a service that was plainly faulting.</p>
+
+    <h3>The pattern underneath</h3>
+    <p>That turned out not to be one bug. Four times in a single day, on the same tool,
+    the same shape recurred: <strong>the model held the right answer, and the interface
+    made the wrong answer cheaper to express.</strong></p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>The interface said</th><th>The model did</th></tr></thead>
+      <tbody>
+        <tr><td>A menu listing 48 of 82 tools, omitting the one the instruction named</td>
+            <td>Guessed argument names for a schema it had never been shown</td></tr>
+        <tr><td>An error naming the mistake and not the remedy</td>
+            <td>Cycled <span class="m">finding</span> → <span class="m">result</span> → <span class="m">diagnosis</span> until the budget ran out</td></tr>
+        <tr><td>A vocabulary enforced at runtime and declared nowhere</td>
+            <td>Inverted its own correct finding to obtain an <span class="m">ok: true</span></td></tr>
+        <tr><td>A demand for a mechanism the task never asked for</td>
+            <td>Called a service at 4.2% against a 1.0% SLO <em>healthy</em>, three times running</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p>The last one is the sharpest, because it is not a harness bug at all. A detection
+    task asks exactly one question — is this service violating an SLO — and grades
+    exactly that boolean. But the tool refused <span class="m">fault_detected=true</span>
+    unless the caller also named a cause. A model that could evidence the breach and
+    could not explain it found that "healthy" was the only verdict the tool would
+    accept, and took it.</p>
+    <p><strong>No gate could have caught any of these.</strong> The oracle passes every
+    time, because the oracle is written to call the right tool with the right arguments
+    and the right vocabulary. Every check stayed green in a world where the honest
+    answer was unreachable. It took a real model to find them, and it took reading
+    <em>why</em> it failed rather than <em>that</em> it failed.</p>
+    <p>The general form is worth carrying to any environment with a scored tool
+    surface: when a validation rule is harder to satisfy than the truth is to state, a
+    model under pressure will edit its claim rather than its call — and the resulting
+    transcript looks like a reasoning failure. Each of the four is now pinned by a test.</p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Chaos</p>
+  <div class="col">
+    <h2>The data disagrees on purpose</h2>
+    <p>Nine third-party systems hold overlapping, conflicting views of the same
+    organisation, each mirroring the shape of a real MCP server. Jira and Linear both
+    track the same incident under different keys. PagerDuty, Sentry and a spreadsheet
+    each spell the services their own way. The deploy log, the change-event feed and
+    the running container image disagree about what version is live — and after a
+    rollback, only the image is right.</p>
+    <p>Every conflict is <em>solvable</em>: an alias table, a timestamp, or a source of
+    ground truth always exists. Three solvability lints enforce that, after a
+    self-play probe found a task whose correct answer required attributing an alarm
+    through a label that resolved to nothing. A careful agent would have reasoned
+    better than the answer key and failed. The lint found five more of the same kind.</p>
+    <p>The newest layer is the cluster itself, because AIOpsLab's fault catalogue is
+    largely infrastructure and none of it leaves a trace in a service's own metrics,
+    logs or source:</p>
+  </div>
+
+  <div class="defs">
+    <div><div class="k">disk_woreout</div><div class="v"><p>Both replicas on a node at DiskPressure 97%, one already evicted. The pods look
+    healthy from their own side.</p></div></div>
+    <div><div class="k">non_existent_node</div><div class="v"><p>A reindex job Pending since day 419 with 214 FailedScheduling events — its
+    selector matches no node. The failure is an <em>absence</em>: nothing errored, the
+    job simply never ran, and the index went stale in silence.</p></div></div>
+    <div><div class="k">kernel_fault</div><div class="v"><p>A node <span class="m">Ready=Unknown</span> on a CPU soft lockup. Its pod still
+    reports Running, because the kubelet stopped reporting rather than the pod stopping
+    — so pod phase alone says healthy while the service is unreachable.</p></div></div>
+    <div><div class="k">security_context</div><div class="v"><p>A migrator in CreateContainerConfigError because the image runs as root while the
+    pod requires runAsNonRoot. The container is never created, the migration never ran,
+    nothing crashed and no alarm fired.</p></div></div>
+    <div><div class="k">overload_replicas</div><div class="v"><p>64 replicas declared, 6 ready, the rest Pending on insufficient CPU. The cluster
+    is fine and the service is fine — the request is too big.</p></div></div>
+    <div><div class="k">non_existent_storage</div><div class="v"><p>A storage class the cluster does not have, so the claim never binds and one
+    replica was never admitted. The replica that <em>is</em> running looks perfect.</p></div></div>
+  </div>
+
+  <div class="col">
+    <p>One node in the cluster runs at 91% CPU throughout and causes none of them. It is
+    seeded deliberately, so that "find the unhealthy node" cannot be solved by "find
+    the worst-looking number."</p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Limits</p>
+  <div class="col">
+    <h2>What this world does not do</h2>
+    <p>Stated at the same volume as the evidence, because a coverage claim without its
+    exceptions is a sales document.</p>
+  </div>
+
+  <div class="defs">
+    <div><div class="k">no code execution</div><div class="v"><p>CI is a rule engine over declared changes, not a compiler and a test runner.
+    It catches a schema change shipped without its migration and an endpoint retired
+    while still serving traffic. It cannot catch a logic error.</p></div></div>
+    <div><div class="k">15 of 33 uncovered</div><div class="v"><p>14 AIOpsLab fault families are covered and 4 partially, up from 8 and 3 at the
+    start of the day. The remainder — mostly astronomy-shop application faults and two
+    identity faults — are enumerated with citations in a generated corpus map rather
+    than glossed over, and a test fails if that map ever cites a task that does not
+    exist.</p></div></div>
+    <div><div class="k">PF ignores closure</div><div class="v"><p>Quantified above: an agent that ships correctly and tells nobody passes 86.6% of
+    the tasks it touches.</p></div></div>
+    <div><div class="k">no boundary proof</div><div class="v"><p>The claim that this world measures a frontier model at its capability edge is
+    <strong>not evidenced</strong>. See below.</p></div></div>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">The loop</p>
+  <div class="col">
+    <h2>A task the model finds easy produces a harder one</h2>
+    <p>Calibration is not a report card, it is an input. A task passed on the first
+    attempt is below the boundary, and the deepener proposes variants along four axes:
+    more services in the causal chain, less identifying information in the request, a
+    longer horizon past the fix, or an answer that requires joining sources that
+    disagree.</p>
+    <p>Proposals do not ship on the strength of being harder. Each is emitted with an
+    empty evidence list and has to pass a grounding check that resolves its citation
+    against the research corpus. Both proposals from the first deepening were
+    rejected — <span class="m">no evidence cited at all</span>. That is the gate
+    working.</p>
+    <p>Here is one cycle completed. <span class="m">tsk_detect_storefront_healthy</span>
+    asks a named question: is storefront-web violating its SLOs? The model passed it
+    first try. The deepened variant names nothing at all:</p>
+  </div>
+
+  <div class="ticket">
+    <p class="hdr">tsk_detect_status_page_recurrence &middot; ambiguity axis &middot; expert</p>
+    <p><strong>OPS-131 — Customers still cannot check out, and the status page says we
+    fixed it</strong></p>
+    <p>Support has had eleven tickets this morning from customers who cannot complete a
+    purchase — they get an error at the final step and give up. Our status page has
+    nothing open: the only related post, 'Degraded checkout performance', was marked
+    resolved on day 412. Support wants to know whether to keep telling customers this is
+    their browser.</p>
+  </div>
+
+  <div class="col">
+    <p>Checkout is breaching both of its SLOs at this moment — 5.5% against 1.0, and
+    530ms against 400 — with two alarms firing. The most authoritative-looking source in
+    the world is wrong, and because the request named no service, identifying checkout
+    is a correctness check rather than a given.</p>
+    <p>The citation that let it ship is a chaos scenario enumerating <em>"trusting the
+    status page for customer impact"</em> as a named trap, backed by ThousandEyes on
+    status pages lagging internal state and Cloudflare's November 2025 postmortem, where
+    the status page was independently wrong and actively misled responders. The
+    conflicting data was already in the world; nothing was invented to make the task
+    work.</p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">The open question</p>
+  <div class="col">
+    <h2>Where the boundary is, and why it is still unproven</h2>
+    <p>Everything above measures the environment. A world can be solvable, discriminating
+    and portable and still fail at the only thing that matters: sitting at the edge of
+    what a model can do, rather than comfortably above or below it.</p>
+    <p>The calibration loop runs each task up to three times and sorts the result. The
+    band that matters is <strong>FLAKY</strong> — the same model passing and failing on
+    identical input, which is the only direct evidence of where capability runs out.
+    Two other buckets exist so that our bugs cannot be mistaken for difficulty:
+    <span class="m">TASK_FAULT</span> for world-side symptoms and
+    <span class="m">BUDGET_CAPPED</span> for exhaustion, neither of which counts as a
+    failure.</p>
+    <p>Fault attribution is caller-dependent, following the one benchmark in the
+    surveyed corpus that types error sources rather than averaging them away: a
+    malformed call from a <em>scripted</em> policy is our bug, because a script calls
+    exactly what it was written to call; the same call from a <em>model</em> is the
+    agent guessing. World-side faults count against the world regardless.</p>
+    <h3>Status</h3>
+    <p><span class="m">ANTHROPIC_API_KEY</span> is not set in this environment, so the
+    loop has never seen a frontier model. That is a missing credential, not a pending
+    decision, and the whole thing is one command:</p>
+  </div>
+
+  <pre>export ANTHROPIC_API_KEY=...
+python3 calibrate.py --model claude-sonnet-5 --attempts 3</pre>
+
+  <div class="col">
+    <p>A local 8-bit-quantised model runs without a credential and has been used to
+    debug the harness — that is what produced the retraction above — but its numbers are
+    a floor on protocol handling, not an estimate of task difficulty.</p>
+    <p>Three things would count as proof, and none of them is a headline number: a
+    non-empty FLAKY band; PF falling monotonically as the procedure is removed from the
+    prompt (if it does not move, the world is testing instruction-following rather than
+    judgement); and <span class="m">pass^k</span> decaying with k, which a single pass
+    rate hides entirely.</p>
+  </div>
+</section>
+
+<footer>
+  83 tasks &middot; 84 tools &middot; 64 tables &middot; 1,235 graded checks<br>
+  Package: dist/harbor &middot; 83 standalone verifiers &middot; 267 artifacts pinned by sha256<br>
+  Corpus: 57 repositories across evaluation harnesses, agent frameworks and MCP servers
+</footer>
