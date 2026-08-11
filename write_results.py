@@ -149,9 +149,56 @@ def section(run):
     return "\n".join(L)
 
 
-def main(paths):
+def band_section(cal_reports):
+    """The FLAKY band, from calibration reports.
+
+    A single attempt says pass or fail. Only repeats can say "sometimes", and
+    "sometimes" is the only direct evidence that a task sits at the edge of what a
+    model can do rather than comfortably above or below it.
+    """
+    buckets, rows = collections.Counter(), []
+    model = attempts = None
+    for path in cal_reports:
+        r = json.loads(pathlib.Path(path).read_text())
+        model = model or r.get("model")
+        attempts = attempts or r.get("attempts")
+        for t in r.get("tasks", []):
+            buckets[t["bucket"]] += 1
+            rows.append((t["bucket"], t["task_id"], t["passes"], t["attempts"],
+                         t.get("mean_score")))
+    if not rows:
+        return ""
+    order = {"FLAKY": 0, "TOO_HARD": 1, "TOO_EASY": 2, "BUDGET_CAPPED": 3, "TASK_FAULT": 4}
+    rows.sort(key=lambda r: (order.get(r[0], 9), -r[2]))
+    L = ["", "### Reliability: the FLAKY band", "",
+         "Boundary candidates re-run %s times each against %s, with `--all-attempts` so "
+         "a first-try pass does not end the probe." % (attempts, model), "",
+         "| task | bucket | passes | mean PC |", "|---|---|---|---|"]
+    for bucket, tid, passes, n, pc in rows:
+        L.append("| `%s` | **%s** | %d/%d | %.2f |" % (tid, bucket, passes, n, pc or 0))
+    flaky = buckets.get("FLAKY", 0)
+    L += ["",
+          "**%d of %d candidates are FLAKY** — the same model, the same task, the same "
+          "prompt, passing on some attempts and failing on others. That band is the "
+          "point: a task nobody can pass measures nothing, a task everybody passes "
+          "measures nothing, and a task that goes both ways is measuring exactly where "
+          "capability runs out." % (flaky, len(rows))
+          if flaky else
+          "**No candidate came back FLAKY.** Every one landed on the same side of the "
+          "line all three times, so this probe found no evidence that the world is "
+          "measuring at the capability edge for this model.",
+          ""]
+    if buckets.get("TASK_FAULT"):
+        L += ["**%d task(s) failed with world-side symptoms.** Any non-zero count here "
+              "invalidates the difficulty reading until fixed." % buckets["TASK_FAULT"], ""]
+    return "\n".join(L)
+
+
+def main(paths, cal_reports=()):
     run = analyse_run.load(paths)
     body = section(run)
+    if cal_reports:
+        body = body.replace(END, band_section(cal_reports) + "\n" + END)
     doc = DOC.read_text()
     if START in doc and END in doc:
         head, rest = doc.split(START, 1)
@@ -166,5 +213,7 @@ def main(paths):
 
 
 if __name__ == "__main__":
-    args = [a for a in sys.argv[1:] if a.endswith(".json")]
-    sys.exit(main(args or ["research/deepseek_full.json"]))
+    argv = sys.argv[1:]
+    cal = [a for a in argv if "calib" in a or "flaky" in a]
+    runs = [a for a in argv if a.endswith(".json") and a not in cal]
+    sys.exit(main(runs or ["research/deepseek_full.json"], cal))
