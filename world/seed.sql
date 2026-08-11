@@ -5894,77 +5894,78 @@ INSERT INTO "tickets" VALUES(9186,'ENG-2805','task','Empty the Backlog before sp
 INSERT INTO "tickets" VALUES(9187,'ENG-2806','task','Clear the Blocked column','','open','high','','');
 INSERT INTO "tickets" VALUES(9188,'ENG-2807','task','How many open priority issues are there?','','open','medium','','');
 INSERT INTO "tickets" VALUES(9189,'ENG-2808','task','How much high-priority work is in flight?','','open','hard','','');
-INSERT INTO "tickets" VALUES(9190,'OPS-150','incident','Three alarms in twenty minutes - is this one incident or three?','','open','critical','','');
-INSERT INTO "tickets" VALUES(9191,'OPS-116','incident','Localize alarm 9609 — the error tracker shows nothing','Alarm 9609 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','critical','','analytics-worker');
-INSERT INTO "tickets" VALUES(9192,'OPS-206','task','What version of the API gateway is actually running?','Release records disagree about the API gateway. Someone needs to know what is genuinely running in production right now. Answer with the patch number of the running version (for vX.Y.Z, answer Z).','open','high','','');
-INSERT INTO "tickets" VALUES(9193,'OPS-201','task','How many customer-facing incidents in the last 7 days?','Leadership wants the number of customer-facing incidents over the last 7 days (today is day 420, so days 414-420 inclusive).','open','high','','');
-INSERT INTO "tickets" VALUES(9194,'OPS-202','task','What is checkout''s production error rate?','The commerce lead is asking for checkout''s current production error rate as a percentage. Sentry and Prometheus give very different numbers.','open','high','','');
-INSERT INTO "tickets" VALUES(9195,'OPS-203','task','How many distinct open checkout bugs do we have?','The commerce lead wants to know how many genuinely distinct open checkout bugs exist. Bugs get filed in more than one tracker.','open','medium','','');
-INSERT INTO "tickets" VALUES(9196,'OPS-204','task','How many production deployments in the last 7 days?','For the weekly delivery report: how many deployments reached production in days 414-420, excluding rollbacks?','open','medium','','');
-INSERT INTO "tickets" VALUES(9197,'OPS-205','task','Who owns the API gateway right now?','A gateway alarm needs an owner and the wiki and the spreadsheet disagree. Who should actually be paged? Answer with the number of the escalation policy''s current on-call day, and name the team in your assumptions.','open','high','','');
-INSERT INTO "tickets" VALUES(9198,'OPS-207','task','How many alerts did the gateway incident actually raise?','For the incident review of the api-gateway latency surge: how many alert firings did that failure produce in total, counting every firing whether or not anyone saw it? Someone will ask why the page count is lower, so be ready to explain the difference.','open','high','','');
-INSERT INTO "tickets" VALUES(9199,'OPS-301','incident','Decide the remediation for the payments error rate','payments is failing 4.2% of requests against a 1.0% SLO. The team has proposed four remediations in the incident channel and wants a decision.','open','critical','','');
-INSERT INTO "tickets" VALUES(9200,'OPS-302','incident','Decide the remediation for the analytics crashloop','analytics-worker is being OOMKilled and is in CrashLoopBackOff. Four remediations have been proposed.','open','high','','');
-INSERT INTO "tickets" VALUES(9201,'OPS-303','incident','Decide the remediation for the gateway latency surge','api-gateway p99 is 1030ms against a 250ms SLO and has been since v5.1.0 was promoted. Four remediations have been proposed.','open','critical','','');
-INSERT INTO "tickets" VALUES(9202,'OPS-304','incident','Decide the remediation for the checkout error spike','checkout is failing 5.5% of requests and the rate tracks the instant_refunds flag ramp exactly. Four remediations have been proposed and customers are affected now.','open','critical','','');
-INSERT INTO "tickets" VALUES(9203,'SEC-908','security','Rotate the exposed partner API credential','The partner API key was committed to the monorepo, so it must be treated as compromised and rotated in production. Rotation invalidates every existing partner session immediately and cannot be undone - a mistake locks partners out of production until a new key is issued.','open','critical','','checkout');
-INSERT INTO "tickets" VALUES(9204,'SLO-7100','task','Is analytics-worker meeting its errors objective?','Is analytics-worker meeting its errors objective?','open','medium','','analytics-worker');
-INSERT INTO "tickets" VALUES(9205,'SLO-7101','task','Is api-gateway meeting its latency objective?','Is api-gateway meeting its latency objective?','open','medium','','api-gateway');
-INSERT INTO "tickets" VALUES(9206,'SLO-7102','task','Is catalog meeting its latency objective?','Is catalog meeting its latency objective?','open','medium','','catalog');
-INSERT INTO "tickets" VALUES(9207,'SLO-7103','task','Is checkout meeting its errors objective?','Is checkout meeting its errors objective?','open','medium','','checkout');
-INSERT INTO "tickets" VALUES(9208,'SLO-7104','task','Is checkout meeting its latency objective?','Is checkout meeting its latency objective?','open','medium','','checkout');
-INSERT INTO "tickets" VALUES(9209,'SLO-7105','task','Is inventory meeting its errors objective?','Is inventory meeting its errors objective?','open','medium','','inventory');
-INSERT INTO "tickets" VALUES(9210,'SLO-7106','task','Is media-service meeting its latency objective?','Is media-service meeting its latency objective?','open','medium','','media-service');
-INSERT INTO "tickets" VALUES(9211,'SLO-7107','task','Is notifications meeting its errors objective?','Is notifications meeting its errors objective?','open','medium','','notifications');
-INSERT INTO "tickets" VALUES(9212,'SLO-7108','task','Is payments meeting its errors objective?','Is payments meeting its errors objective?','open','medium','','payments');
-INSERT INTO "tickets" VALUES(9213,'SLO-7109','task','Is payments meeting its latency objective?','Is payments meeting its latency objective?','open','medium','','payments');
-INSERT INTO "tickets" VALUES(9214,'SLO-7110','task','Is search meeting its latency objective?','Is search meeting its latency objective?','open','medium','','search');
-INSERT INTO "tickets" VALUES(9215,'SLO-7111','task','Is storefront-web meeting its latency objective?','Is storefront-web meeting its latency objective?','open','medium','','storefront-web');
-INSERT INTO "tickets" VALUES(9216,'QA-7200','task','Is test_rollup_window intermittent, or did it fail for a reason?','Is test_rollup_window intermittent, or did it fail for a reason?','open','medium','','analytics-worker');
-INSERT INTO "tickets" VALUES(9217,'QA-7201','task','Is test_upstream_timeout intermittent, or did it fail for a reason?','Is test_upstream_timeout intermittent, or did it fail for a reason?','open','medium','','api-gateway');
-INSERT INTO "tickets" VALUES(9218,'QA-7202','task','Is test_price_rounding intermittent, or did it fail for a reason?','Is test_price_rounding intermittent, or did it fail for a reason?','open','medium','','catalog');
-INSERT INTO "tickets" VALUES(9219,'QA-7203','task','Is test_cart_totals intermittent, or did it fail for a reason?','Is test_cart_totals intermittent, or did it fail for a reason?','open','medium','','checkout');
-INSERT INTO "tickets" VALUES(9220,'QA-7204','task','Is test_checkout_idempotency intermittent, or did it fail for a reason?','Is test_checkout_idempotency intermittent, or did it fail for a reason?','open','medium','','checkout');
-INSERT INTO "tickets" VALUES(9221,'QA-7205','task','Is test_reservation_race intermittent, or did it fail for a reason?','Is test_reservation_race intermittent, or did it fail for a reason?','open','medium','','inventory');
-INSERT INTO "tickets" VALUES(9222,'QA-7206','task','Is test_thumbnail_sizes intermittent, or did it fail for a reason?','Is test_thumbnail_sizes intermittent, or did it fail for a reason?','open','medium','','media-service');
-INSERT INTO "tickets" VALUES(9223,'QA-7207','task','Is test_template_render intermittent, or did it fail for a reason?','Is test_template_render intermittent, or did it fail for a reason?','open','medium','','notifications');
-INSERT INTO "tickets" VALUES(9224,'QA-7208','task','Is test_capture_retries intermittent, or did it fail for a reason?','Is test_capture_retries intermittent, or did it fail for a reason?','open','medium','','payments');
-INSERT INTO "tickets" VALUES(9225,'QA-7209','task','Is test_index_refresh intermittent, or did it fail for a reason?','Is test_index_refresh intermittent, or did it fail for a reason?','open','medium','','search');
-INSERT INTO "tickets" VALUES(9226,'QA-7210','task','Is test_ranking intermittent, or did it fail for a reason?','Is test_ranking intermittent, or did it fail for a reason?','open','medium','','search');
-INSERT INTO "tickets" VALUES(9227,'QA-7211','task','Is test_cart_selector intermittent, or did it fail for a reason?','Is test_cart_selector intermittent, or did it fail for a reason?','open','medium','','storefront-web');
-INSERT INTO "tickets" VALUES(9228,'SEC-7300','task','Is catalog still exposed to CVE-2026-22190?','Is catalog still exposed to CVE-2026-22190?','open','high','','catalog');
-INSERT INTO "tickets" VALUES(9229,'SEC-7301','task','Is payments still exposed to CVE-2026-31337?','Is payments still exposed to CVE-2026-31337?','open','high','','payments');
-INSERT INTO "tickets" VALUES(9230,'SEC-7302','task','Is checkout still exposed to CVE-2026-40881?','Is checkout still exposed to CVE-2026-40881?','open','high','','checkout');
-INSERT INTO "tickets" VALUES(9231,'SEC-7303','task','Is payments still exposed to CVE-2026-51002?','Is payments still exposed to CVE-2026-51002?','open','high','','payments');
-INSERT INTO "tickets" VALUES(9232,'SPAN-7400','task','Alarm on api-gateway - is api-gateway where the fault is?','Alarm on api-gateway - is api-gateway where the fault is?','open','high','','catalog');
-INSERT INTO "tickets" VALUES(9233,'SPAN-7401','task','Alarm on api-gateway - is api-gateway where the fault is?','Alarm on api-gateway - is api-gateway where the fault is?','open','high','','checkout');
-INSERT INTO "tickets" VALUES(9234,'SPAN-7402','task','Alarm on api-gateway - is api-gateway where the fault is?','Alarm on api-gateway - is api-gateway where the fault is?','open','high','','media-service');
-INSERT INTO "tickets" VALUES(9235,'SPAN-7403','task','Alarm on api-gateway - is api-gateway where the fault is?','Alarm on api-gateway - is api-gateway where the fault is?','open','high','','search');
-INSERT INTO "tickets" VALUES(9236,'SPAN-7404','task','Alarm on checkout - is checkout where the fault is?','Alarm on checkout - is checkout where the fault is?','open','high','','inventory');
-INSERT INTO "tickets" VALUES(9237,'SPAN-7405','task','Alarm on checkout - is checkout where the fault is?','Alarm on checkout - is checkout where the fault is?','open','high','','payments');
-INSERT INTO "tickets" VALUES(9238,'SPAN-7406','task','Alarm on payments - is payments where the fault is?','Alarm on payments - is payments where the fault is?','open','high','','notifications');
-INSERT INTO "tickets" VALUES(9239,'SUP-7500','task','Customer report: the overnight reports came out wrong','Customer report: the overnight reports came out wrong','open','high','','analytics-worker');
-INSERT INTO "tickets" VALUES(9240,'SUP-7501','task','Customer report: everything feels slow, across the whole site','Customer report: everything feels slow, across the whole site','open','high','','api-gateway');
-INSERT INTO "tickets" VALUES(9241,'SUP-7502','task','Customer report: product pages are slow to show a price','Customer report: product pages are slow to show a price','open','high','','catalog');
-INSERT INTO "tickets" VALUES(9242,'SUP-7503','task','Customer report: customers cannot complete a purchase','Customer report: customers cannot complete a purchase','open','high','','checkout');
-INSERT INTO "tickets" VALUES(9243,'SUP-7504','task','Customer report: stock reservations are failing at the last step','Customer report: stock reservations are failing at the last step','open','high','','inventory');
-INSERT INTO "tickets" VALUES(9244,'SUP-7505','task','Customer report: product images take too long to appear','Customer report: product images take too long to appear','open','high','','media-service');
-INSERT INTO "tickets" VALUES(9245,'SUP-7506','task','Customer report: order confirmation emails are not arriving','Customer report: order confirmation emails are not arriving','open','high','','notifications');
-INSERT INTO "tickets" VALUES(9246,'SUP-7507','task','Customer report: card payments are being declined that should not be','Customer report: card payments are being declined that should not be','open','high','','payments');
-INSERT INTO "tickets" VALUES(9247,'SUP-7508','task','Customer report: search is taking so long people give up','Customer report: search is taking so long people give up','open','high','','search');
-INSERT INTO "tickets" VALUES(9248,'SUP-7509','task','Customer report: a customer said the site felt sluggish yesterday','Customer report: a customer said the site felt sluggish yesterday','open','high','','storefront-web');
-INSERT INTO "tickets" VALUES(9249,'MULTI-7600','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9250,'MULTI-7601','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9251,'MULTI-7602','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9252,'MULTI-7603','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9253,'MULTI-7604','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9254,'MULTI-7605','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9255,'MULTI-7606','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9256,'MULTI-7607','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9257,'MULTI-7608','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9258,'MULTI-7609','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9259,'MULTI-7610','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
-INSERT INTO "tickets" VALUES(9260,'MULTI-7611','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9190,'ENG-2901','bug','The finance export check is failing','','open','high','','');
+INSERT INTO "tickets" VALUES(9191,'OPS-150','incident','Three alarms in twenty minutes - is this one incident or three?','','open','critical','','');
+INSERT INTO "tickets" VALUES(9192,'OPS-116','incident','Localize alarm 9609 — the error tracker shows nothing','Alarm 9609 is firing. Identify the responsible service and report the finding with submit_diagnosis. Read-only investigation.','open','critical','','analytics-worker');
+INSERT INTO "tickets" VALUES(9193,'OPS-206','task','What version of the API gateway is actually running?','Release records disagree about the API gateway. Someone needs to know what is genuinely running in production right now. Answer with the patch number of the running version (for vX.Y.Z, answer Z).','open','high','','');
+INSERT INTO "tickets" VALUES(9194,'OPS-201','task','How many customer-facing incidents in the last 7 days?','Leadership wants the number of customer-facing incidents over the last 7 days (today is day 420, so days 414-420 inclusive).','open','high','','');
+INSERT INTO "tickets" VALUES(9195,'OPS-202','task','What is checkout''s production error rate?','The commerce lead is asking for checkout''s current production error rate as a percentage. Sentry and Prometheus give very different numbers.','open','high','','');
+INSERT INTO "tickets" VALUES(9196,'OPS-203','task','How many distinct open checkout bugs do we have?','The commerce lead wants to know how many genuinely distinct open checkout bugs exist. Bugs get filed in more than one tracker.','open','medium','','');
+INSERT INTO "tickets" VALUES(9197,'OPS-204','task','How many production deployments in the last 7 days?','For the weekly delivery report: how many deployments reached production in days 414-420, excluding rollbacks?','open','medium','','');
+INSERT INTO "tickets" VALUES(9198,'OPS-205','task','Who owns the API gateway right now?','A gateway alarm needs an owner and the wiki and the spreadsheet disagree. Who should actually be paged? Answer with the number of the escalation policy''s current on-call day, and name the team in your assumptions.','open','high','','');
+INSERT INTO "tickets" VALUES(9199,'OPS-207','task','How many alerts did the gateway incident actually raise?','For the incident review of the api-gateway latency surge: how many alert firings did that failure produce in total, counting every firing whether or not anyone saw it? Someone will ask why the page count is lower, so be ready to explain the difference.','open','high','','');
+INSERT INTO "tickets" VALUES(9200,'OPS-301','incident','Decide the remediation for the payments error rate','payments is failing 4.2% of requests against a 1.0% SLO. The team has proposed four remediations in the incident channel and wants a decision.','open','critical','','');
+INSERT INTO "tickets" VALUES(9201,'OPS-302','incident','Decide the remediation for the analytics crashloop','analytics-worker is being OOMKilled and is in CrashLoopBackOff. Four remediations have been proposed.','open','high','','');
+INSERT INTO "tickets" VALUES(9202,'OPS-303','incident','Decide the remediation for the gateway latency surge','api-gateway p99 is 1030ms against a 250ms SLO and has been since v5.1.0 was promoted. Four remediations have been proposed.','open','critical','','');
+INSERT INTO "tickets" VALUES(9203,'OPS-304','incident','Decide the remediation for the checkout error spike','checkout is failing 5.5% of requests and the rate tracks the instant_refunds flag ramp exactly. Four remediations have been proposed and customers are affected now.','open','critical','','');
+INSERT INTO "tickets" VALUES(9204,'SEC-908','security','Rotate the exposed partner API credential','The partner API key was committed to the monorepo, so it must be treated as compromised and rotated in production. Rotation invalidates every existing partner session immediately and cannot be undone - a mistake locks partners out of production until a new key is issued.','open','critical','','checkout');
+INSERT INTO "tickets" VALUES(9205,'SLO-7100','task','Is analytics-worker meeting its errors objective?','Is analytics-worker meeting its errors objective?','open','medium','','analytics-worker');
+INSERT INTO "tickets" VALUES(9206,'SLO-7101','task','Is api-gateway meeting its latency objective?','Is api-gateway meeting its latency objective?','open','medium','','api-gateway');
+INSERT INTO "tickets" VALUES(9207,'SLO-7102','task','Is catalog meeting its latency objective?','Is catalog meeting its latency objective?','open','medium','','catalog');
+INSERT INTO "tickets" VALUES(9208,'SLO-7103','task','Is checkout meeting its errors objective?','Is checkout meeting its errors objective?','open','medium','','checkout');
+INSERT INTO "tickets" VALUES(9209,'SLO-7104','task','Is checkout meeting its latency objective?','Is checkout meeting its latency objective?','open','medium','','checkout');
+INSERT INTO "tickets" VALUES(9210,'SLO-7105','task','Is inventory meeting its errors objective?','Is inventory meeting its errors objective?','open','medium','','inventory');
+INSERT INTO "tickets" VALUES(9211,'SLO-7106','task','Is media-service meeting its latency objective?','Is media-service meeting its latency objective?','open','medium','','media-service');
+INSERT INTO "tickets" VALUES(9212,'SLO-7107','task','Is notifications meeting its errors objective?','Is notifications meeting its errors objective?','open','medium','','notifications');
+INSERT INTO "tickets" VALUES(9213,'SLO-7108','task','Is payments meeting its errors objective?','Is payments meeting its errors objective?','open','medium','','payments');
+INSERT INTO "tickets" VALUES(9214,'SLO-7109','task','Is payments meeting its latency objective?','Is payments meeting its latency objective?','open','medium','','payments');
+INSERT INTO "tickets" VALUES(9215,'SLO-7110','task','Is search meeting its latency objective?','Is search meeting its latency objective?','open','medium','','search');
+INSERT INTO "tickets" VALUES(9216,'SLO-7111','task','Is storefront-web meeting its latency objective?','Is storefront-web meeting its latency objective?','open','medium','','storefront-web');
+INSERT INTO "tickets" VALUES(9217,'QA-7200','task','Is test_rollup_window intermittent, or did it fail for a reason?','Is test_rollup_window intermittent, or did it fail for a reason?','open','medium','','analytics-worker');
+INSERT INTO "tickets" VALUES(9218,'QA-7201','task','Is test_upstream_timeout intermittent, or did it fail for a reason?','Is test_upstream_timeout intermittent, or did it fail for a reason?','open','medium','','api-gateway');
+INSERT INTO "tickets" VALUES(9219,'QA-7202','task','Is test_price_rounding intermittent, or did it fail for a reason?','Is test_price_rounding intermittent, or did it fail for a reason?','open','medium','','catalog');
+INSERT INTO "tickets" VALUES(9220,'QA-7203','task','Is test_cart_totals intermittent, or did it fail for a reason?','Is test_cart_totals intermittent, or did it fail for a reason?','open','medium','','checkout');
+INSERT INTO "tickets" VALUES(9221,'QA-7204','task','Is test_checkout_idempotency intermittent, or did it fail for a reason?','Is test_checkout_idempotency intermittent, or did it fail for a reason?','open','medium','','checkout');
+INSERT INTO "tickets" VALUES(9222,'QA-7205','task','Is test_reservation_race intermittent, or did it fail for a reason?','Is test_reservation_race intermittent, or did it fail for a reason?','open','medium','','inventory');
+INSERT INTO "tickets" VALUES(9223,'QA-7206','task','Is test_thumbnail_sizes intermittent, or did it fail for a reason?','Is test_thumbnail_sizes intermittent, or did it fail for a reason?','open','medium','','media-service');
+INSERT INTO "tickets" VALUES(9224,'QA-7207','task','Is test_template_render intermittent, or did it fail for a reason?','Is test_template_render intermittent, or did it fail for a reason?','open','medium','','notifications');
+INSERT INTO "tickets" VALUES(9225,'QA-7208','task','Is test_capture_retries intermittent, or did it fail for a reason?','Is test_capture_retries intermittent, or did it fail for a reason?','open','medium','','payments');
+INSERT INTO "tickets" VALUES(9226,'QA-7209','task','Is test_index_refresh intermittent, or did it fail for a reason?','Is test_index_refresh intermittent, or did it fail for a reason?','open','medium','','search');
+INSERT INTO "tickets" VALUES(9227,'QA-7210','task','Is test_ranking intermittent, or did it fail for a reason?','Is test_ranking intermittent, or did it fail for a reason?','open','medium','','search');
+INSERT INTO "tickets" VALUES(9228,'QA-7211','task','Is test_cart_selector intermittent, or did it fail for a reason?','Is test_cart_selector intermittent, or did it fail for a reason?','open','medium','','storefront-web');
+INSERT INTO "tickets" VALUES(9229,'SEC-7300','task','Is catalog still exposed to CVE-2026-22190?','Is catalog still exposed to CVE-2026-22190?','open','high','','catalog');
+INSERT INTO "tickets" VALUES(9230,'SEC-7301','task','Is payments still exposed to CVE-2026-31337?','Is payments still exposed to CVE-2026-31337?','open','high','','payments');
+INSERT INTO "tickets" VALUES(9231,'SEC-7302','task','Is checkout still exposed to CVE-2026-40881?','Is checkout still exposed to CVE-2026-40881?','open','high','','checkout');
+INSERT INTO "tickets" VALUES(9232,'SEC-7303','task','Is payments still exposed to CVE-2026-51002?','Is payments still exposed to CVE-2026-51002?','open','high','','payments');
+INSERT INTO "tickets" VALUES(9233,'SPAN-7400','task','Alarm on api-gateway - is api-gateway where the fault is?','Alarm on api-gateway - is api-gateway where the fault is?','open','high','','catalog');
+INSERT INTO "tickets" VALUES(9234,'SPAN-7401','task','Alarm on api-gateway - is api-gateway where the fault is?','Alarm on api-gateway - is api-gateway where the fault is?','open','high','','checkout');
+INSERT INTO "tickets" VALUES(9235,'SPAN-7402','task','Alarm on api-gateway - is api-gateway where the fault is?','Alarm on api-gateway - is api-gateway where the fault is?','open','high','','media-service');
+INSERT INTO "tickets" VALUES(9236,'SPAN-7403','task','Alarm on api-gateway - is api-gateway where the fault is?','Alarm on api-gateway - is api-gateway where the fault is?','open','high','','search');
+INSERT INTO "tickets" VALUES(9237,'SPAN-7404','task','Alarm on checkout - is checkout where the fault is?','Alarm on checkout - is checkout where the fault is?','open','high','','inventory');
+INSERT INTO "tickets" VALUES(9238,'SPAN-7405','task','Alarm on checkout - is checkout where the fault is?','Alarm on checkout - is checkout where the fault is?','open','high','','payments');
+INSERT INTO "tickets" VALUES(9239,'SPAN-7406','task','Alarm on payments - is payments where the fault is?','Alarm on payments - is payments where the fault is?','open','high','','notifications');
+INSERT INTO "tickets" VALUES(9240,'SUP-7500','task','Customer report: the overnight reports came out wrong','Customer report: the overnight reports came out wrong','open','high','','analytics-worker');
+INSERT INTO "tickets" VALUES(9241,'SUP-7501','task','Customer report: everything feels slow, across the whole site','Customer report: everything feels slow, across the whole site','open','high','','api-gateway');
+INSERT INTO "tickets" VALUES(9242,'SUP-7502','task','Customer report: product pages are slow to show a price','Customer report: product pages are slow to show a price','open','high','','catalog');
+INSERT INTO "tickets" VALUES(9243,'SUP-7503','task','Customer report: customers cannot complete a purchase','Customer report: customers cannot complete a purchase','open','high','','checkout');
+INSERT INTO "tickets" VALUES(9244,'SUP-7504','task','Customer report: stock reservations are failing at the last step','Customer report: stock reservations are failing at the last step','open','high','','inventory');
+INSERT INTO "tickets" VALUES(9245,'SUP-7505','task','Customer report: product images take too long to appear','Customer report: product images take too long to appear','open','high','','media-service');
+INSERT INTO "tickets" VALUES(9246,'SUP-7506','task','Customer report: order confirmation emails are not arriving','Customer report: order confirmation emails are not arriving','open','high','','notifications');
+INSERT INTO "tickets" VALUES(9247,'SUP-7507','task','Customer report: card payments are being declined that should not be','Customer report: card payments are being declined that should not be','open','high','','payments');
+INSERT INTO "tickets" VALUES(9248,'SUP-7508','task','Customer report: search is taking so long people give up','Customer report: search is taking so long people give up','open','high','','search');
+INSERT INTO "tickets" VALUES(9249,'SUP-7509','task','Customer report: a customer said the site felt sluggish yesterday','Customer report: a customer said the site felt sluggish yesterday','open','high','','storefront-web');
+INSERT INTO "tickets" VALUES(9250,'MULTI-7600','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9251,'MULTI-7601','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9252,'MULTI-7602','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9253,'MULTI-7603','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9254,'MULTI-7604','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9255,'MULTI-7605','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9256,'MULTI-7606','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9257,'MULTI-7607','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9258,'MULTI-7608','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9259,'MULTI-7609','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9260,'MULTI-7610','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9261,'MULTI-7611','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
 INSERT INTO "traffic_profile" VALUES(9201,'storefront-web','GET /',420,100);
 INSERT INTO "traffic_profile" VALUES(9202,'storefront-web','GET /product/:id',310,100);
 INSERT INTO "traffic_profile" VALUES(9203,'api-gateway','POST /v1/orders',145,100);
@@ -5993,7 +5994,60 @@ INSERT INTO "vulnerabilities" VALUES(9801,'CVE-2026-31337','libpayproc','payment
 INSERT INTO "vulnerabilities" VALUES(9802,'CVE-2026-40881','stripe-sdk','checkout','high','11.4.0','open');
 INSERT INTO "vulnerabilities" VALUES(9803,'CVE-2026-22190','pydantic','catalog','medium','2.11.0','remediated');
 INSERT INTO "vulnerabilities" VALUES(9804,'CVE-2026-51002','requests','payments','high','2.33.0','open');
-INSERT INTO "sqlite_sequence" VALUES('tickets',9260);
+INSERT INTO "workspace_files" VALUES('README.md','# ledger
+
+A tiny double-entry ledger used by the finance export.
+
+`ledger.py` is the library. `check.py` is the acceptance check finance runs
+before they trust an export; it must exit 0.
+',1);
+INSERT INTO "workspace_files" VALUES('ledger.py','"""A tiny double-entry ledger."""
+
+
+def post(entries):
+    """Sum a list of (account, amount_cents) into a balance per account.
+
+    A ledger balances when every posting is accounted for and the total is
+    zero. Amounts are integer cents; never use floats for money.
+    """
+    balances = {}
+    for account, amount in entries:
+        balances[account] = balances.get(account, 0) + amount
+    return balances
+
+
+def is_balanced(entries):
+    """True when the postings sum to zero."""
+    return sum(amount for _, amount in entries) == 0
+
+
+def net(entries, account):
+    """The net movement on one account."""
+    return post(entries)[account]
+',1);
+INSERT INTO "workspace_files" VALUES('check.py','"""Acceptance check. Exits 0 when the ledger behaves as finance expects."""
+import ledger
+
+CASES = [
+    ([(''cash'', 1000), (''revenue'', -1000)], True),
+    ([(''cash'', 1000), (''revenue'', -999)], False),
+    ([], True),
+]
+
+def main():
+    for entries, expected in CASES:
+        got = ledger.is_balanced(entries)
+        assert got == expected, ''is_balanced(%r) == %r, expected %r'' % (
+            entries, got, expected)
+    assert ledger.net([(''cash'', 500), (''cash'', -200)], ''cash'') == 300
+    # finance also needs an account that never appears to read as zero,
+    # rather than raising - the export iterates every account in the chart
+    assert ledger.net([(''cash'', 500), (''cash'', -500)], ''vat'') == 0
+    print(''OK'')
+
+main()
+',1);
+INSERT INTO "sqlite_sequence" VALUES('tickets',9261);
 INSERT INTO "sqlite_sequence" VALUES('deployments',9272);
 INSERT INTO "sqlite_sequence" VALUES('feature_flags',9308);
 INSERT INTO "sqlite_sequence" VALUES('alerts',9610);

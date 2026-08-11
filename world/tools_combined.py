@@ -3087,6 +3087,177 @@ def check_network_path(db_path=None, from_service=None, blocked_only=False):
         conn.close()
 
 
+def ws_list(db_path=None):
+    """List the files in the workspace with their sizes. This is a real filesystem: what you write here is what runs."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('ws_list',)); conn.commit()
+        except Exception:
+            pass
+        return [{'path': r['path'], 'bytes': len(r['content']), 'modified': r['seeded'] == 0}
+                for r in conn.execute('SELECT path, content, seeded FROM workspace_files '
+                                      'ORDER BY path').fetchall()]
+    finally:
+        conn.close()
+
+
+def ws_read(db_path=None, path=None):
+    """Read a workspace file."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('ws_read',)); conn.commit()
+        except Exception:
+            pass
+        if path is None:
+            return {'ok': False, 'error': 'missing required parameter: path'}
+        row = conn.execute('SELECT content FROM workspace_files WHERE path=?', (path,)).fetchone()
+        if row is None:
+            have = [r[0] for r in conn.execute('SELECT path FROM workspace_files ORDER BY path')]
+            return {'ok': False, 'error': 'no such file: ' + str(path), 'workspace': have}
+        return {'path': path, 'content': row['content']}
+    finally:
+        conn.close()
+
+
+def ws_write(db_path=None, path=None, content=None):
+    """Write a workspace file, creating it if needed. Replaces the whole file."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('ws_write',)); conn.commit()
+        except Exception:
+            pass
+        if path is None:
+            return {'ok': False, 'error': 'missing required parameter: path'}
+        if content is None:
+            return {'ok': False, 'error': 'missing required parameter: content'}
+        def _audit(conn, _tool, _svc, _detail):
+            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
+        if not str(path).endswith(('.py', '.md', '.txt', '.json', '.cfg')):
+            return {'ok': False, 'error': 'workspace files must be .py, .md, .txt, .json or .cfg'}
+        if len(str(content)) > 60000:
+            return {'ok': False, 'error': 'file too large (60000 char limit)'}
+        conn.execute('INSERT INTO workspace_files(path, content, seeded) VALUES (?,?,0) '
+                     'ON CONFLICT(path) DO UPDATE SET content=excluded.content, seeded=0',
+                     (path, str(content)))
+        _audit(conn, 'ws_write', '', {'path': path, 'chars': len(str(content))})
+        conn.commit()
+        return {'ok': True, 'path': path, 'bytes': len(str(content))}
+    finally:
+        conn.close()
+
+
+def ws_grep(db_path=None, needle=None, path=None):
+    """Search the workspace for a literal string and return the matching lines with their file and line number. Implemented in the tool rather than shelled out, because this world has a filesystem and deliberately no shell."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('ws_grep',)); conn.commit()
+        except Exception:
+            pass
+        if needle is None:
+            return {'ok': False, 'error': 'missing required parameter: needle'}
+        sql = 'SELECT path, content FROM workspace_files'
+        args = []
+        if path:
+            sql += ' WHERE path=?'; args.append(path)
+        out = []
+        for r in conn.execute(sql + ' ORDER BY path', args).fetchall():
+            for i, line in enumerate(r['content'].split(chr(10)), 1):
+                if str(needle) in line:
+                    out.append({'path': r['path'], 'line': i, 'text': line.strip()[:200]})
+        return out[:200]
+    finally:
+        conn.close()
+
+
+def ws_python(db_path=None, path=None):
+    """Run one workspace file with python3 and return its exit code, stdout and stderr. The whole workspace is materialised first, so imports between your files work. There is no shell: no pipes, no redirection, no arguments beyond the file, and nothing on PATH. Anything the program writes to the workspace directory is synced back."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('ws_python',)); conn.commit()
+        except Exception:
+            pass
+        if path is None:
+            return {'ok': False, 'error': 'missing required parameter: path'}
+        def _audit(conn, _tool, _svc, _detail):
+            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
+        import subprocess as _sp, tempfile as _tf, sys as _sys, os as _os
+        row = conn.execute('SELECT content FROM workspace_files WHERE path=?', (path,)).fetchone()
+        if row is None:
+            return {'ok': False, 'error': 'no such file: ' + str(path)}
+        if not str(path).endswith('.py'):
+            return {'ok': False, 'error': 'only .py files can be run'}
+        _d = _tf.mkdtemp(prefix='ws_')
+        _files = conn.execute('SELECT path, content FROM workspace_files').fetchall()
+        for _f in _files:
+            _p = _os.path.join(_d, _f['path'])
+            _os.makedirs(_os.path.dirname(_p), exist_ok=True) if _os.path.dirname(_p) else None
+            open(_p, 'w').write(_f['content'])
+        _timed = 0
+        try:
+            _r = _sp.run([_sys.executable, path], capture_output=True, text=True, timeout=20,
+                         cwd=_d, env={'PATH': '/usr/bin:/bin', 'PYTHONDONTWRITEBYTECODE': '1'})
+            _code, _out, _err = _r.returncode, _r.stdout, _r.stderr
+        except _sp.TimeoutExpired:
+            _code, _out, _err, _timed = 124, '', 'timed out after 20s', 1
+        # sync back anything the program created or changed
+        for _root, _dirs, _names in _os.walk(_d):
+            for _n in _names:
+                if not _n.endswith(('.py', '.md', '.txt', '.json', '.cfg')):
+                    continue
+                _full = _os.path.join(_root, _n)
+                _rel = _os.path.relpath(_full, _d)
+                try:
+                    _c = open(_full).read()
+                except Exception:
+                    continue
+                conn.execute('INSERT INTO workspace_files(path, content, seeded) VALUES (?,?,0) '
+                             'ON CONFLICT(path) DO UPDATE SET content=excluded.content',
+                             (_rel, _c))
+        conn.execute('INSERT INTO workspace_runs(path, exit_code, stdout, stderr, timed_out) '
+                     'VALUES (?,?,?,?,?)', (path, _code, _out[:4000], _err[:4000], _timed))
+        _audit(conn, 'ws_python', '', {'path': path, 'exit_code': _code})
+        conn.commit()
+        return {'ok': True, 'path': path, 'exit_code': _code,
+                'stdout': _out[:4000], 'stderr': _err[:4000], 'timed_out': bool(_timed)}
+    finally:
+        conn.close()
+
+
 def read_exercise(db_path=None, path=None):
     """Read a code exercise: its specification, the current contents of the file, and the visible tests. There are also hidden tests, which this never returns - an implementation that satisfies only the visible ones is not finished."""
     import sqlite3 as _sq

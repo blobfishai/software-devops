@@ -594,6 +594,114 @@ if conds:
 return [dict(r) for r in conn.execute(sql + ' ORDER BY from_service, to_target', args).fetchall()]""",
           reads=["network_paths"], writes=[], returns="list[dict]"))
 
+    T(_mk("ws_list",
+          "List the files in the workspace with their sizes. This is a real filesystem: "
+          "what you write here is what runs.",
+          [],
+          """\
+return [{'path': r['path'], 'bytes': len(r['content']), 'modified': r['seeded'] == 0}
+        for r in conn.execute('SELECT path, content, seeded FROM workspace_files '
+                              'ORDER BY path').fetchall()]""",
+          reads=["workspace_files"], writes=[], returns="list[dict]"))
+
+    T(_mk("ws_read",
+          "Read a workspace file.",
+          [{"name": "path", "type": "str", "required": True}],
+          """\
+row = conn.execute('SELECT content FROM workspace_files WHERE path=?', (path,)).fetchone()
+if row is None:
+    have = [r[0] for r in conn.execute('SELECT path FROM workspace_files ORDER BY path')]
+    return {'ok': False, 'error': 'no such file: ' + str(path), 'workspace': have}
+return {'path': path, 'content': row['content']}""",
+          reads=["workspace_files"], writes=[]))
+
+    T(_mk("ws_write",
+          "Write a workspace file, creating it if needed. Replaces the whole file.",
+          [{"name": "path", "type": "str", "required": True},
+           {"name": "content", "type": "str", "required": True}],
+          """\
+if not str(path).endswith(('.py', '.md', '.txt', '.json', '.cfg')):
+    return {'ok': False, 'error': 'workspace files must be .py, .md, .txt, .json or .cfg'}
+if len(str(content)) > 60000:
+    return {'ok': False, 'error': 'file too large (60000 char limit)'}
+conn.execute('INSERT INTO workspace_files(path, content, seeded) VALUES (?,?,0) '
+             'ON CONFLICT(path) DO UPDATE SET content=excluded.content, seeded=0',
+             (path, str(content)))
+_audit(conn, 'ws_write', '', {'path': path, 'chars': len(str(content))})
+conn.commit()
+return {'ok': True, 'path': path, 'bytes': len(str(content))}""",
+          reads=[], writes=["workspace_files", "audit_events"], snippets=[AUDIT_SNIPPET]))
+
+    T(_mk("ws_grep",
+          "Search the workspace for a literal string and return the matching lines with "
+          "their file and line number. Implemented in the tool rather than shelled out, "
+          "because this world has a filesystem and deliberately no shell.",
+          [{"name": "needle", "type": "str", "required": True},
+           {"name": "path", "type": "str", "default": None}],
+          """\
+sql = 'SELECT path, content FROM workspace_files'
+args = []
+if path:
+    sql += ' WHERE path=?'; args.append(path)
+out = []
+for r in conn.execute(sql + ' ORDER BY path', args).fetchall():
+    for i, line in enumerate(r['content'].split(chr(10)), 1):
+        if str(needle) in line:
+            out.append({'path': r['path'], 'line': i, 'text': line.strip()[:200]})
+return out[:200]""",
+          reads=["workspace_files"], writes=[], returns="list[dict]"))
+
+    T(_mk("ws_python",
+          "Run one workspace file with python3 and return its exit code, stdout and "
+          "stderr. The whole workspace is materialised first, so imports between your "
+          "files work. There is no shell: no pipes, no redirection, no arguments beyond "
+          "the file, and nothing on PATH. Anything the program writes to the workspace "
+          "directory is synced back.",
+          [{"name": "path", "type": "str", "required": True}],
+          """\
+import subprocess as _sp, tempfile as _tf, sys as _sys, os as _os
+row = conn.execute('SELECT content FROM workspace_files WHERE path=?', (path,)).fetchone()
+if row is None:
+    return {'ok': False, 'error': 'no such file: ' + str(path)}
+if not str(path).endswith('.py'):
+    return {'ok': False, 'error': 'only .py files can be run'}
+_d = _tf.mkdtemp(prefix='ws_')
+_files = conn.execute('SELECT path, content FROM workspace_files').fetchall()
+for _f in _files:
+    _p = _os.path.join(_d, _f['path'])
+    _os.makedirs(_os.path.dirname(_p), exist_ok=True) if _os.path.dirname(_p) else None
+    open(_p, 'w').write(_f['content'])
+_timed = 0
+try:
+    _r = _sp.run([_sys.executable, path], capture_output=True, text=True, timeout=20,
+                 cwd=_d, env={'PATH': '/usr/bin:/bin', 'PYTHONDONTWRITEBYTECODE': '1'})
+    _code, _out, _err = _r.returncode, _r.stdout, _r.stderr
+except _sp.TimeoutExpired:
+    _code, _out, _err, _timed = 124, '', 'timed out after 20s', 1
+# sync back anything the program created or changed
+for _root, _dirs, _names in _os.walk(_d):
+    for _n in _names:
+        if not _n.endswith(('.py', '.md', '.txt', '.json', '.cfg')):
+            continue
+        _full = _os.path.join(_root, _n)
+        _rel = _os.path.relpath(_full, _d)
+        try:
+            _c = open(_full).read()
+        except Exception:
+            continue
+        conn.execute('INSERT INTO workspace_files(path, content, seeded) VALUES (?,?,0) '
+                     'ON CONFLICT(path) DO UPDATE SET content=excluded.content',
+                     (_rel, _c))
+conn.execute('INSERT INTO workspace_runs(path, exit_code, stdout, stderr, timed_out) '
+             'VALUES (?,?,?,?,?)', (path, _code, _out[:4000], _err[:4000], _timed))
+_audit(conn, 'ws_python', '', {'path': path, 'exit_code': _code})
+conn.commit()
+return {'ok': True, 'path': path, 'exit_code': _code,
+        'stdout': _out[:4000], 'stderr': _err[:4000], 'timed_out': bool(_timed)}""",
+          reads=["workspace_files"],
+          writes=["workspace_files", "workspace_runs", "audit_events"],
+          snippets=[AUDIT_SNIPPET]))
+
     T(_mk("read_exercise",
           "Read a code exercise: its specification, the current contents of the file, and "
           "the visible tests. There are also hidden tests, which this never returns - an "

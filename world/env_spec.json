@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_3f1d5e2a",
+  "env_id": "env_software_devops_14aaedd7",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -20,17 +20,17 @@
   },
   "database": {
     "snapshot_ref": "environment.db",
-    "schema_hash": "85aebbcaa255ec26ba390cbbbee102c074e7578e88799dbe4e20c4781db9807e",
+    "schema_hash": "d848ec3ef716fa6957c10eb7d215bab6595d6bed7891d69946635820f008315a",
     "seed": 42,
     "engine": "sqlite",
-    "table_count": 69,
-    "row_count": 1405,
+    "table_count": 71,
+    "row_count": 1409,
     "complexification_rounds": 0
   },
   "tools": {
     "manifest_ref": "",
     "tests_ref": "",
-    "tool_count": 90,
+    "tool_count": 95,
     "survival_rate": 1.0,
     "valid_tool_ids": [
       "tool_list_services",
@@ -119,6 +119,11 @@
       "tool_list_db_grants",
       "tool_get_runtime_stats",
       "tool_check_network_path",
+      "tool_ws_list",
+      "tool_ws_read",
+      "tool_ws_write",
+      "tool_ws_grep",
+      "tool_ws_python",
       "tool_read_exercise",
       "tool_write_implementation",
       "tool_run_exercise_tests",
@@ -213,6 +218,11 @@
       "tool_list_db_grants",
       "tool_get_runtime_stats",
       "tool_check_network_path",
+      "tool_ws_list",
+      "tool_ws_read",
+      "tool_ws_write",
+      "tool_ws_grep",
+      "tool_ws_python",
       "tool_read_exercise",
       "tool_write_implementation",
       "tool_run_exercise_tests",
@@ -313,6 +323,7 @@
     "tsk_port_close_blocked_issues",
     "tsk_port_count_open_priority",
     "tsk_port_count_inflight_work",
+    "tsk_ws_ledger_missing_account",
     "tsk_attr_three_at_once",
     "tsk_localize_analytics_crashloop",
     "tsk_rcn_running_version",
@@ -389,8 +400,8 @@
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 160,
-    "accepted_task_count": 160,
+    "task_count": 161,
+    "accepted_task_count": 161,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -400,8 +411,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 160,
-    "discriminating_vcode_tasks": 160,
+    "total_tasks": 161,
+    "discriminating_vcode_tasks": 161,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,

@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_3f1d5e2a",
+  "world_id": "env_software_devops_14aaedd7",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "3f1d5e2ad5249279fb747cdd56aca409a0b9a2f1d8fc14fc1e06cf9460aaae48",
+  "world_digest": "14aaedd72912969539187e6ce653171f75541d53d7252d469a24d2b318e9016b",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -79,21 +79,23 @@
     "tool_calls",
     "traffic_profile",
     "versions",
-    "vulnerabilities"
+    "vulnerabilities",
+    "workspace_files",
+    "workspace_runs"
   ],
   "tables_without_tools": [],
   "counts": {
-    "tables": 69,
-    "rows": 1405,
-    "tools": 90,
-    "tasks": 160,
+    "tables": 71,
+    "rows": 1409,
+    "tools": 95,
+    "tasks": 161,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
     "documents": 30
   },
   "difficulty": {
-    "hard": 51,
+    "hard": 52,
     "medium": 51,
     "expert": 46,
     "easy": 12
@@ -111,6 +113,7 @@
     "aiops_analysis": 17,
     "code_implementation": 4,
     "cross_system": 8,
+    "workspace": 1,
     "attribution": 13,
     "reconciliation": 7,
     "judgement": 4,
@@ -243,7 +246,8 @@
       "tsk_w5_attr_media_api_payments",
       "tsk_w5_attr_media_catalog_payments",
       "tsk_w5_attr_media_checkout_analytics",
-      "tsk_w5_attr_media_checkout_payments"
+      "tsk_w5_attr_media_checkout_payments",
+      "tsk_ws_ledger_missing_account"
     ],
     "heldout": [
       "tsk_cve_requests",
@@ -283,7 +287,7 @@
     ]
   },
   "task_creation": {
-    "accepted": 160,
+    "accepted": 161,
     "rejected": 0
   },
   "personas": [

@@ -348,6 +348,33 @@ CREATE TABLE network_paths (
     observed_day INTEGER NOT NULL,
     note TEXT NOT NULL DEFAULT ''
 );
+-- A real filesystem the agent can write to, and real execution over it.
+--
+-- The coverage matrix said terminal-bench was structurally out of reach because
+-- this world has no shell. That conflated two things: an arbitrary shell, which
+-- this world should not have, and a workspace with files and a way to run them,
+-- which it can. Files live here; ws_python materialises them into a temp
+-- directory, runs one of them in a fresh interpreter under a timeout, and syncs
+-- back whatever the program wrote.
+--
+-- There is deliberately no shell: no pipes, no redirection, no metacharacters,
+-- no PATH lookup. ls, cat and grep are implemented in the tool layer rather than
+-- shelled out, so the only thing that ever executes is a Python file the agent
+-- wrote. That is the whole capability terminal-bench tasks need and none of the
+-- surface an arbitrary shell would add.
+CREATE TABLE workspace_files (
+    path TEXT PRIMARY KEY,
+    content TEXT NOT NULL,
+    seeded INTEGER NOT NULL DEFAULT 1   -- 0 once the agent has written it
+);
+CREATE TABLE workspace_runs (
+    run_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    path TEXT NOT NULL,
+    exit_code INTEGER NOT NULL,
+    stdout TEXT NOT NULL DEFAULT '',
+    stderr TEXT NOT NULL DEFAULT '',
+    timed_out INTEGER NOT NULL DEFAULT 0
+);
 -- the mapping that makes the naming chaos SOLVABLE rather than cruel (F5)
 CREATE TABLE service_aliases (
     canonical TEXT NOT NULL,
@@ -853,4 +880,50 @@ NETWORK_PATHS = [
      'connection refused at the transport layer, not a timeout: a network policy '
      'applied on day 418 drops egress from the analytics namespace to the replica'),
     (9957, 'media-service', 's3-assets', 'open', 419, ''),
+]
+
+
+# The workspace a terminal-shaped task starts from. Small on purpose: the point
+# is that the agent reads what is there, works out what is wrong, and runs it.
+WORKSPACE_FILES = [
+    ("README.md",
+     "# ledger\n\nA tiny double-entry ledger used by the finance export.\n\n"
+     "`ledger.py` is the library. `check.py` is the acceptance check finance runs\n"
+     "before they trust an export; it must exit 0.\n"),
+    ("ledger.py",
+     '"""A tiny double-entry ledger."""\n\n\n'
+     "def post(entries):\n"
+     '    """Sum a list of (account, amount_cents) into a balance per account.\n\n'
+     "    A ledger balances when every posting is accounted for and the total is\n"
+     "    zero. Amounts are integer cents; never use floats for money.\n"
+     '    """\n'
+     "    balances = {}\n"
+     "    for account, amount in entries:\n"
+     "        balances[account] = balances.get(account, 0) + amount\n"
+     "    return balances\n\n\n"
+     "def is_balanced(entries):\n"
+     '    """True when the postings sum to zero."""\n'
+     "    return sum(amount for _, amount in entries) == 0\n\n\n"
+     "def net(entries, account):\n"
+     '    """The net movement on one account."""\n'
+     "    return post(entries)[account]\n"),
+    ("check.py",
+     '"""Acceptance check. Exits 0 when the ledger behaves as finance expects."""\n'
+     "import ledger\n\n"
+     "CASES = [\n"
+     "    ([('cash', 1000), ('revenue', -1000)], True),\n"
+     "    ([('cash', 1000), ('revenue', -999)], False),\n"
+     "    ([], True),\n"
+     "]\n\n"
+     "def main():\n"
+     "    for entries, expected in CASES:\n"
+     "        got = ledger.is_balanced(entries)\n"
+     "        assert got == expected, 'is_balanced(%r) == %r, expected %r' % (\n"
+     "            entries, got, expected)\n"
+     "    assert ledger.net([('cash', 500), ('cash', -200)], 'cash') == 300\n"
+     "    # finance also needs an account that never appears to read as zero,\n"
+     "    # rather than raising - the export iterates every account in the chart\n"
+     "    assert ledger.net([('cash', 500), ('cash', -500)], 'vat') == 0\n"
+     "    print('OK')\n\n"
+     "main()\n"),
 ]

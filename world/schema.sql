@@ -546,4 +546,17 @@ CREATE TABLE vulnerabilities (
     fixed_version TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'open'
 );
+CREATE TABLE workspace_files (
+    path TEXT PRIMARY KEY,
+    content TEXT NOT NULL,
+    seeded INTEGER NOT NULL DEFAULT 1   -- 0 once the agent has written it
+);
+CREATE TABLE workspace_runs (
+    run_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    path TEXT NOT NULL,
+    exit_code INTEGER NOT NULL,
+    stdout TEXT NOT NULL DEFAULT '',
+    stderr TEXT NOT NULL DEFAULT '',
+    timed_out INTEGER NOT NULL DEFAULT 0
+);
 DELETE FROM "sqlite_sequence";

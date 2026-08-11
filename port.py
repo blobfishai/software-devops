@@ -47,6 +47,8 @@ REPOS = ROOT / "research" / "repos" / "evals"
 # saying so is the point of the table.
 # ---------------------------------------------------------------------------
 SUBSTITUTES = {
+    "workspace": ("workspace_files + real python execution",
+                  ["ws_list", "ws_read", "ws_write", "ws_grep", "ws_python"]),
     "gitlab": ("github_issues + pull_requests + repo_files",
                ["github_list_issues", "list_issue_links", "open_pull_request",
                 "merge_pull_request", "list_commits", "read_file"]),
@@ -61,8 +63,31 @@ SUBSTITUTES = {
 }
 # Systems with no counterpart here, and no plan to build one. Naming them keeps
 # "not portable" from sounding like "not yet".
+# A workspace with files and Python execution now exists (ws_list, ws_read,
+# ws_write, ws_grep, ws_python), so "terminal" is no longer a single blocker. A
+# task that reads code, edits it and runs it is portable. A task that needs a
+# real shell - package installs, containers, compilers, network, pipes - is not,
+# and this world should not grow one.
+# Blacklisting what a shell can do is the wrong way round - the list is endless
+# and every miss inflates the portable count. The workspace can do exactly four
+# things: hold text files, read them, write them, and run ONE of them with
+# python3 using the standard library. So a task is portable only if it looks like
+# that work, and everything else is not.
+WORKSPACE_SHAPED = re.compile(
+    r"\b(implement|write a (function|script|program|module)|fix the|debug|"
+    r"the function|refactor|complete the implementation|make the tests? pass|"
+    r"parse|compute|calculate|algorithm)\b", re.I)
+# ...and even then, any of these means it needs more than the workspace has.
+BEYOND_WORKSPACE = re.compile(
+    r"(apt|apt-get|yum|brew|docker|podman|kubectl|systemctl|\bmake\b|cmake|gcc|g\+\+|"
+    r"cargo|\bnpm\b|yarn|\bpip\b|conda|virtualenv|\bvenv\b|curl |wget |ssh |sudo |"
+    r"chmod|chown|setfacl|\bACL\b|tar |unzip|\.sh\b|bash|/bin/|localhost:|"
+    r"\binstall\b|\bclone\b|\bbuild\b|\bcompile\b|\bserver\b|\bendpoint\b|"
+    r"\.(c|cpp|rs|go|java)\b|\bmodel\b|\bGPU\b|\bCUDA\b)", re.I)
+
 NO_SUBSTITUTE = {
-    "terminal": "no shell, no filesystem, no processes",
+    "shell": "package installs, containers, compilers and networking, which this "
+             "world deliberately does not have",
     "browser": "no rendering surface and no DOM",
     "desktop": "no window server",
     "kubernetes-live": "a real cluster to mutate, not a modelled one",
@@ -123,13 +148,16 @@ def adapt_terminalbench(repo):
     for d in sorted(p for p in root.iterdir() if p.is_dir()):
         y = _read(d / "task.yaml")
         m = re.search(r"instruction:\s*\|(.*?)(?=\n\w|\Z)", y, re.S)
+        body = (m.group(1).strip() if m else "")
         out.append(SourceTask({
             "source_repo": "terminal-bench",
             "source_path": str(d.relative_to(ROOT)),
             "id": d.name,
             "family": "terminal",
-            "instruction": (m.group(1).strip() if m else "")[:600],
-            "systems": ["terminal"],
+            "instruction": body[:600],
+            "systems": (["workspace"]
+                        if WORKSPACE_SHAPED.search(body) and not BEYOND_WORKSPACE.search(body)
+                        else ["shell"]),
             "workflow_steps": None,
             "points": None,
             "has_verifier": any((d / n).exists() for n in ("tests", "run-tests.sh")),
@@ -233,10 +261,11 @@ def classify(task):
     if blocked:
         return "not_portable", "; ".join("%s: %s" % (s, NO_SUBSTITUTE[s]) for s in blocked)
 
-    if NEEDS_SHELL.search(task.get("instruction", "")):
+    if "workspace" not in systems and NEEDS_SHELL.search(task.get("instruction", "")):
         m = NEEDS_SHELL.search(task["instruction"])
         return "not_portable", ("needs a shell or filesystem (%r in the instruction); "
-                                "this world has neither" % m.group(0).strip())
+                                "this task's declared systems do not include the "
+                                "workspace" % m.group(0).strip())
 
     unknown = [s for s in systems if s not in SUBSTITUTES and s != "modelled-cluster"]
     if unknown:
@@ -283,6 +312,10 @@ def main():
 
     portable = [t for t in manifest if t.portable]
     print("SUBSTRATE EXISTS (not yet ported): %d" % len(portable))
+    print("  This is read off instruction TEXT and is an upper bound, not a verdict.")
+    print("  The terminal-bench figure moved from 156 to 19 in one sitting purely by")
+    print("  reading eight instructions at random - they need C compilers, virtualenvs,")
+    print("  pip and network services. Any number here is a queue to check, not a claim.")
     by_family = {}
     for t in portable:
         by_family.setdefault((t["source_repo"], t["family"]), []).append(t)
