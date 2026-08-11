@@ -182,16 +182,25 @@ def main(paths):
     # "sometimes" is the only direct evidence of where capability runs out. The
     # tasks worth spending repeats on are the near misses in both directions:
     # failures that almost passed, and passes that almost failed.
+    # PF is binary over correctness and deployment only, so nearness to the PF
+    # boundary is measured in those two dimensions. Ranking by PC instead filled
+    # this list with tasks that passed and merely lost a quality check - not near
+    # the boundary at all, since quality cannot flip a pass into a fail.
     near = []
     for t in scored:
-        pc = t.get("score") or 0.0
-        if not t.get("passed") and pc >= 0.75:
-            near.append((pc, t["task_id"], "failed at PC %.2f" % pc))
-        elif t.get("passed") and pc < 1.0:
-            near.append((pc, t["task_id"], "passed at PC %.2f" % pc))
+        fr = t.get("dimension_fractions") or {}
+        pf_frac = [fr[d] for d in ("correctness", "deployment") if d in fr]
+        if not pf_frac:
+            continue
+        m = sum(pf_frac) / len(pf_frac)
+        if not t.get("passed") and m >= 0.8:
+            near.append((m, t["task_id"],
+                         "failed with correctness+deployment at %.0f%%" % (100 * m)))
     if near:
         near.sort(reverse=True)
-        print("\nboundary candidates - run these with repeats to look for a FLAKY band:")
+        print("\nboundary candidates - failures that nearly cleared correctness and "
+              "deployment.\nRun these with repeats: a task that passes sometimes and "
+              "fails others is the\nonly direct evidence of where capability runs out.")
         for pc, tid, why in near[:12]:
             print("  %-42s %s" % (tid, why))
         ids = " ".join("--task %s" % t for _, t, _ in near[:12])
