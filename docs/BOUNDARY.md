@@ -308,6 +308,15 @@ Boundary candidates re-run 3 times each against deepseek-v4-pro, with `--all-att
 | `tsk_payments_retry` | **TOO_HARD** | 0/3 | 0.87 |
 | `tsk_rcn_customer_facing_incidents` | **TOO_HARD** | 0/3 | 0.86 |
 
+| k | pass^k |
+|---|---|
+| 1 | 0.278 |
+| 2 | 0.111 |
+| 3 | 0.000 |
+
+A 28% single-attempt rate is **0% when consistency is required**: not one boundary task passed all 3 attempts. That is the whole argument for the metric — a pass rate averages away the difference between a model that can do something and a model that can do it reliably, and on the tasks that sit at the edge those are not the same claim.
+
+
 **3 of 6 candidates are FLAKY** — the same model, the same task, the same prompt, passing on some attempts and failing on others. That band is the point: a task nobody can pass measures nothing, a task everybody passes measures nothing, and a task that goes both ways is measuring exactly where capability runs out.
 
 

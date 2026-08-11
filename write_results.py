@@ -234,6 +234,36 @@ def band_section(cal_reports):
          "| task | bucket | passes | mean PC |", "|---|---|---|---|"]
     for bucket, tid, passes, n, pc in rows:
         L.append("| `%s` | **%s** | %d/%d | %.2f |" % (tid, bucket, passes, n, pc or 0))
+    # tau-bench reliability: the chance ALL k independent attempts succeed. A single
+    # pass rate cannot express "sometimes", and sometimes is what these tasks do.
+    import math
+
+    def phk(c, n, k):
+        return math.comb(c, k) / math.comb(n, k) if k <= n else None
+
+    ks = sorted({r[3] for r in rows})
+    series = []
+    if ks and max(ks) > 1:
+        L += ["", "| k | pass^k |", "|---|---|"]
+        for k in range(1, max(ks) + 1):
+            vals = [v for v in (phk(r[2], r[3], k) for r in rows) if v is not None]
+            if vals:
+                series.append(sum(vals) / len(vals))
+                L.append("| %d | %.3f |" % (k, series[-1]))
+        L.append("")
+        if series and series[-1] == 0.0 and series[0] > 0:
+            L += ["A %.0f%% single-attempt rate is **%.0f%% when consistency is "
+                  "required**: not one boundary task passed all %d attempts. That is "
+                  "the whole argument for the metric — a pass rate averages away the "
+                  "difference between a model that can do something and a model that "
+                  "can do it reliably, and on the tasks that sit at the edge those are "
+                  "not the same claim."
+                  % (100 * series[0], 100 * series[-1], max(ks)), ""]
+        elif series:
+            L += ["pass^k falls from %.3f to %.3f across k, so reliability degrades with "
+                  "repetition rather than the score being a stable property of the task."
+                  % (series[0], series[-1]), ""]
+
     flaky = buckets.get("FLAKY", 0)
     L += ["",
           "**%d of %d candidates are FLAKY** — the same model, the same task, the same "
