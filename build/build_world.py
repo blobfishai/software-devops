@@ -48,7 +48,7 @@ FROZEN = ("oncall", "slos", "metric_rules", "documents", "channels", "logs",
           "prom_series", "sentry_issues", "sentry_projects", "pd_services",
           "pd_incidents", "pd_oncall", "pd_change_events", "status_page_posts",
           "confluence_pages", "owner_spreadsheet", "local_deploy_log",
-          "service_aliases", "k8s_events", "k8s_pods", "k8s_nodes", "remediation_proposals", "alert_rules", "alert_firings", "alert_silences", "approval_policy")
+          "service_aliases", "k8s_events", "k8s_pods", "k8s_nodes", "k8s_deployments", "remediation_proposals", "alert_rules", "alert_firings", "alert_silences", "approval_policy")
 # traffic_profile is legitimately updated by shift_endpoint_traffic, so only its
 # row count is pinned; the rest may not gain or lose rows either.
 FIXED_ROWS = ("services", "tests_catalog", "vulnerabilities", "repo_files",
@@ -159,6 +159,8 @@ def build_db(db_path):
     conn.executemany("INSERT INTO k8s_nodes(node, ready, condition, message, cpu_used_pct, "
                      "disk_used_pct, labels, kernel_version) VALUES (?,?,?,?,?,?,?,?)",
                      V.K8S_NODES)
+    conn.executemany("INSERT INTO k8s_deployments(service, desired_replicas, ready_replicas, "
+                     "strategy, storage_class) VALUES (?,?,?,?,?)", V.K8S_DEPLOYMENTS)
     conn.executemany("INSERT INTO k8s_events(event_id, namespace, pod, reason, message, "
                      "count, day) VALUES (?,?,?,?,?,?,?)", V.K8S_EVENTS)
     conn.executemany("INSERT INTO local_deploy_log(service, version, environment, day, "

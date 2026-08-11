@@ -480,6 +480,30 @@ _add("aiops_analysis", "analysis", id="rca_inventory_migrator_security_context",
      ticket=("OPS-128", "high", "Root cause: inventory counts disagree with the database"))
 
 
+_add("aiops_analysis", "analysis", id="rca_checkout_unschedulable_replicas",
+     scope="checkout-capacity-shortfall", service="checkout", fault_type="misconfig",
+     offending_key="desired_replicas", difficulty="expert", budget=14,
+     evidence="the checkout deployment declares 64 desired replicas and has 6 ready; the "
+              "58 that cannot be admitted are Pending with '4 Insufficient cpu' and no node "
+              "in the cluster has the capacity, so the shortfall is in the requested replica "
+              "count rather than in the cluster or the service",
+     extra_reads=[{"tool": "k8s_deployments_list", "args": {"degraded_only": True}},
+                  {"tool": "k8s_pods_list", "args": {"service": "checkout"}},
+                  {"tool": "k8s_nodes_list", "args": {}}],
+     ticket=("OPS-129", "high", "Root cause: checkout is running at a fraction of capacity"))
+
+_add("aiops_analysis", "analysis", id="rca_inventory_unbound_storage",
+     scope="inventory-replica-missing", service="inventory", fault_type="misconfig",
+     offending_key="fast-ssd-gp4", difficulty="expert", budget=14,
+     evidence="the inventory deployment asks for storage class fast-ssd-gp4, which does not "
+              "exist in this cluster, so inventory-7f3c-cc42 sits Pending on an unbound "
+              "PersistentVolumeClaim and one of two replicas was never admitted; nothing "
+              "crashed, and the running replica looks entirely healthy",
+     extra_reads=[{"tool": "k8s_deployments_list", "args": {"service": "inventory"}},
+                  {"tool": "k8s_pods_list", "args": {"service": "inventory"}}],
+     ticket=("OPS-130", "high", "Root cause: inventory is one replica short"))
+
+
 # ==========================================================================
 # Reconciliation suite — questions no single system can answer, over data that
 # disagrees. Every scenario cites research/notes/domain/F_chaos_scenarios.md.

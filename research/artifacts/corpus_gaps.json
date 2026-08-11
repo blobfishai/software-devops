@@ -1,30 +1,8 @@
 [
   {
     "kind": "task",
-    "id": "aiopslab_gap__assign_to_non_existent_node_social_net",
-    "claim": "The world does not instantiate the AIOpsLab fault family 'assign_to_non_existent_node_social_net', which appears in its PROBLEM_REGISTRY crossed with analysis/detection/localization/mitigation. Adding it would extend fault coverage into a mechanism we currently cannot express.",
-    "evidence": [
-      {
-        "path": "research/notes/evals/microsoft__AIOpsLab.md",
-        "quote": "PROBLEM_REGISTRY"
-      }
-    ]
-  },
-  {
-    "kind": "task",
     "id": "aiopslab_gap__astronomy_shop_ad_service_failure",
     "claim": "The world does not instantiate the AIOpsLab fault family 'astronomy_shop_ad_service_failure', which appears in its PROBLEM_REGISTRY crossed with detection/localization. Adding it would extend fault coverage into a mechanism we currently cannot express.",
-    "evidence": [
-      {
-        "path": "research/notes/evals/microsoft__AIOpsLab.md",
-        "quote": "PROBLEM_REGISTRY"
-      }
-    ]
-  },
-  {
-    "kind": "task",
-    "id": "aiopslab_gap__astronomy_shop_ad_service_high_cpu",
-    "claim": "The world does not instantiate the AIOpsLab fault family 'astronomy_shop_ad_service_high_cpu', which appears in its PROBLEM_REGISTRY crossed with detection/localization. Adding it would extend fault coverage into a mechanism we currently cannot express.",
     "evidence": [
       {
         "path": "research/notes/evals/microsoft__AIOpsLab.md",
@@ -122,17 +100,6 @@
   },
   {
     "kind": "task",
-    "id": "aiopslab_gap__disk_woreout",
-    "claim": "The world does not instantiate the AIOpsLab fault family 'disk_woreout', which appears in its PROBLEM_REGISTRY crossed with detection/localization. Adding it would extend fault coverage into a mechanism we currently cannot express.",
-    "evidence": [
-      {
-        "path": "research/notes/evals/microsoft__AIOpsLab.md",
-        "quote": "PROBLEM_REGISTRY"
-      }
-    ]
-  },
-  {
-    "kind": "task",
     "id": "aiopslab_gap__flower_model_misconfig",
     "claim": "The world does not instantiate the AIOpsLab fault family 'flower_model_misconfig', which appears in its PROBLEM_REGISTRY crossed with detection. Adding it would extend fault coverage into a mechanism we currently cannot express.",
     "evidence": [
@@ -155,52 +122,8 @@
   },
   {
     "kind": "task",
-    "id": "aiopslab_gap__kernel_fault_hotel_reservation",
-    "claim": "The world does not instantiate the AIOpsLab fault family 'kernel_fault_hotel_reservation', which appears in its PROBLEM_REGISTRY crossed with detection/localization. Adding it would extend fault coverage into a mechanism we currently cannot express.",
-    "evidence": [
-      {
-        "path": "research/notes/evals/microsoft__AIOpsLab.md",
-        "quote": "PROBLEM_REGISTRY"
-      }
-    ]
-  },
-  {
-    "kind": "task",
     "id": "aiopslab_gap__operator_invalid_affinity_toleration",
     "claim": "The world does not instantiate the AIOpsLab fault family 'operator_invalid_affinity_toleration', which appears in its PROBLEM_REGISTRY crossed with detection/localization. Adding it would extend fault coverage into a mechanism we currently cannot express.",
-    "evidence": [
-      {
-        "path": "research/notes/evals/microsoft__AIOpsLab.md",
-        "quote": "PROBLEM_REGISTRY"
-      }
-    ]
-  },
-  {
-    "kind": "task",
-    "id": "aiopslab_gap__operator_non_existent_storage",
-    "claim": "The world does not instantiate the AIOpsLab fault family 'operator_non_existent_storage', which appears in its PROBLEM_REGISTRY crossed with detection/localization. Adding it would extend fault coverage into a mechanism we currently cannot express.",
-    "evidence": [
-      {
-        "path": "research/notes/evals/microsoft__AIOpsLab.md",
-        "quote": "PROBLEM_REGISTRY"
-      }
-    ]
-  },
-  {
-    "kind": "task",
-    "id": "aiopslab_gap__operator_overload_replicas",
-    "claim": "The world does not instantiate the AIOpsLab fault family 'operator_overload_replicas', which appears in its PROBLEM_REGISTRY crossed with detection/localization. Adding it would extend fault coverage into a mechanism we currently cannot express.",
-    "evidence": [
-      {
-        "path": "research/notes/evals/microsoft__AIOpsLab.md",
-        "quote": "PROBLEM_REGISTRY"
-      }
-    ]
-  },
-  {
-    "kind": "task",
-    "id": "aiopslab_gap__operator_security_context_fault",
-    "claim": "The world does not instantiate the AIOpsLab fault family 'operator_security_context_fault', which appears in its PROBLEM_REGISTRY crossed with detection/localization. Adding it would extend fault coverage into a mechanism we currently cannot express.",
     "evidence": [
       {
         "path": "research/notes/evals/microsoft__AIOpsLab.md",

@@ -19,7 +19,7 @@ Agents solve long-horizon workflows: **investigate → PR → CI (build · unit 
 integration · regression) → merge → migrate → staging → canary → promote →
 observe → resolve → close the ticket.**
 
-**80 tasks**, graded on both
+**82 tasks**, graded on both
 Horizon-SWE-PF (binary) and Horizon-SWE-PC (composite).
 
 The same world also hosts a second suite that reproduces the use case of
@@ -59,13 +59,13 @@ See [docs/AIOPSLAB.md](docs/AIOPSLAB.md).
   corruption families (no-op, wrong-target, partial-completion, over-repair,
   zero-tool-call) at 1.000 recall.
 
-## The 80 tasks
+## The 82 tasks
 
 | Category | Tasks | Examples |
 |---|---|---|
 | error-rate reduction | 8 | missing retries, undersized pool, unbounded queue prefetch, no SMTP timeout |
 | latency optimization | 8 | disabled query cache, N+1 pricing loop, CDN bypass, SEV1 rollback |
-| root-cause analysis | 8 | mechanism *and* offending key, including four node-level faults |
+| root-cause analysis | 10 | mechanism *and* offending key, including four node-level faults |
 | feature flag | 7 | dark ship at 10%, ship behind a migration, kill switch, stale-flag cleanup |
 | security incident | 7 | four CVE patches, two exposed endpoints, hardcoded credential in source |
 | API migration | 7 | deprecate -> drain <=50pp/step -> retire, incl. consumer contract migration |
@@ -77,7 +77,7 @@ See [docs/AIOPSLAB.md](docs/AIOPSLAB.md).
 | judgement | 4 | choose between four plausible remediations, three of which treat the symptom |
 | human-gated | 1 | the change needs an approval that is not granted on request |
 
-65 train / 15 heldout, split per category. Difficulty: 2 easy, 29 medium, 26 hard, 23 expert.
+67 train / 15 heldout, split per category. Difficulty: 2 easy, 29 medium, 26 hard, 25 expert.
 
 ## Instruction design: outcomes, not procedure
 
@@ -88,7 +88,7 @@ rule, "fix don't quarantine", the audit-note and status-page requirements — is
 never in the prompt. It lives in the knowledge base, and the agent has to go
 find it. Deviating from a policy it never read still fails the verifier.
 
-Measured across all 80 tasks, the default prompt contains the exact config key
+Measured across all 82 tasks, the default prompt contains the exact config key
 **0** times, the target value **0** times, a runbook title **0** times, and any
 workflow instruction **0** times. Every policy removed from the prompts is
 verifiably present in the knowledge base, so the tasks stay solvable by
@@ -118,7 +118,7 @@ failure mode damages.
 | `no_verify` | ships the fix but never checks, resolves or closes anything |
 | `shortcut` | quarantines flaky tests; blames whichever service the alarm names |
 
-PF pass rate by category (80 tasks):
+PF pass rate by category (82 tasks):
 
 ```
                           oracle    naive  merged_only  no_verify  shortcut
@@ -210,7 +210,7 @@ verifier, reporting both Horizon-style numbers:
 ```
   tsk_payments_retry     hard   PASS  score=1.00  corr 7/7 depl 4/4 qual 5/5  calls=14
   ...
-  Horizon-SWE-PF  (pass rate, correctness+deployment must be perfect) : 100.0%  (80/80)
+  Horizon-SWE-PF  (pass rate, correctness+deployment must be perfect) : 100.0%  (82/82)
   Horizon-SWE-PC  (0.6 correctness / 0.3 deployment / 0.1 quality)     : 100.0
 
   by category:
@@ -235,7 +235,7 @@ curl -s -XPOST localhost:8080/sessions/$SID/verify \
 ### Drive it over MCP
 
 `POST /mcp` (JSON-RPC 2.0: `initialize`, `tools/list`, `tools/call`), with the
-session pinned via the `Mcp-Session-Id` header. Alongside the 83 world tools,
+session pinned via the `Mcp-Session-Id` header. Alongside the 84 world tools,
 the server exposes the blobfish meta-tools: `world_info`, `task_list`,
 `task_start`, `task_verify`, `episode_abort`. Episode lifecycle:
 `task_start` → world tool calls → `task_verify` (binary reward, no judge).

@@ -207,6 +207,13 @@ CREATE TABLE jira_issues (
     created_day INTEGER NOT NULL,
     updated_day INTEGER NOT NULL
 );
+CREATE TABLE k8s_deployments (
+    service TEXT PRIMARY KEY,
+    desired_replicas INTEGER NOT NULL,
+    ready_replicas INTEGER NOT NULL,
+    strategy TEXT NOT NULL DEFAULT 'RollingUpdate',
+    storage_class TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE k8s_events (
     event_id INTEGER PRIMARY KEY,
     namespace TEXT NOT NULL,

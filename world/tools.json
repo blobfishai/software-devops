@@ -4056,6 +4056,51 @@
     }
   },
   {
+    "tool_id": "tool_k8s_deployments_list",
+    "name": "k8s_deployments_list",
+    "description": "List deployments with desired vs ready replica counts, rollout strategy and storage class. A deployment whose spec the cluster cannot satisfy - more replicas than fit, or a storageClassName that does not exist - reports no error of its own: the workload is simply not there, and the shortfall exists only as the gap between desired and ready.",
+    "source_code": "def k8s_deployments_list(db_path=None, service=None, degraded_only=False):\n    \"\"\"List deployments with desired vs ready replica counts, rollout strategy and storage class. A deployment whose spec the cluster cannot satisfy - more replicas than fit, or a storageClassName that does not exist - reports no error of its own: the workload is simply not there, and the shortfall exists only as the gap between desired and ready.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('k8s_deployments_list',)); conn.commit()\n        except Exception:\n            pass\n        sql = 'SELECT * FROM k8s_deployments'\n        conds, args = [], []\n        if service:\n            conds.append('service=?'); args.append(service)\n        if str(degraded_only).lower() in ('1', 'true', 'yes', 'on'):\n            conds.append('ready_replicas < desired_replicas')\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY service', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "service",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "service"
+      },
+      {
+        "name": "degraded_only",
+        "type": "bool",
+        "required": false,
+        "default": "False",
+        "description": "degraded_only"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "k8s_deployments"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "k8s_deployments_list",
+      "description": "List deployments with desired vs ready replica counts, rollout strategy and storage class. A deployment whose spec the cluster cannot satisfy - more replicas than fit, or a storageClassName that does not exist - reports no error of its own: the workload is simply not there, and the shortfall exists only as the gap between desired and ready.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "service"
+          },
+          "degraded_only": {
+            "type": "boolean",
+            "description": "degraded_only"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
     "tool_id": "tool_submit_answer",
     "name": "submit_answer",
     "description": "Submit the answer to a reconciliation question. `sources` must list every system you actually consulted (e.g. pd_incidents, status_page_posts). `assumptions` is where you record any judgement you had to make - a week boundary, whether rollbacks count, which of two disagreeing numbers you trusted and why. An answer with no stated assumption on an ambiguous question is not a complete answer.",

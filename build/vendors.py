@@ -279,6 +279,18 @@ CREATE TABLE k8s_nodes (
     labels TEXT NOT NULL DEFAULT '',
     kernel_version TEXT NOT NULL DEFAULT ''
 );
+-- AIOpsLab's operator_misoperation family is a declared spec that the cluster
+-- cannot satisfy: replicas: 100000, or a storageClassName that does not exist
+-- (inject_operator.py). The symptom is always the same and always misleading -
+-- the workload is simply not there - so the only way to tell "it crashed" from
+-- "it was never admitted" is desired vs ready replicas.
+CREATE TABLE k8s_deployments (
+    service TEXT PRIMARY KEY,
+    desired_replicas INTEGER NOT NULL,
+    ready_replicas INTEGER NOT NULL,
+    strategy TEXT NOT NULL DEFAULT 'RollingUpdate',
+    storage_class TEXT NOT NULL DEFAULT ''
+);
 -- the mapping that makes the naming chaos SOLVABLE rather than cruel (F5)
 CREATE TABLE service_aliases (
     canonical TEXT NOT NULL,
@@ -492,6 +504,16 @@ K8S_PODS = [
     # and the schema migration silently never ran.
     ('inventory-migrator-4d9e-ii99', 'production', 'inventory', 'v4.2.1', 'CreateContainerConfigError', 0, 512, 0, 'node-a2',
      'container has runAsNonRoot and image will run as root'),
+
+    # --- AIOpsLab operator_overload_replicas: 58 of 64 requested checkout
+    # replicas cannot be admitted. One stands in for the rest.
+    ('checkout-5b8c-bb31', 'production', 'checkout', 'v2.6.3', 'Pending', 0, 2048, 0, '',
+     '0/4 nodes are available: 4 Insufficient cpu (58 of 64 replicas unschedulable)'),
+
+    # --- AIOpsLab operator_non_existent_storage: the claim never binds because
+    # the storage class in the spec does not exist in the cluster.
+    ('inventory-7f3c-cc42', 'production', 'inventory', 'v4.2.1', 'Pending', 0, 1024, 0, '',
+     "pod has unbound immediate PersistentVolumeClaims: storageclass.storage.k8s.io 'fast-ssd-gp4' not found"),
 ]
 
 # node, ready, condition, message, cpu_used_pct, disk_used_pct, labels, kernel_version
@@ -509,6 +531,25 @@ K8S_NODES = [
     ('node-c1', 'Unknown', 'KernelDeadlock',
      'kernel: BUG: soft lockup - CPU#3 stuck for 23s; kubelet stopped posting node status 14m ago',
      12, 33, 'zone=us-east-1c', '5.15.0-88-generic'),
+]
+
+# service, desired_replicas, ready_replicas, strategy, storage_class
+K8S_DEPLOYMENTS = [
+    ('analytics-worker', 2, 1, 'RollingUpdate', 'standard'),
+    ('api-gateway', 3, 3, 'RollingUpdate', 'standard'),
+    ('catalog', 3, 3, 'RollingUpdate', 'standard'),
+    # --- AIOpsLab operator_overload_replicas: a spec asking for more than the
+    # cluster can hold. 64 requested, 6 admitted, and the deployment reports no
+    # error of its own - the shortfall only exists as a gap between two numbers.
+    ('checkout', 64, 6, 'RollingUpdate', 'standard'),
+    # --- AIOpsLab operator_non_existent_storage: storageClassName names a class
+    # that does not exist, so the claim never binds and the pod never schedules.
+    ('inventory', 2, 1, 'RollingUpdate', 'fast-ssd-gp4'),
+    ('media-service', 2, 2, 'RollingUpdate', 'standard'),
+    ('notifications', 2, 2, 'RollingUpdate', 'standard'),
+    ('payments', 3, 3, 'RollingUpdate', 'standard'),
+    ('search', 3, 3, 'RollingUpdate', 'standard'),
+    ('storefront-web', 4, 4, 'RollingUpdate', 'standard'),
 ]
 K8S_EVENTS = [
     (9001, "production", "analytics-worker-7d9f-x2k1", "OOMKilled",

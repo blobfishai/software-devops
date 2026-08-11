@@ -2981,6 +2981,33 @@ def k8s_nodes_list(db_path=None, node=None, unhealthy_only=False):
         conn.close()
 
 
+def k8s_deployments_list(db_path=None, service=None, degraded_only=False):
+    """List deployments with desired vs ready replica counts, rollout strategy and storage class. A deployment whose spec the cluster cannot satisfy - more replicas than fit, or a storageClassName that does not exist - reports no error of its own: the workload is simply not there, and the shortfall exists only as the gap between desired and ready."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('k8s_deployments_list',)); conn.commit()
+        except Exception:
+            pass
+        sql = 'SELECT * FROM k8s_deployments'
+        conds, args = [], []
+        if service:
+            conds.append('service=?'); args.append(service)
+        if str(degraded_only).lower() in ('1', 'true', 'yes', 'on'):
+            conds.append('ready_replicas < desired_replicas')
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY service', args).fetchall()]
+    finally:
+        conn.close()
+
+
 def submit_answer(db_path=None, question_id=None, answer=None, sources=None, assumptions=''):
     """Submit the answer to a reconciliation question. `sources` must list every system you actually consulted (e.g. pd_incidents, status_page_posts). `assumptions` is where you record any judgement you had to make - a week boundary, whether rollbacks count, which of two disagreeing numbers you trusted and why. An answer with no stated assumption on an ambiguous question is not a complete answer."""
     import sqlite3 as _sq

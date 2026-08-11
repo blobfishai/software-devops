@@ -99,8 +99,10 @@ FAMILY_MAP = {
     "scale_pod_zero_social_net": ("PARTIAL", "capacity starvation modelled as pool "
                                   "exhaustion rather than replica count",
                                   ["tsk_inventory_pool"]),
-    "assign_to_non_existent_node_social_net": ("NOT COVERED",
-                                               "scheduling/placement fault", []),
+    "assign_to_non_existent_node_social_net": ("COVERED",
+        "a Pending pod whose nodeSelector (accelerator=gpu-a100) matches no node in the "
+        "cluster, so the reindex has never run and the failure is an absence rather than "
+        "an error", ["tsk_rca_search_unscheduled_reindex"]),
     "astronomy_shop_kafka_queue_problems": ("COVERED", "queue consumer fault",
                                             ["tsk_analytics_prefetch",
                                              "tsk_analytics_batch_size"]),
@@ -120,6 +122,31 @@ FAMILY_MAP = {
                                 ["tsk_localize_checkout_latency"]),
     "noop": ("COVERED", "healthy-system true negative",
              ["tsk_detect_storefront_healthy"]),
+    "disk_woreout": ("COVERED",
+        "node-b3 at DiskPressure 97%, with both media-service replicas scheduled on it and "
+        "one already Evicted for ephemeral-storage; the pods look healthy from their own "
+        "metrics", ["tsk_rca_media_disk_pressure"]),
+    "kernel_fault_hotel_reservation": ("COVERED",
+        "node-c1 Ready=Unknown on a CPU#3 soft lockup; its pod still reports Running "
+        "because the kubelet stopped reporting rather than the pod, so pod phase alone "
+        "says healthy", ["tsk_rca_notifications_node_deadlock"]),
+    "operator_security_context_fault": ("COVERED",
+        "a migrator pod stuck in CreateContainerConfigError because the image runs as root "
+        "while the pod requires runAsNonRoot: the workload never started, so nothing "
+        "crashed and no alarm fired", ["tsk_rca_inventory_migrator_security_context"]),
+    "operator_overload_replicas": ("COVERED",
+        "a deployment declaring 64 replicas with 6 ready, the remainder Pending on "
+        "Insufficient cpu: the deployment reports no error of its own and the shortfall "
+        "exists only as the gap between desired and ready",
+        ["tsk_rca_checkout_unschedulable_replicas"]),
+    "operator_non_existent_storage": ("COVERED",
+        "a storageClassName that does not exist in the cluster, so the claim never binds, "
+        "one replica is never admitted, and the replica that is running looks healthy",
+        ["tsk_rca_inventory_unbound_storage"]),
+    "astronomy_shop_ad_service_high_cpu": ("PARTIAL",
+        "node-a1 runs at 91% CPU as a distractor: it is the worst-looking number in the "
+        "cluster and causes none of the seeded faults, so node tasks cannot be solved by "
+        "picking the largest metric", []),
 }
 
 # TheAgentCompany prefixes -> whether this world addresses that job family.

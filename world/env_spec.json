@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_7f15a0d1",
+  "env_id": "env_software_devops_e51a2ba1",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -20,17 +20,17 @@
   },
   "database": {
     "snapshot_ref": "environment.db",
-    "schema_hash": "e2b1e652ae961110dbc29682964a278c9bf8cb52b273323bc9ab270d518dd39c",
+    "schema_hash": "6da964b8c7db0e22a2270588ec3b7dc73da19093c26a68216e248bdd0972f0a2",
     "seed": 42,
     "engine": "sqlite",
-    "table_count": 63,
-    "row_count": 1270,
+    "table_count": 64,
+    "row_count": 1284,
     "complexification_rounds": 0
   },
   "tools": {
     "manifest_ref": "",
     "tests_ref": "",
-    "tool_count": 83,
+    "tool_count": 84,
     "survival_rate": 1.0,
     "valid_tool_ids": [
       "tool_list_services",
@@ -115,6 +115,7 @@
       "tool_k8s_events_list",
       "tool_k8s_pods_list",
       "tool_k8s_nodes_list",
+      "tool_k8s_deployments_list",
       "tool_submit_answer"
     ]
   },
@@ -202,6 +203,7 @@
       "tool_k8s_events_list",
       "tool_k8s_pods_list",
       "tool_k8s_nodes_list",
+      "tool_k8s_deployments_list",
       "tool_submit_answer"
     ],
     "edges": [],
@@ -277,6 +279,8 @@
     "tsk_rca_search_unscheduled_reindex",
     "tsk_rca_notifications_node_deadlock",
     "tsk_rca_inventory_migrator_security_context",
+    "tsk_rca_checkout_unschedulable_replicas",
+    "tsk_rca_inventory_unbound_storage",
     "tsk_localize_analytics_crashloop",
     "tsk_rcn_running_version",
     "tsk_rcn_customer_facing_incidents",
@@ -295,8 +299,8 @@
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 80,
-    "accepted_task_count": 80,
+    "task_count": 82,
+    "accepted_task_count": 82,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -306,8 +310,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 80,
-    "discriminating_vcode_tasks": 80,
+    "total_tasks": 82,
+    "discriminating_vcode_tasks": 82,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,

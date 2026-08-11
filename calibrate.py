@@ -194,8 +194,15 @@ def main():
         print("  -> %d task(s) to deepen: python3 deepen_tasks.py --from %s"
               % (buckets["TOO_EASY"], args.out))
 
-    out = {"model": args.model if args.policy == "model" else None, "policy": args.policy,
-           "attempts": args.attempts, "buckets": dict(buckets), "tasks": records}
+    # Provenance, because a bucket distribution is only interpretable against the
+    # world that produced it. A sweep was already invalidated once by the world
+    # being rebuilt underneath it, and nothing in the report would have said so.
+    out = {"model": args.model if args.policy in ("model", "local") else None,
+           "policy": args.policy, "attempts": args.attempts, "max_turns": args.max_turns,
+           "world_id": world.meta.get("world_id"),
+           "world_counts": world.meta.get("counts"),
+           "tasks_evaluated": len(tasks),
+           "buckets": dict(buckets), "tasks": records}
     pathlib.Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     pathlib.Path(args.out).write_text(json.dumps(out, indent=2) + "\n")
     print("  report: %s" % args.out)

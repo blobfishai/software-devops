@@ -520,6 +520,26 @@ if conds:
 return [dict(r) for r in conn.execute(sql + ' ORDER BY node', args).fetchall()]""",
           reads=["k8s_nodes"], writes=[], returns="list[dict]"))
 
+    T(_mk("k8s_deployments_list",
+          "List deployments with desired vs ready replica counts, rollout strategy and "
+          "storage class. A deployment whose spec the cluster cannot satisfy - more "
+          "replicas than fit, or a storageClassName that does not exist - reports no error "
+          "of its own: the workload is simply not there, and the shortfall exists only as "
+          "the gap between desired and ready.",
+          [{"name": "service", "type": "str", "default": None},
+           {"name": "degraded_only", "type": "bool", "default": False}],
+          """\
+sql = 'SELECT * FROM k8s_deployments'
+conds, args = [], []
+if service:
+    conds.append('service=?'); args.append(service)
+if str(degraded_only).lower() in ('1', 'true', 'yes', 'on'):
+    conds.append('ready_replicas < desired_replicas')
+if conds:
+    sql += ' WHERE ' + ' AND '.join(conds)
+return [dict(r) for r in conn.execute(sql + ' ORDER BY service', args).fetchall()]""",
+          reads=["k8s_deployments"], writes=[], returns="list[dict]"))
+
     T(_mk("submit_answer",
           "Submit the answer to a reconciliation question. `sources` must list every "
           "system you actually consulted (e.g. pd_incidents, status_page_posts). "

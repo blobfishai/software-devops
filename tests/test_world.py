@@ -8,6 +8,7 @@ verifiers actually discriminate: cutting workflow corners must lose the reward.
 
 import copy
 import json
+import re
 import shutil
 import sqlite3
 import subprocess
@@ -798,3 +799,30 @@ def test_an_unparseable_boolean_is_rejected_rather_than_read_as_false():
         out = world.call_tool(world.create_session(), "submit_diagnosis", args)
         assert out.get("ok") is True, (good, out)
         assert out["fault_detected"] is expected, (good, out)
+
+
+def test_the_corpus_map_is_generated_not_hand_written():
+    """research/02-CORPUS-MAP.md is emitted by import_corpus_tasks.py from
+    FAMILY_MAP. Editing the markdown instead of the map silently reverts on the
+    next run - which happened once, when four newly-covered fault families were
+    written into the document rather than into its source."""
+    import subprocess
+    doc = ROOT / "research" / "02-CORPUS-MAP.md"
+    before = doc.read_text()
+    proc = subprocess.run([sys.executable, str(ROOT / "import_corpus_tasks.py")],
+                          capture_output=True, text=True, timeout=300, cwd=str(ROOT))
+    assert proc.returncode == 0, proc.stderr
+    assert doc.read_text() == before, (
+        "02-CORPUS-MAP.md changes when regenerated: it has been hand-edited. "
+        "Edit FAMILY_MAP in import_corpus_tasks.py instead.")
+
+
+def test_the_corpus_map_never_cites_a_task_that_does_not_exist():
+    """A coverage claim backed by a task id that was renamed or never built is
+    worse than an honest gap: it reads as covered and cannot be run."""
+    doc = (ROOT / "research" / "02-CORPUS-MAP.md").read_text()
+    real = {t["task_id"] for t in json.loads((ROOT / "world" / "tasks.json").read_text())}
+    cited = set(re.findall(r"`(tsk_[a-z0-9_]+)`", doc))
+    missing = sorted(cited - real)
+    assert not missing, "the corpus map cites tasks the world does not contain: %s" % missing
+    assert cited, "the corpus map cites no tasks at all"
