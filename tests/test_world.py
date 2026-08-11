@@ -483,3 +483,34 @@ def test_submit_diagnosis_validates_its_taxonomy(env):
     inconsistent = call(env, db, "submit_diagnosis", scope="payments", fault_detected=True,
                         service="payments", fault_type="none")
     assert inconsistent["ok"] is False
+
+
+def test_closing_the_ticket_before_the_work_is_rejected(env):
+    """Ticket hygiene: marking the ticket done up front, then working, must lose
+    the quality check even though the end state is identical."""
+    task = env["tasks"]["tsk_payments_retry"]
+    calls = copy.deepcopy(task["expected_calls"])
+    close = [c for c in calls if c["tool"] == "update_ticket"][0]
+    rest = [c for c in calls if c["tool"] != "update_ticket"]
+    db = fork(env, "adv_close_first")
+    run_calls(env, db, [rest[0], close] + rest[1:])   # close it second, before any work
+    ok, err, score = bw.run_vcode(task["vcode"], str(db))
+    # end state is correct, so PF still passes; the quality dimension is docked
+    assert ok, "correctness and deployment are unaffected by ticket order"
+    assert score is not None and score < 1.0, score
+
+
+def test_instructions_do_not_leak_the_procedure(env):
+    """The default prompt must state outcomes, not the workflow: policy has to be
+    discovered from the knowledge base."""
+    leaks = []
+    for t in env["tasks"].values():
+        ins = t["instruction"].lower()
+        for phrase in ("staging-first", "canary at", "promote_canary", "test_fix",
+                       "apply_migration", "use_secret_manager", "50 percentage"):
+            if phrase in ins:
+                leaks.append((t["task_id"], phrase))
+    assert not leaks, leaks
+    # ...but the guided variant deliberately does spell it out, for calibration
+    guided = [t for t in env["tasks"].values() if "Procedure:" in t["instruction_guided"]]
+    assert len(guided) == len(env["tasks"])

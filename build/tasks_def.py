@@ -123,6 +123,10 @@ def _mutating_calls():
     return _one("SELECT COUNT(*) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool IN ('merge_pull_request','deploy_service','promote_canary','rollback_deployment','set_feature_flag','shift_endpoint_traffic','apply_migration','resolve_alert','update_incident')") or 0
 def _submit_step(_scope):
     return _one("SELECT COUNT(*) FROM audit_events WHERE seq > __BASE_SEQ__ AND seq <= (SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='submit_diagnosis' AND json_extract(detail,'$.scope')=?)", _scope) or 0
+def _closed_after_work(_k):
+    _close = _one("SELECT MIN(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool='update_ticket' AND json_extract(detail,'$.key')=? AND json_extract(detail,'$.status')='done'", _k) or 0
+    _work = _one("SELECT MAX(seq) FROM audit_events WHERE seq > __BASE_SEQ__ AND tool IN ('merge_pull_request','deploy_service','promote_canary','rollback_deployment','set_feature_flag','shift_endpoint_traffic','apply_migration','run_ci','resolve_alert','update_incident','submit_diagnosis','resolve_error_event')") or 0
+    return _close > 0 and _close > _work
 def _quarantined_flaky():
     return _one("SELECT COUNT(*) FROM tests_catalog WHERE status='flaky' AND quarantined=1")
 def _digest(_t):
@@ -248,6 +252,9 @@ def common_quality(out, service, ticket, pr_expr):
     out.append(("quality", "ticket_closed",
                 "_ticket_status(%s) == 'done'" % q(ticket),
                 "ticket %s must be closed (status done)" % ticket))
+    out.append(("quality", "closed_after_the_work",
+                "_closed_after_work(%s)" % q(ticket),
+                "close %s only once the work is actually done, not before" % ticket))
     out.append(("quality", "pr_has_description",
                 "_pr_body(%s, %s) != ''" % (q(service), q(ticket)),
                 "the pull request must carry a description explaining the change"))
@@ -268,24 +275,27 @@ def gen_config_fix(spec):
     alert = spec.get("alert_id")
     threshold = SLO_BY.get((svc, metric)) if metric else None
 
-    parts = ["You are on call at NovaCart. Work ticket %s." % tkt]
+    title = spec["ticket"][2]
+    parts = ["%s — %s" % (tkt, title)]
     if spec.get("symptom"):
-        parts.append("Symptom: %s." % spec["symptom"])
+        parts.append(spec["symptom"][0].upper() + spec["symptom"][1:] + ".")
     if spec.get("require_code_read"):
-        parts.append("Start from the monorepo: %s" % spec["hint"])
-    elif spec.get("hint"):
-        parts.append("Investigation hint: %s." % spec["hint"])
-    parts.append("Consult the knowledge base (the '%s' runbook states the required setting) and "
-                 "fix the root cause through the standard workflow: open a pull request carrying "
-                 "the configuration change, get CI green, merge, then deploy staging-first "
-                 "following the deployment policy." % spec.get("doc", "Deployment policy"))
+        parts.append("Nobody has found the cause yet. The change that introduced it is "
+                     "somewhere in the monorepo history.")
+    parts.append("Find the root cause and ship a fix all the way to production. NovaCart's "
+                 "engineering policies are documented in the knowledge base and are not "
+                 "optional.")
+    done = ["the fix is live in production"]
+    if metric:
+        done.append("%s is back inside its SLO" % metric)
     if alert:
-        parts.append("Then confirm the metric recovered, acknowledge and resolve the alarm.")
+        done.append("alarm %d is resolved" % alert)
     if spec.get("incident_id"):
-        parts.append("Resolve incident %d." % spec["incident_id"])
+        done.append("incident %d is resolved" % spec["incident_id"])
     if spec.get("resolve_error_event"):
-        parts.append("Mark the error-tracking issue '%s' resolved." % spec["fingerprint"])
-    parts.append("Close the ticket when the work is complete.")
+        done.append("the error-tracking issue '%s' is resolved" % spec["fingerprint"])
+    done.append("%s is closed" % tkt)
+    parts.append("Done when: " + ", ".join(done) + ".")
 
     pr_expr = "_merged_pr(%s, %s, 'config', '$.key', %s) is not None" % (q(svc), q(tkt), q(key))
     checks = [
@@ -362,15 +372,11 @@ def gen_flag_ship(spec):
     tkt, rollout = spec["ticket"][0], spec["rollout"]
     mig = spec.get("migration")
     instruction = (
-        "You are a product engineer at NovaCart. Work ticket %s.\n\n%s\n\n"
-        "Follow the 'Feature flags' runbook: define the flag in the same pull request as the "
-        "guarded module, ship the code to production BEFORE enabling the flag there, and keep the "
-        "initial production rollout at %d%%. Follow the deployment policy for %s.%s Close the "
-        "ticket when done."
-        % (tkt, spec["blurb"], rollout, svc,
-           " This module persists new state, so CI will reject the pull request unless it also "
-           "carries the required database migration, and the migration must be applied to an "
-           "environment before the new version is deployed there." if mig else ""))
+        "%s — %s\n\n%s\n\nThis is a user-facing change, so it ships behind a flag named "
+        "'%s'. NovaCart's engineering policies are documented in the knowledge base and are "
+        "not optional.\n\nDone when: the %s module is live in production, '%s' is serving "
+        "%d%% of production traffic, and %s is closed."
+        % (tkt, spec["ticket"][2], spec["blurb"], flag, mod, flag, rollout, tkt))
     pr_expr = "_merged_pr(%s, %s, 'flag', '$.key', %s) is not None" % (q(svc), q(tkt), q(flag))
     checks = [
         ("correctness", "module_live_in_production",
@@ -430,13 +436,13 @@ def gen_flag_kill(spec):
     tkt, alert, inc = spec["ticket"][0], spec["alert_id"], spec["incident_id"]
     threshold = SLO_BY[(svc, "error_rate_pct")]
     instruction = (
-        "Incident duty at NovaCart. Work ticket %s / incident %d: the %s error rate spiked "
-        "immediately after the %s feature flag ramped in production.\n\n"
-        "Follow the 'Incident response' runbook end to end: acknowledge the alarm, mitigate with "
-        "the flag kill switch in production only (leave staging as it is), verify the metric "
-        "recovered, resolve the alarm and the incident, post an update in #incidents naming the "
-        "flag, publish a customer-facing resolved update on the public status page, and close the "
-        "ticket." % (tkt, inc, svc, flag))
+        "%s — %s\n\nIncident %d: the %s error rate spiked immediately after the %s feature "
+        "flag ramped in production. Staging is unaffected and must be left alone.\n\n"
+        "Mitigate it and see the incident through. NovaCart's incident policy is documented in "
+        "the knowledge base and is not optional.\n\nDone when: %s is back inside its SLO, "
+        "alarm %d and incident %d are resolved, the team and our customers have been told what "
+        "happened, and %s is closed."
+        % (tkt, spec["ticket"][2], inc, svc, flag, svc, alert, inc, tkt))
     checks = [
         ("correctness", "flag_disabled_in_production",
          "_flag_state(%s, 'production')[0] == 0" % q(flag),
@@ -468,6 +474,9 @@ def gen_flag_kill(spec):
         ("quality", "ticket_closed",
          "_ticket_status(%s) == 'done'" % q(tkt),
          "ticket %s must be closed" % tkt),
+        ("quality", "closed_after_the_work",
+         "_closed_after_work(%s)" % q(tkt),
+         "close %s only once the work is actually done, not before" % tkt),
         ("correctness", "no_unrelated_incident_mutation",
          "_incident_status(9701) != 'resolved'",
          "unrelated incident 9701 must not be resolved"),
@@ -497,11 +506,11 @@ def gen_flag_kill(spec):
 def gen_flag_cleanup(spec):
     flag, svc, tkt = spec["flag"], spec["service"], spec["ticket"][0]
     instruction = (
-        "Work ticket %s at NovaCart. The %s flag on %s has been at 100%% in production for months. "
-        "Per the 'Feature flags' runbook, stale flags must be cleaned up once a feature is fully "
-        "rolled out: open a pull request with a flag_cleanup change that removes the flag and makes "
-        "the behaviour unconditional, get CI green, merge, and deploy it staging-first following "
-        "the deployment policy. Close the ticket when the flag is gone." % (tkt, flag, svc))
+        "%s — %s\n\nThe %s flag on %s has been at 100%% in production for months and is now "
+        "just dead weight in the code. Retire it and make the behaviour unconditional. "
+        "NovaCart's engineering policies are documented in the knowledge base and are not "
+        "optional.\n\nDone when: the flag no longer exists in any environment, the change is "
+        "live in production, and %s is closed." % (tkt, spec["ticket"][2], flag, svc, tkt))
     pr_expr = "_merged_pr(%s, %s, 'flag_cleanup', '$.key', %s) is not None" % (q(svc), q(tkt), q(flag))
     checks = [
         ("correctness", "flag_removed",
@@ -542,11 +551,11 @@ def gen_security_cve(spec):
     svc, pkg, fixed = spec["service"], spec["package"], spec["fixed"]
     cve, vid, tkt = spec["cve"], spec["vuln_id"], spec["ticket"][0]
     instruction = (
-        "Security duty at NovaCart. Work ticket %s: the scanner reports %s in %s as vulnerable to "
-        "%s.\n\nFollow the 'Security response' runbook: upgrade the dependency to the fixed version "
-        "through the standard pull-request workflow, deploy it staging-first per the deployment "
-        "policy, verify the scanner shows the finding remediated, post an audit summary to "
-        "#security referencing the CVE id, and close the ticket." % (tkt, pkg, svc, cve))
+        "%s — %s\n\nThe security scanner reports %s in %s as vulnerable to %s.\n\n"
+        "Remediate it in production and leave the audit trail our security policy requires. "
+        "NovaCart's engineering and security policies are documented in the knowledge base and "
+        "are not optional.\n\nDone when: the scanner shows %s remediated and %s is closed."
+        % (tkt, spec["ticket"][2], pkg, svc, cve, cve, tkt))
     pr_expr = "_merged_pr(%s, %s, 'dependency', '$.package', %s) is not None" % (q(svc), q(tkt), q(pkg))
     checks = [
         ("correctness", "dependency_deployed",
@@ -590,10 +599,10 @@ def gen_security_cve(spec):
 def gen_security_endpoint(spec):
     svc, path, tkt = spec["service"], spec["path"], spec["ticket"][0]
     instruction = (
-        "Security duty at NovaCart. Work ticket %s: a review found the unauthenticated %s endpoint "
-        "still active in production on %s. Retire it with an endpoint change through the standard "
-        "pull-request workflow and deploy it staging-first per the deployment policy. Close the "
-        "ticket once the endpoint is retired in production." % (tkt, path, svc))
+        "%s — %s\n\nA security review found the unauthenticated %s endpoint still reachable in "
+        "production on %s. Retire it. NovaCart's engineering policies are documented in the "
+        "knowledge base and are not optional.\n\nDone when: %s is retired in production and %s "
+        "is closed." % (tkt, spec["ticket"][2], path, svc, path, tkt))
     pr_expr = "_merged_pr(%s, %s, 'endpoint', '$.path', %s) is not None" % (q(svc), q(tkt), q(path))
     checks = [
         ("correctness", "endpoint_retired",
@@ -629,12 +638,12 @@ def gen_security_endpoint(spec):
 def gen_security_secret(spec, secret_literal):
     svc, path, tkt = spec["service"], spec["path"], spec["ticket"][0]
     instruction = (
-        "Security duty at NovaCart. Work ticket %s: a partner API key is hardcoded in the monorepo "
-        "at %s.\n\nRead the file, then follow the 'Security response' runbook: remove the literal "
-        "credential from the source with a code_edit change (read it from the secret manager "
-        "instead), set the service config use_secret_manager=true in the same pull request, get CI "
-        "green, merge, deploy staging-first per the deployment policy, post an audit note to "
-        "#security, and close the ticket." % (tkt, path))
+        "%s — %s\n\nA partner API key is hardcoded in the monorepo at %s. Get the literal "
+        "credential out of the source and have the service obtain it the way our security policy "
+        "requires, then ship that to production. NovaCart's engineering and security policies "
+        "are documented in the knowledge base and are not optional.\n\nDone when: the "
+        "credential no longer appears in %s, the service is reading it the approved way in "
+        "production, and %s is closed." % (tkt, spec["ticket"][2], path, path, tkt))
     pr_expr = "_merged_pr(%s, %s, 'code_edit', '$.path', %s) is not None" % (q(svc), q(tkt), q(path))
     checks = [
         ("correctness", "secret_removed_from_source",
@@ -686,17 +695,12 @@ def gen_api_migration(spec):
     consumer = spec.get("consumer")
     ckey, cval = spec.get("consumer_key"), spec.get("consumer_value")
     instruction = (
-        "Work ticket %s at NovaCart: migrate the %s API on %s to %s and retire the legacy path.\n\n"
-        "Follow the 'API deprecation' runbook exactly:%s deprecate %s and deploy that change first; "
-        "then shift production traffic to %s in stages of at most 50 percentage points per step "
-        "until the replacement serves 100%% and the legacy path serves 0%%; only then retire %s in a "
-        "second pull request and deploy it. CI blocks retiring an endpoint that still serves traffic "
-        "or that a dependent service still calls. Follow the deployment policy for every deploy. "
-        "Close the ticket once the legacy endpoint is retired in production."
-        % (tkt, legacy, svc, repl,
-           (" first migrate the consumer %s to the new version (config %s=%s) and deploy it;"
-            % (consumer, ckey, cval)) if consumer else "",
-           legacy, repl, legacy))
+        "%s — %s\n\nThe %s API on %s is superseded by %s. Retire the legacy path and move its "
+        "production traffic across, without dropping requests. NovaCart's engineering policies "
+        "are documented in the knowledge base and are not optional; CI enforces some of them "
+        "and will tell you what it is unhappy about.\n\nDone when: %s serves 100%% of "
+        "production traffic, %s is retired in production, and %s is closed."
+        % (tkt, spec["ticket"][2], legacy, svc, repl, repl, legacy, tkt))
     ret_pr_expr = ("_merged_pr(%s, %s, 'endpoint', '$.status', 'retired') is not None"
                    % (q(svc), q(tkt)))
     checks = [
@@ -785,13 +789,11 @@ def gen_api_migration(spec):
 def gen_flaky(spec):
     svc, test, tkt = spec["service"], spec["test"], spec["ticket"][0]
     instruction = (
-        "Work ticket %s at NovaCart: %s CI is unreliable because %s fails intermittently.\n\n"
-        "Inspect the CI history to characterise the flake, then follow the 'Flaky tests' runbook: "
-        "fix the root cause with a pull request carrying a test_fix change using action 'fix' "
-        "(quarantining does not close this ticket), get CI green — expect the pull request's own "
-        "first run to hit the same flake, so rerun it — merge, and then prove stability with at "
-        "least 3 consecutive green main-branch runs (run_ci with service='%s'). Close the ticket."
-        % (tkt, svc, test, svc))
+        "%s — %s\n\n%s CI is unreliable: %s fails intermittently, and people have started "
+        "re-running the pipeline until it goes green. Make it trustworthy again. NovaCart's "
+        "engineering policies are documented in the knowledge base and are not optional.\n\n"
+        "Done when: %s is reliably green on the main branch and %s is closed."
+        % (tkt, spec["ticket"][2], svc, test, test, tkt))
     pr_expr = "_merged_pr(%s, %s, 'test_fix', '$.test_name', %s) is not None" % (q(svc), q(tkt), q(test))
     checks = [
         ("correctness", "test_fixed_not_quarantined",
@@ -835,13 +837,11 @@ def gen_multi_service(spec):
     lines = ", ".join("module %s in %s%s" % (m, s, " (needs migration %s)" % g if g else "")
                       for s, m, g in steps)
     instruction = (
-        "Work ticket %s at NovaCart: %s\n\nShip: %s. Use one pull request per service. "
-        "Deployment sequencing matters and is checked: %s must reach production in that order, "
-        "because each downstream service depends on the one before it. Every production deploy is "
-        "staging-first, tier-1 services canary then promote, and any module that persists new state "
-        "needs its database migration in the same pull request and applied to an environment before "
-        "the new version is deployed there. Close the ticket when all of it is live."
-        % (tkt, spec["ticket"][2], lines, order))
+        "%s — %s\n\nShip: %s. Each service consumes the one before it, so production must "
+        "come up in this order: %s. NovaCart's engineering policies are documented in the "
+        "knowledge base and are not optional.\n\nDone when: all of it is live in production "
+        "in that order and %s is closed."
+        % (tkt, spec["ticket"][2], lines, order, tkt))
     checks = []
     for s, m, g in steps:
         checks.append(("correctness", "module_live_%s" % s,
@@ -867,6 +867,9 @@ def gen_multi_service(spec):
     checks.append(("quality", "ticket_closed",
                    "_ticket_status(%s) == 'done'" % q(tkt),
                    "ticket %s must be closed" % tkt))
+    checks.append(("quality", "closed_after_the_work",
+                   "_closed_after_work(%s)" % q(tkt),
+                   "close %s only once the work is actually done, not before" % tkt))
     calls = [{"tool": "get_ticket", "args": {"key": tkt}},
              {"tool": "search_docs", "args": {"query": "rollout"}}]
     pr = 9203
@@ -891,13 +894,13 @@ def gen_incident(spec):
     alert, inc, tkt = spec["alert_id"], spec["incident_id"], spec["ticket"][0]
     threshold = SLO_BY[(svc, "latency_p99_ms")]
     instruction = (
-        "SEV1 incident duty at NovaCart. Work ticket %s / incident %d: %s p99 latency jumped "
-        "immediately after %s was promoted in production.\n\n"
-        "Follow the 'Incident response' runbook end to end: acknowledge the alarm, mitigate by "
-        "rolling back the production deployment, verify the metric recovered, resolve the alarm and "
-        "the incident, publish a customer-facing resolved update on the public status page, post an "
-        "update in #incidents, file a postmortem ticket (type 'postmortem', service %s, mentioning "
-        "%s), and close this ticket." % (tkt, inc, svc, bad, svc, bad))
+        "%s — %s\n\nIncident %d, SEV1: %s p99 latency jumped immediately after %s was promoted "
+        "in production and has stayed there. Customers are affected right now — stop the bleeding "
+        "first, then see the incident through. Staging must be left as it is.\n\nNovaCart's "
+        "incident policy is documented in the knowledge base and is not optional.\n\nDone when: "
+        "%s latency is back inside its SLO, alarm %d and incident %d are resolved, the team and "
+        "our customers have been told what happened, the follow-up work is recorded, and %s is "
+        "closed." % (tkt, spec["ticket"][2], inc, svc, bad, svc, alert, inc, tkt))
     checks = [
         ("correctness", "rolled_back_to_good_version",
          "_es(%s, 'version', 'current') == %s" % (q(svc), q(good)),
@@ -936,6 +939,9 @@ def gen_incident(spec):
         ("quality", "ticket_closed",
          "_ticket_status(%s) == 'done'" % q(tkt),
          "ticket %s must be closed" % tkt),
+        ("quality", "closed_after_the_work",
+         "_closed_after_work(%s)" % q(tkt),
+         "close %s only once the work is actually done, not before" % tkt),
         ("correctness", "no_unrelated_incident_mutation",
          "_incident_status(9702) != 'resolved'",
          "unrelated incident 9702 must not be resolved"),
@@ -974,10 +980,9 @@ def gen_incident(spec):
 # executing a fix. Graded on the submitted answer, not on world state.
 
 AIOPS_INTRO = (
-    "You are the on-call SRE at NovaCart. This is an investigation, not a change: "
-    "do NOT modify production state, open pull requests, deploy, toggle flags or resolve "
-    "anything. Investigate with the read tools and report your finding with "
-    "submit_diagnosis(...).\n\n")
+    "This is an investigation, not a change. Do NOT modify production state: no pull "
+    "requests, deploys, flag toggles, migrations or resolutions. Investigate with the read "
+    "tools and report what you find with submit_diagnosis(...).\n\n")
 
 
 def _aiops_common(checks, scope, steps_budget):
@@ -996,11 +1001,10 @@ def gen_detection(spec):
     faulty = spec["fault_detected"]
     instruction = (
         AIOPS_INTRO +
-        "Ticket %s. Determine whether %s is currently violating any of its service level "
-        "objectives. Compare its live production metrics against its SLOs and check the alarm "
-        "state, then submit a detection result for scope '%s': set fault_detected true or false, "
-        "and include the metric and value you observed as evidence. If it is healthy, submit "
-        "fault_detected=false with fault_type='none'." % (tkt, scope, scope))
+        "%s — %s\n\nDetermine whether %s is currently violating any of its service level "
+        "objectives, and submit the result under scope '%s' with the evidence you relied on. "
+        "Report honestly either way: a clean bill of health is a valid finding."
+        % (tkt, spec["ticket"][2], scope, scope))
     checks = [
         ("correctness", "diagnosis_submitted",
          "_diagnosis(%s) is not None" % q(scope),
@@ -1014,6 +1018,9 @@ def gen_detection(spec):
     checks.append(("quality", "ticket_closed",
                    "_ticket_status(%s) == 'done'" % q(tkt),
                    "close ticket %s once reported" % tkt))
+    checks.append(("quality", "closed_after_the_work",
+                   "_closed_after_work(%s)" % q(tkt),
+                   "close %s only once the finding is submitted, not before" % tkt))
     calls = [{"tool": "get_ticket", "args": {"key": tkt}},
              {"tool": "get_slo_status", "args": {"service": spec["service"]}},
              {"tool": "query_metrics", "args": {"service": spec["service"]}},
@@ -1032,10 +1039,10 @@ def gen_localization(spec):
     scope, tkt = spec["scope"], spec["ticket"][0]
     instruction = (
         AIOPS_INTRO +
-        "Ticket %s. Alarm %s is firing. Localize it: identify which service is responsible. "
-        "Trace the symptom through the metrics, the service dependency graph and the logs, then "
-        "submit your finding for scope '%s' with the responsible service and the evidence you "
-        "relied on." % (tkt, scope, scope))
+        "%s — %s\n\nAlarm %s is firing. Work out which service is actually responsible — the "
+        "service the alarm names is not automatically the culprit — and submit your finding "
+        "under scope '%s' with the evidence you relied on."
+        % (tkt, spec["ticket"][2], scope, scope))
     checks = [
         ("correctness", "diagnosis_submitted",
          "_diagnosis(%s) is not None" % q(scope),
@@ -1051,6 +1058,9 @@ def gen_localization(spec):
     checks.append(("quality", "ticket_closed",
                    "_ticket_status(%s) == 'done'" % q(tkt),
                    "close ticket %s once reported" % tkt))
+    checks.append(("quality", "closed_after_the_work",
+                   "_closed_after_work(%s)" % q(tkt),
+                   "close %s only once the finding is submitted, not before" % tkt))
     calls = [{"tool": "get_ticket", "args": {"key": tkt}},
              {"tool": "list_alerts", "args": {"status": "firing"}},
              {"tool": "get_slo_status", "args": {}},
@@ -1069,11 +1079,11 @@ def gen_analysis(spec):
     scope, tkt = spec["scope"], spec["ticket"][0]
     instruction = (
         AIOPS_INTRO +
-        "Ticket %s. Perform a root-cause analysis for %s. Work from the symptom to the mechanism: "
-        "read the production logs and the error tracker, inspect the deployed configuration, and "
-        "read the source in the monorepo (and the commit that introduced the change) to confirm "
-        "it. Submit your finding for scope '%s' with the responsible service, the fault_type from "
-        "the taxonomy, the exact offending key, and your evidence." % (tkt, scope, scope))
+        "%s — %s\n\nGet to the bottom of %s: not just which service, but the mechanism and the "
+        "exact setting responsible. Confirm it in the source rather than inferring it from the "
+        "symptom alone. Submit your finding under scope '%s' with the responsible service, the "
+        "fault type, the offending key, and your evidence."
+        % (tkt, spec["ticket"][2], scope, scope))
     checks = [
         ("correctness", "diagnosis_submitted",
          "_diagnosis(%s) is not None" % q(scope),
@@ -1093,6 +1103,9 @@ def gen_analysis(spec):
     checks.append(("quality", "ticket_closed",
                    "_ticket_status(%s) == 'done'" % q(tkt),
                    "close ticket %s once reported" % tkt))
+    checks.append(("quality", "closed_after_the_work",
+                   "_closed_after_work(%s)" % q(tkt),
+                   "close %s only once the finding is submitted, not before" % tkt))
     calls = [{"tool": "get_ticket", "args": {"key": tkt}},
              {"tool": "query_metrics", "args": {"service": spec["service"]}},
              {"tool": "search_logs", "args": {"service": spec["service"]}},
@@ -1119,6 +1132,61 @@ GENERATORS = {
 }
 
 
+GUIDANCE = {
+    "config_fix": "Procedure: open a pull request carrying the configuration change, get CI "
+                  "green, merge it, then deploy staging-first — tier-1 services canary at "
+                  "<=25%, assess the canary, then promote. Confirm the metric recovered, then "
+                  "acknowledge the alarm before resolving it, and close the ticket last.",
+    "flag_ship": "Procedure: define the flag in the same pull request as the guarded module "
+                 "(and its database migration if it persists new state); get CI green, merge, "
+                 "apply any migration to an environment before deploying there, deploy "
+                 "staging-first with a canary for tier-1 services, and only enable the flag in "
+                 "production once the code is live there.",
+    "flag_kill": "Procedure: acknowledge the alarm, disable the flag in production only, "
+                 "verify the metric recovered, resolve the alarm and then the incident, post an "
+                 "update in #incidents naming the flag, publish a resolved update on the public "
+                 "status page, and close the ticket.",
+    "flag_cleanup": "Procedure: open a pull request with a flag_cleanup change, get CI green, "
+                    "merge, and deploy it staging-first following the deployment policy.",
+    "security_cve": "Procedure: upgrade the dependency via a pull request, get CI green, merge, "
+                    "deploy staging-first with a canary for tier-1 services, re-check the "
+                    "scanner, post an audit summary to #security quoting the CVE id, and close "
+                    "the ticket.",
+    "security_endpoint": "Procedure: retire the endpoint with an endpoint change in a pull "
+                         "request, get CI green, merge, and deploy staging-first with a canary "
+                         "for tier-1 services.",
+    "security_secret": "Procedure: remove the literal credential from the source with a "
+                       "code_edit change and set use_secret_manager=true in the same pull "
+                       "request, get CI green, merge, deploy staging-first, and post an audit "
+                       "note to #security.",
+    "api_migration": "Procedure: migrate any consumer service to the new version first and "
+                     "deploy it; deprecate the legacy endpoint and deploy that; shift traffic "
+                     "in steps of at most 50 percentage points until the replacement serves "
+                     "100%; only then retire the legacy endpoint in a second pull request and "
+                     "deploy it. Every deploy is staging-first, tier-1 canary then promote.",
+    "flaky": "Procedure: read the CI history, fix the root cause with a test_fix change using "
+             "action 'fix' (quarantining does not count), get CI green — the pull request's own "
+             "first run will hit the same flake, so rerun it — merge, then prove stability with "
+             "at least 3 consecutive green main-branch runs.",
+    "multi_service": "Procedure: one pull request per service, in the stated order. Any module "
+                     "that persists new state needs its migration in the same pull request and "
+                     "applied to an environment before deploying there. Every production deploy "
+                     "is staging-first, tier-1 canary then promote.",
+    "incident": "Procedure: acknowledge the alarm, roll back the production deployment, verify "
+                "the metric recovered, resolve the alarm and then the incident, file a "
+                "postmortem ticket of type 'postmortem', publish a resolved update on the "
+                "public status page, post an update in #incidents, and close the ticket.",
+    "detection": "Procedure: compare live production metrics against the service's SLOs and "
+                 "check the alarm state, then submit. If healthy, submit fault_detected=false "
+                 "with fault_type='none'.",
+    "localization": "Procedure: trace the symptom through the metrics, the service dependency "
+                    "graph and the logs, then submit the responsible service.",
+    "analysis": "Procedure: read the production logs and the error tracker, inspect the "
+                "deployed configuration, and read the source and the commit that introduced "
+                "the change to confirm the mechanism before submitting.",
+}
+
+
 def make_tasks(base_seq, frozen=None, fixed_rows=None, audit_prefix="", secret_files=0,
                secret_literal="pk_live_placeholder"):
     tasks = []
@@ -1128,9 +1196,17 @@ def make_tasks(base_seq, frozen=None, fixed_rows=None, audit_prefix="", secret_f
             instruction, checks, calls = GENERATORS[gen](spec, secret_literal)
         else:
             instruction, checks, calls = GENERATORS[gen](spec)
+        discovered = []
+        for c in calls:
+            if c["tool"] == "get_document" and c.get("args", {}).get("title"):
+                discovered.append({"tool": "search_docs",
+                                   "args": {"query": c["args"]["title"].split()[0].lower()}})
+            discovered.append(c)
+        calls = discovered
         tasks.append({
             "task_id": "tsk_" + spec["id"],
             "instruction": instruction,
+            "instruction_guided": instruction + "\n\n" + GUIDANCE[gen],
             "origin": "curated",
             "difficulty": spec["difficulty"],
             "category": spec["category"],

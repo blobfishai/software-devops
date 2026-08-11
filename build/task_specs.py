@@ -64,21 +64,21 @@ _add("error_rate_reduction", "config_fix", id="payments_retry_from_code", servic
 
 _add("error_rate_reduction", "config_fix", id="payments_notify_timeout", service="payments",
      config_key="notifications_timeout_ms", good="2000", difficulty="medium",
-     ticket=("ENG-2106", "medium", "Bring the payments notification timeout into policy"),
+     ticket=("ENG-2106", "medium", "Payments waits 30s on the notifications call"),
      symptom="payments waits 30s on the notifications call, far beyond the standard",
      hint="the retry and timeout standard caps downstream timeouts at 2000ms",
      doc="Retry and timeout standard")
 
 _add("error_rate_reduction", "config_fix", id="checkout_payments_timeout", service="checkout",
      config_key="payments_timeout_ms", good="2000", difficulty="medium",
-     ticket=("ENG-2107", "medium", "Bring the checkout->payments timeout into policy"),
+     ticket=("ENG-2107", "medium", "Checkout waits 8s on the payments call"),
      symptom="checkout waits 8s on the payments call, beyond the standard",
      hint="the retry and timeout standard caps downstream timeouts at 2000ms",
      doc="Retry and timeout standard")
 
 _add("error_rate_reduction", "config_fix", id="analytics_batch_size", service="analytics-worker",
      config_key="batch_size", good="200", difficulty="medium",
-     ticket=("ENG-2108", "low", "Reduce analytics rollup batch size for backpressure"),
+     ticket=("ENG-2108", "low", "Analytics rollups run in batches large enough to amplify memory pressure"),
      symptom="large rollup batches amplify memory pressure on the consumer",
      hint="the queue consumer runbook recommends smaller batches alongside bounded prefetch",
      doc="Queue consumer tuning")
@@ -121,28 +121,28 @@ _add("latency_optimization", "config_fix", id="catalog_pricing_from_code", servi
 
 _add("latency_optimization", "config_fix", id="gateway_pool_reuse", service="api-gateway",
      config_key="upstream_pool_reuse", good="true", difficulty="hard",
-     ticket=("ENG-2205", "high", "Enable upstream connection reuse on the API gateway"),
+     ticket=("ENG-2205", "high", "API gateway holds a new upstream connection per request"),
      symptom="the gateway opens a new upstream connection per request and never releases it",
      hint="the pool rewrite that shipped in v5.1.0 left connection reuse switched off",
      doc="Rollback and recovery")
 
 _add("latency_optimization", "config_fix", id="catalog_cache_ttl", service="catalog",
      config_key="catalog_cache_ttl_s", good="300", difficulty="medium",
-     ticket=("ENG-2206", "low", "Align the catalog cache TTL with the caching standard"),
+     ticket=("ENG-2206", "low", "Catalog cache entries expire sooner than the standard allows"),
      symptom="catalog caches entries for only 120s, well under the standard",
      hint="the caching standard sets a 300s TTL",
      doc="Search caching")
 
 _add("latency_optimization", "config_fix", id="search_shards", service="search",
      config_key="index_shards", good="8", difficulty="medium",
-     ticket=("ENG-2207", "medium", "Increase search index shards for query parallelism"),
+     ticket=("ENG-2207", "medium", "Search query fan-out is narrower than the index can support"),
      symptom="search queries fan out over only 4 shards at 180 rps",
      hint="more shards spread query load; coordinate with the caching change",
      doc="Search caching")
 
 _add("latency_optimization", "incident", id="gateway_v510_rollback", service="api-gateway",
      bad="v5.1.0", good="v5.0.9", alert_id=9604, incident_id=9701, difficulty="hard",
-     ticket=("ENG-2208", "critical", "SEV1: roll back api-gateway v5.1.0 and file the postmortem"))
+     ticket=("ENG-2208", "critical", "SEV1: api-gateway latency surge since the v5.1.0 rollout"))
 
 # ==========================================================================
 # 3. feature_flag (7)
@@ -174,15 +174,15 @@ _add("feature_flag", "flag_ship", id="media_webp", service="media-service", modu
 _add("feature_flag", "flag_kill", id="instant_refunds_killswitch", flag="instant_refunds",
      service="checkout", alert_id=9603, incident_id=9702, difficulty="medium",
      ticket=("ENG-2311", "critical",
-             "Kill-switch instant_refunds and resolve the checkout error spike"))
+             "Checkout error spike since the instant_refunds ramp"))
 
 _add("feature_flag", "flag_cleanup", id="legacy_price_rounding_cleanup",
      flag="legacy_price_rounding", service="catalog", difficulty="medium",
-     ticket=("ENG-2321", "low", "Clean up the fully rolled-out legacy_price_rounding flag"))
+     ticket=("ENG-2321", "low", "legacy_price_rounding has been fully rolled out for months"))
 
 _add("feature_flag", "flag_cleanup", id="checkout_v2_layout_cleanup", flag="checkout_v2_layout",
      service="checkout", difficulty="medium",
-     ticket=("ENG-2322", "low", "Clean up the fully rolled-out checkout_v2_layout flag"))
+     ticket=("ENG-2322", "low", "checkout_v2_layout has been fully rolled out for months"))
 
 # ==========================================================================
 # 4. security_incident (7)

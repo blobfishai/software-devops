@@ -73,6 +73,30 @@ See [docs/AIOPSLAB.md](docs/AIOPSLAB.md).
 
 41 train / 9 heldout, split per category. Difficulty: 23 medium, 16 hard, 11 expert.
 
+## Instruction design: outcomes, not procedure
+
+Each task's prompt is written as a realistic ticket. It states the **symptom**
+and the **definition of done**, and nothing about *how*. Company policy —
+staging-first, tier-1 canaries, migration ordering, the ≤50pp traffic-shift
+rule, "fix don't quarantine", the audit-note and status-page requirements — is
+never in the prompt. It lives in the knowledge base, and the agent has to go
+find it. Deviating from a policy it never read still fails the verifier.
+
+Measured across all 62 tasks, the default prompt contains the exact config key
+**0** times, the target value **0** times, a runbook title **0** times, and any
+workflow instruction **0** times. Every policy removed from the prompts is
+verifiably present in the knowledge base, so the tasks stay solvable by
+discovery — just harder.
+
+Each task also ships an `instruction_guided` variant that appends the procedure
+back. Running the same tasks both ways measures how much of a model's score is
+engineering judgment versus instruction-following:
+
+```bash
+python3 eval_model.py --model claude-sonnet-5 --guidance standard   # default
+python3 eval_model.py --model claude-sonnet-5 --guidance guided     # procedure spelled out
+```
+
 ## Browsing tasks and traces
 
 Every task's assignment, its executable verifier checks, and the complete oracle

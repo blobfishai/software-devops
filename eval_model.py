@@ -45,10 +45,10 @@ change all the way through to production and close the loop.
 Company rules matter and are checked:
 - A pull request carries structured changes; it only takes effect once CI \
 passes and it is merged, and it only reaches an environment once deployed.
-- Production deploys are staging-first. Tier-1 services (storefront-web, \
-api-gateway, checkout, payments) must canary at <=25% and then be promoted.
-- Read the runbooks (search_runbooks) for deployment, incident, flag, \
-deprecation, security, and flaky-test policy before acting.
+- Company policy is NOT in your instructions. It lives in the knowledge base: \
+use search_docs / get_document to find the deployment, migration, incident, \
+feature-flag, API-deprecation, security and flaky-test policies, and follow \
+them. Deviating from a documented policy is scored as a failure.
 - Do not fabricate state: never invent services, tests, or findings. Only \
 change what the assignment requires.
 
@@ -100,7 +100,7 @@ def call_api(api_key, model, messages, tools, max_tokens=4096, retries=5):
 
 def run_model_episode(world, task, sid, api_key, model, max_turns, verbose):
     tools = anthropic_tools(world)
-    messages = [{"role": "user", "content": task["instruction"]}]
+    messages = [{"role": "user", "content": task.get("_prompt") or task["instruction"]}]
     calls = 0
     log = []
     for turn in range(max_turns):
@@ -231,6 +231,9 @@ def main():
     ap.add_argument("--split", choices=["train", "heldout", "all"], default="all")
     ap.add_argument("--category", action="append", default=None,
                     help="restrict to these Horizon-SWE categories (repeatable)")
+    ap.add_argument("--guidance", choices=["standard", "guided"], default="standard",
+                    help="standard = realistic ticket, policy must be discovered from the "
+                         "knowledge base; guided = same task with the procedure spelled out")
     ap.add_argument("--trials", type=int, default=1,
                     help="run each task k times and report tau-bench pass^k reliability")
     ap.add_argument("--quality-judge", choices=["deterministic", "llm"],
@@ -290,6 +293,9 @@ def main():
             else:
                 if args.verbose:
                     print()
+                task = dict(task)
+                task["_prompt"] = (task.get("instruction_guided") if args.guidance == "guided"
+                                   else task["instruction"])
                 stats = run_model_episode(world, task, sid, api_key, args.model,
                                           args.max_turns, args.verbose)
             err = None
@@ -377,7 +383,7 @@ def main():
         pathlib.Path(args.out).write_text(json.dumps(
             {"world_id": world.summary()["world_id"], "policy": args.policy,
              "model": args.model if args.policy == "model" else None,
-             "split": args.split, "pass_rate": passed / n,
+             "split": args.split, "guidance": args.guidance, "pass_rate": passed / n,
              "mean_score": mean_score, "trials": args.trials,
              "pass_hat_k": {str(k): (lambda vs: sum(vs) / len(vs) if vs else None)(
                  [v for v in (pass_hat_k(sum(x), len(x), k) for x in trials.values())
