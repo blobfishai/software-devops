@@ -223,3 +223,48 @@ def run_episode(world, task, sid, model, max_turns, verbose=False,
             "transcript": "\n".join(transcript),
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens}
+
+
+QUALITY_JUDGE = """You are grading the ENGINEERING QUALITY of an on-call engineer's work: not whether the fix was correct, which is graded separately, but whether the work was done well - evidence gathered before conclusions, the change explained, the right people told, the trail left behind legible to whoever picks this up next.
+
+Reply with a single JSON object: {"score": <0.0-1.0>, "why": "<one sentence>"}."""
+
+
+def judge_quality(provider, model, task, verdict, transcript, max_tokens=1200):
+    """LLM judge for the quality dimension, through the same provider as the run.
+
+    Returns None rather than a number when the judge cannot be reached, because a
+    judge that quietly returns 0.0 on an API error scores the model for our
+    outage.
+    """
+    cfg = PROVIDERS[provider]
+    key = os.environ.get(cfg["key_env"], "")
+    if not key:
+        return None
+    signals = "\n".join("- [%s] %s: %s" % ("PASS" if a["passed"] else "FAIL",
+                                            a["name"], a["message"])
+                         for a in (verdict.get("assertions") or [])
+                         if a["dimension"] == "quality")
+    body = ("TASK:\n%s\n\nWHAT THE AGENT DID (tool calls in order):\n%s\n\n"
+            "DETERMINISTIC QUALITY SIGNALS:\n%s\n"
+            % (task.get("instruction", "")[:2000], (transcript or "")[:6000], signals))
+    data, err = _post(cfg["url"], key,
+                      {"model": model, "max_tokens": max_tokens, "temperature": 0.0,
+                       "messages": [{"role": "system", "content": QUALITY_JUDGE},
+                                    {"role": "user", "content": body}]})
+    if data is None:
+        return None
+    choice = (data.get("choices") or [{}])[0]
+    text = (choice.get("message") or {}).get("content") or ""
+    if not text and choice.get("finish_reason") == "length":
+        # A reasoning model can spend the whole budget thinking and emit nothing.
+        # Silently returning None here made the judge decline to score exactly the
+        # sloppy transcripts it exists to catch, because those are the ones it
+        # deliberates over longest.
+        return None
+    try:
+        start = text.index("{")
+        score = float(json.loads(text[start:text.rindex("}") + 1])["score"])
+    except Exception:  # noqa: BLE001
+        return None
+    return max(0.0, min(1.0, score))

@@ -428,3 +428,35 @@ def test_calibrate_cli_surface_actually_runs(args, tmp_path):
     report = json.loads(out.read_text())
     # provenance: a bucket distribution is only interpretable against its world
     assert report["world_id"] and report["guidance"] and report["buckets"]
+
+
+def test_the_llm_judge_refuses_rather_than_pretends():
+    """--quality-judge llm accepted a scripted policy and then silently did
+    nothing: the run looked judged and was not. It now refuses, because a flag
+    that accepts a request and ignores it is worse than one that declines.
+
+    The judge itself has the same failure shape. Its first budget was 300 tokens,
+    and a reasoning model spent all of it thinking and emitted no content - so the
+    judge returned its "unreachable" sentinel on exactly the sloppy transcripts it
+    exists to catch, because those are the ones it deliberates over longest.
+    """
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "eval_model.py"), "--policy", "oracle",
+         "--quality-judge", "llm", "--limit", "1"],
+        capture_output=True, text=True, timeout=300)
+    assert proc.returncode == 2, "a judge with no model to ask must refuse"
+    assert "needs a model policy" in proc.stderr
+
+    sys.path.insert(0, str(ROOT))
+    import cloud_backend
+    assert cloud_backend.judge_quality.__defaults__[0] >= 1000, \
+        "the judge budget is small enough for a reasoning model to spend it all thinking"
+    # with no credential it must return None, never a number it did not earn
+    import os
+    saved = os.environ.pop("DEEPSEEK_API_KEY", None)
+    try:
+        assert cloud_backend.judge_quality("deepseek", "m", {"instruction": "x"},
+                                           {"assertions": []}, "trace") is None
+    finally:
+        if saved is not None:
+            os.environ["DEEPSEEK_API_KEY"] = saved

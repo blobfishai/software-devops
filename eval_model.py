@@ -457,6 +457,12 @@ def main():
               "the harness without an API key.", file=sys.stderr)
         return 2
 
+    if args.quality_judge == "llm" and args.policy not in ("model", "deepseek", "openai"):
+        # A flag that accepts a request and does nothing is worse than one that
+        # refuses: the run looks judged and is not.
+        print("--quality-judge llm needs a model policy (model, deepseek, openai); "
+              "policy=%s has no model to ask." % args.policy, file=sys.stderr)
+        return 2
     label = args.model if args.policy in ("model", "deepseek", "openai") else args.policy
     print("evaluating %s on %s (%d task%s, split=%s)\n"
           % (label, world.summary()["world_id"], len(tasks),
@@ -497,7 +503,11 @@ def main():
         verdict = world.verify(sid, tid)
         fr = dimension_fractions(verdict)
         judged = None
-        if args.quality_judge == "llm" and args.policy == "model":
+        if args.quality_judge == "llm" and args.policy in ("deepseek", "openai"):
+            import cloud_backend
+            judged = cloud_backend.judge_quality(args.policy, args.model, task,
+                                                 verdict, stats.get("transcript", ""))
+        elif args.quality_judge == "llm" and args.policy == "model":
             judged = llm_quality_score(api_key, args.model, task, verdict,
                                        stats.get("transcript", ""))
             if judged is not None:
