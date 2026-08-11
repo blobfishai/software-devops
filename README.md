@@ -227,6 +227,27 @@ python3 eval_model.py --policy deepseek --model deepseek-v4-pro
 python3 calibrate.py  --policy deepseek --model deepseek-v4-pro --attempts 3
 ```
 
+For a full run, shard it — episodes are independent, so 83 of them parallelise
+cleanly:
+
+```bash
+python3 run_sharded.py --policy deepseek --model deepseek-v4-pro --shards 6 \
+    --out research/run.json
+python3 analyse_run.py research/run.json      # boundary by category and difficulty
+python3 write_results.py research/run.json    # regenerates the results section of
+                                              # docs/BOUNDARY.md from the report
+```
+
+`run_sharded.py` checks each shard's episode count against its assignment and
+exits non-zero on a partial run; `analyse_run.py` prints `INCOMPLETE` with names
+if the merged set misses its scope. A sharded run that quietly evaluates 77 of 83
+tasks reports a pass rate that looks complete and is not.
+
+`analyse_run.py` also names the tasks worth repeating — failures that nearly
+cleared correctness and deployment — and prints the `calibrate.py` command to
+probe them. A task that passes on some attempts and fails on others is the only
+direct evidence of where capability runs out.
+
 The `deepseek` and `openai` policies hand the model all 84 tools as JSON Schema
 function definitions and let it call them through the provider's own tool-calling
 API — the harness a frontier model actually runs under. The `local` policy drives
