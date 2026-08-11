@@ -223,3 +223,47 @@ def test_the_harbor_package_works_outside_this_repo():
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert "free-reward 0" in proc.stdout, proc.stdout
     assert "failures 0, missing 0" in proc.stdout, proc.stdout
+
+
+def test_a_provider_outage_is_never_scored_as_difficulty():
+    """An API that rate-limits, times out or 500s tells you nothing about the task.
+    It must land in TASK_FAULT alongside world-side breakage rather than TOO_HARD,
+    or a bad afternoon on someone else's service becomes a difficulty measurement."""
+    sys.path.insert(0, str(ROOT))
+    from calibrate import looks_environmental
+    trace = "HARNESS: provider error: HTTP 429: rate limit exceeded"
+    assert looks_environmental(trace, {}, "model"), "a provider outage read as agent failure"
+    assert looks_environmental(trace, {}, "scripted")
+
+
+def test_eval_model_does_not_delete_a_models_own_mistakes_from_the_pass_rate():
+    """eval_model EXCLUDES harness and environment episodes from the pass rate, so
+    anything misfiled as `environment` is not merely mislabelled - it is deleted
+    from the denominator, and every score built on it is inflated.
+
+    This file used to treat "unknown tool" and "bad arguments for" as environment
+    faults unconditionally. calibrate.py was fixed for exactly this and eval_model
+    was not, which is how a rule duplicated in two files drifts. A model guessing
+    a tool name is an agent error; a scripted policy hitting the same error means
+    we wrote the reference solution wrong.
+    """
+    sys.path.insert(0, str(ROOT))
+    from eval_model import classify_outcome
+
+    guess = 'get_alerts({}) -> {"ok": false, "error": "unknown tool: get_alerts"}'
+    assert classify_outcome(False, None, guess, {}, 3, 30, "model") == "agent"
+    assert classify_outcome(False, None, guess, {}, 3, 30, "scripted") == "environment"
+
+    badargs = 'submit_diagnosis(...) -> {"error": "bad arguments for submit_diagnosis"}'
+    assert classify_outcome(False, None, badargs, {}, 3, 30, "model") == "agent"
+    assert classify_outcome(False, None, badargs, {}, 3, 30, "scripted") == "environment"
+
+    # world-side breakage counts against the world no matter who tripped it
+    for who in ("model", "scripted"):
+        assert classify_outcome(False, None, "x -> no such table: widgets", {}, 3, 30, who) \
+            == "environment"
+    # a provider outage is a harness outcome, never the agent's
+    assert classify_outcome(False, None, "HARNESS: provider error: HTTP 429", {}, 3, 30,
+                            "model") == "harness"
+    # and a pass is a pass
+    assert classify_outcome(True, None, guess, {}, 3, 30, "model") == "resolved"

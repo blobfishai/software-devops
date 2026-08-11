@@ -272,22 +272,42 @@ def pass_hat_k(successes, n, k):
 # Environment failure is first-order here, not noise: AlgoTune's own oracle passes
 # only ~85%, and three SWE-bench Verified tasks fail with the oracle agent.
 ERROR_SOURCE = ("agent", "harness", "environment", "serverOrTask", "capped", "user")
-HARNESS_MARKERS = ("API ", "exhausted API retries", "urlopen", "HTTPError", "timed out")
-ENVIRONMENT_MARKERS = ("unknown tool", "bad arguments for", "missing required parameter",
-                       "no such table", "database is locked", "verifier execution failed",
+HARNESS_MARKERS = ("API ", "exhausted API retries", "urlopen", "HTTPError", "timed out",
+                   "HARNESS: provider error")
+# Symptoms that mean the WORLD is broken, whoever tripped them.
+ENVIRONMENT_MARKERS = ("no such table", "database is locked", "verifier execution failed",
                        "Traceback", "InternalError")
+# Symptoms that are the world's fault only when a SCRIPTED policy hits them. A
+# script calls exactly what it was written to call, so "unknown tool" means we
+# wrote the reference solution wrong. A model generates tool names and arguments
+# freely, so the same error is the agent guessing - and vivaria's rule applies: an
+# agent is never permitted to attribute its own mistake to the server.
+#
+# This file used to treat all of these as `environment` unconditionally, which
+# silently EXCLUDED such episodes from the pass rate. A model that guessed a tool
+# name had its failure deleted rather than counted, inflating every score built on
+# it. calibrate.py was fixed for this weeks before eval_model.py was, which is
+# exactly how a duplicated rule drifts.
+CALLER_DEPENDENT_MARKERS = ("unknown tool", "bad arguments for",
+                            "missing required parameter")
 
 
-def classify_outcome(passed, err, transcript, verdict, turns, max_turns):
-    """Attribute an episode. An agent may never be blamed for a harness fault, and
-    a budget exhaustion is its own outcome rather than a failure."""
+def classify_outcome(passed, err, transcript, verdict, turns, max_turns, caller="model"):
+    """Attribute an episode. An agent may never be blamed for a harness fault, an
+    agent may never blame the world for its own guess, and a budget exhaustion is
+    its own outcome rather than a failure."""
     if passed:
         return "resolved"
     blob = "%s %s" % (err or "", verdict.get("error") or "")
-    if any(m in blob for m in HARNESS_MARKERS):
-        return "harness"
     hay = "%s %s" % (blob, transcript or "")
-    if any(m in hay for m in ENVIRONMENT_MARKERS):
+    # A provider outage is recorded in the transcript, not the error field, so the
+    # harness check has to look at both or a rate limit reads as an agent failure.
+    if any(m in hay for m in HARNESS_MARKERS):
+        return "harness"
+    markers = ENVIRONMENT_MARKERS
+    if caller == "scripted":
+        markers = markers + CALLER_DEPENDENT_MARKERS
+    if any(m in hay for m in markers):
         return "environment"
     if turns >= max_turns:
         return "capped"
@@ -360,7 +380,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--world", default=str(pathlib.Path(__file__).parent / "world"))
     ap.add_argument("--model", default="claude-sonnet-5")
-    ap.add_argument("--policy", choices=["model", "oracle", "naive", "merged_only", "no_verify", "shortcut"],
+    ap.add_argument("--policy", choices=["model", "deepseek", "openai", "oracle", "naive",
+                                        "merged_only", "no_verify", "shortcut"],
                     default="model",
                     help="scripted baselines that map the difficulty surface for free: "
                          "naive ignores every documented policy; merged_only treats merging the "
@@ -436,7 +457,7 @@ def main():
               "the harness without an API key.", file=sys.stderr)
         return 2
 
-    label = args.model if args.policy == "model" else args.policy
+    label = args.model if args.policy in ("model", "deepseek", "openai") else args.policy
     print("evaluating %s on %s (%d task%s, split=%s)\n"
           % (label, world.summary()["world_id"], len(tasks),
              "" if len(tasks) == 1 else "s", args.split))
@@ -451,7 +472,7 @@ def main():
         sid = world.create_session()
         started = time.time()
         try:
-            if args.policy != "model":
+            if args.policy not in ("model", "deepseek", "openai"):
                 if args.verbose:
                     print()
                 stats = run_scripted_episode(world, task, sid, args.verbose, args.policy)
@@ -461,8 +482,14 @@ def main():
                 task = dict(task)
                 task["_prompt"] = (task.get("instruction_guided") if args.guidance == "guided"
                                    else task["instruction"])
-                stats = run_model_episode(world, task, sid, api_key, args.model,
-                                          args.max_turns, args.verbose)
+                if args.policy in ("deepseek", "openai"):
+                    import cloud_backend
+                    stats = cloud_backend.run_episode(
+                        world, task, sid, args.model, args.max_turns, args.verbose,
+                        provider=args.policy, guidance=args.guidance)
+                else:
+                    stats = run_model_episode(world, task, sid, api_key, args.model,
+                                              args.max_turns, args.verbose)
             err = None
         except Exception as e:  # noqa: BLE001
             stats = {"turns": 0, "tool_calls": 0, "transcript": ""}
@@ -478,9 +505,10 @@ def main():
         W = {"correctness": 0.6, "deployment": 0.3, "quality": 0.1}
         tw = sum(W[d] for d in fr) or 1.0
         pc = round(sum(W[d] / tw * v for d, v in fr.items()), 4)
+        caller = ("model" if args.policy in ("model", "deepseek", "openai") else "scripted")
         outcome = classify_outcome(bool(verdict.get("passed")), err,
                                    stats.get("transcript", ""), verdict,
-                                   stats.get("turns", 0), args.max_turns)
+                                   stats.get("turns", 0), args.max_turns, caller)
         rec = {"outcome": outcome,
                "task_id": tid, "category": task.get("category"),
                "difficulty": task.get("difficulty"),
@@ -558,7 +586,7 @@ def main():
     if args.out:
         pathlib.Path(args.out).write_text(json.dumps(
             {"world_id": world.summary()["world_id"], "policy": args.policy,
-             "model": args.model if args.policy == "model" else None,
+             "model": args.model if args.policy in ("model", "deepseek", "openai") else None,
              "split": args.split, "guidance": args.guidance, "pass_rate": passed / n,
              "mean_score": mean_score, "trials": args.trials,
              "outcomes": dict(outcomes),

@@ -49,6 +49,10 @@ from serve import World              # noqa: E402
 TASK_FAULT_MARKERS = (
     "Traceback", "InternalError", "no such table", "database is locked",
     "verifier execution failed",
+    # A provider outage, rate limit or timeout is neither the model's fault nor a
+    # property of the task. It belongs with the other non-attributable outcomes so
+    # that a bad afternoon on someone else's API never reads as task difficulty.
+    "HARNESS: provider error",
 )
 # Faults that are the world's fault only when a SCRIPTED policy hits them, because
 # a script calls exactly what it was written to call - so an unknown tool means we
@@ -91,6 +95,10 @@ def run_trial(world, task, policy, api_key, model, max_turns, verbose, guidance=
         import local_backend
         stats = local_backend.run_episode(world, task, sid, model, max_turns, verbose,
                                           guidance=guidance)
+    elif policy in ("deepseek", "openai"):
+        import cloud_backend
+        stats = cloud_backend.run_episode(world, task, sid, model, max_turns, verbose,
+                                          provider=policy, guidance=guidance)
     elif policy == "model":
         stats = EM.run_model_episode(world, task, sid, api_key, model, max_turns, verbose)
     else:
@@ -104,8 +112,9 @@ def main():
     ap.add_argument("--world", default="world")
     ap.add_argument("--model", default="claude-sonnet-5")
     ap.add_argument("--policy", default="model",
-                    help="model (cloud API), local (mlx_lm, no credential needed), or a "
-                         "scripted policy to dry-run the loop for free")
+                    help="model (Anthropic), deepseek/openai (native tool calling), "
+                         "local (mlx_lm, no credential needed), or a scripted policy to "
+                         "dry-run the loop for free")
     ap.add_argument("--category", action="append", default=None)
     ap.add_argument("--task", action="append", default=None)
     ap.add_argument("--guidance", choices=["standard", "guided"], default="standard",
@@ -130,17 +139,22 @@ def main():
 
     if args.policy == "local" and args.model.startswith("claude"):
         args.model = "mlx-community/Qwen3-8B-4bit"
+    if args.policy in ("deepseek", "openai") and args.model.startswith("claude"):
+        import cloud_backend
+        args.model = cloud_backend.PROVIDERS[args.policy]["default_model"]
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if args.policy == "model" and not api_key:
         print("ANTHROPIC_API_KEY is not set. Dry-run the loop for free with:\n"
               "  python3 calibrate.py --policy naive", file=sys.stderr)
         return 2
 
-    label = args.model if args.policy in ("model", "local") else "policy=" + args.policy
+    label = (args.model if args.policy in ("model", "local", "deepseek", "openai")
+             else "policy=" + args.policy)
     print("calibrating %d task(s) against %s, %d attempts each, guidance=%s\n"
           % (len(tasks), label, args.attempts, args.guidance))
 
     records, buckets = [], collections.Counter()
+    spend = collections.Counter()          # what the sweep actually cost, in tokens
     for task in tasks:
         tid = task["task_id"]
         print("  %-34s " % tid, end="", flush=True)
@@ -150,11 +164,15 @@ def main():
             stats, verdict = run_trial(world, task, args.policy, api_key, args.model,
                                        args.max_turns, args.verbose, args.guidance)
             passed = bool(verdict.get("passed"))
+            spend["prompt_tokens"] += stats.get("prompt_tokens", 0)
+            spend["completion_tokens"] += stats.get("completion_tokens", 0)
+            spend["episodes"] += 1
             trials.append({"passed": passed, "score": verdict.get("score"),
                            "tool_calls": stats["tool_calls"],
                            "failed_checks": failure_signature(verdict)})
             if not passed:
-                caller = "model" if args.policy in ("model", "local") else "scripted"
+                caller = ("model" if args.policy in ("model", "local", "deepseek", "openai")
+                          else "scripted")
                 envs += looks_environmental(stats.get("transcript", ""), verdict, caller)
             if passed and len(trials) == 1:
                 break                      # first-try pass is already conclusive
@@ -186,6 +204,10 @@ def main():
                                    ", ".join(k for k, _ in common.most_common(2))))
 
     print("\n  %s" % "  ".join("%s=%d" % (k, v) for k, v in buckets.most_common()))
+    if spend["prompt_tokens"] or spend["completion_tokens"]:
+        print("  %d episodes, %.2fM prompt + %.0fK completion tokens"
+              % (spend["episodes"], spend["prompt_tokens"] / 1e6,
+                 spend["completion_tokens"] / 1e3))
     if buckets["TASK_FAULT"]:
         print("  !! %d task(s) failed with world-side symptoms - our bug, not difficulty; "
               "fix the environment before calling them hard" % buckets["TASK_FAULT"])
@@ -202,13 +224,13 @@ def main():
     # Provenance, because a bucket distribution is only interpretable against the
     # world that produced it. A sweep was already invalidated once by the world
     # being rebuilt underneath it, and nothing in the report would have said so.
-    out = {"model": args.model if args.policy in ("model", "local") else None,
+    out = {"model": args.model if args.policy in ("model", "local", "deepseek", "openai") else None,
            "policy": args.policy, "attempts": args.attempts, "max_turns": args.max_turns,
            "guidance": args.guidance,
            "world_id": world.meta.get("world_id"),
            "world_counts": world.meta.get("counts"),
            "tasks_evaluated": len(tasks),
-           "buckets": dict(buckets), "tasks": records}
+           "buckets": dict(buckets), "spend": dict(spend), "tasks": records}
     pathlib.Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     pathlib.Path(args.out).write_text(json.dumps(out, indent=2) + "\n")
     print("  report: %s" % args.out)
