@@ -13,7 +13,7 @@ world is measuring anything:
   * What is not attributable? Harness and environment episodes are excluded from
     the pass rate, so they are reported rather than silently dropped.
 
-    python3 analyse_run.py research/deepseek_full.json [run.log]
+    python3 analyse_run.py research/deepseek_full.json [more_shards.json ...] [run.log]
 
 Reports written before failed_checks existed carry only per-dimension ratios, so
 an optional run log is parsed for the named assertions instead.
@@ -25,8 +25,33 @@ import pathlib
 import sys
 
 
-def main(path):
-    run = json.loads(pathlib.Path(path).read_text())
+def load(paths):
+    """One report, or several shards of one run merged back together.
+
+    Episodes are independent - each gets its own session fork - so a long sweep
+    can be split across processes and rejoined. The merge refuses to combine
+    shards from different worlds or different models, because a pass rate
+    averaged across two worlds is not a measurement of either.
+    """
+    runs = [json.loads(pathlib.Path(p).read_text()) for p in paths]
+    worlds = {r.get("world_id") for r in runs}
+    models = {r.get("model") or r.get("policy") for r in runs}
+    assert len(worlds) == 1, "shards span different worlds: %s" % worlds
+    assert len(models) == 1, "shards span different models: %s" % models
+    merged = dict(runs[0])
+    seen, tasks = set(), []
+    for r in runs:
+        for t in r["tasks"]:
+            if t["task_id"] in seen:
+                continue          # a task evaluated twice would be counted twice
+            seen.add(t["task_id"])
+            tasks.append(t)
+    merged["tasks"] = tasks
+    return merged
+
+
+def main(paths):
+    run = load(paths)
     tasks = run["tasks"]
     print("%s on %s" % (run.get("model") or run.get("policy"), run.get("world_id", "?")))
     print("%d episodes, guidance=%s, split=%s\n"
@@ -70,9 +95,10 @@ def main(path):
         for a in t.get("failed_checks") or []:
             dims[a["dimension"]] += 1
             checks["%s/%s" % (a["dimension"], a["name"])] += 1
-    if not checks and len(sys.argv) > 2:
+    logs = [a for a in sys.argv[1:] if not a.endswith(".json")]
+    if not checks and logs:
         import re
-        log = pathlib.Path(sys.argv[2]).read_text()
+        log = "".join(pathlib.Path(a).read_text() for a in logs)
         for d, name in re.findall(r"(correctness|deployment|quality)/([a-z0-9_]+)", log):
             dims[d] += 1
             checks["%s/%s" % (d, name)] += 1
@@ -105,4 +131,5 @@ def main(path):
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else "research/deepseek_full.json"))
+    args = [a for a in sys.argv[1:] if a.endswith(".json")]
+    sys.exit(main(args or ["research/deepseek_full.json"]))
