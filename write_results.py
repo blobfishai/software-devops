@@ -45,6 +45,20 @@ def section(run):
          "| **Horizon-SWE-PC** | **%.1f** |" % pc,
          ""]
 
+    # Budget exhaustion is our constraint, not the model's ceiling. It is counted
+    # as a failure - a run that never finishes did not do the task - but burying
+    # it would overstate how much of the gap is capability.
+    capped = sum(1 for t in scored if t.get("outcome") == "capped")
+    if capped:
+        without = [t for t in scored if t.get("outcome") != "capped"]
+        pf_wo = 100.0 * sum(1 for t in without if t.get("passed")) / max(1, len(without))
+        L += ["%d episode(s) exhausted the %s-turn budget and are counted as failures. "
+              "Excluding them the pass rate is %.1f%% (%d/%d) — the difference is the "
+              "part of the gap that is our turn limit rather than the model's ceiling."
+              % (capped, run.get("max_turns", "turn"), pf_wo,
+                 sum(1 for t in without if t.get("passed")), len(without)),
+              ""]
+
     # --- the finding: which dimension breaks -------------------------------
     corr_perfect = sum(1 for t in scored
                        if (t.get("dimension_fractions") or {}).get("correctness", 0) == 1.0)

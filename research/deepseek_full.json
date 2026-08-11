@@ -1,0 +1,2930 @@
+{
+  "world_id": "env_software_devops_75f8f41d",
+  "policy": "deepseek",
+  "model": "deepseek-v4-pro",
+  "split": "all",
+  "guidance": "standard",
+  "pass_rate": 0.5384615384615384,
+  "mean_score": 0.8852384615384616,
+  "trials": 1,
+  "outcomes": {
+    "agent": 2,
+    "resolved": 7,
+    "harness": 4
+  },
+  "attributable_episodes": 9,
+  "pass_hat_k": {
+    "1": 0.5384615384615384
+  },
+  "tasks": [
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "deployment",
+          "name": "ack_before_resolve"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        },
+        {
+          "dimension": "quality",
+          "name": "jira_twin_resolved"
+        }
+      ],
+      "task_id": "tsk_payments_retry",
+      "category": "error_rate_reduction",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.8964,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 0.75,
+        "quality": 0.714
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "3/4",
+        "quality": "5/7"
+      },
+      "tool_calls": 42,
+      "turns": 21,
+      "steps_to_answer": 40,
+      "seconds": 152.3,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8964): deployment/ack_before_resolve - runbook order: acknowledge alarm 9601 before resolving it | quality also flagged: quality/closed_after_the_work, quality/jira_twin_resolved"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_checkout_payments_timeout",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 0.9833,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.833
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "3/3",
+        "quality": "5/6"
+      },
+      "tool_calls": 39,
+      "turns": 23,
+      "steps_to_answer": 39,
+      "seconds": 154.7,
+      "error": null
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "config_deployed_to_production"
+        },
+        {
+          "dimension": "correctness",
+          "name": "ci_all_stages_green"
+        },
+        {
+          "dimension": "quality",
+          "name": "pr_linked_to_ticket"
+        }
+      ],
+      "task_id": "tsk_gateway_pool_reuse",
+      "category": "latency_optimization",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.7433,
+      "dimension_fractions": {
+        "correctness": 0.6,
+        "deployment": 1.0,
+        "quality": 0.833
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "3/5",
+        "deployment": "3/3",
+        "quality": "5/6"
+      },
+      "tool_calls": 23,
+      "turns": 17,
+      "steps_to_answer": null,
+      "seconds": 115.2,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.7433): correctness/config_deployed_to_production - production api-gateway must run with upstream_pool_reuse=true (merged AND deployed); correctness/ci_all_stages_green - the merged pull request must have passed build, unit, integration and regression | quality also flagged: quality/pr_linked_to_ticket"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_saved_carts",
+      "category": "feature_flag",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "8/8",
+        "deployment": "5/5",
+        "quality": "6/6"
+      },
+      "tool_calls": 56,
+      "turns": 28,
+      "steps_to_answer": null,
+      "seconds": 195.9,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_cve_stripe_sdk",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "3/3",
+        "quality": "7/7"
+      },
+      "tool_calls": 30,
+      "turns": 18,
+      "steps_to_answer": null,
+      "seconds": 81.8,
+      "error": null
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "legacy_retired"
+        },
+        {
+          "dimension": "correctness",
+          "name": "ci_all_stages_green"
+        },
+        {
+          "dimension": "deployment",
+          "name": "drain_before_retire"
+        },
+        {
+          "dimension": "correctness",
+          "name": "consumer_migrated"
+        },
+        {
+          "dimension": "deployment",
+          "name": "consumer_before_retire"
+        },
+        {
+          "dimension": "deployment",
+          "name": "canary_then_promote"
+        },
+        {
+          "dimension": "quality",
+          "name": "pr_linked_to_ticket"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_orders_v1_to_v2",
+      "category": "api_migration",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.625,
+      "dimension_fractions": {
+        "correctness": 0.625,
+        "deployment": 0.667,
+        "quality": 0.5
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/8",
+        "deployment": "6/9",
+        "quality": "3/6"
+      },
+      "tool_calls": 41,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 143.7,
+      "error": "assertion: 6 verifier(s) failed (PC score=0.625): correctness/legacy_retired - /v1/orders must be retired in production; correctness/ci_all_stages_green - the retirement pull request must have passed all four CI stages including regression; deployment/drain_before_retire - /v1/orders must be drained to 0% before the retirement pull request merges; correctness/consumer_migrated - the consumer storefront-web must be migrated to orders_api_version=v2 in production; deployment/consumer_before_retire - the consumer must be migrated and deployed before the legacy path is retired; deployment/canary_then_promote - storefront-web is tier 1: canary at <=25%, assess, then promote_canary | quality also flagged: quality/pr_linked_to_ticket, quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_notify_v1_to_v2",
+      "category": "api_migration",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "6/6",
+        "quality": "6/6"
+      },
+      "tool_calls": 42,
+      "turns": 28,
+      "steps_to_answer": null,
+      "seconds": 132.9,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_flaky_analytics_rollup",
+      "category": "flaky_test",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "6/6"
+      },
+      "tool_calls": 37,
+      "turns": 21,
+      "steps_to_answer": null,
+      "seconds": 121.8,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_notification_templates",
+      "category": "multi_service_rollout",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "5/5",
+        "quality": "6/6"
+      },
+      "tool_calls": 37,
+      "turns": 20,
+      "steps_to_answer": null,
+      "seconds": 88.6,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_detect_checkout_errors",
+      "category": "aiops_detection",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/4",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 8,
+      "turns": 5,
+      "steps_to_answer": 8,
+      "seconds": 34.0,
+      "error": null
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "service_localized"
+        },
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_payments_retry",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.6667,
+      "dimension_fractions": {
+        "correctness": 0.5,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "3/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 32,
+      "turns": 15,
+      "steps_to_answer": 32,
+      "seconds": 108.9,
+      "error": "assertion: 3 verifier(s) failed (PC score=0.6667): correctness/service_localized - the responsible service is payments; correctness/fault_type_correct - the root cause is a missing_retry fault; correctness/offending_key_correct - the offending key is notifications_retry_max_attempts | quality also flagged: quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_notifications_node_deadlock",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.7667,
+      "dimension_fractions": {
+        "correctness": 0.667,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 24,
+      "turns": 11,
+      "steps_to_answer": 24,
+      "seconds": 78.3,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.7667): correctness/fault_type_correct - the root cause is a node_unhealthy fault; correctness/offending_key_correct - the offending key is node-c1 | quality also flagged: quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "consulted_pd_incidents"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rcn_customer_facing_incidents",
+      "category": "reconciliation",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.86,
+      "dimension_fractions": {
+        "correctness": 0.833,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/6",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 15,
+      "turns": 7,
+      "steps_to_answer": null,
+      "seconds": 61.3,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.86): correctness/consulted_pd_incidents - the answer requires evidence from pd_incidents | quality also flagged: quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "deployment",
+          "name": "ack_before_resolve"
+        },
+        {
+          "dimension": "quality",
+          "name": "jira_twin_resolved"
+        }
+      ],
+      "task_id": "tsk_analytics_prefetch",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "passed": false,
+      "score": 0.8857,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 0.667,
+        "quality": 0.857
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "2/3",
+        "quality": "6/7"
+      },
+      "tool_calls": 36,
+      "turns": 17,
+      "steps_to_answer": null,
+      "seconds": 95.6,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8857): deployment/ack_before_resolve - runbook order: acknowledge alarm 9609 before resolving it | quality also flagged: quality/jira_twin_resolved"
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "ci_all_stages_green"
+        },
+        {
+          "dimension": "quality",
+          "name": "pr_linked_to_ticket"
+        },
+        {
+          "dimension": "quality",
+          "name": "pr_has_description"
+        },
+        {
+          "dimension": "quality",
+          "name": "jira_twin_resolved"
+        }
+      ],
+      "task_id": "tsk_search_cache",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "passed": false,
+      "score": 0.8714,
+      "dimension_fractions": {
+        "correctness": 0.857,
+        "deployment": 1.0,
+        "quality": 0.571
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/7",
+        "deployment": "3/3",
+        "quality": "4/7"
+      },
+      "tool_calls": 29,
+      "turns": 15,
+      "steps_to_answer": null,
+      "seconds": 88.9,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8714): correctness/ci_all_stages_green - the merged pull request must have passed build, unit, integration and regression | quality also flagged: quality/pr_linked_to_ticket, quality/pr_has_description, quality/jira_twin_resolved"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_search_shards",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "2/2",
+        "quality": "4/6"
+      },
+      "tool_calls": 29,
+      "turns": 17,
+      "steps_to_answer": null,
+      "seconds": 721.5,
+      "error": null
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "incident_resolved"
+        },
+        {
+          "dimension": "quality",
+          "name": "status_update_posted"
+        },
+        {
+          "dimension": "quality",
+          "name": "public_status_published"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_instant_refunds_killswitch",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "passed": false,
+      "score": 0.8583,
+      "dimension_fractions": {
+        "correctness": 0.875,
+        "deployment": 1.0,
+        "quality": 0.333
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/8",
+        "deployment": "2/2",
+        "quality": "2/6"
+      },
+      "tool_calls": 67,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 243.6,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8583): correctness/incident_resolved - incident 9702 must be resolved | quality also flagged: quality/status_update_posted, quality/public_status_published, quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_cve_requests",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "3/3",
+        "quality": "7/7"
+      },
+      "tool_calls": 28,
+      "turns": 17,
+      "steps_to_answer": null,
+      "seconds": 65.4,
+      "error": null
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "legacy_retired"
+        },
+        {
+          "dimension": "correctness",
+          "name": "ci_all_stages_green"
+        },
+        {
+          "dimension": "deployment",
+          "name": "drain_before_retire"
+        },
+        {
+          "dimension": "deployment",
+          "name": "consumer_before_retire"
+        },
+        {
+          "dimension": "quality",
+          "name": "pr_linked_to_ticket"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_checkout_v1_to_v2",
+      "category": "api_migration",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.7333,
+      "dimension_fractions": {
+        "correctness": 0.75,
+        "deployment": 0.778,
+        "quality": 0.5
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/8",
+        "deployment": "7/9",
+        "quality": "3/6"
+      },
+      "tool_calls": 46,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 120.6,
+      "error": "assertion: 4 verifier(s) failed (PC score=0.7333): correctness/legacy_retired - /v1/checkout must be retired in production; correctness/ci_all_stages_green - the retirement pull request must have passed all four CI stages including regression; deployment/drain_before_retire - /v1/checkout must be drained to 0% before the retirement pull request merges; deployment/consumer_before_retire - the consumer must be migrated and deployed before the legacy path is retired | quality also flagged: quality/pr_linked_to_ticket, quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_flaky_catalog_rounding",
+      "category": "flaky_test",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "6/6"
+      },
+      "tool_calls": 50,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 158.7,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_split_settlement",
+      "category": "multi_service_rollout",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "6/6",
+        "quality": "6/6"
+      },
+      "tool_calls": 39,
+      "turns": 27,
+      "steps_to_answer": null,
+      "seconds": 104.4,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_detect_payments",
+      "category": "aiops_detection",
+      "difficulty": "easy",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/4",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 6,
+      "turns": 4,
+      "steps_to_answer": 6,
+      "seconds": 21.9,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_localize_search_latency",
+      "category": "aiops_localization",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 18,
+      "turns": 9,
+      "steps_to_answer": 18,
+      "seconds": 47.6,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_notifications_timeout",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 11,
+      "turns": 6,
+      "steps_to_answer": 11,
+      "seconds": 54.0,
+      "error": null
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "diagnosis_submitted"
+        },
+        {
+          "dimension": "correctness",
+          "name": "service_localized"
+        },
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "efficient_investigation"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_checkout_unschedulable_replicas",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.5333,
+      "dimension_fractions": {
+        "correctness": 0.333,
+        "deployment": 1.0,
+        "quality": 0.333
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/6",
+        "deployment": "1/1",
+        "quality": "2/6"
+      },
+      "tool_calls": 76,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 177.1,
+      "error": "assertion: 4 verifier(s) failed (PC score=0.5333): correctness/diagnosis_submitted - submit a root-cause result for scope 'checkout-capacity-shortfall'; correctness/service_localized - the responsible service is checkout; correctness/fault_type_correct - the root cause is a misconfig fault; correctness/offending_key_correct - the offending key is desired_replicas | quality also flagged: quality/evidence_recorded, quality/efficient_investigation, quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "answer_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "consulted_jira_issues"
+        },
+        {
+          "dimension": "correctness",
+          "name": "consulted_linear_issues"
+        },
+        {
+          "dimension": "correctness",
+          "name": "consulted_github_issues"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rcn_distinct_checkout_bugs",
+      "category": "reconciliation",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.66,
+      "dimension_fractions": {
+        "correctness": 0.5,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/8",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 39,
+      "turns": 14,
+      "steps_to_answer": null,
+      "seconds": 101.4,
+      "error": "assertion: 4 verifier(s) failed (PC score=0.66): correctness/answer_correct - ENG-3001, GRW-88 and GitHub 4412 are the same defect, linked as duplicates; deduplicated that is one distinct open checkout bug; correctness/consulted_jira_issues - the answer requires evidence from jira_issues; correctness/consulted_linear_issues - the answer requires evidence from linear_issues; correctness/consulted_github_issues - the answer requires evidence from github_issues | quality also flagged: quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "config_deployed_to_production"
+        },
+        {
+          "dimension": "deployment",
+          "name": "ack_before_resolve"
+        },
+        {
+          "dimension": "quality",
+          "name": "jira_twin_resolved"
+        }
+      ],
+      "task_id": "tsk_notifications_timeout",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "passed": false,
+      "score": 0.8,
+      "dimension_fractions": {
+        "correctness": 0.857,
+        "deployment": 0.667,
+        "quality": 0.857
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/7",
+        "deployment": "2/3",
+        "quality": "6/7"
+      },
+      "tool_calls": 27,
+      "turns": 14,
+      "steps_to_answer": null,
+      "seconds": 92.5,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.8): correctness/config_deployed_to_production - production notifications must run with smtp_timeout_ms=2000 (merged AND deployed); deployment/ack_before_resolve - runbook order: acknowledge alarm 9608 before resolving it | quality also flagged: quality/jira_twin_resolved"
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "deployment",
+          "name": "ack_before_resolve"
+        },
+        {
+          "dimension": "quality",
+          "name": "jira_twin_resolved"
+        }
+      ],
+      "task_id": "tsk_catalog_batch_pricing",
+      "category": "latency_optimization",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.8857,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 0.667,
+        "quality": 0.857
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "2/3",
+        "quality": "6/7"
+      },
+      "tool_calls": 39,
+      "turns": 21,
+      "steps_to_answer": null,
+      "seconds": 234.1,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8857): deployment/ack_before_resolve - runbook order: acknowledge alarm 9605 before resolving it | quality also flagged: quality/jira_twin_resolved"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_gateway_v510_rollback",
+      "category": "latency_optimization",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "9/9",
+        "deployment": "2/2",
+        "quality": "7/7"
+      },
+      "tool_calls": 26,
+      "turns": 12,
+      "steps_to_answer": 25,
+      "seconds": 99.3,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_legacy_price_rounding_cleanup",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "2/2",
+        "quality": "6/6"
+      },
+      "tool_calls": 37,
+      "turns": 22,
+      "steps_to_answer": null,
+      "seconds": 125.7,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_retire_debug_endpoint",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "3/3",
+        "quality": "6/6"
+      },
+      "tool_calls": 30,
+      "turns": 23,
+      "steps_to_answer": null,
+      "seconds": 118.9,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_search_v1_to_v2",
+      "category": "api_migration",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "6/6",
+        "quality": "6/6"
+      },
+      "tool_calls": 41,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 168.9,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_flaky_inventory_race",
+      "category": "flaky_test",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "6/6"
+      },
+      "tool_calls": 42,
+      "turns": 23,
+      "steps_to_answer": null,
+      "seconds": 212.9,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_backorders",
+      "category": "multi_service_rollout",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "9/9",
+        "deployment": "7/7",
+        "quality": "7/7"
+      },
+      "tool_calls": 49,
+      "turns": 26,
+      "steps_to_answer": null,
+      "seconds": 119.6,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_detect_inventory",
+      "category": "aiops_detection",
+      "difficulty": "easy",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/4",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 6,
+      "turns": 4,
+      "steps_to_answer": 6,
+      "seconds": 26.3,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_localize_analytics_errors",
+      "category": "aiops_localization",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 11,
+      "turns": 6,
+      "steps_to_answer": 11,
+      "seconds": 35.9,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_inventory_pool",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 31,
+      "turns": 13,
+      "steps_to_answer": 31,
+      "seconds": 101.7,
+      "error": null
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_inventory_unbound_storage",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.8667,
+      "dimension_fractions": {
+        "correctness": 0.833,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 40,
+      "turns": 17,
+      "steps_to_answer": 40,
+      "seconds": 151.7,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8667): correctness/offending_key_correct - the offending key is fast-ssd-gp4 | quality also flagged: quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "answer_submitted"
+        },
+        {
+          "dimension": "correctness",
+          "name": "answer_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "consulted_local_deploy_log"
+        },
+        {
+          "dimension": "quality",
+          "name": "assumption_engages_the_ambiguity"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rcn_production_deploys",
+      "category": "reconciliation",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.58,
+      "dimension_fractions": {
+        "correctness": 0.4,
+        "deployment": 1.0,
+        "quality": 0.4
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/5",
+        "deployment": "1/1",
+        "quality": "2/5"
+      },
+      "tool_calls": 77,
+      "turns": 20,
+      "steps_to_answer": null,
+      "seconds": 274.0,
+      "error": "assertion: 3 verifier(s) failed (PC score=0.58): correctness/answer_submitted - submit an answer for question_id 'Q-PD-7D'; correctness/answer_correct - only search v3.0.5 (day 414) and api-gateway v5.1.0 (day 416) qualify; the day 417 entry is a rollback and the nonprod-staging entry is not production; correctness/consulted_local_deploy_log - the answer requires evidence from local_deploy_log | quality also flagged: quality/assumption_engages_the_ambiguity, quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "deployment",
+          "name": "ack_before_resolve"
+        }
+      ],
+      "task_id": "tsk_payments_retry_from_code",
+      "category": "error_rate_reduction",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.925,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 0.75,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "8/8",
+        "deployment": "3/4",
+        "quality": "6/6"
+      },
+      "tool_calls": 34,
+      "turns": 19,
+      "steps_to_answer": null,
+      "seconds": 121.8,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.925): deployment/ack_before_resolve - runbook order: acknowledge alarm 9601 before resolving it"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "jira_twin_resolved"
+        }
+      ],
+      "task_id": "tsk_media_cdn",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 0.9857,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.857
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "3/3",
+        "quality": "6/7"
+      },
+      "tool_calls": 33,
+      "turns": 15,
+      "steps_to_answer": null,
+      "seconds": 83.7,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_express_checkout",
+      "category": "feature_flag",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "4/4",
+        "quality": "6/6"
+      },
+      "tool_calls": 30,
+      "turns": 19,
+      "steps_to_answer": null,
+      "seconds": 213.9,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_checkout_v2_layout_cleanup",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "3/3",
+        "quality": "6/6"
+      },
+      "tool_calls": 44,
+      "turns": 23,
+      "steps_to_answer": null,
+      "seconds": 137.7,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_retire_metrics_endpoint",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "3/3",
+        "quality": "6/6"
+      },
+      "tool_calls": 35,
+      "turns": 25,
+      "steps_to_answer": null,
+      "seconds": 114.1,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_media_v1_to_v2",
+      "category": "api_migration",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "6/6",
+        "quality": "6/6"
+      },
+      "tool_calls": 41,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 134.1,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_flaky_gateway_timeout",
+      "category": "flaky_test",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "6/6"
+      },
+      "tool_calls": 46,
+      "turns": 26,
+      "steps_to_answer": null,
+      "seconds": 201.1,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_media_pipeline",
+      "category": "multi_service_rollout",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "8/8",
+        "deployment": "6/6",
+        "quality": "7/7"
+      },
+      "tool_calls": 45,
+      "turns": 26,
+      "steps_to_answer": null,
+      "seconds": 111.8,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_detect_storefront_healthy",
+      "category": "aiops_detection",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/4",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 8,
+      "turns": 5,
+      "steps_to_answer": 8,
+      "seconds": 25.4,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_localize_media_latency",
+      "category": "aiops_localization",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 16,
+      "turns": 7,
+      "steps_to_answer": 16,
+      "seconds": 46.5,
+      "error": null
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_media_disk_pressure",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.7667,
+      "dimension_fractions": {
+        "correctness": 0.667,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 69,
+      "turns": 30,
+      "steps_to_answer": 69,
+      "seconds": 201.2,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.7667): correctness/fault_type_correct - the root cause is a node_unhealthy fault; correctness/offending_key_correct - the offending key is node-b3 | quality also flagged: quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_localize_analytics_crashloop",
+      "category": "aiops_localization",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 20,
+      "turns": 10,
+      "steps_to_answer": 20,
+      "seconds": 82.3,
+      "error": null
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "consulted_pd_services"
+        },
+        {
+          "dimension": "correctness",
+          "name": "consulted_pd_oncall"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rcn_gateway_owner",
+      "category": "reconciliation",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.7886,
+      "dimension_fractions": {
+        "correctness": 0.714,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/7",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 14,
+      "turns": 7,
+      "steps_to_answer": null,
+      "seconds": 43.8,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.7886): correctness/consulted_pd_services - the answer requires evidence from pd_services; correctness/consulted_pd_oncall - the answer requires evidence from pd_oncall | quality also flagged: quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_payments_notify_timeout",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "3/3",
+        "quality": "6/6"
+      },
+      "tool_calls": 27,
+      "turns": 16,
+      "steps_to_answer": null,
+      "seconds": 96.3,
+      "error": null
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "deployment",
+          "name": "ack_before_resolve"
+        }
+      ],
+      "task_id": "tsk_catalog_pricing_from_code",
+      "category": "latency_optimization",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.9,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 0.667,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "2/3",
+        "quality": "6/6"
+      },
+      "tool_calls": 42,
+      "turns": 23,
+      "steps_to_answer": null,
+      "seconds": 191.9,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.9): deployment/ack_before_resolve - runbook order: acknowledge alarm 9605 before resolving it"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_search_autocomplete",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "3/3",
+        "quality": "6/6"
+      },
+      "tool_calls": 36,
+      "turns": 18,
+      "steps_to_answer": null,
+      "seconds": 131.6,
+      "error": null
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "dependency_deployed"
+        },
+        {
+          "dimension": "correctness",
+          "name": "vulnerability_remediated"
+        },
+        {
+          "dimension": "deployment",
+          "name": "canary_then_promote"
+        },
+        {
+          "dimension": "quality",
+          "name": "security_audit_note"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_cve_libpayproc",
+      "category": "security_incident",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.6171,
+      "dimension_fractions": {
+        "correctness": 0.6,
+        "deployment": 0.667,
+        "quality": 0.571
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "3/5",
+        "deployment": "2/3",
+        "quality": "4/7"
+      },
+      "tool_calls": 17,
+      "turns": 11,
+      "steps_to_answer": null,
+      "seconds": 653.0,
+      "error": "assertion: 3 verifier(s) failed (PC score=0.6171): correctness/dependency_deployed - production payments must run libpayproc 2.4.0; correctness/vulnerability_remediated - CVE-2026-31337 must show remediated once the fixed version is in production; deployment/canary_then_promote - payments is tier 1: canary at <=25%, assess, then promote_canary | quality also flagged: quality/security_audit_note, quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_checkout_hardcoded_secret",
+      "category": "security_incident",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "3/3",
+        "quality": "7/7"
+      },
+      "tool_calls": 32,
+      "turns": 17,
+      "steps_to_answer": null,
+      "seconds": 113.2,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_inventory_v1_to_v2",
+      "category": "api_migration",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "6/6",
+        "quality": "4/6"
+      },
+      "tool_calls": 46,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 124.7,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_flaky_search_index",
+      "category": "flaky_test",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "6/6"
+      },
+      "tool_calls": 47,
+      "turns": 27,
+      "steps_to_answer": null,
+      "seconds": 198.2,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_search_relevance",
+      "category": "multi_service_rollout",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "4/4",
+        "quality": "6/6"
+      },
+      "tool_calls": 37,
+      "turns": 22,
+      "steps_to_answer": null,
+      "seconds": 84.2,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_detect_status_page_recurrence",
+      "category": "aiops_detection",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 12,
+      "turns": 5,
+      "steps_to_answer": 12,
+      "seconds": 34.3,
+      "error": null
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "service_localized"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_localize_checkout_latency",
+      "category": "aiops_localization",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.8467,
+      "dimension_fractions": {
+        "correctness": 0.8,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/5",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 28,
+      "turns": 12,
+      "steps_to_answer": 28,
+      "seconds": 94.4,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8467): correctness/service_localized - the responsible service is payments | quality also flagged: quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "diagnosis_submitted"
+        },
+        {
+          "dimension": "correctness",
+          "name": "service_localized"
+        },
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "efficient_investigation"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_search_unscheduled_reindex",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.5333,
+      "dimension_fractions": {
+        "correctness": 0.333,
+        "deployment": 1.0,
+        "quality": 0.333
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/6",
+        "deployment": "1/1",
+        "quality": "2/6"
+      },
+      "tool_calls": 77,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 226.0,
+      "error": "assertion: 4 verifier(s) failed (PC score=0.5333): correctness/diagnosis_submitted - submit a root-cause result for scope 'search-stale-index'; correctness/service_localized - the responsible service is search; correctness/fault_type_correct - the root cause is a misconfig fault; correctness/offending_key_correct - the offending key is accelerator=gpu-a100 | quality also flagged: quality/evidence_recorded, quality/efficient_investigation, quality/ticket_closed, quality/closed_after_the_work"
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rcn_running_version",
+      "category": "reconciliation",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 0.96,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 18,
+      "turns": 9,
+      "steps_to_answer": null,
+      "seconds": 55.9,
+      "error": null
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "assumption_engages_the_ambiguity"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rcn_alerts_for_incident",
+      "category": "reconciliation",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 0.94,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.4
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "2/5"
+      },
+      "tool_calls": 22,
+      "turns": 10,
+      "steps_to_answer": null,
+      "seconds": 70.0,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_judge_payments_retry",
+      "category": "judgement",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.96,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 21,
+      "turns": 10,
+      "steps_to_answer": null,
+      "seconds": 83.0,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_judge_analytics_oom",
+      "category": "judgement",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 0.96,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 17,
+      "turns": 8,
+      "steps_to_answer": null,
+      "seconds": 43.7,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_judge_gateway_latency",
+      "category": "judgement",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 0.96,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 34,
+      "turns": 16,
+      "steps_to_answer": null,
+      "seconds": 230.3,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "chose_the_root_cause_fix"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_judge_checkout_flag",
+      "category": "judgement",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.84,
+      "dimension_fractions": {
+        "correctness": 0.8,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/5",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 14,
+      "turns": 7,
+      "steps_to_answer": null,
+      "seconds": 55.2,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.84): correctness/chose_the_root_cause_fix - proposal 401 is the runtime kill switch, which mitigates immediately with no deploy; 402 rolls back a deploy that is not the cause, 403 is the right eventual fix but takes a full pipeline while customers are affected, and 404 tunes an unrelated timeout | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "the_work_landed"
+        }
+      ],
+      "task_id": "tsk_gated_rotate_partner_credential",
+      "category": "human_gated",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.88,
+      "dimension_fractions": {
+        "correctness": 0.8,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/5",
+        "deployment": "4/4",
+        "quality": "5/5"
+      },
+      "tool_calls": 54,
+      "turns": 26,
+      "steps_to_answer": null,
+      "seconds": 124.8,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.88): correctness/the_work_landed - partner_key_version must be 2 in production once approved",
+      "trial": 0
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "config_deployed_to_production"
+        },
+        {
+          "dimension": "correctness",
+          "name": "ci_all_stages_green"
+        },
+        {
+          "dimension": "correctness",
+          "name": "metric_within_slo"
+        },
+        {
+          "dimension": "correctness",
+          "name": "alarm_resolved"
+        },
+        {
+          "dimension": "deployment",
+          "name": "ack_before_resolve"
+        },
+        {
+          "dimension": "correctness",
+          "name": "incident_resolved"
+        },
+        {
+          "dimension": "quality",
+          "name": "pr_linked_to_ticket"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        },
+        {
+          "dimension": "quality",
+          "name": "pr_has_description"
+        },
+        {
+          "dimension": "quality",
+          "name": "jira_twin_resolved"
+        }
+      ],
+      "task_id": "tsk_inventory_pool",
+      "category": "error_rate_reduction",
+      "difficulty": "hard",
+      "passed": false,
+      "score": 0.4536,
+      "dimension_fractions": {
+        "correctness": 0.375,
+        "deployment": 0.667,
+        "quality": 0.286
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "3/8",
+        "deployment": "2/3",
+        "quality": "2/7"
+      },
+      "tool_calls": 58,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 204.6,
+      "error": "assertion: 6 verifier(s) failed (PC score=0.4536): correctness/config_deployed_to_production - production inventory must run with db_pool_size=20 (merged AND deployed); correctness/ci_all_stages_green - the merged pull request must have passed build, unit, integration and regression; correctness/metric_within_slo - inventory error_rate_pct must be within its 1.0 SLO; correctness/alarm_resolved - alarm 9606 must be resolved; deployment/ack_before_resolve - runbook order: acknowledge alarm 9606 before resolving it; correctness/incident_resolved - incident 9703 must be resolved | quality also flagged: quality/pr_linked_to_ticket, quality/ticket_closed, quality/closed_after_the_work, quality/pr_has_description, quality/jira_twin_resolved",
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_cve_pydantic",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/5",
+        "deployment": "2/2",
+        "quality": "7/7"
+      },
+      "tool_calls": 26,
+      "turns": 14,
+      "steps_to_answer": null,
+      "seconds": 52.8,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_checkout_upsell",
+      "category": "multi_service_rollout",
+      "difficulty": "expert",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "8/8",
+        "deployment": "7/7",
+        "quality": "7/7"
+      },
+      "tool_calls": 49,
+      "turns": 28,
+      "steps_to_answer": null,
+      "seconds": 99.5,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "consulted_prom_series"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rcn_checkout_error_rate",
+      "category": "reconciliation",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.84,
+      "dimension_fractions": {
+        "correctness": 0.8,
+        "deployment": 1.0,
+        "quality": 0.6
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/5",
+        "deployment": "1/1",
+        "quality": "3/5"
+      },
+      "tool_calls": 69,
+      "turns": 29,
+      "steps_to_answer": null,
+      "seconds": 153.2,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.84): correctness/consulted_prom_series - the answer requires evidence from prom_series | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "config_deployed_to_production"
+        },
+        {
+          "dimension": "correctness",
+          "name": "ci_all_stages_green"
+        },
+        {
+          "dimension": "quality",
+          "name": "pr_linked_to_ticket"
+        }
+      ],
+      "task_id": "tsk_analytics_batch_size",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "passed": false,
+      "score": 0.7433,
+      "dimension_fractions": {
+        "correctness": 0.6,
+        "deployment": 1.0,
+        "quality": 0.833
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "3/5",
+        "deployment": "2/2",
+        "quality": "5/6"
+      },
+      "tool_calls": 21,
+      "turns": 13,
+      "steps_to_answer": null,
+      "seconds": 75.2,
+      "error": "assertion: 2 verifier(s) failed (PC score=0.7433): correctness/config_deployed_to_production - production analytics-worker must run with batch_size=200 (merged AND deployed); correctness/ci_all_stages_green - the merged pull request must have passed build, unit, integration and regression | quality also flagged: quality/pr_linked_to_ticket",
+      "trial": 0
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "legacy_retired"
+        },
+        {
+          "dimension": "correctness",
+          "name": "ci_all_stages_green"
+        },
+        {
+          "dimension": "deployment",
+          "name": "drain_before_retire"
+        },
+        {
+          "dimension": "correctness",
+          "name": "consumer_migrated"
+        },
+        {
+          "dimension": "deployment",
+          "name": "consumer_before_retire"
+        },
+        {
+          "dimension": "deployment",
+          "name": "canary_then_promote"
+        },
+        {
+          "dimension": "quality",
+          "name": "pr_linked_to_ticket"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_auth_v1_to_v2",
+      "category": "api_migration",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.625,
+      "dimension_fractions": {
+        "correctness": 0.625,
+        "deployment": 0.667,
+        "quality": 0.5
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "5/8",
+        "deployment": "6/9",
+        "quality": "3/6"
+      },
+      "tool_calls": 42,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 110.8,
+      "error": "assertion: 6 verifier(s) failed (PC score=0.625): correctness/legacy_retired - /v1/auth must be retired in production; correctness/ci_all_stages_green - the retirement pull request must have passed all four CI stages including regression; deployment/drain_before_retire - /v1/auth must be drained to 0% before the retirement pull request merges; correctness/consumer_migrated - the consumer storefront-web must be migrated to auth_api_version=v2 in production; deployment/consumer_before_retire - the consumer must be migrated and deployed before the legacy path is retired; deployment/canary_then_promote - storefront-web is tier 1: canary at <=25%, assess, then promote_canary | quality also flagged: quality/pr_linked_to_ticket, quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "agent",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "service_localized"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_localize_gateway_latency",
+      "category": "aiops_localization",
+      "difficulty": "medium",
+      "passed": false,
+      "score": 0.8467,
+      "dimension_fractions": {
+        "correctness": 0.8,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/5",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 55,
+      "turns": 28,
+      "steps_to_answer": 55,
+      "seconds": 248.6,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8467): correctness/service_localized - the responsible service is api-gateway | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "config_deployed_to_production"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_catalog_cache_ttl",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "passed": false,
+      "score": 0.8467,
+      "dimension_fractions": {
+        "correctness": 0.8,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "4/5",
+        "deployment": "2/2",
+        "quality": "4/6"
+      },
+      "tool_calls": 58,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 189.8,
+      "error": "assertion: 1 verifier(s) failed (PC score=0.8467): correctness/config_deployed_to_production - production catalog must run with catalog_cache_ttl_s=300 (merged AND deployed) | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_flaky_checkout_idempotency",
+      "category": "flaky_test",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "6/6"
+      },
+      "tool_calls": 33,
+      "turns": 18,
+      "steps_to_answer": null,
+      "seconds": 87.1,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_catalog_n_plus_one",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "passed": true,
+      "score": 0.9667,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 0.667
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "6/6",
+        "deployment": "1/1",
+        "quality": "4/6"
+      },
+      "tool_calls": 24,
+      "turns": 12,
+      "steps_to_answer": 24,
+      "seconds": 76.2,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "resolved",
+      "failed_checks": [],
+      "task_id": "tsk_media_webp",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "passed": true,
+      "score": 1.0,
+      "dimension_fractions": {
+        "correctness": 1.0,
+        "deployment": 1.0,
+        "quality": 1.0
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "7/7",
+        "deployment": "3/3",
+        "quality": "6/6"
+      },
+      "tool_calls": 40,
+      "turns": 22,
+      "steps_to_answer": null,
+      "seconds": 141.4,
+      "error": null,
+      "trial": 0
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "module_live_storefront-web"
+        },
+        {
+          "dimension": "deployment",
+          "name": "canary_then_promote"
+        },
+        {
+          "dimension": "deployment",
+          "name": "rollout_order"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_loyalty_points",
+      "category": "multi_service_rollout",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.8257,
+      "dimension_fractions": {
+        "correctness": 0.9,
+        "deployment": 0.714,
+        "quality": 0.714
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "9/10",
+        "deployment": "5/7",
+        "quality": "5/7"
+      },
+      "tool_calls": 53,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 107.9,
+      "error": "assertion: 3 verifier(s) failed (PC score=0.8257): correctness/module_live_storefront-web - loyalty_widget must be live in production storefront-web; deployment/canary_then_promote - storefront-web is tier 1: canary at <=25%, assess, then promote_canary; deployment/rollout_order - production rollout order must be catalog then checkout then storefront-web | quality also flagged: quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    },
+    {
+      "outcome": "capped",
+      "failed_checks": [
+        {
+          "dimension": "correctness",
+          "name": "diagnosis_submitted"
+        },
+        {
+          "dimension": "correctness",
+          "name": "service_localized"
+        },
+        {
+          "dimension": "correctness",
+          "name": "fault_type_correct"
+        },
+        {
+          "dimension": "correctness",
+          "name": "offending_key_correct"
+        },
+        {
+          "dimension": "quality",
+          "name": "evidence_recorded"
+        },
+        {
+          "dimension": "quality",
+          "name": "efficient_investigation"
+        },
+        {
+          "dimension": "quality",
+          "name": "ticket_closed"
+        },
+        {
+          "dimension": "quality",
+          "name": "closed_after_the_work"
+        }
+      ],
+      "task_id": "tsk_rca_inventory_migrator_security_context",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "passed": false,
+      "score": 0.5333,
+      "dimension_fractions": {
+        "correctness": 0.333,
+        "deployment": 1.0,
+        "quality": 0.333
+      },
+      "quality_judge": "deterministic",
+      "dimensions": {
+        "correctness": "2/6",
+        "deployment": "1/1",
+        "quality": "2/6"
+      },
+      "tool_calls": 76,
+      "turns": 30,
+      "steps_to_answer": null,
+      "seconds": 354.9,
+      "error": "assertion: 4 verifier(s) failed (PC score=0.5333): correctness/diagnosis_submitted - submit a root-cause result for scope 'inventory-schema-drift'; correctness/service_localized - the responsible service is inventory; correctness/fault_type_correct - the root cause is a misconfig fault; correctness/offending_key_correct - the offending key is runAsNonRoot | quality also flagged: quality/evidence_recorded, quality/efficient_investigation, quality/ticket_closed, quality/closed_after_the_work",
+      "trial": 0
+    }
+  ],
+  "max_turns": 30
+}
