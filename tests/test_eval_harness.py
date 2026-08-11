@@ -635,3 +635,23 @@ def test_terminal_adapter_runs_the_container_with_a_network():
     assert '"--network", "none"' not in code, (
         "the task container must not be network-isolated: terminal-bench's grader "
         "installs its own dependencies before it can run")
+
+
+def test_terminal_adapter_refuses_to_build_when_the_disk_is_nearly_full():
+    """A six-task sweep of these images filled a 460GB volume. That is not a slow
+    failure: with no space the harness cannot create its own output files, so every
+    tool call fails before it runs - including the ones needed to clean up.
+
+    So the adapter checks free space before building and removes each image after
+    running it, rather than accumulating them.
+    """
+    sys.path.insert(0, str(ROOT))
+    import terminal_adapter as TA
+
+    assert TA.MIN_FREE_GB >= 5, "the floor is too low to be worth having"
+    assert TA.free_gb() is not None, "free space must be measurable"
+
+    src = (ROOT / "terminal_adapter.py").read_text()
+    body = src[src.index("def run_task("):src.index("def main(")]
+    assert "MIN_FREE_GB" in body, "run_task does not check free space before building"
+    assert '"rmi"' in body, "run_task does not remove the image it built"

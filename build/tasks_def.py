@@ -78,6 +78,14 @@ def _msg_count(_ch, _needle):
     return _one("SELECT COUNT(*) FROM messages WHERE channel=? AND author='agent' AND body LIKE ?", _ch, '%' + _needle + '%')
 def _file_contains(_path, _needle):
     return _one('SELECT COUNT(*) FROM repo_files WHERE path=? AND content LIKE ?', _path, '%' + _needle + '%')
+def _open_followup(_svc, _needle):
+    # A postmortem that has already been closed is not a follow-up, it is a
+    # formality. The defect outlives the incident, so the record must too.
+    return _one("SELECT COUNT(*) FROM tickets WHERE type='postmortem' AND service=? "
+                "AND status != 'done' AND (title LIKE ? OR description LIKE ?)",
+                _svc, '%' + _needle + '%', '%' + _needle + '%') >= 1
+
+
 def _postmortems(_svc, _needle):
     return _one("SELECT COUNT(*) FROM tickets WHERE type='postmortem' AND service=? AND (title LIKE ? OR description LIKE ?)", _svc, '%' + _needle + '%', '%' + _needle + '%')
 def _status_posts(_state):
@@ -1085,6 +1093,62 @@ def _aiops_common(checks, scope, steps_budget):
                    "reach a conclusion within %d tool calls" % steps_budget))
 
 
+def gen_horizon(spec):
+    """Mitigate now, and leave the real fix findable.
+
+    Every change family here ends when the metric recovers. On-call does not: the
+    lever that stops the bleeding is usually not the lever that fixes the defect,
+    and the gap between them is where work gets lost. A rollback restores service
+    and leaves the leak in every version at or above the bad one. Killing a flag
+    restores checkout and leaves the regression in the code.
+
+    So the horizon check is not "did you do more steps". It is: having mitigated,
+    did you record what is still broken, in terms someone else can pick up, and
+    did you leave it OPEN rather than closing it because the graph looks fine.
+    """
+    tkt, svc = spec["ticket"][0], spec["service"]
+    instruction = (
+        "%s — %s\n\n%s\n\nStop the bleeding first. Then make sure the thing that "
+        "actually caused it is written down somewhere the next person will find it - "
+        "the mitigation is not the fix, and the graph looking healthy is not the same "
+        "as the defect being gone."
+        % (tkt, spec["ticket"][2], spec["symptom"]))
+    checks = [
+        ("correctness", "service_recovered",
+         "_metric(%s, %s) <= %r" % (q(svc), q(spec["metric"]), spec["threshold"]),
+         "%s %s must be back within its objective" % (svc, spec["metric"])),
+        ("deployment", "mitigated_with_the_right_lever",
+         "_called(%s)" % q(spec["lever"]),
+         "use %s to mitigate" % spec["lever"]),
+        # An unacknowledged alert is assumed unowned and escalates. Every other
+        # incident family here grades this; leaving it out made these two the only
+        # change tasks a policy-blind agent could pass.
+        ("deployment", "ack_before_mitigating",
+         "0 < _alert_seq('acknowledge_alert', %d)" % spec["alert_id"],
+         "acknowledge alarm %d before mitigating - an unacknowledged page is "
+         "assumed unowned" % spec["alert_id"]),
+        # The horizon: the work that outlives the incident.
+        ("correctness", "root_cause_written_down",
+         "_postmortems(%s, %s) >= 1" % (q(svc), q(spec["root_cause_key"])),
+         "file a postmortem for %s naming %s - the mitigation is not the cause"
+         % (svc, spec["root_cause_key"])),
+        ("correctness", "followup_left_open",
+         "_open_followup(%s, %s)" % (q(svc), q(spec["root_cause_key"])),
+         "the follow-up must still be OPEN: the defect is not fixed, only masked"),
+        ("quality", "ticket_closed", "_ticket_status(%s) == 'done'" % q(tkt),
+         "close ticket %s once the service is recovered and the follow-up is filed" % tkt),
+        ("quality", "closed_after_the_work", "_closed_after_work(%s)" % q(tkt),
+         "close %s only once both are done" % tkt),
+    ]
+    calls = list(spec.get("reads", []))
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}}] + calls + spec["mitigation"] + [
+        {"tool": "create_ticket", "args": {
+            "title": spec["followup_title"], "ticket_type": "postmortem",
+            "description": spec["followup_body"], "service": svc, "priority": "high"}},
+        {"tool": "update_ticket", "args": {"key": tkt, "status": "done"}}]
+    return instruction, checks, calls
+
+
 def gen_workspace(spec):
     """A terminal-shaped task: read the code, find the bug, prove it with the check.
 
@@ -1677,7 +1741,7 @@ GENERATORS = {
     "gated": gen_gated,
     "judgement": gen_judgement,
     "reconcile": gen_reconcile,
-    "workspace": gen_workspace, "crosssystem": gen_crosssystem, "attribution": gen_attribution, "implement": gen_implement, "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
+    "horizon": gen_horizon, "workspace": gen_workspace, "crosssystem": gen_crosssystem, "attribution": gen_attribution, "implement": gen_implement, "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
     "config_fix": gen_config_fix, "flag_ship": gen_flag_ship, "flag_kill": gen_flag_kill,
     "flag_cleanup": gen_flag_cleanup, "security_cve": gen_security_cve,
     "security_endpoint": gen_security_endpoint, "security_secret": gen_security_secret,
@@ -1767,6 +1831,9 @@ GUIDANCE = {
                  "the service naming across them, check for duplicates and sampling before "
                  "counting, decide the boundary condition explicitly, and record which "
                  "source you trusted and why.",
+    "horizon": "Procedure: mitigate with the fastest safe lever, confirm the metric "
+               "recovers, then file a postmortem naming the underlying defect and leave "
+               "it open for the owning team.",
     "workspace": "Procedure: read the library and the check, run the check to see it "
                  "fail, change the library so it passes, and run it again. The check "
                  "itself is not yours to change.",

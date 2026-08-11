@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_8384d9e0",
+  "world_id": "env_software_devops_19fedac3",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "8384d9e0d74313664c9583544223cc6d5d873487fa6900fcbc68fec63d83cec7",
+  "world_digest": "19fedac3ffcb96b4fe0b7ba520a429fe9328744eeb7b92aaabee6c6b368edcdf",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -86,18 +86,18 @@
   "tables_without_tools": [],
   "counts": {
     "tables": 71,
-    "rows": 1443,
+    "rows": 1445,
     "tools": 95,
-    "tasks": 179,
+    "tasks": 181,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
     "documents": 30
   },
   "difficulty": {
-    "hard": 54,
+    "hard": 55,
     "medium": 67,
-    "expert": 46,
+    "expert": 47,
     "easy": 12
   },
   "categories": {
@@ -113,6 +113,7 @@
     "aiops_analysis": 17,
     "code_implementation": 4,
     "cross_system": 26,
+    "horizon": 2,
     "workspace": 1,
     "attribution": 13,
     "reconciliation": 7,
@@ -149,6 +150,8 @@
       "tsk_flaky_search_index",
       "tsk_gated_rotate_partner_credential",
       "tsk_gateway_v510_rollback",
+      "tsk_hz_checkout_flag_kill",
+      "tsk_hz_gateway_leak_rollback",
       "tsk_impl_backoff",
       "tsk_impl_cachekey",
       "tsk_impl_chunk",
@@ -305,7 +308,7 @@
     ]
   },
   "task_creation": {
-    "accepted": 179,
+    "accepted": 181,
     "rejected": 0
   },
   "personas": [

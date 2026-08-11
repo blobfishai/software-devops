@@ -37,12 +37,24 @@ import sys
 import time
 
 ROOT = pathlib.Path(__file__).resolve().parent
+# Below this, a build is refused. Chosen because a single task's image reached
+# 941MB and a sweep of six exhausted a 460GB volume's free space.
+MIN_FREE_GB = 12
 TASKS = (ROOT / "research" / "repos" / "evals" /
          "laude-institute__terminal-bench" / "original-tasks")
 
 
 def run(cmd, timeout=900, **kw):
     return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, **kw)
+
+
+def free_gb():
+    """Free space on the volume docker builds into."""
+    import shutil as _sh
+    try:
+        return _sh.disk_usage("/").free / (1024 ** 3)
+    except Exception:  # noqa: BLE001
+        return None
 
 
 def docker_ok():
@@ -90,6 +102,17 @@ def run_task(name, solve=True, timeout=1800, keep=False):
     rec = {"task_id": name, "source_repo": "terminal-bench",
            "source_path": str(d.relative_to(ROOT)), "solved_with": "solution.sh" if solve else "none"}
 
+    # These images are large - one task in the first sweep produced a 941MB image,
+    # and six of them filled this machine's disk, which stopped every tool call
+    # including the ones needed to clean up. Refuse to start rather than repeat
+    # that, and remove the image afterwards rather than accumulating them.
+    free = free_gb()
+    if free is not None and free < MIN_FREE_GB:
+        rec.update(outcome="environment",
+                   error="only %.1fGB free; these images run to ~1GB each and a full "
+                         "disk stops everything, so refusing to build" % free)
+        return rec
+
     run(["docker", "rm", "-f", cont], timeout=120)
     b = run(["docker", "build", "-q", "-t", tag, str(d)], timeout=timeout)
     if b.returncode != 0:
@@ -134,6 +157,7 @@ def run_task(name, solve=True, timeout=1800, keep=False):
     finally:
         if not keep:
             run(["docker", "rm", "-f", cont], timeout=120)
+            run(["docker", "rmi", "-f", tag], timeout=300)
     rec["seconds"] = round(time.time() - started, 1)
     return rec
 
