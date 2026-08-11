@@ -113,7 +113,11 @@ REPRODUCED = {
                                             "channels, plane -> tickets); each records the "
                                             "source directory. 38 more sde tasks have "
                                             "substrate and are queued in port.py"),
-    "laude-institute__terminal-bench": (0, "no terminal, so none of its tasks transfer"),
+    "laude-institute__terminal-bench": (236, "not hosted IN the world and not "
+                                             "simulated: terminal_adapter.py builds each "
+                                             "task's own Dockerfile, runs it, grades with "
+                                             "its own tests and reports in Harbor shape. "
+                                             "236 of 241 carry a Dockerfile and tests"),
     "princeton-nlp__SWE-bench": (4, "code_implementation tasks are genuinely executed "
                                     "against hidden tests, which is the shape; they are "
                                     "single functions rather than repositories"),

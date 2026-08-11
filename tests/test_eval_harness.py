@@ -600,3 +600,38 @@ def test_repair_leaves_correctly_attributed_reports_alone():
                   "outcome_reason": "matched 'HARNESS: provider error'"}]
     assert analyse_run.repair_attribution(new_style)[0]["outcome"] == "harness", \
         "a self-describing report was second-guessed by the repair pass"
+
+
+def test_terminal_adapter_enumerates_and_parses():
+    """terminal-bench tasks run in the containers they ship rather than inside the
+    simulation. The parts that can be tested without docker are the two that were
+    actually wrong: what counts as a runnable task, and how a test result is read
+    out of pytest output."""
+    sys.path.insert(0, str(ROOT))
+    import terminal_adapter as TA
+
+    names = TA.list_tasks()
+    assert len(names) > 100, "expected terminal-bench tasks on disk, found %d" % len(names)
+    for n in names[:5]:
+        d = TA.TASKS / n
+        assert (d / "Dockerfile").exists() and (d / "run-tests.sh").exists(), n
+
+    assert TA.parse_tests("== 3 passed in 0.04s ==") == (3, 0)
+    assert TA.parse_tests("== 1 failed, 2 passed ==") == (2, 1)
+    assert TA.parse_tests("collected 0 items\n2 errors") == (0, 2)
+    # the failure mode that produced a 0% oracle: tests never ran at all
+    assert TA.parse_tests("uv: command not found") == (0, 0)
+
+
+def test_terminal_adapter_runs_the_container_with_a_network():
+    """The first oracle run scored 0% with a correct solution, because the container
+    had --network none and terminal-bench's own run-tests.sh installs curl and uv
+    before it can grade anything. The container boundary is the isolation that
+    matters; the network is not optional."""
+    src = (ROOT / "terminal_adapter.py").read_text()
+    run_block = src[src.index("def run_task("):src.index("def main(")]
+    # the flag itself, not the comment that explains why it is absent
+    code = "\n".join(l for l in run_block.splitlines() if not l.strip().startswith("#"))
+    assert '"--network", "none"' not in code, (
+        "the task container must not be network-isolated: terminal-bench's grader "
+        "installs its own dependencies before it can run")

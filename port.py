@@ -85,9 +85,12 @@ BEYOND_WORKSPACE = re.compile(
     r"\binstall\b|\bclone\b|\bbuild\b|\bcompile\b|\bserver\b|\bendpoint\b|"
     r"\.(c|cpp|rs|go|java)\b|\bmodel\b|\bGPU\b|\bCUDA\b)", re.I)
 
+# "shell" is no longer a dead end. terminal_adapter.py runs these tasks in the
+# containers terminal-bench ships for them and reports the result in the same
+# Harbor shape as everything else, so they run - just not inside the simulation.
 NO_SUBSTITUTE = {
-    "shell": "package installs, containers, compilers and networking, which this "
-             "world deliberately does not have",
+    "shell": "needs a real machine; runs via terminal_adapter.py in the task's own "
+             "container rather than inside the simulated world",
     "browser": "no rendering surface and no DOM",
     "desktop": "no window server",
     "kubernetes-live": "a real cluster to mutate, not a modelled one",
