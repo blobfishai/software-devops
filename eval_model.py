@@ -547,6 +547,8 @@ def main():
             reason = "matched %r" % hit
         rec = {"outcome": outcome, "outcome_reason": reason,
                "failed_checks": failed_checks,
+               "prompt_tokens": stats.get("prompt_tokens", 0),
+               "completion_tokens": stats.get("completion_tokens", 0),
                "task_id": tid, "category": task.get("category"),
                "difficulty": task.get("difficulty"),
                "passed": bool(verdict.get("passed")), "score": pc,
@@ -636,6 +638,12 @@ def main():
              "mean_score": mean_score, "trials": args.trials,
              "outcomes": dict(outcomes),
              "attributable_episodes": scored,
+             # What the run cost. A lab choosing whether to run this deserves the
+             # number next to the score, not a separate estimate.
+             "spend": {"prompt_tokens": sum(r.get("prompt_tokens", 0) for r in records),
+                       "completion_tokens": sum(r.get("completion_tokens", 0)
+                                                for r in records),
+                       "episodes": len(records)},
              "pass_hat_k": {str(k): (lambda vs: sum(vs) / len(vs) if vs else None)(
                  [v for v in (pass_hat_k(sum(x), len(x), k) for x in trials.values())
                   if v is not None])

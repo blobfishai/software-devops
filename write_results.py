@@ -145,6 +145,15 @@ def section(run):
               "Mean %.1f tool calls per episode: %.1f when it passed, %.1f when it failed."
               % (sum(calls) / len(calls), sum(won) / len(won), sum(lost) / len(lost)),
               ""]
+    sp = run.get("spend") or {}
+    if sp.get("prompt_tokens"):
+        L += ["### Cost", "",
+              "%.1fM prompt tokens and %.0fK completion tokens over %d episodes — most of "
+              "the prompt is the 84 tool schemas, which are identical every turn and so "
+              "are almost entirely cache hits."
+              % (sp["prompt_tokens"] / 1e6, sp["completion_tokens"] / 1e3,
+                 sp.get("episodes", len(scored))),
+              ""]
     L.append(END)
     return "\n".join(L)
 
