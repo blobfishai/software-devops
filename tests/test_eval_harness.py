@@ -386,3 +386,45 @@ def test_pass_hat_k_is_computed_and_degrades_with_k(tmp_path):
     vals = [phk[str(k)] for k in (1, 2, 3)]
     assert all(a >= b - 1e-9 for a, b in zip(vals, vals[1:])), \
         "pass^k increased with k, which is impossible: %s" % phk
+
+
+@pytest.mark.parametrize("args", [
+    ["--policy", "oracle", "--category", "aiops_detection", "--limit", "2"],
+    ["--policy", "oracle", "--split", "heldout", "--limit", "3"],
+    ["--policy", "oracle", "--guidance", "guided", "--limit", "2"],
+    ["--policy", "oracle", "--trials", "2", "--limit", "2"],
+    ["--estimate"],
+])
+def test_eval_model_cli_surface_actually_runs(args, tmp_path):
+    """--trials carried two bugs for its whole existence - a pass rate above 100%
+    and a non-zero exit on a healthy world - purely because nothing ever ran it.
+    Every flag a user is told about in the README gets exercised here, so the next
+    unused option fails loudly rather than on the day someone tries it."""
+    cmd = [sys.executable, str(ROOT / "eval_model.py")] + args
+    if "--estimate" not in args:
+        cmd += ["--out", str(tmp_path / "r.json")]
+    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
+    assert proc.returncode == 0, "%s failed: %s" % (args, proc.stderr[-400:])
+    if "--estimate" in args:
+        assert "input tokens" in proc.stdout
+        return
+    report = json.loads((tmp_path / "r.json").read_text())
+    assert 0.0 <= report["pass_rate"] <= 1.0, \
+        "pass_rate out of range for %s: %s" % (args, report["pass_rate"])
+    assert report["world_id"]
+
+
+@pytest.mark.parametrize("args", [
+    ["--policy", "naive", "--guidance", "guided", "--attempts", "1", "--limit", "2"],
+    ["--policy", "naive", "--attempts", "2", "--limit", "2",
+     "--category", "aiops_detection"],
+])
+def test_calibrate_cli_surface_actually_runs(args, tmp_path):
+    out = tmp_path / "c.json"
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "calibrate.py")] + args + ["--out", str(out)],
+        capture_output=True, text=True, timeout=900)
+    assert proc.returncode == 0, "%s failed: %s" % (args, proc.stderr[-400:])
+    report = json.loads(out.read_text())
+    # provenance: a bucket distribution is only interpretable against its world
+    assert report["world_id"] and report["guidance"] and report["buckets"]
