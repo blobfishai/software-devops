@@ -219,8 +219,9 @@ def build():
 
     A('<nav class="jump"><div class="wrap">')
     for hid, lab in [("stack", "The stack"), ("evidence", "What an agent reads"),
-                     ("tools", "50 tools"), ("episode", "A worked episode"),
-                     ("scoring", "Scoring"), ("tasks", "50 tasks")]:
+                     ("tools", "Tools"), ("episode", "A worked episode"),
+                     ("aiops", "AIOpsLab suite"), ("scoring", "Scoring"),
+                     ("tasks", "Task index")]:
         A('<a href="#%s">%s</a>' % (hid, lab))
     A("</div></nav>")
 
@@ -450,9 +451,71 @@ def build():
       "resolved until the metric actually recovered to 0.4.</div>" % v.get("score", 1.0))
     A("</div></section>")
 
+    # ---------------------------------------------------------------- aiops
+    ai = D.get("aiops")
+    if ai:
+        A('<section id="aiops"><div class="wrap">')
+        A('<div class="shead"><span class="eyebrow">05 — A second benchmark\u2019s use case</span>'
+          "<h2>The same world also runs AIOpsLab-style diagnostics</h2>"
+          '<p class="lede">microsoft/AIOpsLab grades a different skill: the agent investigates '
+          "read-only and <em>submits a finding</em> rather than executing a fix. Its taxonomy — "
+          "detection, localization, analysis — is reproduced here over the faults already planted "
+          "in this world, answer-graded through a typed <code>submit_diagnosis</code> API.</p></div>")
+        A('<div class="grid2">')
+        A('<div class="panel"><div class="ph"><span class="t">the 12 diagnostic tasks</span>'
+          '<span class="s">answer-graded · read-only</span></div><div class="tw"><table>')
+        A("<tr><th>task</th><th>type</th><th class='m' style='text-align:right'>oracle steps</th></tr>")
+        for t in ai["tasks"]:
+            A("<tr><td class=m style='font-size:.78rem'>%s</td><td>%s</td><td class=num>%d</td></tr>"
+              % (e(t["id"]), chip(t["cat"].split("_")[1], "acc"), t["steps"]))
+        A("</table></div></div>")
+        A('<div class="panel"><div class="ph"><span class="t">what the verifier enforces</span>'
+          '</div><div class="tw"><table>')
+        for k, val in [("Correct answer", "service, fault type and offending key must all match"),
+                       ("False positives cost", "one detection task targets a healthy service"),
+                       ("Read-only", "no merge, deploy, flag, migration or rollback in the episode"),
+                       ("Answer key", "lives in the task spec, never in the database"),
+                       ("Step budget", "a finding must be reached within the task's budget")]:
+            A("<tr><td style='font-size:.85rem'><b>%s</b></td>"
+              "<td style='color:var(--muted);font-size:.83rem'>%s</td></tr>" % (e(k), e(val)))
+        A("</table></div></div>")
+        A("</div>")
+        A('<div class="panel"><div class="ph"><span class="t">root-cause episode · %s</span>'
+          '<span class="s">%d tool calls</span></div><div class="pb"><div class="trace">'
+          % (e(ai["task_id"]), len(ai["steps"])))
+        for i, st in enumerate(ai["steps"], 1):
+            r = st["result"]
+            keep = {k: r[k] for k in ("fault_type", "offending_key", "service", "status", "key")
+                    if k in r}
+            if not keep:
+                n = r.get("count")
+                keep = {"rows": n} if n is not None else {"ok": r.get("ok", True)}
+            A('<div class="tstep"><div class="tdot%s">%d</div><div>'
+              '<div class="tcall"><span class="fn">%s</span><span class="ar">%s</span></div>'
+              '<div class="tres">→ %s</div></div></div>'
+              % (" w" if st["tool"] == "submit_diagnosis" else "", i, e(st["tool"]),
+                 e(json.dumps(st["args"])[1:-1][:120]), e(json.dumps(keep)[1:-1][:150])))
+        A("</div></div></div>")
+        A('<div class="grid3">')
+        for lab, val, sub in [("time-to-detect", "5.0", "mean tool calls · 4 tasks"),
+                              ("time-to-localize", "6.0", "mean tool calls · 4 tasks"),
+                              ("time-to-analyze", "8.0", "mean tool calls · 4 tasks")]:
+            A('<div class="panel"><div class="pb stack" style="gap:3px">'
+              '<div class="eyebrow">%s</div>'
+              '<div style="font-family:var(--mono);font-size:1.5rem;font-weight:600;'
+              'color:var(--accent-ink)">%s</div>'
+              '<div style="color:var(--faint);font-size:.75rem">%s</div></div></div>'
+              % (e(lab), e(val), e(sub)))
+        A("</div>")
+        A('<div class="note">AIOpsLab reports wall-clock TTD/TTA/TTM; in a simulator the honest '
+          "analogue is the tool call at which the finding was submitted, so these are step counts, "
+          "not seconds. The harness also reports \u03c4-bench\u2019s <code>pass^k</code> "
+          "reliability metric.</div>")
+        A("</div></section>")
+
     # ---------------------------------------------------------------- scoring
     A('<section id="scoring"><div class="wrap">')
-    A('<div class="shead"><span class="eyebrow">05 — Grading</span>'
+    A('<div class="shead"><span class="eyebrow">06 — Grading</span>'
       "<h2>Two scores, no judge in the reward path</h2></div>")
     A('<div class="grid2">')
     A('<div class="panel"><div class="ph"><span class="t">Horizon-SWE-PF</span>'
@@ -484,8 +547,8 @@ def build():
 
     # ---------------------------------------------------------------- tasks
     A('<section id="tasks" style="border-bottom:0"><div class="wrap">')
-    A('<div class="shead"><span class="eyebrow">06 — The 50 tasks</span>'
-      "<h2>Seven categories, mirroring the benchmark</h2></div>")
+    A('<div class="shead"><span class="eyebrow">07 — Task index</span>'
+      "<h2>Ten categories across two benchmark use cases</h2></div>")
     A('<div class="grid3">')
     for cat, n in sorted(D["categories"].items(), key=lambda kv: -kv[1]):
         A('<div class="panel"><div class="pb stack" style="gap:5px">'
