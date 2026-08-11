@@ -183,7 +183,7 @@ tests fail.
 ### Estimating the real calibration run
 
 ```bash
-python3 eval_model.py --estimate                       # ~26M input tokens for all 62
+python3 eval_model.py --estimate                       # projects tokens for the whole set
 python3 eval_model.py --model <id> --limit 2 --category aiops_detection   # cheap smoke test
 ```
 

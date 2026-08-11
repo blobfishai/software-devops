@@ -272,8 +272,17 @@ def pass_hat_k(successes, n, k):
 # Environment failure is first-order here, not noise: AlgoTune's own oracle passes
 # only ~85%, and three SWE-bench Verified tasks fail with the oracle agent.
 ERROR_SOURCE = ("agent", "harness", "environment", "serverOrTask", "capped", "user")
-HARNESS_MARKERS = ("API ", "exhausted API retries", "urlopen", "HTTPError", "timed out",
-                   "HARNESS: provider error")
+# Symptoms of OUR infrastructure failing. Only ever matched against the error
+# field, never the transcript: these are loose English phrases, and a transcript
+# is full of world content that legitimately contains them. Widening the search to
+# the transcript deleted six genuine model failures from a pass rate, because the
+# world ships a status page post titled "API latency affecting some customers" and
+# documents called "API deprecation" and "API gateway".
+HARNESS_MARKERS = ("API ", "exhausted API retries", "urlopen", "HTTPError", "timed out")
+# The one harness symptom recorded in the transcript rather than the error field,
+# and specific enough to be safe there.
+HARNESS_TRANSCRIPT_MARKERS = ("HARNESS: provider error", "HARNESS: DEEPSEEK_API_KEY",
+                              "HARNESS: OPENAI_API_KEY")
 # Symptoms that mean the WORLD is broken, whoever tripped them.
 ENVIRONMENT_MARKERS = ("no such table", "database is locked", "verifier execution failed",
                        "Traceback", "InternalError")
@@ -300,9 +309,8 @@ def classify_outcome(passed, err, transcript, verdict, turns, max_turns, caller=
         return "resolved"
     blob = "%s %s" % (err or "", verdict.get("error") or "")
     hay = "%s %s" % (blob, transcript or "")
-    # A provider outage is recorded in the transcript, not the error field, so the
-    # harness check has to look at both or a rate limit reads as an agent failure.
-    if any(m in hay for m in HARNESS_MARKERS):
+    if any(m in blob for m in HARNESS_MARKERS) or \
+            any(m in hay for m in HARNESS_TRANSCRIPT_MARKERS):
         return "harness"
     markers = ENVIRONMENT_MARKERS
     if caller == "scripted":

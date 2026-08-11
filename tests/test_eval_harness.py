@@ -460,3 +460,61 @@ def test_the_llm_judge_refuses_rather_than_pretends():
     finally:
         if saved is not None:
             os.environ["DEEPSEEK_API_KEY"] = saved
+
+
+def test_world_content_is_never_mistaken_for_our_own_outage():
+    """`classify_outcome` briefly searched the transcript for harness symptoms, and
+    one symptom was the string "API ". The world ships a status page post titled
+    "API latency affecting some customers" and documents called "API deprecation"
+    and "API gateway" - so any agent that read them had its failure relabelled as
+    our infrastructure failing and DELETED from the pass rate, since harness
+    episodes are excluded rather than counted.
+
+    Six real failures vanished this way in a live sweep, inflating PF from 65.4%
+    to 84.6% before it was caught. Loose English markers are matched against the
+    error field only; the transcript is searched solely for symptoms specific
+    enough to be unambiguous there.
+    """
+    sys.path.insert(0, str(ROOT))
+    from eval_model import classify_outcome, HARNESS_TRANSCRIPT_MARKERS
+
+    trace = ('list_status_page_posts({}) -> {"rows": [{"title": "API latency '
+             'affecting some customers"}]}')
+    verdict = {"error": "assertion: correctness/legacy_retired - /v1/orders must be retired"}
+    assert classify_outcome(False, None, trace, verdict, 7, 30, "model") == "agent", \
+        "world content in a transcript was read as our outage"
+
+    # a genuine provider failure still lands as harness, from the transcript
+    assert all(m.startswith("HARNESS:") for m in HARNESS_TRANSCRIPT_MARKERS), \
+        "transcript-matched markers must be unambiguous, not English phrases"
+    assert classify_outcome(False, None, "HARNESS: provider error: HTTP 429", {},
+                            3, 30, "model") == "harness"
+    # and from the error field, where loose markers are safe
+    assert classify_outcome(False, "HTTPError 500", "", {}, 3, 30, "model") == "harness"
+
+
+def test_reports_written_before_the_fix_are_repaired(tmp_path):
+    """The bug's footprint is exactly recoverable, so reports already on disk are
+    corrected rather than thrown away: an episode is misattributed only if marked
+    `harness` while its recorded error carries no harness or environment symptom."""
+    sys.path.insert(0, str(ROOT))
+    import analyse_run
+
+    tasks = [
+        # misattributed: a real model failure, wrongly excluded
+        {"task_id": "a", "outcome": "harness", "passed": False, "turns": 7,
+         "error": "assertion: correctness/legacy_retired"},
+        # misattributed and out of budget
+        {"task_id": "b", "outcome": "harness", "passed": False, "turns": 30,
+         "error": "assertion: correctness/fault_type_correct"},
+        # genuinely our infrastructure - must stay excluded
+        {"task_id": "c", "outcome": "harness", "passed": False, "turns": 4,
+         "error": "HTTPError 503 from the provider"},
+        # world-side breakage - excluded, but relabelled correctly
+        {"task_id": "d", "outcome": "harness", "passed": False, "turns": 4,
+         "error": "no such table: widgets"},
+        {"task_id": "e", "outcome": "resolved", "passed": True, "turns": 5, "error": None},
+    ]
+    out = {t["task_id"]: t["outcome"] for t in analyse_run.repair_attribution(tasks)}
+    assert out == {"a": "agent", "b": "capped", "c": "harness", "d": "environment",
+                   "e": "resolved"}, out

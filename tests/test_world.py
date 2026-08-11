@@ -656,6 +656,10 @@ def test_documentation_counts_match_the_built_world(tmp_path):
     n = world["counts"]["tasks"]
     wrong = [m for m in _re.findall(r"\b(\d+) tasks\b", readme)
              if m.isdigit() and int(m) not in (n, 8, 7, 6, 5, 4, 3, 2, 1)]
+    # "~26M input tokens for all 62" sat in the README for weeks because the
+    # pattern only looked for the literal word "tasks". Any phrase quantifying the
+    # whole set counts, however it happens to be worded.
+    wrong += [m for m in _re.findall(r"for all (\d+)\b", readme) if int(m) != n]
     assert not wrong, "README claims task counts %s but the world has %d" % (wrong, n)
 
 

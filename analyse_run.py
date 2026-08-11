@@ -25,6 +25,40 @@ import pathlib
 import sys
 
 
+def repair_attribution(tasks):
+    """Undo a known misattribution in reports written before it was fixed.
+
+    `classify_outcome` briefly searched the *transcript* for harness symptoms, and
+    one of those symptoms was the string "API ". The world ships a status page
+    post titled "API latency affecting some customers" and documents called "API
+    deprecation" and "API gateway", so any agent that read them had its failure
+    relabelled as our outage and DELETED from the pass rate.
+
+    The footprint is exactly recoverable: an episode is only misattributed if it
+    is marked `harness` while its recorded error contains no harness or
+    environment symptom at all. Those become `agent`, or `capped` when the turn
+    budget was exhausted. Nothing else is touched.
+    """
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    from eval_model import HARNESS_MARKERS, ENVIRONMENT_MARKERS, CALLER_DEPENDENT_MARKERS
+    fixed = 0
+    for t in tasks:
+        if t.get("outcome") != "harness":
+            continue
+        err = str(t.get("error") or "")
+        if any(m in err for m in HARNESS_MARKERS):
+            continue                                   # genuinely our infrastructure
+        if any(m in err for m in ENVIRONMENT_MARKERS + CALLER_DEPENDENT_MARKERS):
+            t["outcome"] = "environment"               # still excluded, but correctly
+            continue
+        t["outcome"] = "capped" if t.get("turns", 0) >= 30 else "agent"
+        fixed += 1
+    if fixed:
+        print("repaired %d episode(s) misattributed to `harness` by the \"API \" marker; "
+              "they are the model's failures and now count." % fixed)
+    return tasks
+
+
 def load(paths):
     """One report, or several shards of one run merged back together.
 
@@ -50,7 +84,7 @@ def load(paths):
                 continue
             seen.add(key)
             tasks.append(t)
-    merged["tasks"] = tasks
+    merged["tasks"] = repair_attribution(tasks)
     return merged
 
 
