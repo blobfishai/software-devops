@@ -518,3 +518,28 @@ def test_reports_written_before_the_fix_are_repaired(tmp_path):
     out = {t["task_id"]: t["outcome"] for t in analyse_run.repair_attribution(tasks)}
     assert out == {"a": "agent", "b": "capped", "c": "harness", "d": "environment",
                    "e": "resolved"}, out
+
+
+def test_a_sharded_run_reports_incomplete_coverage(tmp_path):
+    """A sharded run that quietly evaluates 77 of 83 tasks produces a pass rate
+    that looks complete and is not - which happened, when a shell read loop
+    dropped the last task of every shard. The runner must notice and say so."""
+    out = tmp_path / "sharded.json"
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "run_sharded.py"), "--policy", "oracle",
+         "--shards", "3", "--category", "aiops_detection", "--out", str(out)],
+        capture_output=True, text=True, timeout=900)
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    merged = json.loads(out.read_text())
+    world = json.loads((ROOT / "world" / "tasks.json").read_text())
+    want = {t["task_id"] for t in world if t["category"] == "aiops_detection"}
+    assert {t["task_id"] for t in merged["tasks"]} == want, \
+        "a deliberate subset must be evaluated in full"
+    # a subset is not "incomplete"; only a run that misses its own scope is
+    assert "INCOMPLETE" not in proc.stdout, proc.stdout
+    assert "incomplete" not in merged
+
+    sys.path.insert(0, str(ROOT))
+    import analyse_run
+    short = analyse_run.load([str(out)], expected=sorted(want) + ["tsk_never_ran"])
+    assert short["incomplete"] == ["tsk_never_ran"]

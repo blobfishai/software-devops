@@ -59,7 +59,7 @@ def repair_attribution(tasks):
     return tasks
 
 
-def load(paths):
+def load(paths, expected=None):
     """One report, or several shards of one run merged back together.
 
     Episodes are independent - each gets its own session fork - so a long sweep
@@ -91,9 +91,13 @@ def load(paths):
     # `while read` loop dropped the final line of every shard file, so six tasks
     # were never run and nothing said so.
     try:
-        world = json.loads((pathlib.Path(__file__).resolve().parent / "world" /
-                            "tasks.json").read_text())
-        expected = {t["task_id"] for t in world}
+        if expected is None:
+            # No stated scope means the caller intends a full run; compare against
+            # the world. A deliberate subset passes its own id set instead.
+            world = json.loads((pathlib.Path(__file__).resolve().parent / "world" /
+                                "tasks.json").read_text())
+            expected = {t["task_id"] for t in world}
+        expected = set(expected)
         got = {t["task_id"] for t in merged["tasks"]}
         missing = sorted(expected - got)
         if missing:
