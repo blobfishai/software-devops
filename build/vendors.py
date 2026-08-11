@@ -286,12 +286,29 @@ ALIASES = [
     ("payments", "payments-api", "pagerduty"),
     ("payments", "payments_service", "prometheus"),
     ("payments", "payments-backend", "sentry"),
+    ("payments", "Payments (commerce)", "spreadsheet"),
     ("search", "search", "kubernetes"),
     ("search", "search-svc", "pagerduty"),
     ("search", "search_service", "prometheus"),
+    ("search", "Search (growth)", "spreadsheet"),
     ("api-gateway", "api-gateway", "kubernetes"),
     ("api-gateway", "edge-gateway", "pagerduty"),
     ("api-gateway", "gateway_service", "prometheus"),
+    # the edge cache fronts the gateway and alerts under its own label; without
+    # this row the cache firings cannot be attributed to the gateway by any
+    # evidence in the world, which would be withheld data rather than
+    # contradictory data (research/notes/domain/F_chaos_scenarios.md F5)
+    ("api-gateway", "edge_cache_service", "alertmanager"),
+    ("api-gateway", "gateway-edge-cache", "grafana"),
+    ("api-gateway", "Gateway (platform)", "spreadsheet"),
+    ("inventory", "inventory", "kubernetes"),
+    ("inventory", "inventory-api", "pagerduty"),
+    ("inventory", "Inventory (commerce)", "spreadsheet"),
+    ("analytics-worker", "analytics-worker", "kubernetes"),
+    ("notifications", "notifications", "kubernetes"),
+    ("media-service", "media-service", "kubernetes"),
+    ("catalog", "catalog", "kubernetes"),
+    ("storefront-web", "storefront-web", "kubernetes"),
 ]
 
 # --------------------------------------------------------------------------
@@ -476,7 +493,7 @@ ALERT_RULES = [
     (603, "ClusterWideLatency", "", "avg(latency) by (cluster) > 400", "critical",
      "cluster", "EP-Platform"),
     (604, "EdgeCacheHitRate", "edge_cache_service",
-     "cache_hit_ratio < 0.8", "medium", "service", "EP-Platform"),
+     "cache_hit_ratio{tier=\"gateway-edge\"} < 0.8", "medium", "service", "EP-Platform"),
     (605, "LegacyCheckoutQueueDepth", "checkout_legacy_worker",
      "queue_depth > 1000", "high", "service", "EP-Commerce"),
 ]
