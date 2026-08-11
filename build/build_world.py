@@ -48,7 +48,7 @@ FROZEN = ("oncall", "slos", "metric_rules", "documents", "channels", "logs",
           "prom_series", "sentry_issues", "sentry_projects", "pd_services",
           "pd_incidents", "pd_oncall", "pd_change_events", "status_page_posts",
           "confluence_pages", "owner_spreadsheet", "local_deploy_log",
-          "service_aliases")
+          "service_aliases", "k8s_events", "k8s_pods")
 # traffic_profile is legitimately updated by shift_endpoint_traffic, so only its
 # row count is pinned; the rest may not gain or lose rows either.
 FIXED_ROWS = ("services", "tests_catalog", "vulnerabilities", "repo_files",
@@ -142,6 +142,11 @@ def build_db(db_path):
     conn.executemany("INSERT INTO owner_spreadsheet(row_id, service_label, owning_team, "
                      "slack_channel, last_reviewed_day, week_start) VALUES (?,?,?,?,?,?)",
                      V.OWNER_SPREADSHEET)
+    conn.executemany("INSERT INTO k8s_pods(pod, namespace, service, image_tag, phase, "
+                     "restarts, memory_limit_mb, memory_usage_mb) VALUES (?,?,?,?,?,?,?,?)",
+                     V.K8S_PODS)
+    conn.executemany("INSERT INTO k8s_events(event_id, namespace, pod, reason, message, "
+                     "count, day) VALUES (?,?,?,?,?,?,?)", V.K8S_EVENTS)
     conn.executemany("INSERT INTO local_deploy_log(service, version, environment, day, "
                      "was_rollback) VALUES (?,?,?,?,?)", V.LOCAL_DEPLOY_LOG)
 

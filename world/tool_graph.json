@@ -71,6 +71,8 @@
     "tool_query_local_deploy_log",
     "tool_resolve_service_alias",
     "tool_list_service_aliases",
+    "tool_k8s_events_list",
+    "tool_k8s_pods_list",
     "tool_submit_answer"
   ],
   "edges": [],

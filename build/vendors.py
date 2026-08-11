@@ -165,6 +165,30 @@ CREATE TABLE local_deploy_log (
     day INTEGER NOT NULL,
     was_rollback INTEGER NOT NULL DEFAULT 0   -- CS-26: do rollbacks count?
 );
+-- Kubernetes events and pod state. The research is explicit that an OOMKill
+-- appears here and in pod metrics but NOT in Sentry - the process dies before
+-- the SDK flushes - while a handled exception is rich in Sentry and invisible
+-- here. The two are complementary blind spots, not redundant sources.
+-- (research/notes/mcp/_TOOL_INVENTORY.md, overlap 3 "What broke?")
+CREATE TABLE k8s_events (
+    event_id INTEGER PRIMARY KEY,
+    namespace TEXT NOT NULL,
+    pod TEXT NOT NULL,
+    reason TEXT NOT NULL,          -- OOMKilled | CrashLoopBackOff | BackOff | Killing
+    message TEXT NOT NULL,
+    count INTEGER NOT NULL DEFAULT 1,
+    day INTEGER NOT NULL
+);
+CREATE TABLE k8s_pods (
+    pod TEXT PRIMARY KEY,
+    namespace TEXT NOT NULL,
+    service TEXT NOT NULL,
+    image_tag TEXT NOT NULL,       -- the ONLY ground truth for what is running
+    phase TEXT NOT NULL,
+    restarts INTEGER NOT NULL DEFAULT 0,
+    memory_limit_mb INTEGER NOT NULL,
+    memory_usage_mb INTEGER NOT NULL
+);
 -- the mapping that makes the naming chaos SOLVABLE rather than cruel (F5)
 CREATE TABLE service_aliases (
     canonical TEXT NOT NULL,
@@ -314,6 +338,33 @@ PD_CHANGE_EVENTS = [
     ("PSVC003", "Deployed edge-gateway v5.1.0", 416),
     ("PSVC001", "Deployed checkout-api v2.6.3", 413),
     ("PSVC002", "Config change: notifications timeout", 414),
+]
+
+# --------------------------------------------------------------------------
+# The OOMKill blind spot: analytics-worker is being killed by the kernel. The
+# kubelet records it; the error tracker never sees it because the process dies
+# before the SDK can flush. An agent that starts from Sentry finds nothing.
+# --------------------------------------------------------------------------
+K8S_PODS = [
+    ("analytics-worker-7d9f-x2k1", "production", "analytics-worker", "v2.1.7",
+     "CrashLoopBackOff", 47, 512, 511),
+    ("analytics-worker-7d9f-m4p8", "production", "analytics-worker", "v2.1.7",
+     "Running", 39, 512, 498),
+    ("checkout-5b8c-aa10", "production", "checkout", "v2.6.3", "Running", 0, 2048, 890),
+    ("payments-6c1d-bb22", "production", "payments", "v2.7.0", "Running", 0, 2048, 1120),
+    # CS: the running image tag disagrees with what the release systems report
+    ("api-gateway-9f2e-cc33", "production", "api-gateway", "v5.0.9", "Running", 1, 1024, 610),
+    ("search-3a7b-dd44", "production", "search", "v3.0.5", "Running", 0, 1024, 700),
+]
+K8S_EVENTS = [
+    (9001, "production", "analytics-worker-7d9f-x2k1", "OOMKilled",
+     "Container analytics exceeded its memory limit of 512Mi and was killed", 47, 419),
+    (9002, "production", "analytics-worker-7d9f-x2k1", "CrashLoopBackOff",
+     "Back-off restarting failed container analytics", 47, 419),
+    (9003, "production", "analytics-worker-7d9f-m4p8", "OOMKilled",
+     "Container analytics exceeded its memory limit of 512Mi and was killed", 39, 420),
+    (9004, "production", "api-gateway-9f2e-cc33", "Killing",
+     "Stopping container gateway for rollout", 1, 417),
 ]
 
 # --------------------------------------------------------------------------

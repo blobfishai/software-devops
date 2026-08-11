@@ -167,6 +167,25 @@ CREATE TABLE jira_issues (
     created_day INTEGER NOT NULL,
     updated_day INTEGER NOT NULL
 );
+CREATE TABLE k8s_events (
+    event_id INTEGER PRIMARY KEY,
+    namespace TEXT NOT NULL,
+    pod TEXT NOT NULL,
+    reason TEXT NOT NULL,          -- OOMKilled | CrashLoopBackOff | BackOff | Killing
+    message TEXT NOT NULL,
+    count INTEGER NOT NULL DEFAULT 1,
+    day INTEGER NOT NULL
+);
+CREATE TABLE k8s_pods (
+    pod TEXT PRIMARY KEY,
+    namespace TEXT NOT NULL,
+    service TEXT NOT NULL,
+    image_tag TEXT NOT NULL,       -- the ONLY ground truth for what is running
+    phase TEXT NOT NULL,
+    restarts INTEGER NOT NULL DEFAULT 0,
+    memory_limit_mb INTEGER NOT NULL,
+    memory_usage_mb INTEGER NOT NULL
+);
 CREATE TABLE linear_issues (
     identifier TEXT PRIMARY KEY,
     team TEXT NOT NULL,

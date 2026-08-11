@@ -423,6 +423,41 @@ _add("aiops_analysis", "analysis", id="rca_inventory_pool", scope="inventory-err
 # Reconciliation suite — questions no single system can answer, over data that
 # disagrees. Every scenario cites research/notes/domain/F_chaos_scenarios.md.
 # ==========================================================================
+_add("aiops_localization", "localization", id="localize_analytics_crashloop", scope="9609",
+     service="analytics-worker", fault_type="resource_exhaustion",
+     offending_key="memory_limit_mb", difficulty="expert", budget=12,
+     evidence="the kubelet records 47 OOMKilled events and a CrashLoopBackOff on "
+              "analytics-worker-7d9f-x2k1 at a 512Mi limit against 511Mi usage; the error "
+              "tracker shows nothing for this service because the process is killed before "
+              "its SDK can flush",
+     ticket=("OPS-116", "critical",
+             "Localize alarm 9609 — the error tracker shows nothing"))
+
+_add("reconciliation", "reconcile", id="rcn_running_version",
+     question_id="Q-VER", difficulty="expert",
+     ticket=("OPS-206", "high", "What version of the API gateway is actually running?"),
+     question="Release records disagree about the API gateway. Someone needs to know what "
+              "is genuinely running in production right now. Answer with the patch number "
+              "of the running version (for vX.Y.Z, answer Z).",
+     expected=9, tolerance=0.001,
+     why="the running container image tag is v5.0.9 - the deploy log's newest entry is the "
+         "day-417 rollback, and release records elsewhere still point at v5.1.0",
+     ambiguity="that several systems record a version and only the running image is truth",
+     required_sources=["k8s_pods", "local_deploy_log"],
+     oracle_reads=[
+         {"tool": "resolve_service_alias", "args": {"name": "api-gateway"}},
+         {"tool": "query_local_deploy_log", "args": {"service": "api-gateway",
+                                                     "since_day": 414}},
+         {"tool": "pd_list_change_events", "args": {"pd_service_id": "PSVC003"}},
+         {"tool": "k8s_pods_list", "args": {"service": "api-gateway"}}],
+     oracle_answer="9 (v5.0.9)",
+     oracle_assumption="Took the running container image tag as ground truth. The PagerDuty "
+                       "change event and the deploy log both record v5.1.0 going out on day "
+                       "416, which is what a release-record-based answer would report, but "
+                       "the day-417 entry is a rollback to v5.0.9 and the pod is running "
+                       "that image. Release systems drift from reality after a rollback; "
+                       "the image tag does not.")
+
 _add("reconciliation", "reconcile", id="rcn_customer_facing_incidents",
      question_id="Q-CFI-7D", difficulty="expert",
      ticket=("OPS-201", "high", "How many customer-facing incidents in the last 7 days?"),

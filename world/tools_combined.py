@@ -2381,6 +2381,51 @@ def list_service_aliases(db_path=None):
         conn.close()
 
 
+def k8s_events_list(db_path=None, namespace=None, pod=None, reason=None):
+    """List Kubernetes events (OOMKilled, CrashLoopBackOff, ...). The kubelet records kernel-level kills that an application error tracker never sees, because the process dies before its SDK can flush."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        sql = 'SELECT * FROM k8s_events'
+        conds, args = [], []
+        for col, val in (('namespace', namespace), ('pod', pod), ('reason', reason)):
+            if val:
+                conds.append(col + '=?'); args.append(val)
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY day DESC, event_id', args).fetchall()]
+    finally:
+        conn.close()
+
+
+def k8s_pods_list(db_path=None, namespace=None, service=None):
+    """List pods with phase, restart count, memory limit/usage and the running image tag. The image tag is the only ground truth for what is actually deployed - release records in other systems drift from it, especially after a rollback."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        sql = 'SELECT * FROM k8s_pods'
+        conds, args = [], []
+        if namespace:
+            conds.append('namespace=?'); args.append(namespace)
+        if service:
+            conds.append('service=?'); args.append(service)
+        if conds:
+            sql += ' WHERE ' + ' AND '.join(conds)
+        return [dict(r) for r in conn.execute(sql + ' ORDER BY pod', args).fetchall()]
+    finally:
+        conn.close()
+
+
 def submit_answer(db_path=None, question_id=None, answer=None, sources=None, assumptions=''):
     """Submit the answer to a reconciliation question. `sources` must list every system you actually consulted (e.g. pd_incidents, status_page_posts). `assumptions` is where you record any judgement you had to make - a week boundary, whether rollbacks count, which of two disagreeing numbers you trusted and why. An answer with no stated assumption on an ambiguous question is not a complete answer."""
     import sqlite3 as _sq

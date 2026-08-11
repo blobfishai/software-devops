@@ -1,5 +1,5 @@
 {
-  "accepted": 68,
+  "accepted": 70,
   "rejected": 0,
   "by_category": {
     "error_rate_reduction": 8,
@@ -10,9 +10,9 @@
     "flaky_test": 6,
     "multi_service_rollout": 7,
     "aiops_detection": 4,
-    "aiops_localization": 5,
+    "aiops_localization": 6,
     "aiops_analysis": 4,
-    "reconciliation": 5
+    "reconciliation": 6
   },
   "tasks": [
     {
@@ -578,6 +578,24 @@
       "accepted": true,
       "category": "aiops_analysis",
       "oracle_steps": 9,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_localize_analytics_crashloop",
+      "accepted": true,
+      "category": "aiops_localization",
+      "oracle_steps": 7,
+      "oracle_score": 1.0,
+      "discriminating_vcode": true,
+      "oracle_replay_passed": true
+    },
+    {
+      "task_id": "tsk_rcn_running_version",
+      "accepted": true,
+      "category": "reconciliation",
+      "oracle_steps": 7,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true

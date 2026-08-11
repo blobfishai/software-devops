@@ -321,6 +321,42 @@ return [dict(r) for r in conn.execute(
     'SELECT canonical, alias, system FROM service_aliases ORDER BY canonical, system').fetchall()]""",
           reads=["service_aliases"], writes=[], returns="list[dict]"))
 
+    T(_mk("k8s_events_list",
+          "List Kubernetes events (OOMKilled, CrashLoopBackOff, ...). The kubelet records "
+          "kernel-level kills that an application error tracker never sees, because the "
+          "process dies before its SDK can flush.",
+          [{"name": "namespace", "type": "str", "default": None},
+           {"name": "pod", "type": "str", "default": None},
+           {"name": "reason", "type": "str", "default": None}],
+          """\
+sql = 'SELECT * FROM k8s_events'
+conds, args = [], []
+for col, val in (('namespace', namespace), ('pod', pod), ('reason', reason)):
+    if val:
+        conds.append(col + '=?'); args.append(val)
+if conds:
+    sql += ' WHERE ' + ' AND '.join(conds)
+return [dict(r) for r in conn.execute(sql + ' ORDER BY day DESC, event_id', args).fetchall()]""",
+          reads=["k8s_events"], writes=[], returns="list[dict]"))
+
+    T(_mk("k8s_pods_list",
+          "List pods with phase, restart count, memory limit/usage and the running image "
+          "tag. The image tag is the only ground truth for what is actually deployed - "
+          "release records in other systems drift from it, especially after a rollback.",
+          [{"name": "namespace", "type": "str", "default": None},
+           {"name": "service", "type": "str", "default": None}],
+          """\
+sql = 'SELECT * FROM k8s_pods'
+conds, args = [], []
+if namespace:
+    conds.append('namespace=?'); args.append(namespace)
+if service:
+    conds.append('service=?'); args.append(service)
+if conds:
+    sql += ' WHERE ' + ' AND '.join(conds)
+return [dict(r) for r in conn.execute(sql + ' ORDER BY pod', args).fetchall()]""",
+          reads=["k8s_pods"], writes=[], returns="list[dict]"))
+
     T(_mk("submit_answer",
           "Submit the answer to a reconciliation question. `sources` must list every "
           "system you actually consulted (e.g. pd_incidents, status_page_posts). "

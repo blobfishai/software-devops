@@ -3523,6 +3523,107 @@
     }
   },
   {
+    "tool_id": "tool_k8s_events_list",
+    "name": "k8s_events_list",
+    "description": "List Kubernetes events (OOMKilled, CrashLoopBackOff, ...). The kubelet records kernel-level kills that an application error tracker never sees, because the process dies before its SDK can flush.",
+    "source_code": "def k8s_events_list(db_path=None, namespace=None, pod=None, reason=None):\n    \"\"\"List Kubernetes events (OOMKilled, CrashLoopBackOff, ...). The kubelet records kernel-level kills that an application error tracker never sees, because the process dies before its SDK can flush.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM k8s_events'\n        conds, args = [], []\n        for col, val in (('namespace', namespace), ('pod', pod), ('reason', reason)):\n            if val:\n                conds.append(col + '=?'); args.append(val)\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY day DESC, event_id', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "namespace",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "namespace"
+      },
+      {
+        "name": "pod",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "pod"
+      },
+      {
+        "name": "reason",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "reason"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "k8s_events"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "k8s_events_list",
+      "description": "List Kubernetes events (OOMKilled, CrashLoopBackOff, ...). The kubelet records kernel-level kills that an application error tracker never sees, because the process dies before its SDK can flush.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "namespace": {
+            "type": "string",
+            "description": "namespace"
+          },
+          "pod": {
+            "type": "string",
+            "description": "pod"
+          },
+          "reason": {
+            "type": "string",
+            "description": "reason"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
+    "tool_id": "tool_k8s_pods_list",
+    "name": "k8s_pods_list",
+    "description": "List pods with phase, restart count, memory limit/usage and the running image tag. The image tag is the only ground truth for what is actually deployed - release records in other systems drift from it, especially after a rollback.",
+    "source_code": "def k8s_pods_list(db_path=None, namespace=None, service=None):\n    \"\"\"List pods with phase, restart count, memory limit/usage and the running image tag. The image tag is the only ground truth for what is actually deployed - release records in other systems drift from it, especially after a rollback.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        sql = 'SELECT * FROM k8s_pods'\n        conds, args = [], []\n        if namespace:\n            conds.append('namespace=?'); args.append(namespace)\n        if service:\n            conds.append('service=?'); args.append(service)\n        if conds:\n            sql += ' WHERE ' + ' AND '.join(conds)\n        return [dict(r) for r in conn.execute(sql + ' ORDER BY pod', args).fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "namespace",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "namespace"
+      },
+      {
+        "name": "service",
+        "type": "str",
+        "required": false,
+        "default": "None",
+        "description": "service"
+      }
+    ],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "k8s_pods"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "k8s_pods_list",
+      "description": "List pods with phase, restart count, memory limit/usage and the running image tag. The image tag is the only ground truth for what is actually deployed - release records in other systems drift from it, especially after a rollback.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "namespace": {
+            "type": "string",
+            "description": "namespace"
+          },
+          "service": {
+            "type": "string",
+            "description": "service"
+          }
+        },
+        "required": []
+      }
+    }
+  },
+  {
     "tool_id": "tool_submit_answer",
     "name": "submit_answer",
     "description": "Submit the answer to a reconciliation question. `sources` must list every system you actually consulted (e.g. pd_incidents, status_page_posts). `assumptions` is where you record any judgement you had to make - a week boundary, whether rollbacks count, which of two disagreeing numbers you trusted and why. An answer with no stated assumption on an ambiguous question is not a complete answer.",
