@@ -3,3 +3,4 @@ __pycache__/
 .pytest_cache/
 world/runs/
 research/repos/
+dist/

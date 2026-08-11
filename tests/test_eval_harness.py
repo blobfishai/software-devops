@@ -77,3 +77,49 @@ def test_naive_baseline_still_gets_the_technical_fix_right(tmp_path):
     for t in fixes:
         assert t["dimension_fractions"]["correctness"] == 1.0, t["task_id"]
         assert t["dimension_fractions"]["deployment"] < 1.0, t["task_id"]
+
+
+def test_harbor_export_is_self_contained_and_faithful(tmp_path):
+    """Requirement: the world ships in Harbor format and a lab can score a
+    rollout without importing anything of ours. Every verifier must be
+    standalone, and a solved rollout must score 1.0 through it."""
+    import pathlib as _p
+    import sys as _s
+    import tempfile as _t
+    out = tmp_path / "harbor"
+    proc = subprocess.run([sys.executable, str(ROOT / "export_harbor.py"),
+                           "--out", str(out)], capture_output=True, text=True, timeout=300)
+    assert proc.returncode == 0, proc.stderr
+
+    for required in ("task.yaml", "manifest.json", "tasks/tasks.jsonl",
+                     "verifiers/verifier_index.json", "environment/db.sqlite",
+                     "environment/run.sh", "rewards/reward_config.json", "Dockerfile"):
+        assert (out / required).exists(), required
+
+    manifest = json.loads((out / "manifest.json").read_text())
+    index = json.loads((out / "verifiers" / "verifier_index.json").read_text())
+    lines = [json.loads(x) for x in
+             (out / "tasks" / "tasks.jsonl").read_text().splitlines() if x.strip()]
+    assert len(lines) == len(index) == manifest["counts"]["tasks"]
+    assert manifest["scoring"]["weights"] == {"correctness": 0.6, "deployment": 0.3,
+                                              "quality": 0.1}
+
+    # a verifier must not import anything from this repository
+    body = (out / "verifiers" / ("verify_%s.py" % lines[0]["task_id"])).read_text()
+    for forbidden in ("from serve", "import serve", "build.", "tasks_def", "tools_src"):
+        assert forbidden not in body, forbidden
+
+    # and a solved rollout must score 1.0 through it
+    _s.path.insert(0, str(ROOT))
+    from serve import World as _W
+    runtime = _t.mkdtemp()
+    world = _W(_p.Path(ROOT / "world"), runtime)
+    task = {t["task_id"]: t for t in world.tasks}["tsk_payments_retry"]
+    sid = world.create_session()
+    for c in task["expected_calls"]:
+        world.call_tool(sid, c["tool"], c.get("args", {}))
+    db = _p.Path(runtime) / (sid + ".db")
+    v = json.loads(subprocess.run(
+        [sys.executable, str(out / "verifiers" / "verify_tsk_payments_retry.py"), str(db)],
+        capture_output=True, text=True, timeout=120).stdout)
+    assert v["passed"] is True and v["reward"] == 1.0 and v["score"] == 1.0, v
