@@ -3,7 +3,23 @@
 This is the one claim in the project that is **not yet evidenced**, and this
 document exists so that proving it is a single command rather than a project.
 
-## Update: it is now partially proven, with a local model
+## Update: a frontier model now runs against this world
+
+`cloud_backend.py` drives any OpenAI-compatible provider through native tool
+calling, which is the harness a frontier model actually runs under and removes
+the confound that dominated every earlier measurement:
+
+```bash
+export DEEPSEEK_API_KEY=...
+python3 eval_model.py --policy deepseek --model deepseek-v4-pro
+python3 calibrate.py  --policy deepseek --model deepseek-v4-pro --attempts 3
+```
+
+Results are recorded in the section below. Everything before that section was
+measured with a local 8B model whose failures were mostly protocol, and is kept
+because how those failures were diagnosed is the useful part.
+
+## Earlier: partially proven, with a local model
 
 `ANTHROPIC_API_KEY` is absent, but a locally cached model is not. `mlx_lm` with
 `mlx-community/Qwen3-8B-4bit` runs on this machine with no credential, so the
@@ -133,9 +149,12 @@ Every number reported so far measures the *environment*, not model difficulty:
 | harbor self-test 82/82, free-reward 0 | the shipped package grades correctly outside this repository |
 | policy-blind baseline: 0% on every change category | the deployment dimension is load-bearing |
 
-None of that is a model score. The calibration loop has never seen a cloud model,
-because `ANTHROPIC_API_KEY` is not set in this environment. That is a missing
-credential, not a pending decision.
+None of that is a model score. Those begin in the next section: a frontier model
+with native tool calling now runs against this world through the `deepseek` and
+`openai` policies, which hand it all 84 tools as JSON Schema function definitions
+and let it call them through the provider's own API. `ANTHROPIC_API_KEY` remains
+unset here, so the Claude path is still untested; that is a missing credential
+rather than a pending decision, and the harness for it is the same one.
 
 ### What each score is actually sensitive to
 
