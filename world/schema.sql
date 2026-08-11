@@ -38,6 +38,21 @@ CREATE TABLE answers (
     sources TEXT NOT NULL DEFAULT '[]',
     assumptions TEXT NOT NULL DEFAULT ''
 );
+CREATE TABLE approval_policy (
+    policy_id INTEGER PRIMARY KEY,
+    action TEXT NOT NULL,          -- the irreversible act requiring sign-off
+    approver_role TEXT NOT NULL,
+    rationale TEXT NOT NULL
+);
+CREATE TABLE approval_requests (
+    request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    action TEXT NOT NULL,
+    target TEXT NOT NULL DEFAULT '',
+    reason TEXT NOT NULL DEFAULT '',
+    decision TEXT NOT NULL DEFAULT 'pending',   -- pending|approved|denied
+    responder TEXT NOT NULL DEFAULT '',
+    response TEXT NOT NULL DEFAULT ''
+);
 CREATE TABLE audit_events (
     seq INTEGER PRIMARY KEY AUTOINCREMENT,
     tool TEXT NOT NULL,

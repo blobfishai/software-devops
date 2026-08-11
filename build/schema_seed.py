@@ -405,6 +405,7 @@ REPO_STATE = {
         ("config", "payments_retry_max_attempts", "3"),
         ("config", "inventory_timeout_ms", "1500"),
         ("config", "use_secret_manager", "false"),
+        ("config", "partner_key_version", "1"),
         ("config", "db_pool_size", "40"),
         ("dependency", "stripe-sdk", "11.2.0"),
         ("module", "cart", "present"), ("module", "checkout_flow", "present"),
