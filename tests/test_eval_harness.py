@@ -134,3 +134,25 @@ def test_harbor_export_is_self_contained_and_faithful(tmp_path):
         [sys.executable, str(out / "verifiers" / "verify_tsk_payments_retry.py"), str(db)],
         capture_output=True, text=True, timeout=120).stdout)
     assert v["passed"] is True and v["reward"] == 1.0 and v["score"] == 1.0, v
+
+
+def test_fault_attribution_depends_on_who_made_the_call():
+    """A model that invents a tool name has made an agent error; a scripted
+    reference solution that does the same is OUR bug. Conflating them sends you
+    hunting for environment bugs that do not exist - a first calibration sweep
+    flagged four tasks TASK_FAULT for exactly that reason."""
+    sys.path.insert(0, str(ROOT))
+    from calibrate import looks_environmental
+    trace = 'get_alerts({}) -> {"ok": false, "error": "unknown tool: get_alerts"}'
+    assert looks_environmental(trace, {}, "model") == []
+    assert looks_environmental(trace, {}, "scripted") == ["unknown tool"]
+
+    badargs = 'submit_diagnosis({...}) -> {"error": "bad arguments for submit_diagnosis"}'
+    assert looks_environmental(badargs, {}, "model") == []
+    assert looks_environmental(badargs, {}, "scripted")
+
+    # world-side faults count against the world no matter who tripped them
+    for t in ('x -> no such table: widgets', 'y -> Traceback (most recent call last)'):
+        assert looks_environmental(t, {}, "model")
+        assert looks_environmental(t, {}, "scripted")
+    assert looks_environmental("", {"error": "verifier execution failed: boom"}, "model")

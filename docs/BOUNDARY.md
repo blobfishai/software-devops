@@ -33,6 +33,49 @@ from `TOO_HARD`. A frontier model with native tool calling will fail differently
 and the numbers from this backend are a floor, not an estimate of what a strong
 model scores.
 
+### First sweep: 10 tasks x 3 attempts, Qwen3-8B-4bit
+
+| bucket | count |
+|---|---|
+| `TOO_HARD` | 8 |
+| `BUDGET_CAPPED` | 2 |
+| `FLAKY` | **0** |
+| `TOO_EASY` | 0 |
+
+An empty FLAKY band means this model is **below** the boundary everywhere, not at
+it. The world does not measure this model - it simply exceeds it. That is a real
+result and it is the opposite of the one we want: proof of a boundary needs a
+model that sometimes succeeds.
+
+The failure is concentrated and diagnostic. Across 30 episodes the dominant
+failures were `ticket_closed` (24), `closed_after_the_work` (18),
+`diagnosis_submitted` (18) and `evidence_recorded` (18) - the model reasons its
+way to the right answer and then never calls the tool that records it. Only 9 of
+30 got as far as being wrong about the *content* (`detection_correct`).
+
+So this sweep measures a protocol barrier, not task difficulty. Under a JSON
+tool-call protocol an 8B model cannot reliably complete a submission handshake,
+and that saturates long before the reasoning is tested. A frontier model with
+native tool calling will clear that barrier and the same tasks will measure
+something quite different.
+
+### The loop caught a bug in itself
+
+The first sweep flagged four tasks `TASK_FAULT` - our bug, not difficulty. They
+were not. The model had invented a tool named `get_alerts` and passed a
+`confidence` argument that does not exist, and the screen counted both as
+environment failures.
+
+That is precisely the mistake vivaria's rule exists to prevent: an agent may
+never attribute its own mistake to the server. Fault attribution is now
+caller-dependent - a malformed call from a *scripted* policy is our bug, because
+a script calls exactly what it was written to call; the same call from a *model*
+is the agent guessing. World-side faults (`no such table`, `Traceback`, a crashed
+verifier) count against the world regardless. Pinned by a test.
+
+Had this gone unnoticed we would have spent a day hunting environment bugs that
+did not exist.
+
 ## Why the cloud measurement is still unproven
 
 Every number reported so far measures the *environment*, not model difficulty:

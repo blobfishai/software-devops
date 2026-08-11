@@ -45,17 +45,34 @@ from serve import World              # noqa: E402
 #
 # 'task' here means our world is broken; 'agent' means the model was wrong.
 # A policy refusal is emphatically an agent outcome, not a task fault.
+# Faults that are ALWAYS the world's fault, whoever made the call.
 TASK_FAULT_MARKERS = (
-    "unknown tool", "missing required parameter", "bad arguments for",
     "Traceback", "InternalError", "no such table", "database is locked",
     "verifier execution failed",
 )
-SYSTEM_FAULT_MARKERS = TASK_FAULT_MARKERS      # backwards-compatible alias
+# Faults that are the world's fault only when a SCRIPTED policy hits them, because
+# a script calls exactly what it was written to call - so an unknown tool means we
+# wrote the reference solution wrong. A model generates tool names freely, so the
+# same error is the agent guessing, and vivaria's rule applies: an agent is never
+# permitted to attribute its own mistake to the server.
+CALLER_DEPENDENT_MARKERS = (
+    "unknown tool", "missing required parameter", "bad arguments for",
+)
+SYSTEM_FAULT_MARKERS = TASK_FAULT_MARKERS + CALLER_DEPENDENT_MARKERS   # legacy alias
 
 
-def looks_environmental(transcript, verdict):
-    """Screen a failed trial for world-side faults."""
-    hits = [m for m in SYSTEM_FAULT_MARKERS if m in transcript]
+def looks_environmental(transcript, verdict, caller="model"):
+    """Screen a failed trial for world-side faults.
+
+    `caller` decides whether a malformed call counts against the world or the
+    agent. Getting this wrong is not cosmetic: a first calibration sweep flagged
+    four tasks TASK_FAULT purely because an 8B model invented `get_alerts` and
+    passed a `confidence` argument that does not exist. Those are agent errors,
+    and counting them as environment failures would have sent us hunting bugs
+    that were not there."""
+    hits = [m for m in TASK_FAULT_MARKERS if m in transcript]
+    if caller == "scripted":
+        hits += [m for m in CALLER_DEPENDENT_MARKERS if m in transcript]
     err = str(verdict.get("error") or "")
     if "verifier execution failed" in err or err.startswith(("TypeError", "OperationalError")):
         hits.append("verifier crashed: %s" % err[:120])
@@ -132,7 +149,8 @@ def main():
                            "tool_calls": stats["tool_calls"],
                            "failed_checks": failure_signature(verdict)})
             if not passed:
-                envs += looks_environmental(stats.get("transcript", ""), verdict)
+                caller = "model" if args.policy in ("model", "local") else "scripted"
+                envs += looks_environmental(stats.get("transcript", ""), verdict, caller)
             if passed and len(trials) == 1:
                 break                      # first-try pass is already conclusive
         n_pass = sum(t["passed"] for t in trials)

@@ -1,0 +1,386 @@
+{
+  "model": "mlx-community/Qwen3-8B-4bit",
+  "policy": "local",
+  "attempts": 3,
+  "buckets": {
+    "BUDGET_CAPPED": 2,
+    "TOO_HARD": 8
+  },
+  "tasks": [
+    {
+      "task_id": "tsk_search_cache",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "bucket": "BUDGET_CAPPED",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.486,
+      "failure_mode": [
+        [
+          "correctness/config_deployed_to_production",
+          3
+        ],
+        [
+          "correctness/ci_all_stages_green",
+          3
+        ],
+        [
+          "correctness/metric_within_slo",
+          3
+        ],
+        [
+          "correctness/alarm_resolved",
+          3
+        ],
+        [
+          "deployment/ack_before_resolve",
+          3
+        ],
+        [
+          "quality/pr_linked_to_ticket",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 543.5
+    },
+    {
+      "task_id": "tsk_flaky_catalog_rounding",
+      "category": "flaky_test",
+      "difficulty": "medium",
+      "bucket": "BUDGET_CAPPED",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.633,
+      "failure_mode": [
+        [
+          "correctness/test_fixed_not_quarantined",
+          3
+        ],
+        [
+          "correctness/three_green_main_runs",
+          3
+        ],
+        [
+          "correctness/ci_all_stages_green",
+          3
+        ],
+        [
+          "quality/pr_linked_to_ticket",
+          3
+        ],
+        [
+          "quality/ticket_closed",
+          3
+        ],
+        [
+          "quality/closed_after_the_work",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 550.1
+    },
+    {
+      "task_id": "tsk_detect_payments",
+      "category": "aiops_detection",
+      "difficulty": "easy",
+      "bucket": "TOO_HARD",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.633,
+      "failure_mode": [
+        [
+          "correctness/diagnosis_submitted",
+          3
+        ],
+        [
+          "correctness/detection_correct",
+          3
+        ],
+        [
+          "quality/evidence_recorded",
+          3
+        ],
+        [
+          "quality/efficient_investigation",
+          3
+        ],
+        [
+          "quality/ticket_closed",
+          3
+        ],
+        [
+          "quality/closed_after_the_work",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 63.5
+    },
+    {
+      "task_id": "tsk_detect_inventory",
+      "category": "aiops_detection",
+      "difficulty": "easy",
+      "bucket": "TOO_HARD",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.633,
+      "failure_mode": [
+        [
+          "correctness/diagnosis_submitted",
+          3
+        ],
+        [
+          "correctness/detection_correct",
+          3
+        ],
+        [
+          "quality/evidence_recorded",
+          3
+        ],
+        [
+          "quality/efficient_investigation",
+          3
+        ],
+        [
+          "quality/ticket_closed",
+          3
+        ],
+        [
+          "quality/closed_after_the_work",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 60.6
+    },
+    {
+      "task_id": "tsk_detect_storefront_healthy",
+      "category": "aiops_detection",
+      "difficulty": "medium",
+      "bucket": "TOO_HARD",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.633,
+      "failure_mode": [
+        [
+          "correctness/diagnosis_submitted",
+          3
+        ],
+        [
+          "correctness/detection_correct",
+          3
+        ],
+        [
+          "quality/evidence_recorded",
+          3
+        ],
+        [
+          "quality/efficient_investigation",
+          3
+        ],
+        [
+          "quality/ticket_closed",
+          3
+        ],
+        [
+          "quality/closed_after_the_work",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 59.8
+    },
+    {
+      "task_id": "tsk_localize_gateway_latency",
+      "category": "aiops_localization",
+      "difficulty": "medium",
+      "bucket": "TOO_HARD",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.573,
+      "failure_mode": [
+        [
+          "correctness/diagnosis_submitted",
+          3
+        ],
+        [
+          "correctness/service_localized",
+          3
+        ],
+        [
+          "correctness/fault_confirmed",
+          3
+        ],
+        [
+          "quality/evidence_recorded",
+          3
+        ],
+        [
+          "quality/efficient_investigation",
+          3
+        ],
+        [
+          "quality/ticket_closed",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 402.9,
+      "reattributed": "model errors (invented tool / bad argument) are agent failures, not environment failures"
+    },
+    {
+      "task_id": "tsk_localize_search_latency",
+      "category": "aiops_localization",
+      "difficulty": "medium",
+      "bucket": "TOO_HARD",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.573,
+      "failure_mode": [
+        [
+          "correctness/diagnosis_submitted",
+          3
+        ],
+        [
+          "correctness/service_localized",
+          3
+        ],
+        [
+          "correctness/fault_confirmed",
+          3
+        ],
+        [
+          "quality/evidence_recorded",
+          3
+        ],
+        [
+          "quality/efficient_investigation",
+          3
+        ],
+        [
+          "quality/ticket_closed",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 507.3,
+      "reattributed": "model errors (invented tool / bad argument) are agent failures, not environment failures"
+    },
+    {
+      "task_id": "tsk_rca_payments_retry",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "bucket": "TOO_HARD",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.533,
+      "failure_mode": [
+        [
+          "correctness/diagnosis_submitted",
+          3
+        ],
+        [
+          "correctness/service_localized",
+          3
+        ],
+        [
+          "correctness/fault_type_correct",
+          3
+        ],
+        [
+          "correctness/offending_key_correct",
+          3
+        ],
+        [
+          "quality/evidence_recorded",
+          3
+        ],
+        [
+          "quality/efficient_investigation",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 664.7,
+      "reattributed": "model errors (invented tool / bad argument) are agent failures, not environment failures"
+    },
+    {
+      "task_id": "tsk_rcn_production_deploys",
+      "category": "reconciliation",
+      "difficulty": "hard",
+      "bucket": "TOO_HARD",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.58,
+      "failure_mode": [
+        [
+          "correctness/answer_submitted",
+          3
+        ],
+        [
+          "correctness/answer_correct",
+          3
+        ],
+        [
+          "correctness/consulted_local_deploy_log",
+          3
+        ],
+        [
+          "quality/assumption_engages_the_ambiguity",
+          3
+        ],
+        [
+          "quality/ticket_closed",
+          3
+        ],
+        [
+          "quality/closed_after_the_work",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 91.7
+    },
+    {
+      "task_id": "tsk_judge_payments_retry",
+      "category": "judgement",
+      "difficulty": "hard",
+      "bucket": "TOO_HARD",
+      "attempts": 3,
+      "passes": 0,
+      "mean_score": 0.58,
+      "failure_mode": [
+        [
+          "correctness/decision_submitted",
+          3
+        ],
+        [
+          "correctness/chose_the_root_cause_fix",
+          3
+        ],
+        [
+          "correctness/read_the_proposals",
+          3
+        ],
+        [
+          "quality/reasoning_recorded",
+          3
+        ],
+        [
+          "quality/ticket_closed",
+          3
+        ],
+        [
+          "quality/closed_after_the_work",
+          3
+        ]
+      ],
+      "environmental_signals": [],
+      "seconds": 590.0,
+      "reattributed": "model errors (invented tool / bad argument) are agent failures, not environment failures"
+    }
+  ],
+  "backend": "local (mlx_lm, JSON tool-call protocol - no native tool calling)"
+}
