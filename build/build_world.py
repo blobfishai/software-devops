@@ -450,7 +450,7 @@ def main():
     # database - before baselines are taken, so a wave task starts from the same
     # pristine state a hand-written one does.
     import waves as W
-    wave_specs = W.generate(str(db_path), waves=(1, 2, 3))
+    wave_specs = W.generate(str(db_path), waves=(1, 2, 3, 5))
     if wave_specs:
         task_specs.SPECS.extend(wave_specs)
         _c = sqlite3.connect(str(db_path))

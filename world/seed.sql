@@ -5953,6 +5953,18 @@ INSERT INTO "tickets" VALUES(9245,'SUP-7506','task','Customer report: order conf
 INSERT INTO "tickets" VALUES(9246,'SUP-7507','task','Customer report: card payments are being declined that should not be','Customer report: card payments are being declined that should not be','open','high','','payments');
 INSERT INTO "tickets" VALUES(9247,'SUP-7508','task','Customer report: search is taking so long people give up','Customer report: search is taking so long people give up','open','high','','search');
 INSERT INTO "tickets" VALUES(9248,'SUP-7509','task','Customer report: a customer said the site felt sluggish yesterday','Customer report: a customer said the site felt sluggish yesterday','open','high','','storefront-web');
+INSERT INTO "tickets" VALUES(9249,'MULTI-7600','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9250,'MULTI-7601','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9251,'MULTI-7602','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9252,'MULTI-7603','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9253,'MULTI-7604','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9254,'MULTI-7605','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9255,'MULTI-7606','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9256,'MULTI-7607','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9257,'MULTI-7608','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9258,'MULTI-7609','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9259,'MULTI-7610','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
+INSERT INTO "tickets" VALUES(9260,'MULTI-7611','task','Three alarms at once - one incident or three?','Three alarms at once - one incident or three?','open','critical','','');
 INSERT INTO "traffic_profile" VALUES(9201,'storefront-web','GET /',420,100);
 INSERT INTO "traffic_profile" VALUES(9202,'storefront-web','GET /product/:id',310,100);
 INSERT INTO "traffic_profile" VALUES(9203,'api-gateway','POST /v1/orders',145,100);
@@ -5981,7 +5993,7 @@ INSERT INTO "vulnerabilities" VALUES(9801,'CVE-2026-31337','libpayproc','payment
 INSERT INTO "vulnerabilities" VALUES(9802,'CVE-2026-40881','stripe-sdk','checkout','high','11.4.0','open');
 INSERT INTO "vulnerabilities" VALUES(9803,'CVE-2026-22190','pydantic','catalog','medium','2.11.0','remediated');
 INSERT INTO "vulnerabilities" VALUES(9804,'CVE-2026-51002','requests','payments','high','2.33.0','open');
-INSERT INTO "sqlite_sequence" VALUES('tickets',9248);
+INSERT INTO "sqlite_sequence" VALUES('tickets',9260);
 INSERT INTO "sqlite_sequence" VALUES('deployments',9272);
 INSERT INTO "sqlite_sequence" VALUES('feature_flags',9308);
 INSERT INTO "sqlite_sequence" VALUES('alerts',9610);

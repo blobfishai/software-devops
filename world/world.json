@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_7bdc14bd",
+  "world_id": "env_software_devops_3f1d5e2a",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "7bdc14bdb5142837d923787e5fe7d88efc2125bc28e1143732e8f84cf000b3ae",
+  "world_digest": "3f1d5e2ad5249279fb747cdd56aca409a0b9a2f1d8fc14fc1e06cf9460aaae48",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -84,9 +84,9 @@
   "tables_without_tools": [],
   "counts": {
     "tables": 69,
-    "rows": 1393,
+    "rows": 1405,
     "tools": 90,
-    "tasks": 148,
+    "tasks": 160,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
@@ -95,7 +95,7 @@
   "difficulty": {
     "hard": 51,
     "medium": 51,
-    "expert": 34,
+    "expert": 46,
     "easy": 12
   },
   "categories": {
@@ -111,7 +111,7 @@
     "aiops_analysis": 17,
     "code_implementation": 4,
     "cross_system": 8,
-    "attribution": 1,
+    "attribution": 13,
     "reconciliation": 7,
     "judgement": 4,
     "human_gated": 1
@@ -234,7 +234,16 @@
       "tsk_w3_symptom_media_service",
       "tsk_w3_symptom_payments",
       "tsk_w3_symptom_search",
-      "tsk_w3_symptom_storefront_web"
+      "tsk_w3_symptom_storefront_web",
+      "tsk_w5_attr_api_checkout_analytics",
+      "tsk_w5_attr_api_checkout_catalog",
+      "tsk_w5_attr_media_analytics_payments",
+      "tsk_w5_attr_media_api_analytics",
+      "tsk_w5_attr_media_api_catalog",
+      "tsk_w5_attr_media_api_payments",
+      "tsk_w5_attr_media_catalog_payments",
+      "tsk_w5_attr_media_checkout_analytics",
+      "tsk_w5_attr_media_checkout_payments"
     ],
     "heldout": [
       "tsk_cve_requests",
@@ -267,11 +276,14 @@
       "tsk_w2_span_api_gateway_from_checkout",
       "tsk_w2_span_checkout_from_payments",
       "tsk_w3_symptom_catalog",
-      "tsk_w3_symptom_notifications"
+      "tsk_w3_symptom_notifications",
+      "tsk_w5_attr_media_analytics_catalog",
+      "tsk_w5_attr_media_api_checkout",
+      "tsk_w5_attr_media_checkout_catalog"
     ]
   },
   "task_creation": {
-    "accepted": 148,
+    "accepted": 160,
     "rejected": 0
   },
   "personas": [

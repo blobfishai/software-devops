@@ -227,10 +227,99 @@ def w3_symptom_only(db):
     return out
 
 
+# ---------------------------------------------------------------------------
+# wave 5 — composition: several faults at once
+# ---------------------------------------------------------------------------
+
+# The world's concurrent faults, each with the service and mechanism that is
+# actually responsible. Drawn from the seeded state rather than invented: every
+# one is the answer to a hand-written task elsewhere in the suite, which is what
+# makes attributing them together a different question rather than a longer one.
+CONCURRENT_FAULTS = [
+    {"scope": "media-upload-stalls", "symptom": "media uploads are stalling",
+     "service": "media-service", "fault_type": "node_unhealthy",
+     "offending_key": "node-b3",
+     "reads": [{"tool": "k8s_pods_list", "args": {"service": "media-service"}},
+               {"tool": "k8s_nodes_list", "args": {"node": "node-b3"}}],
+     "evidence": "both replicas sit on node-b3, which reports DiskPressure at 97%"},
+    {"scope": "gateway-latency-surge", "symptom": "api-gateway p99 is 1030ms against 250ms",
+     "service": "api-gateway", "fault_type": "bad_release", "offending_key": "v5.1.0",
+     "reads": [{"tool": "list_deployments",
+                "args": {"service": "api-gateway", "environment": "production"}}],
+     "evidence": "p99 moved when v5.1.0 was promoted; it leaks an upstream connection "
+                 "per request, so only a rollback recovers it"},
+    {"scope": "checkout-error-spike", "symptom": "checkout errors are 5.5% against 1.0%",
+     "service": "checkout", "fault_type": "feature_flag_regression",
+     "offending_key": "instant_refunds",
+     "reads": [{"tool": "list_feature_flags", "args": {"environment": "production"}}],
+     "evidence": "checkout errors track the instant_refunds rollout rather than any deploy"},
+    {"scope": "analytics-connection-refused",
+     "symptom": "analytics cannot reach the replica",
+     "service": "analytics-worker", "fault_type": "misconfig",
+     "offending_key": "pg-replica",
+     "reads": [{"tool": "check_network_path", "args": {"blocked_only": True}}],
+     "evidence": "the path is REFUSED at the transport layer, so a network policy rather "
+                 "than capacity"},
+    {"scope": "catalog-latency-sawtooth", "symptom": "catalog latency arrives in waves",
+     "service": "catalog", "fault_type": "resource_exhaustion",
+     "offending_key": "heap_used_pct",
+     "reads": [{"tool": "get_runtime_stats", "args": {"service": "catalog"}}],
+     "evidence": "94% heap, 780ms p99 GC pause, 41 collections a minute"},
+    {"scope": "payments-error-rate", "symptom": "payments errors are 4.2% against 1.0%",
+     "service": "payments", "fault_type": "missing_retry",
+     "offending_key": "notifications_retry_max_attempts",
+     "reads": [{"tool": "search_logs", "args": {"service": "payments"}}],
+     "evidence": "the notifications call times out with no retry configured"},
+]
+
+
+def w5_attribution(db):
+    """Several symptoms at once, each with its own cause.
+
+    Composition rather than length: the cheap strategy - find the most dramatic
+    thing in the estate and attribute everything to it - fails every task here,
+    and it is the strategy a frontier model actually used when asked why media
+    uploads were stalling.
+
+    Triples are drawn so that no two tasks share the same set, and so that each
+    set spans at least three distinct fault mechanisms. A triple of three
+    misconfigs would be a longer task; a triple spanning a node, a release and a
+    flag is a different one.
+    """
+    faults = CONCURRENT_FAULTS
+    combos, seen = [], set()
+    for i in range(len(faults)):
+        for j in range(i + 1, len(faults)):
+            for k in range(j + 1, len(faults)):
+                trio = (faults[i], faults[j], faults[k])
+                kinds = {f["fault_type"] for f in trio}
+                services = {f["service"] for f in trio}
+                if len(kinds) < 3 or len(services) < 3:
+                    continue           # not a composition, just a longer list
+                key = tuple(sorted(f["scope"] for f in trio))
+                if key in seen:
+                    continue
+                seen.add(key)
+                combos.append(trio)
+    out = []
+    for n, trio in enumerate(combos[:12]):     # a spread, not the whole cross product
+        out.append({
+            "generator": "attribution", "category": "attribution",
+            "wave": 5, "axis": "composition",
+            "id": "w5_attr_%s" % "_".join(f["service"].split("-")[0] for f in trio),
+            "difficulty": "expert",
+            "items": [dict(f) for f in trio],
+            "ticket": ("MULTI-%d" % (7600 + n), "critical",
+                       "Three alarms at once - one incident or three?"),
+        })
+    return out
+
+
 WAVES = {
     1: [w1_detection, w1_flaky_triage, w1_vulnerabilities],
     2: [w2_dependency_span],
     3: [w3_symptom_only],
+    5: [w5_attribution],
 }
 
 
