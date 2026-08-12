@@ -828,6 +828,76 @@ _add("cross_system", "crosssystem", id="port_count_inflight_work", mode="count",
 
 
 # ==========================================================================
+# Ports whose SOURCE OF TRUTH is not the issue tracker.
+#
+# waves.py already enumerates the GitHub-issue filters exhaustively - every
+# label, every repo, every date, deduplicated by result set - so another "open
+# and labelled X" task measures nothing new. What is not covered is the harder
+# half of TheAgentCompany's cross-system family: the filter lives in a system
+# that is not the one being acted on, and finding it is most of the work.
+#
+# Each of these names the source directory it reproduces and reads a different
+# system of record: the cross-tracker link table, the deployed API surface, the
+# monorepo. The failure they are built to catch is the same one every time -
+# answering from the system that is easiest to reach rather than the one that
+# holds the answer.
+# ==========================================================================
+from vendors import ISSUE_LINKS                                       # noqa: E402
+from schema_seed import REPO_STATE                                    # noqa: E402
+
+_DUPLICATED = sorted({src for src, _tgt, kind in ISSUE_LINKS if kind == "duplicates"})
+
+_add("cross_system", "crosssystem", id="port_dedupe_linked_issues", mode="transition",
+     difficulty="expert", channel="#eng", to_status="Done", resolution="Duplicate",
+     source_tool="list_issue_links", source_args={},
+     source_repo="TheAgentCompany",
+     source_path=TAC + "/pm-update-plane-issue-from-gitlab-status",
+     ask="Some tickets on our board are duplicates of work already tracked in another "
+         "system, and we keep re-triaging them. Close every ticket that is recorded as "
+         "duplicating an issue in another tracker, with a resolution that says so. "
+         "A ticket that merely looks similar is not a duplicate - only the recorded "
+         "links count, and anything without one stays exactly as it is.",
+     expected=_DUPLICATED,
+     excluded=[k for k in _jira_all() if k not in _DUPLICATED],
+     excluded_status={r[0]: r[4] for r in JIRA_ISSUES if r[0] not in _DUPLICATED},
+     ticket=("ENG-2809", "high", "Close the tickets that duplicate other trackers"))
+
+_add("cross_system", "crosssystem", id="port_count_unowned_work", mode="count",
+     difficulty="hard", channel="#eng", question_id="Q-PORT-UNOWNED",
+     source_tool="jira_search", source_args={},
+     source_repo="TheAgentCompany", source_path=TAC + "/pm-projects-analytics",
+     ask="Planning wants to know how much live work has nobody on it: how many tickets "
+         "are unassigned and not already finished? Submit the number with "
+         "submit_answer(question_id='Q-PORT-UNOWNED', answer=..., sources=[...]), and "
+         "state in your assumptions how you treated finished tickets - an unassigned "
+         "ticket that is already done needs no owner, and counting it overstates the "
+         "problem.",
+     expected=[], excluded=[],
+     answer=len([r[0] for r in JIRA_ISSUES if not r[8] and r[4] != "Done"]),
+     sources=["jira_issues"],
+     assumptions="Counted tickets with no assignee that are not in Done; an unassigned "
+                 "ticket that is already finished does not need an owner.",
+     ticket=("ENG-2810", "high", "How much unassigned work is still live?"))
+
+_add("cross_system", "crosssystem", id="port_count_gateway_surface", mode="count",
+     difficulty="medium", channel="#eng", question_id="Q-PORT-SURFACE",
+     source_tool="list_api_endpoints", source_args={},
+     source_repo="TheAgentCompany", source_path=TAC + "/sde-find-api",
+     ask="The gateway review needs the size of our public surface: how many endpoints "
+         "does api-gateway expose? Submit it with "
+         "submit_answer(question_id='Q-PORT-SURFACE', answer=..., sources=[...]). Read "
+         "the surface itself rather than the API documentation - the docs are written "
+         "by hand and are not what serves traffic.",
+     expected=[], excluded=[],
+     answer=len([e for e in REPO_STATE["api-gateway"] if e[0] == "endpoint"]),
+     sources=["repo_state"],
+     assumptions="Counted the endpoints api-gateway declares in the repository state, "
+                 "which is what is deployed, rather than the ones the API document "
+                 "describes.",
+     ticket=("ENG-2811", "medium", "How big is the gateway's public surface?"))
+
+
+# ==========================================================================
 # Handover — ported from TheAgentCompany's document shape. The page has to
 # contain the specific values the world holds, so it cannot be written without
 # looking them up: a summary of the shape of the problem scores zero.
