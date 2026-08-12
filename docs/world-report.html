@@ -332,21 +332,21 @@ footer {
 </style>
 
 <header>
-  <p class="kicker">Evaluation world &middot; build env_software_devops_75f8f41d</p>
+  <p class="kicker">Evaluation world &middot; build env_software_devops_19fedac3</p>
   <h1>An end-to-end software operations world</h1>
-  <p class="standfirst">83 tasks over a simulated engineering organisation: ten services, a
-  monorepo, a CI system with real guardrails, and nine third-party systems that
-  disagree with each other. Graded on whether the change reached production, not
+  <p class="standfirst">181 tasks over a simulated engineering organisation: ten services, a monorepo,
+  a CI system with real guardrails, a writable filesystem that actually executes
+  code, and nine third-party systems that disagree with each other. Graded on whether the change reached production, not
   on whether the diff looked right.</p>
 </header>
 
 <div class="counts">
-  <div><b>83</b><span>tasks</span></div>
-  <div><b>84</b><span>tools</span></div>
-  <div><b>64</b><span>tables</span></div>
-  <div><b>13</b><span>categories</span></div>
-  <div><b>1,235</b><span>graded checks</span></div>
-  <div><b>68/15</b><span>train / heldout</span></div>
+  <div><b>181</b><span>tasks</span></div>
+  <div><b>95</b><span>tools</span></div>
+  <div><b>71</b><span>tables</span></div>
+  <div><b>18</b><span>categories</span></div>
+  <div><b>2,340</b><span>graded checks</span></div>
+  <div><b>143/38</b><span>train / heldout</span></div>
 </div>
 
 <section>
@@ -392,12 +392,12 @@ footer {
   </div>
 
   <div class="defs">
-    <div><div class="k">correctness<br>509 checks</div><div class="v"><p>Is the right thing true of the world now? The config holds the right value, the
+    <div><div class="k">correctness<br>998 checks</div><div class="v"><p>Is the right thing true of the world now? The config holds the right value, the
     diagnosis names the right service and mechanism, the vulnerability is actually
     patched.</p></div></div>
-    <div><div class="k">deployment<br>223 checks</div><div class="v"><p>Did it get there the way it had to? Staging first, canary before promotion,
+    <div><div class="k">deployment<br>330 checks</div><div class="v"><p>Did it get there the way it had to? Staging first, canary before promotion,
     migration before the code that needs it, no mutation during an investigation.</p></div></div>
-    <div><div class="k">quality<br>503 checks</div><div class="v"><p>Was the loop closed? Evidence recorded, alarm acknowledged before resolution,
+    <div><div class="k">quality<br>1,012 checks</div><div class="v"><p>Was the loop closed? Evidence recorded, alarm acknowledged before resolution,
     incident updated, ticket closed after the work rather than before it.</p></div></div>
   </div>
 
@@ -431,7 +431,7 @@ footer {
             <td>Precision, recall, false-positive rate against no-op, wrong-target, partial-completion, over-repair and zero-tool-call solutions. The verifiers reject <em>near misses</em>, not just noise.</td></tr>
         <tr><td>Harbor package, run outside the repo</td><td class="num"><span class="tag pass">83 / 83</span></td>
             <td>Every shipped verifier, run as a subprocess with no repo on <span class="m">sys.path</span> and a stripped environment, rejects an untouched world and accepts the reference solution. Zero free rewards.</td></tr>
-        <tr><td>Test suite</td><td class="num"><span class="tag pass">100</span></td>
+        <tr><td>Test suite</td><td class="num"><span class="tag pass">110</span></td>
             <td>Build determinism, solvability lints, verifier discrimination, fault attribution, harness fidelity, every documented CLI flag, and that a partial run can never be reported as a complete one.</td></tr>
       </tbody>
     </table>
@@ -454,21 +454,21 @@ footer {
       <thead><tr><th>Deviation</th><th class="num">Perturbs</th><th class="num">PF there</th><th>Reads as</th></tr></thead>
       <tbody>
         <tr><td><span class="m">merged_only</span> — a merged pull request is the finish line</td>
-            <td class="num">44</td><td class="num"><span class="tag pass">0.0%</span></td><td>Caught every time</td></tr>
+            <td class="num">45</td><td class="num"><span class="tag pass">0.0%</span></td><td>Caught every time</td></tr>
         <tr><td><span class="m">shortcut</span> — quarantine the flaky test, blame the service the alarm names</td>
-            <td class="num">7</td><td class="num"><span class="tag pass">0.0%</span></td><td>Caught every time</td></tr>
+            <td class="num">14</td><td class="num"><span class="tag pass">0.0%</span></td><td>Caught every time</td></tr>
         <tr><td><span class="m">naive</span> — no knowledge base, no staging, no canary, no comms</td>
-            <td class="num">54</td><td class="num"><span class="tag pass">16.7%</span></td><td>Caught 45 of 54</td></tr>
+            <td class="num">77</td><td class="num"><span class="tag pass">13.0%</span></td><td>Caught 67 of 77</td></tr>
         <tr><td><span class="m">no_verify</span> — ships the right change, never closes the loop</td>
-            <td class="num">83</td><td class="num"><span class="tag warn">86.6%</span></td><td>Caught 11 of 83</td></tr>
+            <td class="num">181</td><td class="num"><span class="tag warn">84.0%</span></td><td>Caught 29 of 181</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="col">
     <p>The last row is the honest weak spot, and it is structural rather than a bug.
-    Under <span class="m">no_verify</span> the world raises <strong>174 quality
-    failures against 15 correctness and 11 deployment</strong> — all 83 tasks fail
+    Under <span class="m">no_verify</span> the world raises quality failures on
+    every task — all 181 fail
     <span class="m">ticket_closed</span> and <span class="m">closed_after_the_work</span>.
     But PF is binary over correctness and deployment only, so closure discipline is
     worth 0.1 in PC and nothing at all in PF.</p>
@@ -630,6 +630,60 @@ submit_diagnosis(fault_detected=<span class="r">false</span>, ...)              
 </section>
 
 <section>
+  <p class="eyebrow">The corpus</p>
+  <div class="col">
+    <h2>Parity, counted rather than claimed</h2>
+    <p>57 repositories were cloned and read. For a long time only three had their task
+    inventories mechanically enumerated, so "coverage" was a judgement. It is now a
+    pipeline: an adapter reads each benchmark's native layout — TheAgentCompany's
+    <span class="m">task.md</span> / <span class="m">dependencies.yml</span> /
+    <span class="m">populate_data.py</span> / <span class="m">checkpoints.md</span> /
+    <span class="m">evaluator.py</span>, terminal-bench's Dockerfile and tests,
+    tau-bench's tools and wiki, AIOpsLab's registry — into a common form and reports
+    what this world can host, and why not when it cannot.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Source</th><th class="num">Tasks</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>AIOpsLab</td><td class="num">33 families</td>
+            <td><strong>33 of 33.</strong> 21 covered, 10 partial, none uncovered — from 8 covered when the mapping started.</td></tr>
+        <tr><td>terminal-bench</td><td class="num">241</td>
+            <td><strong>236 runnable.</strong> Not simulated and not hosted here: an adapter builds each task's own Dockerfile, runs it, grades with its own tests, and reports in the same Harbor shape. Oracle 5 of 6 on a sample.</td></tr>
+        <tr><td>TheAgentCompany</td><td class="num">175</td>
+            <td>26 ported with provenance; 59 are about running a business rather than operating software; the rest are queued with their source paths.</td></tr>
+        <tr><td>tau-bench</td><td class="num">2 domains</td>
+            <td>Patterns adopted rather than domains: <span class="m">pass^k</span> reliability, and policy that lives in a knowledge base rather than the prompt.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p>The distinction that took longest to get right is between <em>this world cannot
+    host it</em> and <em>this task cannot run</em>. Only the first was ever true of
+    terminal-bench, and treating them as the same thing wrote off a third of the corpus
+    for months.</p>
+    <p>Counting honestly also meant naming what is <em>not</em> a gap. Most of the
+    corpus's raw task count is desktop GUI automation, Kaggle notebooks, web browsing
+    and language-model accuracy. Parity there is not a goal, and including it would
+    inflate the denominator with work nobody should do.</p>
+
+    <h3>75 of the 181 tasks are generated</h3>
+    <p>Waves compose questions from the built database, so every expected answer is
+    derived: change the seed and the answer moves with it. Breadth asks the same
+    question of every entity it applies to; span only emits dependency edges where both
+    ends are breaching, because where the dependency is healthy there is nothing to
+    traverse; composition only emits fault triples spanning three distinct mechanisms,
+    because three of a kind is a longer task rather than a different one.</p>
+    <p>Two tests keep generation honest. One rejects a set answerable by a constant —
+    nine of the 28 breadth answers are "healthy", so always reporting a fault scores
+    68%. The other rejects two tasks with identical content under different ids, which
+    is how a generated corpus inflates without covering anything.</p>
+  </div>
+</section>
+
+<section>
   <p class="eyebrow">Limits</p>
   <div class="col">
     <h2>What this world does not do</h2>
@@ -701,7 +755,7 @@ submit_diagnosis(fault_detected=<span class="r">false</span>, ...)              
 <section>
   <p class="eyebrow">Measured</p>
   <div class="col">
-    <h2>DeepSeek v4-pro, all 83 tasks, native tool calling</h2>
+    <h2>DeepSeek v4-pro, all 181 tasks, native tool calling</h2>
     <p>Every episode was attributable. <strong>None was excluded</strong> — not one
     missing table, traceback, crashed verifier, invented tool or provider outage in the
     whole run, so every failure below is the model's.</p>
@@ -711,9 +765,9 @@ submit_diagnosis(fault_detected=<span class="r">false</span>, ...)              
     <table>
       <thead><tr><th>Metric</th><th class="num">Result</th><th>Reading</th></tr></thead>
       <tbody>
-        <tr><td>Horizon-SWE-PF</td><td class="num"><span class="tag warn">60.2%</span></td>
-            <td>50 of 83. Excluding the 11 episodes that exhausted the 30-turn budget, 69.4% — that nine-point gap is our turn limit, not the model's ceiling.</td></tr>
-        <tr><td>Horizon-SWE-PC</td><td class="num">89.6</td>
+        <tr><td>Horizon-SWE-PF</td><td class="num"><span class="tag warn">58.6%</span></td>
+            <td>106 of 181. Excluding the 15 episodes that exhausted the 30-turn budget, 63.9% — that five-point gap is our turn limit, not the model's ceiling.</td></tr>
+        <tr><td>Horizon-SWE-PC</td><td class="num">88.7</td>
             <td>The weighted composite. Far above PF, because most failures lose one check rather than collapsing.</td></tr>
         <tr><td>Effort</td><td class="num">30.8 / 43.5</td>
             <td>Mean tool calls when it passed, versus when it failed. It works harder on the ones it gets wrong.</td></tr>
@@ -732,37 +786,48 @@ submit_diagnosis(fault_detected=<span class="r">false</span>, ...)              
     <table>
       <thead><tr><th>Difficulty</th><th class="num">PF</th><th class="num">Tasks</th></tr></thead>
       <tbody>
-        <tr><td>easy</td><td class="num">100%</td><td class="num">2/2</td></tr>
-        <tr><td>medium</td><td class="num">76%</td><td class="num">22/29</td></tr>
-        <tr><td>hard</td><td class="num">58%</td><td class="num">15/26</td></tr>
-        <tr><td>expert</td><td class="num">42%</td><td class="num">11/26</td></tr>
+        <tr><td>easy</td><td class="num">100%</td><td class="num">12/12</td></tr>
+        <tr><td>medium</td><td class="num">69%</td><td class="num">46/67</td></tr>
+        <tr><td>hard</td><td class="num">60%</td><td class="num">33/55</td></tr>
+        <tr><td>expert</td><td class="num"><span class="tag fail">34%</span></td><td class="num">16/47</td></tr>
       </tbody>
     </table>
   </div>
 
   <div class="col">
     <h3>Where the boundary actually is</h3>
-    <p>The ordering is the finding. This model executes changes and diagnoses single
-    services well, and degrades on the families that require assembling evidence across
-    systems that disagree with each other.</p>
+    <p>The ordering is the finding, and it holds across eighteen families from 100% to
+    zero. This model ships changes and diagnoses single services well; it degrades on
+    everything that requires assembling evidence across systems that disagree, and
+    fails outright where several faults are present at once.</p>
+    <p>One correction worth recording. The ambiguity family originally named the
+    service in its scope string — the task asked which service a symptom was about and
+    answered itself. I expected removing that to matter a great deal. It moved the
+    family from 9 of 10 to 8 of 10. The fix was right on the merits either way, and the
+    prediction was wrong.</p>
   </div>
 
   <div class="tw">
     <table>
       <thead><tr><th>Category</th><th class="num">PF</th><th class="num"></th></tr></thead>
       <tbody>
-        <tr><td>flaky test</td><td class="num"><span class="tag pass">100%</span></td><td class="num">6/6</td></tr>
-        <tr><td>detection</td><td class="num"><span class="tag pass">100%</span></td><td class="num">5/5</td></tr>
-        <tr><td>feature flag</td><td class="num">86%</td><td class="num">6/7</td></tr>
-        <tr><td>security incident</td><td class="num">86%</td><td class="num">6/7</td></tr>
-        <tr><td>multi-service rollout</td><td class="num">86%</td><td class="num">6/7</td></tr>
-        <tr><td>judgement</td><td class="num">75%</td><td class="num">3/4</td></tr>
-        <tr><td>localization</td><td class="num">67%</td><td class="num">4/6</td></tr>
-        <tr><td>API migration</td><td class="num">57%</td><td class="num">4/7</td></tr>
-        <tr><td>latency optimization</td><td class="num">38%</td><td class="num">3/8</td></tr>
-        <tr><td>root-cause analysis</td><td class="num"><span class="tag fail">30%</span></td><td class="num">3/10</td></tr>
-        <tr><td>reconciliation</td><td class="num"><span class="tag fail">29%</span></td><td class="num">2/7</td></tr>
-        <tr><td>error-rate reduction</td><td class="num"><span class="tag fail">25%</span></td><td class="num">2/8</td></tr>
+        <tr><td>feature flag</td><td class="num"><span class="tag pass">100%</span></td><td class="num">7/7</td></tr>
+        <tr><td>security incident</td><td class="num"><span class="tag pass">100%</span></td><td class="num">7/7</td></tr>
+        <tr><td>code implementation</td><td class="num"><span class="tag pass">100%</span></td><td class="num">4/4</td></tr>
+        <tr><td>workspace</td><td class="num"><span class="tag pass">100%</span></td><td class="num">1/1</td></tr>
+        <tr><td>multi-service rollout</td><td class="num"><span class="tag pass">86%</span></td><td class="num">6/7</td></tr>
+        <tr><td>detection</td><td class="num">81%</td><td class="num">35/43</td></tr>
+        <tr><td>latency optimization</td><td class="num">62%</td><td class="num">5/8</td></tr>
+        <tr><td>cross-system</td><td class="num">58%</td><td class="num">15/26</td></tr>
+        <tr><td>localization</td><td class="num">54%</td><td class="num">7/13</td></tr>
+        <tr><td>horizon</td><td class="num">50%</td><td class="num">1/2</td></tr>
+        <tr><td>judgement</td><td class="num">50%</td><td class="num">2/4</td></tr>
+        <tr><td>API migration</td><td class="num">43%</td><td class="num">3/7</td></tr>
+        <tr><td>reconciliation</td><td class="num">43%</td><td class="num">3/7</td></tr>
+        <tr><td>error-rate reduction</td><td class="num">38%</td><td class="num">3/8</td></tr>
+        <tr><td>flaky test</td><td class="num"><span class="tag fail">33%</span></td><td class="num">2/6</td></tr>
+        <tr><td>root-cause analysis</td><td class="num"><span class="tag fail">29%</span></td><td class="num">5/17</td></tr>
+        <tr><td>attribution</td><td class="num"><span class="tag fail">0%</span></td><td class="num">0/13</td></tr>
         <tr><td>human-gated</td><td class="num"><span class="tag fail">0%</span></td><td class="num">0/1</td></tr>
       </tbody>
     </table>
@@ -770,7 +835,7 @@ submit_diagnosis(fault_detected=<span class="r">false</span>, ...)              
 
   <div class="col">
     <h3>It knows what to change, and not how to change it</h3>
-    <p>Correctness is perfect in <strong>55 of 83</strong> episodes while deployment is
+    <p>Correctness is perfect in <strong>110 of 181</strong> episodes while deployment is
     imperfect in 12. The model works out the right fix and then does not follow the
     procedure for shipping it — and that procedure is not in the prompt. It is in the
     knowledge base, and it has to go and find it.</p>
@@ -909,7 +974,7 @@ python3 calibrate.py --policy deepseek --attempts 3 --all-attempts --task ...</p
 </section>
 
 <footer>
-  83 tasks &middot; 84 tools &middot; 64 tables &middot; 1,235 graded checks<br>
-  Package: dist/harbor &middot; 83 standalone verifiers &middot; 267 artifacts pinned by sha256<br>
-  Corpus: 57 repositories across evaluation harnesses, agent frameworks and MCP servers
+  181 tasks &middot; 95 tools &middot; 71 tables &middot; 2,340 graded checks<br>
+  Package: dist/harbor &middot; 181 standalone verifiers &middot; 474 artifacts pinned by sha256<br>
+  Corpus: 57 repositories &middot; AIOpsLab 33/33 &middot; terminal-bench 236 runnable via their own containers
 </footer>
