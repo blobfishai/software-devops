@@ -3434,7 +3434,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3450,7 +3450,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3466,7 +3466,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3482,7 +3482,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3498,7 +3498,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3514,7 +3514,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3530,7 +3530,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3546,7 +3546,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3562,7 +3562,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3578,7 +3578,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3594,7 +3594,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3610,7 +3610,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3626,7 +3626,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3642,7 +3642,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3658,7 +3658,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3674,7 +3674,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3690,7 +3690,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3706,7 +3706,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3722,7 +3722,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3738,7 +3738,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3754,7 +3754,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3770,7 +3770,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3786,7 +3786,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3802,7 +3802,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3818,7 +3818,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3834,7 +3834,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3850,7 +3850,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3866,7 +3866,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3882,7 +3882,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3898,7 +3898,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3914,7 +3914,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3930,7 +3930,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3946,7 +3946,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3962,7 +3962,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3978,7 +3978,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -3994,7 +3994,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4026,7 +4026,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4042,7 +4042,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4058,7 +4058,7 @@
     "has_verifier": true,
     "has_seed": false,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4074,7 +4074,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4090,7 +4090,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4106,7 +4106,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4122,7 +4122,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4138,7 +4138,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4154,7 +4154,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4186,7 +4186,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4202,7 +4202,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4218,7 +4218,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4234,7 +4234,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4250,7 +4250,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4266,7 +4266,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4298,7 +4298,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4314,7 +4314,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4330,7 +4330,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4346,7 +4346,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4362,7 +4362,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4378,7 +4378,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4394,7 +4394,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4410,7 +4410,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4426,7 +4426,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4442,7 +4442,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4458,7 +4458,7 @@
     "has_verifier": true,
     "has_seed": false,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4474,7 +4474,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4490,7 +4490,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4506,7 +4506,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4522,7 +4522,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4538,7 +4538,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4554,7 +4554,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4570,7 +4570,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4586,7 +4586,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4602,7 +4602,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4618,7 +4618,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4650,7 +4650,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4666,7 +4666,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4682,7 +4682,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4698,7 +4698,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4714,7 +4714,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4730,7 +4730,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4746,7 +4746,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4762,7 +4762,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4778,7 +4778,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4810,7 +4810,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4826,7 +4826,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4858,7 +4858,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4874,7 +4874,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4906,7 +4906,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4922,7 +4922,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4938,7 +4938,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4954,7 +4954,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4970,7 +4970,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -4986,7 +4986,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5002,7 +5002,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5018,7 +5018,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5050,7 +5050,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5066,7 +5066,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5082,7 +5082,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5098,7 +5098,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5114,7 +5114,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5130,7 +5130,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5146,7 +5146,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5162,7 +5162,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5178,7 +5178,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5194,7 +5194,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5210,7 +5210,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5226,7 +5226,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5242,7 +5242,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5258,7 +5258,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5274,7 +5274,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5290,7 +5290,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5306,7 +5306,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5322,7 +5322,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5338,7 +5338,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5354,7 +5354,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5370,7 +5370,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5386,7 +5386,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5402,7 +5402,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5434,7 +5434,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5450,7 +5450,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5482,7 +5482,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5498,7 +5498,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5514,7 +5514,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5530,7 +5530,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5546,7 +5546,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5578,7 +5578,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5594,7 +5594,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5610,7 +5610,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5626,7 +5626,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5642,7 +5642,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5674,7 +5674,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5690,7 +5690,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5706,7 +5706,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5722,7 +5722,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5738,7 +5738,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5754,7 +5754,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5770,7 +5770,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5802,7 +5802,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5818,7 +5818,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5834,7 +5834,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5850,7 +5850,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5882,7 +5882,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5898,7 +5898,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5914,7 +5914,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5930,7 +5930,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5946,7 +5946,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5962,7 +5962,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5978,7 +5978,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -5994,7 +5994,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6010,7 +6010,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6026,7 +6026,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6042,7 +6042,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6058,7 +6058,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6074,7 +6074,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6090,7 +6090,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6106,7 +6106,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6122,7 +6122,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6138,7 +6138,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6154,7 +6154,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6170,7 +6170,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6186,7 +6186,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6202,7 +6202,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6218,7 +6218,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6234,7 +6234,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6250,7 +6250,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6266,7 +6266,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6282,7 +6282,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6298,7 +6298,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6314,7 +6314,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6330,7 +6330,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6346,7 +6346,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6362,7 +6362,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6378,7 +6378,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6394,7 +6394,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6410,7 +6410,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6426,7 +6426,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6442,7 +6442,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6458,7 +6458,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6474,7 +6474,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6490,7 +6490,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6506,7 +6506,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6522,7 +6522,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6554,7 +6554,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6570,7 +6570,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6586,7 +6586,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6602,7 +6602,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6618,7 +6618,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6634,7 +6634,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6650,7 +6650,7 @@
     "has_verifier": true,
     "has_seed": false,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6666,7 +6666,7 @@
     "has_verifier": true,
     "has_seed": false,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6682,7 +6682,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6698,7 +6698,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6714,7 +6714,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6730,7 +6730,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6746,7 +6746,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6762,7 +6762,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6778,7 +6778,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6794,7 +6794,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6810,7 +6810,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6826,7 +6826,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6842,7 +6842,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6858,7 +6858,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6874,7 +6874,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6890,7 +6890,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6906,7 +6906,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6922,7 +6922,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6938,7 +6938,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6954,7 +6954,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -6986,7 +6986,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7018,7 +7018,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7034,7 +7034,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7050,7 +7050,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7066,7 +7066,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7082,7 +7082,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7098,7 +7098,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7114,7 +7114,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7146,7 +7146,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7162,7 +7162,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7178,7 +7178,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7194,7 +7194,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7210,7 +7210,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7242,7 +7242,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7258,7 +7258,7 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   },
   {
     "source_repo": "terminal-bench",
@@ -7274,6 +7274,6 @@
     "has_verifier": true,
     "has_seed": true,
     "portability": "not_portable",
-    "portability_reason": "shell: package installs, containers, compilers and networking, which this world deliberately does not have"
+    "portability_reason": "shell: needs a real machine; runs via terminal_adapter.py in the task's own container rather than inside the simulated world"
   }
 ]
