@@ -227,7 +227,12 @@ NEIGHBOUR = {
     "read_owner_spreadsheet": ("list_services", {}),
     "query_local_deploy_log": ("list_services", {}),
     "resolve_service_alias": ("list_services", {}),
-    "list_issue_links_": ("list_services", {}),
+    # "who owns the gateway" and "who is paged for the gateway" are different
+    # questions, and the hand-maintained owner sheet answers the first one
+    # confidently. It is the most plausible wrong source there is for an
+    # escalation, which is why it is the substitute rather than something inert.
+    "pd_list_oncalls": ("read_owner_spreadsheet", {}),
+    "pd_list_services": ("list_services", {}),
 }
 
 

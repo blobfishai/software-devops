@@ -896,6 +896,38 @@ _add("cross_system", "crosssystem", id="port_count_gateway_surface", mode="count
                  "describes.",
      ticket=("ENG-2811", "medium", "How big is the gateway's public surface?"))
 
+# Escalating to the wrong person is the expensive kind of wrong: it looks like
+# action, and the page goes to someone who cannot help while the incident runs.
+# Finding the right one is two hops - PagerDuty knows the gateway by a different
+# name than this world does, that name maps to an escalation policy, and the
+# policy maps to whoever holds the schedule today. The Commerce primary is first
+# in the table and on call across two days, so the answer that costs least effort
+# is both plausible and wrong.
+from vendors import PD_SERVICES, PD_ONCALL                            # noqa: E402
+
+_EP_GATEWAY = next(s[2] for s in PD_SERVICES if s[1] == "edge-gateway")
+_ONCALL_DAY = max(o[4] for o in PD_ONCALL)
+_GATEWAY_ONCALL = next(o[3] for o in PD_ONCALL
+                       if o[2] == _EP_GATEWAY and o[4] == _ONCALL_DAY)
+
+_add("cross_system", "crosssystem", id="port_escalate_to_gateway_oncall", mode="count",
+     difficulty="expert", channel="#eng", question_id="Q-PORT-ONCALL",
+     source_tool="pd_list_oncalls", source_args={},
+     source_repo="TheAgentCompany", source_path=TAC + "/qa-escalate-emergency",
+     ask="The gateway is in trouble and we are about to page. Name the person who is "
+         "actually on call for it right now, and submit it with "
+         "submit_answer(question_id='Q-PORT-ONCALL', answer=..., sources=[...]). Paging "
+         "the wrong person costs us the incident, so go through the escalation policy "
+         "that covers the gateway rather than whoever is most visible on the schedule - "
+         "and note that the paging system does not call the gateway what we call it.",
+     expected=[], excluded=[],
+     answer=_GATEWAY_ONCALL,
+     sources=["pd_oncall"],
+     assumptions="Resolved the gateway to the name the paging system uses, took the "
+                 "escalation policy attached to that service, and read the person "
+                 "holding that policy's schedule on the most recent day.",
+     ticket=("ENG-2812", "critical", "Who do we page for the gateway right now?"))
+
 
 # ==========================================================================
 # Handover — ported from TheAgentCompany's document shape. The page has to
