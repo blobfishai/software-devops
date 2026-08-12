@@ -276,8 +276,8 @@
     "points": 6,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('.xlsx' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -293,8 +293,8 @@
     "points": 5,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for rocketchat, owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('.xlsx' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -310,8 +310,8 @@
     "points": 5,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud, rocketchat"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('spreadsheet' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -342,8 +342,8 @@
     "points": 2,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('predict the' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -358,8 +358,8 @@
     "points": null,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('spreadsheet' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -407,8 +407,8 @@
     "points": 3,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for rocketchat, owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('.xlsx' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -424,8 +424,8 @@
     "points": 5,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud, rocketchat"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('spreadsheet' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -440,8 +440,8 @@
     "points": 3,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('machine learning pipeline' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -470,8 +470,8 @@
     "points": 8,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('presentation' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -486,8 +486,8 @@
     "points": 4,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('.xlsx' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -1210,8 +1210,8 @@
     "points": 8,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('pdfs' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -1407,8 +1407,8 @@
     "points": 5,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for rocketchat, owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('spreadsheet' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -1458,8 +1458,8 @@
     "points": null,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud, rocketchat"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('slide' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -1492,8 +1492,8 @@
     "points": null,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for gitlab, rocketchat"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('presentation' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -2030,8 +2030,8 @@
     "points": 5,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('PDF' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -2645,8 +2645,8 @@
     "points": 2,
     "has_verifier": true,
     "has_seed": false,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for owncloud"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('pdf' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "TheAgentCompany",
@@ -5033,8 +5033,8 @@
     "points": null,
     "has_verifier": true,
     "has_seed": true,
-    "portability": "substrate_ok",
-    "portability_reason": "substitutes exist for workspace"
+    "portability": "not_portable",
+    "portability_reason": "needs office/tabular tooling ('pdf' in the instruction); owncloud substitutes to prose documents, which cannot hold a sheet to compute over, a chart or a deck"
   },
   {
     "source_repo": "terminal-bench",

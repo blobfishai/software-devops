@@ -237,6 +237,28 @@ NEEDS_SHELL = re.compile(
     r"unit test|compile|build the|make |bash|shell|terminal|virtualenv|conda|"
     r"\.sh\b|localhost:\d+|curl )", re.I)
 
+# Substituting a SYSTEM is not the same as substituting what a task DOES with it.
+# owncloud maps to "documents + confluence_pages", which is prose: pages you can
+# search, read and write. That covers "find the runbook and write the page", and
+# it does not cover opening an .xlsx to average a column, drawing a pie chart,
+# producing a slide deck, or training a scikit-learn model - none of which this
+# world has a counterpart for, and none of which is operating software.
+#
+# Counting those as hostable because their declared system happens to substitute
+# is how a coverage number becomes a fiction: it survives until the first person
+# asks to see one running. The instruction says what the task actually needs, so
+# the instruction decides.
+# Note what is NOT here: a bare ".csv". "Save the open issues as issues.csv" is a
+# delimited text file the workspace can write with ws_write, not office tooling -
+# and treating it as such demoted two tasks this world already hosts. The line is
+# between writing a flat file and computing over a binary sheet.
+NEEDS_OFFICE = re.compile(
+    r"(\.xlsx|\.xls\b|\.pptx|\.odt|\.ods\b|spreadsheet|"
+    r"pie (and bar )?chart|bar chart|visuali[sz]|plot the|"
+    r"slide|presentation|powerpoint|"
+    r"scikit-learn|sklearn|machine learning pipeline|predict the|"
+    r"pdfs?\b)", re.I)
+
 # TheAgentCompany is a whole simulated company. Its hr, finance, admin and bm
 # families are about running a business, not operating software. They are not
 # gaps in a software-devops world, and counting them as portable inflates the
@@ -269,6 +291,13 @@ def classify(task):
         return "not_portable", ("needs a shell or filesystem (%r in the instruction); "
                                 "this task's declared systems do not include the "
                                 "workspace" % m.group(0).strip())
+
+    m = NEEDS_OFFICE.search(task.get("instruction", ""))
+    if m:
+        return "not_portable", ("needs office/tabular tooling (%r in the instruction); "
+                                "owncloud substitutes to prose documents, which cannot "
+                                "hold a sheet to compute over, a chart or a deck"
+                                % m.group(0).strip())
 
     unknown = [s for s in systems if s not in SUBSTITUTES and s != "modelled-cluster"]
     if unknown:
