@@ -1200,3 +1200,32 @@ def test_no_new_tasks_that_grade_the_same_as_an_existing_one():
         "the count and nothing to the measurement."
         % (redundant, KNOWN_REDUNDANT_TASKS,
            sorted({t["category"] for g in groups for t in g})))
+
+
+def test_every_task_registers_through_the_registry():
+    """One world, one place tasks come from. The three authors - task_specs by
+    hand, waves by generation, tasks_def by template - all register through
+    build/registry.py, which owns the id namespace. Appending to the list
+    directly would put a task in the world that nothing checked."""
+    import importlib
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "build"))
+    try:
+        registry = importlib.import_module("registry")
+        # deliberately NOT reloaded: re-importing re-registers every spec, and
+        # the registry refuses that - which is the behaviour under test.
+        task_specs = importlib.import_module("task_specs")
+        origins = registry.origins()
+        assert origins, "no task registered; the registry is not on the build path"
+        assert task_specs.SPECS is registry.SPECS, (
+            "task_specs.SPECS is no longer the registry's list, so specs can be "
+            "added without passing the id check")
+        # a second registration of a live id must be refused
+        any_id = next(iter(origins))
+        try:
+            registry.register({"id": any_id}, "test")
+            raise AssertionError("registry accepted a duplicate task id %r" % any_id)
+        except registry.DuplicateTask:
+            pass
+    finally:
+        _sys.path.remove(str(ROOT / "build"))

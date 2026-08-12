@@ -6,7 +6,11 @@ its instruction/verifier/oracle, and the ticket seeded into the issue tracker.
 Ticket tuple = (key, priority, title).
 """
 
-SPECS = []
+import registry
+
+# The same list object the registry owns, so anything already reading
+# task_specs.SPECS keeps working while the registry is what actually guards it.
+SPECS = registry.SPECS
 
 
 from code_exercises import EXERCISES as _EX
@@ -18,7 +22,7 @@ CODE = {e["id"]: e["reference"] for e in _EX}
 def _add(category, generator, **kw):
     kw["category"] = category
     kw["generator"] = generator
-    SPECS.append(kw)
+    registry.register(kw, "task_specs")
 
 
 # ==========================================================================

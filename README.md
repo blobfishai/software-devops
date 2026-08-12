@@ -429,6 +429,9 @@ blobfish serve path/to/software-devops/world                   # stdio MCP
 
 ```
 build/            deterministic world builder (single source of truth)
+  registry.py       the one place every task registers; owns the id namespace
+                    and fails the build on a task that grades what another
+                    task already grades
   schema_seed.py    DDL + seeded company state (ids 9000+ are curated)
   tools_src.py      core tool sources (engine/audit snippets stamped in)
   vendors.py        the third-party systems that disagree with each other

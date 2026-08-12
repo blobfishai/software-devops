@@ -461,7 +461,8 @@ def main():
     import waves as W
     wave_specs = W.generate(str(db_path), waves=(1, 2, 3, 5, 6))
     if wave_specs:
-        task_specs.SPECS.extend(wave_specs)
+        import registry
+        registry.register_all(wave_specs, "waves")
         _c = sqlite3.connect(str(db_path))
         _next = _c.execute("SELECT COALESCE(MAX(ticket_id), 9100) + 1 FROM tickets").fetchone()[0]
         for i, sp in enumerate(wave_specs):
@@ -486,6 +487,11 @@ def main():
             reads_map.setdefault(tb, []).append(t["name"])
     tasks = tasks_def.make_tasks(base_seq, frozen, fixed_rows, audit_prefix, n_secret,
                                  secret_lit or "pk_live_none", reads_map)
+    # A duplicate can only be seen once the verifier exists, so this is the first
+    # point the question can be asked - and it is a hard gate rather than a
+    # report, because a task that grades what another task already grades adds a
+    # row to the count and nothing to the measurement.
+    __import__("registry").assert_no_new_duplicates(tasks)
 
     report, failures = validate(tasks, db_path, tool_ns, tmp)
     by_cat = {}
