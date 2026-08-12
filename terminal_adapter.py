@@ -25,6 +25,16 @@ runs inside it, which is exactly the isolation the benchmark was designed around
 `--oracle` runs the task's own solution.sh and then its tests. That is the same
 gate the rest of this world uses: if the reference solution does not pass, the
 adapter is wrong and the number means nothing.
+
+Known limitation, found by running a random sample rather than assumed. The
+container is started with `sleep infinity` as PID 1 and commands are `docker
+exec`d into it, so there is no init system. Tasks whose solution starts a
+long-running SERVICE - nginx, a daemon, anything expecting systemctl - will fail
+here even though their image builds and their solution is correct. That is an
+adapter limitation and not a task property, so those episodes should be read as
+"this adapter cannot run it" rather than as a score. Running the task's own
+docker-compose, which terminal-bench ships alongside the Dockerfile, would fix
+it; that is the next thing to build here.
 """
 
 import argparse
