@@ -1950,11 +1950,23 @@ def make_tasks(base_seq, frozen=None, fixed_rows=None, audit_prefix="", secret_f
                     x["tool"] == "get_ci_run" for x in discovered):
                 discovered.append({"tool": "get_ci_run", "args": {"run_id": 13}})
         calls = discovered
+        # Provenance has to survive into the shipped artifact. task_specs records
+        # the benchmark directory each port reproduces, but stamping every task
+        # "curated" threw that away at the last step: a consumer holding only
+        # world/tasks.json could read the parity claim in the README and had no
+        # way to check it against the tasks. Carry the source through, so which
+        # benchmark a task came from is a property of the world rather than of
+        # this repository.
+        prov = {}
+        if spec.get("source_repo"):
+            prov = {"source_repo": spec["source_repo"],
+                    "source_path": spec.get("source_path", "")}
         tasks.append({
             "task_id": "tsk_" + spec["id"],
             "instruction": instruction,
             "instruction_guided": instruction + "\n\n" + _guidance_for(spec, gen),
-            "origin": "curated",
+            "origin": "ported" if prov else "curated",
+            **prov,
             "difficulty": spec["difficulty"],
             "category": spec["category"],
             "ground_truth": "",
