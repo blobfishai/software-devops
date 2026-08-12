@@ -594,6 +594,35 @@ if conds:
 return [dict(r) for r in conn.execute(sql + ' ORDER BY from_service, to_target', args).fetchall()]""",
           reads=["network_paths"], writes=[], returns="list[dict]"))
 
+    T(_mk("write_runbook",
+          "Write a new page into the knowledge base - a runbook, a summary, a handover "
+          "note. This adds a page; it cannot edit the company standards in `documents`, "
+          "which are what your work is judged against.",
+          [{"name": "title", "type": "str", "required": True},
+           {"name": "body", "type": "str", "required": True}],
+          """\
+if not str(title).strip():
+    return {'ok': False, 'error': 'title is required'}
+if len(str(body).strip()) < 40:
+    return {'ok': False, 'error': 'a page shorter than 40 characters is not a runbook'}
+if len(str(body)) > 20000:
+    return {'ok': False, 'error': 'page too long (20000 character limit)'}
+cur = conn.execute('INSERT INTO authored_docs(title, body) VALUES (?,?)',
+                   (str(title).strip(), str(body)))
+_audit(conn, 'write_runbook', '', {'title': str(title)[:80], 'chars': len(str(body))})
+conn.commit()
+return {'ok': True, 'doc_id': cur.lastrowid, 'title': str(title).strip()}""",
+          reads=[], writes=["authored_docs", "audit_events"], snippets=[AUDIT_SNIPPET]))
+
+    T(_mk("list_authored_docs",
+          "List the pages written during this episode, with their titles.",
+          [],
+          """\
+return [dict(r) for r in conn.execute(
+    'SELECT doc_id, title, LENGTH(body) AS bytes, author FROM authored_docs '
+    'ORDER BY doc_id').fetchall()]""",
+          reads=["authored_docs"], writes=[], returns="list[dict]"))
+
     T(_mk("ws_list",
           "List the files in the workspace with their sizes. This is a real filesystem: "
           "what you write here is what runs.",

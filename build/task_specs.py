@@ -828,6 +828,63 @@ _add("cross_system", "crosssystem", id="port_count_inflight_work", mode="count",
 
 
 # ==========================================================================
+# Handover — ported from TheAgentCompany's document shape. The page has to
+# contain the specific values the world holds, so it cannot be written without
+# looking them up: a summary of the shape of the problem scores zero.
+# ==========================================================================
+_add("handover", "handover", id="hand_gateway_runbook", difficulty="hard",
+     source_repo="TheAgentCompany", source_path=TAC + "/sde-add-wiki-page",
+     ask="The gateway incident is the third of its kind and nobody has written it "
+         "down. Write the runbook page a new on-call would need: which release "
+         "introduced it, what the p99 reached against what objective, and why rolling "
+         "FORWARD does not recover it.",
+     title_needle="gateway",
+     page_title="Runbook: api-gateway latency after v5.1.0",
+     page_body=("api-gateway p99 reached 1030ms against a 250ms objective. The cause is "
+                "v5.1.0, which opens an upstream connection per request without "
+                "releasing it. Because the defect is present in every version at or "
+                "above v5.1.0, rolling forward does not recover it - only a rollback to "
+                "v5.0.9 does. Alarm 9604 fires on this. Check upstream_pool_reuse before "
+                "promoting any release above v5.0.9."),
+     facts=[{"name": "the_release", "text": "v5.1.0", "why": "which release introduced it"},
+            {"name": "the_measurement", "text": "1030", "why": "what the p99 reached"},
+            {"name": "the_objective", "text": "250", "why": "the objective it breached"},
+            {"name": "why_rollforward_fails", "text": "rolling forward",
+             "why": "why rolling forward does not recover it"}],
+     reads=[{"tool": "list_deployments",
+             "args": {"service": "api-gateway", "environment": "production"}},
+            {"tool": "get_slo_status", "args": {"service": "api-gateway"}},
+            {"tool": "query_metrics", "args": {"service": "api-gateway"}},
+            {"tool": "search_logs", "args": {"service": "api-gateway"}}],
+     ticket=("DOC-3001", "medium", "Write the gateway latency runbook"))
+
+_add("handover", "handover", id="hand_cluster_runbook", difficulty="expert",
+     source_repo="TheAgentCompany", source_path=TAC + "/pm-monitor-new-bug-issues",
+     ask="Three separate incidents this month turned out to be the cluster rather than "
+         "the service, and each took hours because nobody looked below the pod. Write "
+         "the page that would have saved that time: which node is unhealthy and how, "
+         "and which service is affected by it.",
+     title_needle="cluster",
+     page_title="Runbook: when the cluster is the cause, not the service",
+     page_body=("Before blaming a service, check the node it runs on. node-b3 reports "
+                "DiskPressure at 97 percent of its ephemeral storage and hosts both "
+                "media-service replicas, one of which has already been Evicted for "
+                "ephemeral-storage. node-c1 is Ready=Unknown on a CPU soft lockup, so "
+                "its pods still report Running because the kubelet stopped reporting "
+                "rather than the pod stopping. Neither shows up in the affected "
+                "service's own metrics, logs or source."),
+     facts=[{"name": "the_node", "text": "node-b3", "why": "which node is unhealthy"},
+            {"name": "the_condition", "text": "DiskPressure", "why": "how it is unhealthy"},
+            {"name": "the_service", "text": "media-service", "why": "which service it affects"},
+            {"name": "the_second_node", "text": "node-c1",
+             "why": "the other unhealthy node, which fails differently"}],
+     reads=[{"tool": "k8s_nodes_list", "args": {"unhealthy_only": True}},
+            {"tool": "k8s_pods_list", "args": {"service": "media-service"}},
+            {"tool": "k8s_events_list", "args": {"reason": "Evicted"}}],
+     ticket=("DOC-3002", "high", "Write the cluster-fault runbook"))
+
+
+# ==========================================================================
 # Horizon — mitigate now, and leave the real fix findable.
 #
 # Every change family here ends when the metric recovers. On-call does not: the
@@ -1257,7 +1314,7 @@ def _ticket_type(s):
             "detection": "incident", "localization": "incident",
             "analysis": "incident", "reconcile": "task",
             "judgement": "incident", "gated": "security",
-            "implement": "feature", "attribution": "incident", "workspace": "bug", "horizon": "incident",
+            "implement": "feature", "attribution": "incident", "workspace": "bug", "horizon": "incident", "handover": "task",
             "crosssystem": "task"}[s["generator"]]
 
 

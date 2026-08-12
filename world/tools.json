@@ -4237,6 +4237,76 @@
     }
   },
   {
+    "tool_id": "tool_write_runbook",
+    "name": "write_runbook",
+    "description": "Write a new page into the knowledge base - a runbook, a summary, a handover note. This adds a page; it cannot edit the company standards in `documents`, which are what your work is judged against.",
+    "source_code": "def write_runbook(db_path=None, title=None, body=None):\n    \"\"\"Write a new page into the knowledge base - a runbook, a summary, a handover note. This adds a page; it cannot edit the company standards in `documents`, which are what your work is judged against.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('write_runbook',)); conn.commit()\n        except Exception:\n            pass\n        if title is None:\n            return {'ok': False, 'error': 'missing required parameter: title'}\n        if body is None:\n            return {'ok': False, 'error': 'missing required parameter: body'}\n        def _audit(conn, _tool, _svc, _detail):\n            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))\n        if not str(title).strip():\n            return {'ok': False, 'error': 'title is required'}\n        if len(str(body).strip()) < 40:\n            return {'ok': False, 'error': 'a page shorter than 40 characters is not a runbook'}\n        if len(str(body)) > 20000:\n            return {'ok': False, 'error': 'page too long (20000 character limit)'}\n        cur = conn.execute('INSERT INTO authored_docs(title, body) VALUES (?,?)',\n                           (str(title).strip(), str(body)))\n        _audit(conn, 'write_runbook', '', {'title': str(title)[:80], 'chars': len(str(body))})\n        conn.commit()\n        return {'ok': True, 'doc_id': cur.lastrowid, 'title': str(title).strip()}\n    finally:\n        conn.close()\n",
+    "parameters": [
+      {
+        "name": "title",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "title"
+      },
+      {
+        "name": "body",
+        "type": "str",
+        "required": true,
+        "default": null,
+        "description": "body"
+      }
+    ],
+    "return_type": "dict",
+    "read_tables": [],
+    "write_tables": [
+      "audit_events",
+      "authored_docs"
+    ],
+    "json_schema": {
+      "name": "write_runbook",
+      "description": "Write a new page into the knowledge base - a runbook, a summary, a handover note. This adds a page; it cannot edit the company standards in `documents`, which are what your work is judged against.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "title"
+          },
+          "body": {
+            "type": "string",
+            "description": "body"
+          }
+        },
+        "required": [
+          "title",
+          "body"
+        ]
+      }
+    }
+  },
+  {
+    "tool_id": "tool_list_authored_docs",
+    "name": "list_authored_docs",
+    "description": "List the pages written during this episode, with their titles.",
+    "source_code": "def list_authored_docs(db_path=None):\n    \"\"\"List the pages written during this episode, with their titles.\"\"\"\n    import sqlite3 as _sq\n    import json as _json\n    if db_path:\n        conn = _sq.connect(db_path)\n    else:\n        conn = get_db()\n    conn.row_factory = _sq.Row\n    try:\n        try:\n            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_authored_docs',)); conn.commit()\n        except Exception:\n            pass\n        return [dict(r) for r in conn.execute(\n            'SELECT doc_id, title, LENGTH(body) AS bytes, author FROM authored_docs '\n            'ORDER BY doc_id').fetchall()]\n    finally:\n        conn.close()\n",
+    "parameters": [],
+    "return_type": "list[dict]",
+    "read_tables": [
+      "authored_docs"
+    ],
+    "write_tables": [],
+    "json_schema": {
+      "name": "list_authored_docs",
+      "description": "List the pages written during this episode, with their titles.",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  },
+  {
     "tool_id": "tool_ws_list",
     "name": "ws_list",
     "description": "List the files in the workspace with their sizes. This is a real filesystem: what you write here is what runs.",

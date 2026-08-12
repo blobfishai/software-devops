@@ -375,6 +375,17 @@ CREATE TABLE workspace_runs (
     stderr TEXT NOT NULL DEFAULT '',
     timed_out INTEGER NOT NULL DEFAULT 0
 );
+-- Pages the agent writes. Deliberately NOT the documents table: that is company
+-- reference material and a world invariant forbids altering it, because an agent
+-- that can edit the standard it is judged against is grading itself. Writing a
+-- NEW runbook is a different act from rewriting the policy, and only the first
+-- is something an engineer should be able to do here.
+CREATE TABLE authored_docs (
+    doc_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    author TEXT NOT NULL DEFAULT 'agent'
+);
 -- the mapping that makes the naming chaos SOLVABLE rather than cruel (F5)
 CREATE TABLE service_aliases (
     canonical TEXT NOT NULL,

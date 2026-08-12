@@ -59,6 +59,12 @@ CREATE TABLE audit_events (
     service TEXT NOT NULL DEFAULT '',
     detail TEXT NOT NULL DEFAULT '{}'
 );
+CREATE TABLE authored_docs (
+    doc_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    author TEXT NOT NULL DEFAULT 'agent'
+);
 CREATE TABLE canary_assessments (
     assessment_id INTEGER PRIMARY KEY AUTOINCREMENT,
     deployment_id INTEGER NOT NULL,

@@ -86,6 +86,8 @@
     "tool_list_db_grants",
     "tool_get_runtime_stats",
     "tool_check_network_path",
+    "tool_write_runbook",
+    "tool_list_authored_docs",
     "tool_ws_list",
     "tool_ws_read",
     "tool_ws_write",

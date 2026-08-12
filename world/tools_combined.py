@@ -3087,6 +3087,62 @@ def check_network_path(db_path=None, from_service=None, blocked_only=False):
         conn.close()
 
 
+def write_runbook(db_path=None, title=None, body=None):
+    """Write a new page into the knowledge base - a runbook, a summary, a handover note. This adds a page; it cannot edit the company standards in `documents`, which are what your work is judged against."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('write_runbook',)); conn.commit()
+        except Exception:
+            pass
+        if title is None:
+            return {'ok': False, 'error': 'missing required parameter: title'}
+        if body is None:
+            return {'ok': False, 'error': 'missing required parameter: body'}
+        def _audit(conn, _tool, _svc, _detail):
+            conn.execute('INSERT INTO audit_events(tool, service, detail) VALUES (?,?,?)', (_tool, _svc, _json.dumps(_detail)))
+        if not str(title).strip():
+            return {'ok': False, 'error': 'title is required'}
+        if len(str(body).strip()) < 40:
+            return {'ok': False, 'error': 'a page shorter than 40 characters is not a runbook'}
+        if len(str(body)) > 20000:
+            return {'ok': False, 'error': 'page too long (20000 character limit)'}
+        cur = conn.execute('INSERT INTO authored_docs(title, body) VALUES (?,?)',
+                           (str(title).strip(), str(body)))
+        _audit(conn, 'write_runbook', '', {'title': str(title)[:80], 'chars': len(str(body))})
+        conn.commit()
+        return {'ok': True, 'doc_id': cur.lastrowid, 'title': str(title).strip()}
+    finally:
+        conn.close()
+
+
+def list_authored_docs(db_path=None):
+    """List the pages written during this episode, with their titles."""
+    import sqlite3 as _sq
+    import json as _json
+    if db_path:
+        conn = _sq.connect(db_path)
+    else:
+        conn = get_db()
+    conn.row_factory = _sq.Row
+    try:
+        try:
+            conn.execute('INSERT INTO tool_calls(tool) VALUES (?)', ('list_authored_docs',)); conn.commit()
+        except Exception:
+            pass
+        return [dict(r) for r in conn.execute(
+            'SELECT doc_id, title, LENGTH(body) AS bytes, author FROM authored_docs '
+            'ORDER BY doc_id').fetchall()]
+    finally:
+        conn.close()
+
+
 def ws_list(db_path=None):
     """List the files in the workspace with their sizes. This is a real filesystem: what you write here is what runs."""
     import sqlite3 as _sq

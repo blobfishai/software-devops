@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_57be152a",
+  "world_id": "env_software_devops_ef0424f2",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "57be152ac77db2734e95a3438866e421793e322b6de542f25a295eeaaa17bbcf",
+  "world_digest": "ef0424f285c9ae1aac0544dde2c9f6be13c743ab1ddae951f13874aa9ac91259",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -19,6 +19,7 @@
     "approval_policy",
     "approval_requests",
     "audit_events",
+    "authored_docs",
     "canary_assessments",
     "channels",
     "ci_runs",
@@ -85,19 +86,19 @@
   ],
   "tables_without_tools": [],
   "counts": {
-    "tables": 71,
-    "rows": 1445,
-    "tools": 95,
-    "tasks": 181,
+    "tables": 72,
+    "rows": 1447,
+    "tools": 97,
+    "tasks": 183,
     "tasks_rejected": 0,
     "repo_files": 38,
     "commits": 417,
     "documents": 30
   },
   "difficulty": {
-    "hard": 55,
+    "hard": 56,
     "medium": 67,
-    "expert": 47,
+    "expert": 48,
     "easy": 12
   },
   "categories": {
@@ -113,6 +114,7 @@
     "aiops_analysis": 17,
     "code_implementation": 4,
     "cross_system": 26,
+    "handover": 2,
     "horizon": 2,
     "workspace": 1,
     "attribution": 13,
@@ -150,6 +152,8 @@
       "tsk_flaky_search_index",
       "tsk_gated_rotate_partner_credential",
       "tsk_gateway_v510_rollback",
+      "tsk_hand_cluster_runbook",
+      "tsk_hand_gateway_runbook",
       "tsk_hz_checkout_flag_kill",
       "tsk_hz_gateway_leak_rollback",
       "tsk_impl_backoff",
@@ -308,7 +312,7 @@
     ]
   },
   "task_creation": {
-    "accepted": 181,
+    "accepted": 183,
     "rejected": 0
   },
   "personas": [

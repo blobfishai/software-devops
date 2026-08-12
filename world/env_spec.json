@@ -1,6 +1,6 @@
 {
   "kind": "AgentWorldEnvSpec",
-  "env_id": "env_software_devops_57be152a",
+  "env_id": "env_software_devops_ef0424f2",
   "version": 2,
   "parent_digest": null,
   "digest": "",
@@ -20,17 +20,17 @@
   },
   "database": {
     "snapshot_ref": "environment.db",
-    "schema_hash": "d848ec3ef716fa6957c10eb7d215bab6595d6bed7891d69946635820f008315a",
+    "schema_hash": "f0f4fa73ad2761e2cc7b056914ca685431d189d47eae43ec10a23301d0e59da0",
     "seed": 42,
     "engine": "sqlite",
-    "table_count": 71,
-    "row_count": 1445,
+    "table_count": 72,
+    "row_count": 1447,
     "complexification_rounds": 0
   },
   "tools": {
     "manifest_ref": "",
     "tests_ref": "",
-    "tool_count": 95,
+    "tool_count": 97,
     "survival_rate": 1.0,
     "valid_tool_ids": [
       "tool_list_services",
@@ -119,6 +119,8 @@
       "tool_list_db_grants",
       "tool_get_runtime_stats",
       "tool_check_network_path",
+      "tool_write_runbook",
+      "tool_list_authored_docs",
       "tool_ws_list",
       "tool_ws_read",
       "tool_ws_write",
@@ -218,6 +220,8 @@
       "tool_list_db_grants",
       "tool_get_runtime_stats",
       "tool_check_network_path",
+      "tool_write_runbook",
+      "tool_list_authored_docs",
       "tool_ws_list",
       "tool_ws_read",
       "tool_ws_write",
@@ -323,6 +327,8 @@
     "tsk_port_close_blocked_issues",
     "tsk_port_count_open_priority",
     "tsk_port_count_inflight_work",
+    "tsk_hand_gateway_runbook",
+    "tsk_hand_cluster_runbook",
     "tsk_hz_gateway_leak_rollback",
     "tsk_hz_checkout_flag_kill",
     "tsk_ws_ledger_missing_account",
@@ -420,8 +426,8 @@
   "quality": {
     "five_run_successes": 0,
     "mutation_score": 0.0,
-    "task_count": 181,
-    "accepted_task_count": 181,
+    "task_count": 183,
+    "accepted_task_count": 183,
     "acceptance_rate": 1.0
   },
   "stage_history": [],
@@ -431,8 +437,8 @@
     "repo": "software-devops"
   },
   "verification_summary": {
-    "total_tasks": 181,
-    "discriminating_vcode_tasks": 181,
+    "total_tasks": 183,
+    "discriminating_vcode_tasks": 183,
     "grounded_answer_tasks": 0,
     "weak_vcode_tasks": 0,
     "source_weak_vcode_tasks": 0,

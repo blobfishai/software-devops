@@ -78,6 +78,17 @@ def _msg_count(_ch, _needle):
     return _one("SELECT COUNT(*) FROM messages WHERE channel=? AND author='agent' AND body LIKE ?", _ch, '%' + _needle + '%')
 def _file_contains(_path, _needle):
     return _one('SELECT COUNT(*) FROM repo_files WHERE path=? AND content LIKE ?', _path, '%' + _needle + '%')
+def _authored(_needle):
+    _r = conn.execute('SELECT body FROM authored_docs WHERE title LIKE ? '
+                      'ORDER BY doc_id DESC LIMIT 1', ('%' + _needle + '%',)).fetchone()
+    return _r[0] if _r else None
+
+
+def _authored_contains(_needle, _fact):
+    _b = _authored(_needle)
+    return bool(_b) and _fact.lower() in _b.lower()
+
+
 def _open_followup(_svc, _needle):
     # A postmortem that has already been closed is not a follow-up, it is a
     # formality. The defect outlives the incident, so the record must too.
@@ -1093,6 +1104,44 @@ def _aiops_common(checks, scope, steps_budget):
                    "reach a conclusion within %d tool calls" % steps_budget))
 
 
+def gen_handover(spec):
+    """Write the page the next person needs, from evidence you had to gather.
+
+    Ported from TheAgentCompany's document shape - summarise this, write it up
+    there. What makes it a task rather than a writing exercise is that the facts
+    have to be right: the page is graded on containing the specific values the
+    world holds, so it cannot be written without first looking them up.
+    """
+    tkt = spec["ticket"][0]
+    instruction = (
+        "This is an investigation and a write-up, not a change. Do NOT modify "
+        "production state.\n\n%s — %s\n\n%s\n\nWrite it with "
+        "write_runbook(title=..., body=...). It has to be usable by someone who was "
+        "not here, which means the specific numbers and names, not a summary of the "
+        "shape of the problem."
+        % (tkt, spec["ticket"][2], spec["ask"]))
+    checks = [
+        ("correctness", "page_written",
+         "_authored(%s) is not None" % q(spec["title_needle"]),
+         "write a page whose title mentions %s" % spec["title_needle"]),
+    ]
+    for i, fact in enumerate(spec["facts"]):
+        checks.append(("correctness", "states_%s" % fact["name"],
+                       "_authored_contains(%s, %s)" % (q(spec["title_needle"]), q(fact["text"])),
+                       "the page must state %s" % fact["why"]))
+    checks.append(("deployment", "investigation_was_read_only", "_mutating_calls() == 0",
+                   "an investigation must not change production state"))
+    checks.append(("quality", "ticket_closed", "_ticket_status(%s) == 'done'" % q(tkt),
+                   "close ticket %s once the page is written" % tkt))
+    checks.append(("quality", "closed_after_the_work", "_closed_after_work(%s)" % q(tkt),
+                   "close %s only once the page exists" % tkt))
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}}] + list(spec["reads"]) + [
+        {"tool": "write_runbook", "args": {"title": spec["page_title"],
+                                           "body": spec["page_body"]}},
+        {"tool": "update_ticket", "args": {"key": tkt, "status": "done"}}]
+    return instruction, checks, calls
+
+
 def gen_horizon(spec):
     """Mitigate now, and leave the real fix findable.
 
@@ -1741,7 +1790,7 @@ GENERATORS = {
     "gated": gen_gated,
     "judgement": gen_judgement,
     "reconcile": gen_reconcile,
-    "horizon": gen_horizon, "workspace": gen_workspace, "crosssystem": gen_crosssystem, "attribution": gen_attribution, "implement": gen_implement, "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
+    "handover": gen_handover, "horizon": gen_horizon, "workspace": gen_workspace, "crosssystem": gen_crosssystem, "attribution": gen_attribution, "implement": gen_implement, "detection": gen_detection, "localization": gen_localization, "analysis": gen_analysis,
     "config_fix": gen_config_fix, "flag_ship": gen_flag_ship, "flag_kill": gen_flag_kill,
     "flag_cleanup": gen_flag_cleanup, "security_cve": gen_security_cve,
     "security_endpoint": gen_security_endpoint, "security_secret": gen_security_secret,
@@ -1831,6 +1880,9 @@ GUIDANCE = {
                  "the service naming across them, check for duplicates and sampling before "
                  "counting, decide the boundary condition explicitly, and record which "
                  "source you trusted and why.",
+    "handover": "Procedure: gather the specific values from the systems that hold "
+                "them, then write one page containing those values rather than a "
+                "description of them.",
     "horizon": "Procedure: mitigate with the fastest safe lever, confirm the metric "
                "recovers, then file a postmortem naming the underlying defect and leave "
                "it open for the owning team.",
