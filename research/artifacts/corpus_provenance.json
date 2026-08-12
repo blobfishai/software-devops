@@ -1,0 +1,344 @@
+{
+  "automation/Aider-AI__aider": {
+    "branch": "main",
+    "date": "2026-05-22T07:02:20-07:00",
+    "head": "5dc9490bb35f9729ef2c95d00a19ccd30c26339c",
+    "url": "https://github.com/Aider-AI/aider.git"
+  },
+  "automation/All-Hands-AI__OpenHands": {
+    "branch": "main",
+    "date": "2026-08-10T22:34:56-04:00",
+    "head": "21f0967c8f7b728f5840730fe36a33d5833640cb",
+    "url": "https://github.com/All-Hands-AI/OpenHands.git"
+  },
+  "automation/anthropics__anthropic-cookbook": {
+    "branch": "main",
+    "date": "2026-08-07T13:13:36-04:00",
+    "head": "f65eb122a51e9710d4db3f4893016879c65c77d6",
+    "url": "https://github.com/anthropics/anthropic-cookbook.git"
+  },
+  "automation/anthropics__claude-code": {
+    "branch": "main",
+    "date": "2026-08-10T22:56:46Z",
+    "head": "54cc51a08a5d3900e5abd02ad75a2ce46f3f008c",
+    "url": "https://github.com/anthropics/claude-code.git"
+  },
+  "automation/block__goose": {
+    "branch": "main",
+    "date": "2026-08-11T13:58:12Z",
+    "head": "db7a704446975c88d3b67490c74d33bcd684404e",
+    "url": "https://github.com/block/goose.git"
+  },
+  "automation/cline__cline": {
+    "branch": "main",
+    "date": "2026-08-10T20:03:53-07:00",
+    "head": "7e31fb9e0d5f38f3437d6f12a01711a0142fccca",
+    "url": "https://github.com/cline/cline.git"
+  },
+  "automation/continuedev__continue": {
+    "branch": "main",
+    "date": "2026-07-20T21:00:09-07:00",
+    "head": "5522c6f44ca0ac3528b37244818fbfa39b5af470",
+    "url": "https://github.com/continuedev/continue.git"
+  },
+  "automation/danielmiessler__fabric": {
+    "branch": "main",
+    "date": "2026-08-04T01:20:12Z",
+    "head": "338b89cfe97ab2d12ce30ce8b5449857a841366d",
+    "url": "https://github.com/danielmiessler/fabric.git"
+  },
+  "automation/github__awesome-copilot": {
+    "branch": "main",
+    "date": "2026-08-11T04:02:14Z",
+    "head": "35b7b9b0ece5ef92fd0f4c91944f56be9ab8b675",
+    "url": "https://github.com/github/awesome-copilot.git"
+  },
+  "automation/gptscript-ai__gptscript": {
+    "branch": "main",
+    "date": "2026-05-22T11:18:21-04:00",
+    "head": "b374bab0897c5aba068ac62e7f2cf530afc215ee",
+    "url": "https://github.com/gptscript-ai/gptscript.git"
+  },
+  "automation/stitionai__devika": {
+    "branch": "main",
+    "date": "2025-09-25T14:17:36+05:30",
+    "head": "80bb343cbe4a4e5f5a0ba08d2524920139baceb6",
+    "url": "https://github.com/stitionai/devika.git"
+  },
+  "automation/sweepai__sweep": {
+    "branch": "main",
+    "date": "2025-09-17T23:10:57-07:00",
+    "head": "a8b8b67bda4f89faac9314d34e7c7d5a64f76046",
+    "url": "https://github.com/sweepai/sweep.git"
+  },
+  "evals/EleutherAI__lm-evaluation-harness": {
+    "branch": "main",
+    "date": "2026-08-11T13:24:39+05:00",
+    "head": "e90e5b656bcc91559f1f2928c431ef4801f15804",
+    "url": "https://github.com/EleutherAI/lm-evaluation-harness.git"
+  },
+  "evals/METR__vivaria": {
+    "branch": "main",
+    "date": "2026-02-15T15:51:13-08:00",
+    "head": "20a6c290c3c11f701af95a559d9d0c64dd6105d4",
+    "url": "https://github.com/METR/vivaria.git"
+  },
+  "evals/SWE-agent__SWE-agent": {
+    "branch": "main",
+    "date": "2026-07-16T11:21:18-04:00",
+    "head": "3ea751c087f32b16e039a2233dd6eefecef325d5",
+    "url": "https://github.com/SWE-agent/SWE-agent.git"
+  },
+  "evals/SWE-bench__SWE-smith": {
+    "branch": "main",
+    "date": "2026-03-22T12:39:59+13:00",
+    "head": "9b74ac08118a85c39c356802f7961893af73e07f",
+    "url": "https://github.com/SWE-bench/SWE-smith.git"
+  },
+  "evals/THUDM__AgentBench": {
+    "branch": "main",
+    "date": "2026-02-09T01:00:40+08:00",
+    "head": "d1e4a10db08c87075c78972e48ecc182be03e2d5",
+    "url": "https://github.com/THUDM/AgentBench.git"
+  },
+  "evals/TheAgentCompany__TheAgentCompany": {
+    "branch": "main",
+    "date": "2025-11-17T12:31:14-08:00",
+    "head": "98b68ef82a47690c316f42fddb05baafaab56851",
+    "url": "https://github.com/TheAgentCompany/TheAgentCompany.git"
+  },
+  "evals/bigcode-project__bigcode-evaluation-harness": {
+    "branch": "main",
+    "date": "2025-07-22T06:18:09-07:00",
+    "head": "8fc5bae6479c4fbbb28c3f8b644f6a15b3f3b5bd",
+    "url": "https://github.com/bigcode-project/bigcode-evaluation-harness.git"
+  },
+  "evals/commit-0__commit0": {
+    "branch": "main",
+    "date": "2026-02-24T15:34:19-05:00",
+    "head": "1123db33219ee1bfcc735304cb4308663e329aeb",
+    "url": "https://github.com/commit-0/commit0.git"
+  },
+  "evals/google-deepmind__mctx": {
+    "branch": "main",
+    "date": "2026-08-06T08:39:56-07:00",
+    "head": "b53073fd5035618228a717e29254e36ceb6f0645",
+    "url": "https://github.com/google-deepmind/mctx.git"
+  },
+  "evals/laude-institute__terminal-bench": {
+    "branch": "main",
+    "date": "2026-07-10T22:19:08-07:00",
+    "head": "d28711d0da2675d0bb1d56de45ae5df6082438a3",
+    "url": "https://github.com/laude-institute/terminal-bench.git"
+  },
+  "evals/microsoft__AIOpsLab": {
+    "branch": "main",
+    "date": "2026-06-05T14:57:24-06:00",
+    "head": "80901cc77de13a8fb35dc0e3feff78ca09fd6ae4",
+    "url": "https://github.com/microsoft/AIOpsLab.git"
+  },
+  "evals/microsoft__SWE-bench-Live": {
+    "branch": "main",
+    "date": "2026-06-11T02:57:53Z",
+    "head": "70ec57e852e3f2d195790fe71f553e272c691833",
+    "url": "https://github.com/microsoft/SWE-bench-Live.git"
+  },
+  "evals/multi-swe-bench__multi-swe-bench": {
+    "branch": "main",
+    "date": "2025-12-18T14:27:09+08:00",
+    "head": "24f493f8a103e72312ded4f6b9c89f081d69cb09",
+    "url": "https://github.com/multi-swe-bench/multi-swe-bench.git"
+  },
+  "evals/openai__SWELancer-Benchmark": {
+    "branch": "main",
+    "date": "2025-07-17T19:02:20-07:00",
+    "head": "4afbde31ba075992ffd96209f6533de8e450becd",
+    "url": "https://github.com/openai/SWELancer-Benchmark.git"
+  },
+  "evals/openai__mle-bench": {
+    "branch": "main",
+    "date": "2026-04-24T10:33:44-07:00",
+    "head": "507f92e1138bb6e40dac5c6ee7a6758e6424bf97",
+    "url": "https://github.com/openai/mle-bench.git"
+  },
+  "evals/princeton-nlp__SWE-bench": {
+    "branch": "main",
+    "date": "2026-08-10T20:30:41-07:00",
+    "head": "ec9181d65aca823e8fd8d07a61bdcd39914564ef",
+    "url": "https://github.com/princeton-nlp/SWE-bench.git"
+  },
+  "evals/salesforce__CodeRL": {
+    "branch": "main",
+    "date": "2026-06-02T14:14:32-04:00",
+    "head": "ec3c526a07e44f56f702f354cbad11187bdf25cc",
+    "url": "https://github.com/salesforce/CodeRL.git"
+  },
+  "evals/sierra-research__tau-bench": {
+    "branch": "main",
+    "date": "2026-03-18T10:36:06-07:00",
+    "head": "59a200c6d575d595120f1cb70fea53cef0632f6b",
+    "url": "https://github.com/sierra-research/tau-bench.git"
+  },
+  "evals/stanford-crfm__helm": {
+    "branch": "main",
+    "date": "2026-06-05T13:23:33-07:00",
+    "head": "63754d05db6f874e41a395880fb573890a13e791",
+    "url": "https://github.com/stanford-crfm/helm.git"
+  },
+  "evals/web-arena-x__webarena": {
+    "branch": "main",
+    "date": "2025-11-26T16:15:59-05:00",
+    "head": "dce04686a56253aefba7b18a4fa0937cf1dc987b",
+    "url": "https://github.com/web-arena-x/webarena.git"
+  },
+  "evals/xlang-ai__OSWorld": {
+    "branch": "main",
+    "date": "2026-07-28T20:30:35+08:00",
+    "head": "091f5ef1d5544bc74953c77875d5feb5bed30108",
+    "url": "https://github.com/xlang-ai/OSWorld.git"
+  },
+  "mcp/GLips__Figma-Context-MCP": {
+    "branch": "main",
+    "date": "2026-06-24T09:12:40-07:00",
+    "head": "c083d65c7e002923e7cb98f4e3bdafb105e90f6d",
+    "url": "https://github.com/GLips/Figma-Context-MCP.git"
+  },
+  "mcp/PagerDuty__pagerduty-mcp-server": {
+    "branch": "main",
+    "date": "2026-07-15T15:53:44-04:00",
+    "head": "22adbf1967215083e4afde5a09d4de5959d402f8",
+    "url": "https://github.com/PagerDuty/pagerduty-mcp-server.git"
+  },
+  "mcp/awslabs__mcp": {
+    "branch": "main",
+    "date": "2026-08-10T23:12:16Z",
+    "head": "ebcafaed027f56a2fc3faaa9ee6e95476b62adae",
+    "url": "https://github.com/awslabs/mcp.git"
+  },
+  "mcp/cloudflare__mcp-server-cloudflare": {
+    "branch": "main",
+    "date": "2026-08-11T12:45:28+01:00",
+    "head": "0c51a6fbcf9a2fae80120287e8238fb947cdc2df",
+    "url": "https://github.com/cloudflare/mcp-server-cloudflare.git"
+  },
+  "mcp/containers__kubernetes-mcp-server": {
+    "branch": "main",
+    "date": "2026-08-10T11:28:45-04:00",
+    "head": "7e6f76a9eedebe5cd2bc08efad8b2c3fe75dd868",
+    "url": "https://github.com/containers/kubernetes-mcp-server.git"
+  },
+  "mcp/dbt-labs__dbt-mcp": {
+    "branch": "main",
+    "date": "2026-07-30T21:03:01+01:00",
+    "head": "52095631b8075a3fdf8322b085df7f2a1300064d",
+    "url": "https://github.com/dbt-labs/dbt-mcp.git"
+  },
+  "mcp/elastic__mcp-server-elasticsearch": {
+    "branch": "main",
+    "date": "2026-06-23T16:16:12+02:00",
+    "head": "9e64b842f22269eb214793e1a4885128dc4a8fd8",
+    "url": "https://github.com/elastic/mcp-server-elasticsearch.git"
+  },
+  "mcp/getsentry__sentry-mcp": {
+    "branch": "main",
+    "date": "2026-08-10T09:32:40-07:00",
+    "head": "a5323d069e33df11d7759dc401295fcfc48d062b",
+    "url": "https://github.com/getsentry/sentry-mcp.git"
+  },
+  "mcp/github__github-mcp-server": {
+    "branch": "main",
+    "date": "2026-08-10T15:13:30+01:00",
+    "head": "eff4c3c041742426f417f7c2247b96bbf6d60b69",
+    "url": "https://github.com/github/github-mcp-server.git"
+  },
+  "mcp/googleapis__genai-toolbox": {
+    "branch": "main",
+    "date": "2026-08-11T12:48:55Z",
+    "head": "6648ad813c17bf12c1a22c37f9c944b31314314b",
+    "url": "https://github.com/googleapis/genai-toolbox.git"
+  },
+  "mcp/grafana__mcp-grafana": {
+    "branch": "main",
+    "date": "2026-08-10T11:09:55Z",
+    "head": "460e62eb0dd536788635b968d40a11eb579a5a8d",
+    "url": "https://github.com/grafana/mcp-grafana.git"
+  },
+  "mcp/hashicorp__terraform-mcp-server": {
+    "branch": "main",
+    "date": "2026-08-10T18:56:47-06:00",
+    "head": "129064cee8f59d3582b88765826829988151a9fc",
+    "url": "https://github.com/hashicorp/terraform-mcp-server.git"
+  },
+  "mcp/makenotion__notion-mcp-server": {
+    "branch": "main",
+    "date": "2026-07-25T09:19:29-07:00",
+    "head": "1d38420769c8a1fe2d583ff1e7d2d108d4eb0b30",
+    "url": "https://github.com/makenotion/notion-mcp-server.git"
+  },
+  "mcp/modelcontextprotocol__servers": {
+    "branch": "main",
+    "date": "2026-07-29T16:09:46-07:00",
+    "head": "76d64c822f5125032f89eb71dbdb94e42b434821",
+    "url": "https://github.com/modelcontextprotocol/servers.git"
+  },
+  "mcp/mongodb-js__mongodb-mcp-server": {
+    "branch": "main",
+    "date": "2026-08-11T13:32:09+01:00",
+    "head": "994c9b56f61924afd41ec366ee622b08180f90df",
+    "url": "https://github.com/mongodb-js/mongodb-mcp-server.git"
+  },
+  "mcp/neondatabase__mcp-server-neon": {
+    "branch": "main",
+    "date": "2026-08-11T04:44:45-07:00",
+    "head": "30de0389e711013115535a16d43d6e0095dbb909",
+    "url": "https://github.com/neondatabase/mcp-server-neon.git"
+  },
+  "mcp/pydantic__logfire-mcp": {
+    "branch": "main",
+    "date": "2026-07-13T08:12:06-06:00",
+    "head": "1e11c2ce193050a11fc956151a2adc78966518c1",
+    "url": "https://github.com/pydantic/logfire-mcp.git"
+  },
+  "mcp/redis__mcp-redis": {
+    "branch": "main",
+    "date": "2026-08-05T13:35:23+03:00",
+    "head": "5945b0b5b098c9a1882075a161a6a58f23de81ed",
+    "url": "https://github.com/redis/mcp-redis.git"
+  },
+  "mcp/slackapi__java-slack-sdk": {
+    "branch": "main",
+    "date": "2026-08-07T11:06:33-04:00",
+    "head": "86ff7ca9915e21882def04c2d579ac02503f95fe",
+    "url": "https://github.com/slackapi/java-slack-sdk.git"
+  },
+  "mcp/snyk__snyk-ls": {
+    "branch": "main",
+    "date": "2026-08-07T13:19:02+01:00",
+    "head": "1cf40fcabd330a1fe4e8eb9493b15a99a392e17f",
+    "url": "https://github.com/snyk/snyk-ls.git"
+  },
+  "mcp/sooperset__mcp-atlassian": {
+    "branch": "main",
+    "date": "2026-08-08T14:05:29+09:00",
+    "head": "12fb6fa9e75de20fa70f56ae0d896a79c5a38c4e",
+    "url": "https://github.com/sooperset/mcp-atlassian.git"
+  },
+  "mcp/stripe__agent-toolkit": {
+    "branch": "main",
+    "date": "2026-08-11T00:28:10Z",
+    "head": "1953b6cce7344d880a054c42b8dd21ca3e50ebd5",
+    "url": "https://github.com/stripe/agent-toolkit.git"
+  },
+  "mcp/tacticlaunch__mcp-linear": {
+    "branch": "main",
+    "date": "2026-07-28T21:03:57+02:00",
+    "head": "e56c7071bf2fd1cca5c9515a5a5004ace6bf9b90",
+    "url": "https://github.com/tacticlaunch/mcp-linear.git"
+  },
+  "mcp/zereight__gitlab-mcp": {
+    "branch": "main",
+    "date": "2026-08-03T13:36:16+09:00",
+    "head": "926d42c8780cb9ec0cf3b5e187575bc3db205ff0",
+    "url": "https://github.com/zereight/gitlab-mcp.git"
+  }
+}
