@@ -179,6 +179,7 @@ failure mode damages.
 | `merged_only` | treats merging the pull request as the finish line |
 | `no_verify` | ships the fix but never checks, resolves or closes anything |
 | `shortcut` | quarantines flaky tests; blames whichever service the alarm names |
+| `wrong_source` | keeps the right answer, reads a neighbouring system instead of the system of record |
 
 PF pass rate by category (186 tasks):
 
@@ -215,6 +216,32 @@ What this says, honestly:
   `tsk_localize_checkout_latency` — where checkout's p99 breaches because
   *payments* blocks on a 30s downstream timeout — requires real localization.
   More cross-service faults would strengthen that category.
+
+### Does the cross-system category measure what it claims?
+
+It claims the agent must read the system that actually holds the filter. That was
+asserted, not measured, so `wrong_source` measures it: it keeps the reference
+solution's answers and actions exactly and only swaps the system of record for a
+neighbouring system that looks like it would answer the same question — the
+tracker instead of the cross-tracker link table, the hand-written API document
+instead of the deployed surface.
+
+It is scoped to the 34 in-scope episodes whose verifier actually asserts which
+system was read. Scoping is the whole difficulty: the first run applied it to any task that
+touched a tracker in passing and reported 100% on four categories that make no
+such claim, which was noise.
+
+```
+cross_system     PF   0%  PC 73.6   n=29
+reconciliation   PF  40%  PC 93.9   n=5
+```
+
+Correctness stays intact and the deployment dimension collapses — right answer,
+wrong provenance. The two reconciliation passes were checked individually and are
+legitimate rather than gaps: `rcn_distinct_checkout_bugs` reaches `issue_links`
+through `jira_get_issue`, which genuinely returns an issue's links, and
+`rcn_checkout_error_rate`'s answer does not depend on the alias step that was
+swapped.
 
 `tests/test_eval_harness.py` pins the `naive` result as a **difficulty guard**:
 if a future change lets the policy-blind agent start passing change tasks, the

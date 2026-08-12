@@ -213,14 +213,70 @@ ALARMED_SERVICE = {"9601": "payments", "9602": "search", "9603": "checkout",
                    "9607": "media-service", "9608": "notifications",
                    "9609": "analytics-worker", "9610": "checkout"}
 
+# The system an agent reaches for instead of the one that holds the answer. Each
+# substitute is plausible rather than absurd: the tracker instead of the
+# cross-tracker link table, the hand-written API document instead of the deployed
+# surface, the other tracker instead of this one. A model does not skip the
+# system of record because it is lazy; it skips it because a nearby system looks
+# like it answers the question.
+NEIGHBOUR = {
+    "list_issue_links": ("jira_search", {}),
+    "list_api_endpoints": ("search_docs", {"query": "api"}),
+    "jira_search": ("github_list_issues", {"state": "open"}),
+    "github_list_issues": ("jira_search", {}),
+    "read_owner_spreadsheet": ("list_services", {}),
+    "query_local_deploy_log": ("list_services", {}),
+    "resolve_service_alias": ("list_services", {}),
+    "list_issue_links_": ("list_services", {}),
+}
+
+
+def wrong_source_calls(task):
+    """Right answer, wrong provenance.
+
+    Every other scripted baseline models doing less work. This one models doing
+    the work against the wrong system: it keeps the reference solution's answers
+    and actions exactly, and only swaps the system of record for a neighbouring
+    system that looks like it would answer the same question.
+
+    It exists to audit a claim, not to be hard. A cross-system task is supposed
+    to require reading the system that actually holds the filter - that is the
+    entire point of the category. If a task still passes when the agent never
+    reads it, then the task does not measure what the category says it measures,
+    and a model can pass it from whatever is nearest. Tasks this policy passes
+    are the ones to strengthen.
+    """
+    # Scope first. A deploy task that happens to read the tracker on its way past
+    # has no source-of-truth claim to test, and swapping its call would score a
+    # pass that means nothing - the first run of this policy reported 100% on four
+    # such categories and the number was pure noise. Only tasks whose verifier
+    # actually asserts which system was read are in scope.
+    vcode = task.get("vcode", "")
+    if "read_the_source_of_truth" not in vcode and "consulted_" not in vcode:
+        return None
+    out, swapped = [], False
+    for c in task.get("expected_calls", []):
+        t = c["tool"]
+        if t in NEIGHBOUR:
+            tool, args = NEIGHBOUR[t]
+            out.append({"tool": tool, "args": dict(args)})
+            swapped = True
+            continue
+        out.append(c)
+    return out if swapped else None
+
+
 SCRIPTED = {"oracle": lambda t: t.get("expected_calls", []), "shortcut": shortcut_calls,
             "naive": naive_calls, "merged_only": merged_only_calls,
-            "no_verify": no_verify_calls}
+            "no_verify": no_verify_calls, "wrong_source": wrong_source_calls}
 
 
 def run_scripted_episode(world, task, sid, verbose, policy):
     calls, log = 0, []
-    for c in SCRIPTED[policy](task):
+    plan = SCRIPTED[policy](task)
+    if plan is None:                      # policy does not apply to this task
+        return None
+    for c in plan:
         out = world.call_tool(sid, c["tool"], c.get("args", {}))
         calls += 1
         if verbose:
@@ -394,12 +450,13 @@ def main():
     ap.add_argument("--world", default=str(pathlib.Path(__file__).parent / "world"))
     ap.add_argument("--model", default="claude-sonnet-5")
     ap.add_argument("--policy", choices=["model", "deepseek", "openai", "oracle", "naive",
-                                        "merged_only", "no_verify", "shortcut"],
+                                        "merged_only", "no_verify", "shortcut", "wrong_source"],
                     default="model",
                     help="scripted baselines that map the difficulty surface for free: "
                          "naive ignores every documented policy; merged_only treats merging the "
                          "pull request as the finish line; no_verify ships the fix but never "
-                         "checks or closes anything")
+                         "checks or closes anything; wrong_source keeps the right answer and "
+                         "reads a neighbouring system instead of the system of record")
     ap.add_argument("--split", choices=["train", "heldout", "all"], default="all")
     ap.add_argument("--category", action="append", default=None,
                     help="restrict to these Horizon-SWE categories (repeatable)")
@@ -483,6 +540,7 @@ def main():
 
     records = []
     trials = {}
+    skipped = []
     for task in tasks:
       tid = task["task_id"]
       for trial in range(max(1, args.trials)):
@@ -513,6 +571,12 @@ def main():
         except Exception as e:  # noqa: BLE001
             stats = {"turns": 0, "tool_calls": 0, "transcript": ""}
             err = "%s: %s" % (type(e).__name__, e)
+        if stats is None:
+            # The policy models a failure this task cannot exhibit. Scoring it
+            # anyway - as a pass, since the reference calls would run unchanged -
+            # would inflate the policy's rate with tasks it never tested.
+            skipped.append(tid)
+            continue
         verdict = world.verify(sid, tid)
         fr = dimension_fractions(verdict)
         judged = None
