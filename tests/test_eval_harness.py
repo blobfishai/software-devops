@@ -655,3 +655,45 @@ def test_terminal_adapter_refuses_to_build_when_the_disk_is_nearly_full():
     body = src[src.index("def run_task("):src.index("def main(")]
     assert "MIN_FREE_GB" in body, "run_task does not check free space before building"
     assert '"rmi"' in body, "run_task does not remove the image it built"
+
+
+def test_cross_system_tasks_require_the_system_of_record(tmp_path):
+    """The cross-system category's whole claim is that the agent must read the
+    system that actually holds the filter - the link table, the deployed surface -
+    rather than whichever system is nearest.
+
+    wrong_source keeps the reference solution's answers and actions exactly and
+    swaps only the system of record for a plausible neighbour. If a cross-system
+    task passes under it, the task can be answered from memory and the category
+    is measuring less than it says it does."""
+    out = tmp_path / "wrong_source.json"
+    proc = subprocess.run([sys.executable, str(ROOT / "eval_model.py"),
+                           "--policy", "wrong_source", "--out", str(out)],
+                          capture_output=True, text=True, timeout=600)
+    assert proc.returncode == 0, proc.stderr
+    rep = json.loads(out.read_text())
+
+    scored = [t for t in rep["tasks"] if t["category"] == "cross_system"]
+    assert scored, "wrong_source scored no cross-system tasks; the policy stopped applying"
+    survived = [t["task_id"] for t in scored if t["passed"]]
+    assert not survived, (
+        "%d cross-system task(s) passed while reading a neighbouring system instead "
+        "of the system of record: %s. Each can be answered without the evidence the "
+        "category exists to require." % (len(survived), survived[:8]))
+
+    # Right answer, wrong provenance: the point is that only the deployment
+    # dimension moves. If correctness fell too, the policy is modelling
+    # incompetence rather than misplaced trust, and the 0% above proves nothing.
+    for t in scored:
+        assert t["dimension_fractions"]["correctness"] == 1.0, t["task_id"]
+
+
+def test_task_provenance_resolves_to_a_real_source_task(tmp_path):
+    """A task that cites a benchmark it was ported from must cite one that exists.
+    Provenance pointing nowhere is worse than none, because it reads as evidence
+    of a port that never happened - which is exactly what coverage.py caught when
+    a task cited terminal-bench's task DIRECTORY rather than a task."""
+    proc = subprocess.run([sys.executable, str(ROOT / "coverage.py")],
+                          capture_output=True, text=True, timeout=120)
+    assert proc.returncode == 0, (
+        "coverage.py rejected the world's provenance:\n" + proc.stderr)
