@@ -168,6 +168,10 @@ def main():
     ap.add_argument("--oracle", default=None, help="run one task's own solution.sh")
     ap.add_argument("--oracle-sweep", action="store_true")
     ap.add_argument("--limit", type=int, default=3)
+    ap.add_argument("--sample", type=int, default=None,
+                    help="a random sample rather than the first N. --limit takes tasks "
+                         "alphabetically, which is not a sample of anything")
+    ap.add_argument("--seed", type=int, default=17)
     ap.add_argument("--timeout", type=int, default=1800)
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
@@ -186,7 +190,15 @@ def main():
         print("docker is required to run these tasks: %s" % why, file=sys.stderr)
         return 2
 
-    targets = [args.oracle] if args.oracle else names[:args.limit]
+    if args.oracle:
+        targets = [args.oracle]
+    elif args.sample:
+        import random
+        random.seed(args.seed)
+        targets = sorted(random.sample(names, min(args.sample, len(names))))
+        print("  random sample of %d from %d, seed %d\n" % (len(targets), len(names), args.seed))
+    else:
+        targets = names[:args.limit]
     results = []
     for n in targets:
         print("  %-42s " % n, end="", flush=True)
