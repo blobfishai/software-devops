@@ -1171,3 +1171,32 @@ def test_the_ambiguity_axis_does_not_name_the_target_it_asks_for():
         if service.lower() in preamble or service.lower() in call["args"]["scope"].lower():
             leaks.append((t["task_id"], service))
     assert not leaks, "the target is named before it is asked for: %s" % leaks
+
+
+# Tasks are authored in three files - task_specs.py by hand, waves.py by
+# generation, tasks_def.py by template - and nothing compared them against each
+# other. Two tasks can read completely differently and grade the identical
+# assertion about the identical scope, which inflates the task count with work
+# that measures nothing new. 18 such tasks exist today, almost all in
+# aiops_detection, where the verifier asserts only "a fault was detected in this
+# scope" and so cannot tell a CVE triage from a latency complaint.
+#
+# This is a ratchet, not a pass. The number is allowed to fall and never to rise.
+KNOWN_REDUNDANT_TASKS = 18
+
+
+def test_no_new_tasks_that_grade_the_same_as_an_existing_one():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("coverage_mod", ROOT / "coverage.py")
+    cov = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cov)
+
+    tasks = json.loads((ROOT / "world" / "tasks.json").read_text())
+    groups = cov.duplicate_groups(tasks)
+    redundant = sum(len(g) - 1 for g in groups)
+    assert redundant <= KNOWN_REDUNDANT_TASKS, (
+        "%d tasks now grade the same thing as another task, up from %d. The new "
+        "duplicates are in: %s. A task whose verifier already exists adds a row to "
+        "the count and nothing to the measurement."
+        % (redundant, KNOWN_REDUNDANT_TASKS,
+           sorted({t["category"] for g in groups for t in g})))

@@ -54,10 +54,35 @@ def ported_paths(tasks):
     return out
 
 
+def correctness_assertions(task):
+    """Exactly what a task grades, ignoring how it is worded.
+
+    Two tasks can read completely differently - one framed as a CVE triage, one
+    as a latency complaint - and assert the identical thing about the identical
+    scope. The instruction is not the task; the verifier is. So the fingerprint
+    is the set of correctness checks, normalised for whitespace, and nothing
+    else.
+    """
+    return tuple(sorted(
+        " ".join(line.split())
+        for line in task.get("vcode", "").splitlines()
+        if '_c("correctness"' in line))
+
+
+def duplicate_groups(tasks):
+    """Tasks that grade identically, grouped. Redundancy = len(group) - 1."""
+    by = collections.defaultdict(list)
+    for t in tasks:
+        by[correctness_assertions(t)].append(t)
+    return sorted([g for g in by.values() if len(g) > 1], key=len, reverse=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--gap", action="store_true",
                     help="name every hostable task that is not yet ported")
+    ap.add_argument("--duplicates", action="store_true",
+                    help="group tasks that grade identical correctness assertions")
     args = ap.parse_args()
 
     manifest, tasks = load()
@@ -98,6 +123,20 @@ def main():
 
     print("\nworld ships %d tasks; %d carry provenance to a source task."
           % (len(tasks), sum(len(v) for v in ported.values())))
+
+    groups = duplicate_groups(tasks)
+    redundant = sum(len(g) - 1 for g in groups)
+    print("%d task(s) grade the same thing as another task, in %d group(s). "
+          "Distinct graded outcomes: %d."
+          % (redundant, len(groups), len(tasks) - redundant))
+    if args.duplicates:
+        for g in groups:
+            print("\n  %d tasks grade identically  [%s]"
+                  % (len(g), ", ".join(sorted({t["category"] for t in g}))))
+            for t in g:
+                print("     %-42s %s" % (t["task_id"], t["difficulty"]))
+            print("     asserts: %s" % "; ".join(
+                a.split('"')[3] for a in correctness_assertions(g[0])[:3]))
 
     if args.gap:
         print("\nhostable but not yet ported:")
