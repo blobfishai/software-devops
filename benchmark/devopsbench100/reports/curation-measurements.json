@@ -1,0 +1,4238 @@
+{
+  "control_clean": 185,
+  "measured_tasks": 187,
+  "oracle_passes": 187,
+  "rows": [
+    {
+      "category": "error_rate_reduction",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 19,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_payments_retry",
+      "wave": false
+    },
+    {
+      "category": "error_rate_reduction",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 19,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_inventory_pool",
+      "wave": false
+    },
+    {
+      "category": "error_rate_reduction",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 18,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_analytics_prefetch",
+      "wave": false
+    },
+    {
+      "category": "error_rate_reduction",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 17,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_notifications_timeout",
+      "wave": false
+    },
+    {
+      "category": "error_rate_reduction",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 19,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_payments_retry_from_code",
+      "wave": false
+    },
+    {
+      "category": "error_rate_reduction",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 15,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_payments_notify_timeout",
+      "wave": false
+    },
+    {
+      "category": "error_rate_reduction",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 16,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_checkout_payments_timeout",
+      "wave": false
+    },
+    {
+      "category": "error_rate_reduction",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_analytics_batch_size",
+      "wave": false
+    },
+    {
+      "category": "latency_optimization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 19,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_search_cache",
+      "wave": false
+    },
+    {
+      "category": "latency_optimization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 19,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_catalog_batch_pricing",
+      "wave": false
+    },
+    {
+      "category": "latency_optimization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 18,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_media_cdn",
+      "wave": false
+    },
+    {
+      "category": "latency_optimization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 18,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_catalog_pricing_from_code",
+      "wave": false
+    },
+    {
+      "category": "latency_optimization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 16,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_gateway_pool_reuse",
+      "wave": false
+    },
+    {
+      "category": "latency_optimization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_catalog_cache_ttl",
+      "wave": false
+    },
+    {
+      "category": "latency_optimization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_search_shards",
+      "wave": false
+    },
+    {
+      "category": "latency_optimization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 15,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_gateway_v510_rollback",
+      "wave": false
+    },
+    {
+      "category": "feature_flag",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 15,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_express_checkout",
+      "wave": false
+    },
+    {
+      "category": "feature_flag",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 13,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_search_autocomplete",
+      "wave": false
+    },
+    {
+      "category": "feature_flag",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 20,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_saved_carts",
+      "wave": false
+    },
+    {
+      "category": "feature_flag",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 12,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_media_webp",
+      "wave": false
+    },
+    {
+      "category": "feature_flag",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 12,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_instant_refunds_killswitch",
+      "wave": false
+    },
+    {
+      "category": "feature_flag",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 13,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_legacy_price_rounding_cleanup",
+      "wave": false
+    },
+    {
+      "category": "feature_flag",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 15,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_checkout_v2_layout_cleanup",
+      "wave": false
+    },
+    {
+      "category": "security_incident",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 16,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_cve_libpayproc",
+      "wave": false
+    },
+    {
+      "category": "security_incident",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 17,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_cve_stripe_sdk",
+      "wave": false
+    },
+    {
+      "category": "security_incident",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 15,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_cve_pydantic",
+      "wave": false
+    },
+    {
+      "category": "security_incident",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 16,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_cve_requests",
+      "wave": false
+    },
+    {
+      "category": "security_incident",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 13,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_retire_debug_endpoint",
+      "wave": false
+    },
+    {
+      "category": "security_incident",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 13,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_retire_metrics_endpoint",
+      "wave": false
+    },
+    {
+      "category": "security_incident",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 17,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_checkout_hardcoded_secret",
+      "wave": false
+    },
+    {
+      "category": "api_migration",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 34,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_orders_v1_to_v2",
+      "wave": false
+    },
+    {
+      "category": "api_migration",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 34,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_auth_v1_to_v2",
+      "wave": false
+    },
+    {
+      "category": "api_migration",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 34,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_checkout_v1_to_v2",
+      "wave": false
+    },
+    {
+      "category": "api_migration",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 27,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_search_v1_to_v2",
+      "wave": false
+    },
+    {
+      "category": "api_migration",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 27,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_media_v1_to_v2",
+      "wave": false
+    },
+    {
+      "category": "api_migration",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 27,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_inventory_v1_to_v2",
+      "wave": false
+    },
+    {
+      "category": "api_migration",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 27,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_notify_v1_to_v2",
+      "wave": false
+    },
+    {
+      "category": "flaky_test",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 14,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_flaky_checkout_idempotency",
+      "wave": false
+    },
+    {
+      "category": "flaky_test",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_flaky_catalog_rounding",
+      "wave": false
+    },
+    {
+      "category": "flaky_test",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 14,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_flaky_inventory_race",
+      "wave": false
+    },
+    {
+      "category": "flaky_test",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_flaky_gateway_timeout",
+      "wave": false
+    },
+    {
+      "category": "flaky_test",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_flaky_search_index",
+      "wave": false
+    },
+    {
+      "category": "flaky_test",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_flaky_analytics_rollup",
+      "wave": false
+    },
+    {
+      "category": "multi_service_rollout",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 33,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_loyalty_points",
+      "wave": false
+    },
+    {
+      "category": "multi_service_rollout",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 25,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_split_settlement",
+      "wave": false
+    },
+    {
+      "category": "multi_service_rollout",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 31,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_backorders",
+      "wave": false
+    },
+    {
+      "category": "multi_service_rollout",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 23,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_media_pipeline",
+      "wave": false
+    },
+    {
+      "category": "multi_service_rollout",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 17,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_search_relevance",
+      "wave": false
+    },
+    {
+      "category": "multi_service_rollout",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 17,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_notification_templates",
+      "wave": false
+    },
+    {
+      "category": "multi_service_rollout",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 26,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_checkout_upsell",
+      "wave": false
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_detect_payments",
+      "wave": false
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_detect_inventory",
+      "wave": false
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_detect_storefront_healthy",
+      "wave": false
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 8,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_detect_status_page_recurrence",
+      "wave": false
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_detect_checkout_errors",
+      "wave": false
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_localize_gateway_latency",
+      "wave": false
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_localize_search_latency",
+      "wave": false
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_localize_analytics_errors",
+      "wave": false
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_localize_media_latency",
+      "wave": false
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_localize_checkout_latency",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_payments_retry",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_catalog_n_plus_one",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_notifications_timeout",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_inventory_pool",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_media_disk_pressure",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_search_unscheduled_reindex",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_notifications_node_deadlock",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_inventory_migrator_security_context",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_checkout_unschedulable_replicas",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_analytics_revoked_grant",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_inventory_missing_role",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_catalog_gc_thrash",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_analytics_egress_blocked",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_storefront_traffic_flood",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_analytics_untolerated_taint",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_media_recreate_strategy",
+      "wave": false
+    },
+    {
+      "category": "aiops_analysis",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rca_inventory_unbound_storage",
+      "wave": false
+    },
+    {
+      "category": "code_implementation",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 5,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_impl_backoff",
+      "wave": false
+    },
+    {
+      "category": "code_implementation",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 5,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_impl_chunk",
+      "wave": false
+    },
+    {
+      "category": "code_implementation",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 5,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_impl_cachekey",
+      "wave": false
+    },
+    {
+      "category": "code_implementation",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 5,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_impl_ratelimit",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_collect_open_issues",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_high_priority_since",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_copy_priority_issues",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_report_customer_reports",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 5,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_close_backlog_issues",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_close_blocked_issues",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_count_open_priority",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_count_inflight_work",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 5,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_dedupe_linked_issues",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_count_unowned_work",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_count_gateway_surface",
+      "wave": false
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_port_escalate_to_gateway_oncall",
+      "wave": false
+    },
+    {
+      "category": "handover",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_hand_gateway_runbook",
+      "wave": false
+    },
+    {
+      "category": "handover",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_hand_cluster_runbook",
+      "wave": false
+    },
+    {
+      "category": "horizon",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_hz_gateway_leak_rollback",
+      "wave": false
+    },
+    {
+      "category": "horizon",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_hz_checkout_flag_kill",
+      "wave": false
+    },
+    {
+      "category": "workspace",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_ws_ledger_missing_account",
+      "wave": false
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 13,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_attr_three_at_once",
+      "wave": false
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_localize_analytics_crashloop",
+      "wave": false
+    },
+    {
+      "category": "reconciliation",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rcn_running_version",
+      "wave": false
+    },
+    {
+      "category": "reconciliation",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rcn_customer_facing_incidents",
+      "wave": false
+    },
+    {
+      "category": "reconciliation",
+      "control_clean": false,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": true
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rcn_checkout_error_rate",
+      "wave": false
+    },
+    {
+      "category": "reconciliation",
+      "control_clean": false,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": true
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 8,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rcn_distinct_checkout_bugs",
+      "wave": false
+    },
+    {
+      "category": "reconciliation",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 5,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rcn_production_deploys",
+      "wave": false
+    },
+    {
+      "category": "reconciliation",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rcn_gateway_owner",
+      "wave": false
+    },
+    {
+      "category": "reconciliation",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_rcn_alerts_for_incident",
+      "wave": false
+    },
+    {
+      "category": "judgement",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_judge_payments_retry",
+      "wave": false
+    },
+    {
+      "category": "judgement",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 8,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_judge_analytics_oom",
+      "wave": false
+    },
+    {
+      "category": "judgement",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_judge_gateway_latency",
+      "wave": false
+    },
+    {
+      "category": "judgement",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 8,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_judge_checkout_flag",
+      "wave": false
+    },
+    {
+      "category": "human_gated",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 18,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_gated_rotate_partner_credential",
+      "wave": false
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_analytics_worker_errors",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_api_gateway_latency",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_catalog_latency",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_checkout_errors",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_checkout_latency",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_inventory_errors",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_media_service_latency",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_notifications_errors",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_payments_errors",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_payments_latency",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_search_latency",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_detect_storefront_web_latency",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_rollup_window",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_upstream_timeout",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_price_rounding",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_cart_totals",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_checkout_idempotency",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_reservation_race",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_thumbnail_sizes",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_template_render",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_capture_retries",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_index_refresh",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_ranking",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_triage_test_cart_selector",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_cve_cve_2026_22190",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_cve_cve_2026_31337",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_cve_cve_2026_40881",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w1_cve_cve_2026_51002",
+      "wave": true
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w2_span_api_gateway_from_catalog",
+      "wave": true
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w2_span_api_gateway_from_checkout",
+      "wave": true
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w2_span_api_gateway_from_media_service",
+      "wave": true
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w2_span_api_gateway_from_search",
+      "wave": true
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w2_span_checkout_from_inventory",
+      "wave": true
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w2_span_checkout_from_payments",
+      "wave": true
+    },
+    {
+      "category": "aiops_localization",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": true,
+          "passed": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w2_span_payments_from_notifications",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_analytics_worker",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_api_gateway",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_catalog",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_checkout",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_inventory",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_media_service",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_notifications",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_payments",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_search",
+      "wave": true
+    },
+    {
+      "category": "aiops_detection",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w3_symptom_storefront_web",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_api_checkout",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_api_analytics",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_api_catalog",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_api_payments",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_checkout_analytics",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_checkout_catalog",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_checkout_payments",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_analytics_catalog",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_analytics_payments",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_media_catalog_payments",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_api_checkout_analytics",
+      "wave": true
+    },
+    {
+      "category": "attribution",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": false
+        }
+      },
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "oracle_passed": true,
+      "origin": "curated",
+      "pristine_rejected": true,
+      "task_id": "tsk_w5_attr_api_checkout_catalog",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_report_0",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 7,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_copy_1",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_count_2",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_report_3",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 8,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_copy_4",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_count_5",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_report_6",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 5,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_copy_7",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_count_8",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_report_9",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 8,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_copy_10",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_count_11",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_report_12",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 18,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_copy_13",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_count_14",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "medium",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_report_15",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": true,
+          "passed": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 6,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_copy_16",
+      "wave": true
+    },
+    {
+      "category": "cross_system",
+      "control_clean": true,
+      "controls": {
+        "naive": {
+          "applicable": false
+        },
+        "shortcut": {
+          "applicable": false
+        },
+        "wrong_source": {
+          "applicable": true,
+          "passed": false
+        }
+      },
+      "difficulty": "hard",
+      "expected_calls": 4,
+      "oracle_passed": true,
+      "origin": "ported",
+      "pristine_rejected": true,
+      "task_id": "tsk_w6_count_17",
+      "wave": true
+    }
+  ],
+  "schema_version": "1.0"
+}
