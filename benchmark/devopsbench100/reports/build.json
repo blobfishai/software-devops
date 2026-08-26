@@ -1,0 +1,53 @@
+{
+  "benchmark": "DevOpsBench-100",
+  "categories": {
+    "aiops_analysis": 6,
+    "aiops_detection": 5,
+    "aiops_localization": 5,
+    "api_migration": 7,
+    "attribution": 7,
+    "code_implementation": 4,
+    "cross_system": 8,
+    "error_rate_reduction": 8,
+    "feature_flag": 7,
+    "flaky_test": 6,
+    "handover": 2,
+    "horizon": 2,
+    "human_gated": 1,
+    "judgement": 4,
+    "latency_optimization": 8,
+    "multi_service_rollout": 7,
+    "reconciliation": 5,
+    "security_incident": 7,
+    "workspace": 1
+  },
+  "category_count": 19,
+  "difficulties": {
+    "easy": 2,
+    "expert": 38,
+    "hard": 31,
+    "medium": 29
+  },
+  "exact_duplicate_prompts": 0,
+  "reference_tool_calls": {
+    "max": 34,
+    "median": 13,
+    "min": 4,
+    "total": 1318
+  },
+  "schema_version": "1.0",
+  "task_count": 100,
+  "verifier": {
+    "deterministic": true,
+    "model_calls": 0,
+    "network_calls": 0,
+    "random_calls": 0,
+    "wall_clock_reads": 0
+  },
+  "version": "1.0.0",
+  "world_commits": 417,
+  "world_documents": 30,
+  "world_seeded_rows": 1451,
+  "world_tables": 72,
+  "world_tools": 97
+}

@@ -1,0 +1,3286 @@
+{
+  "benchmark": "DevOpsBench-100",
+  "determinism": {
+    "exact_report_matches": 100,
+    "mismatches": 0,
+    "replays": 100
+  },
+  "executions": 371,
+  "negative_controls": {
+    "naive": {
+      "applicable_executions": 53,
+      "correct_rejections": 53,
+      "false_accepts": 0
+    },
+    "pristine": {
+      "applicable_executions": 100,
+      "correct_rejections": 100,
+      "false_accepts": 0
+    },
+    "shortcut": {
+      "applicable_executions": 7,
+      "correct_rejections": 7,
+      "false_accepts": 0
+    },
+    "wrong_source": {
+      "applicable_executions": 11,
+      "correct_rejections": 11,
+      "false_accepts": 0
+    }
+  },
+  "oracle": {
+    "executions": 100,
+    "failures": 0,
+    "passes": 100
+  },
+  "release_passed": true,
+  "schema_version": "1.0",
+  "task_count": 100,
+  "task_results": [
+    {
+      "bench_id": "dob100-001-rca-analytics-egress-blocked",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_type_correct",
+            "offending_key_correct",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "8a8c4dfe5ff6b5a1dcd04d083a4257dfe9ba6aedd1c3f88270363f360891d358",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 9,
+      "second_oracle_report_sha256": "8a8c4dfe5ff6b5a1dcd04d083a4257dfe9ba6aedd1c3f88270363f360891d358",
+      "source_task_id": "tsk_rca_analytics_egress_blocked",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-002-rca-analytics-revoked-grant",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_type_correct",
+            "offending_key_correct",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "976d64116128ce1ef6f2fc737a2fd607cd782a9544d12fccf617b767647add01",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 9,
+      "second_oracle_report_sha256": "976d64116128ce1ef6f2fc737a2fd607cd782a9544d12fccf617b767647add01",
+      "source_task_id": "tsk_rca_analytics_revoked_grant",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-003-rca-checkout-unschedulable-replicas",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_type_correct",
+            "offending_key_correct",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "9c20b58363a54a008af84b6016316ed96cebb97fb72956bf26dba3b075de78f1",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "9c20b58363a54a008af84b6016316ed96cebb97fb72956bf26dba3b075de78f1",
+      "source_task_id": "tsk_rca_checkout_unschedulable_replicas",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-004-rca-media-disk-pressure",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_type_correct",
+            "offending_key_correct",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "a1f8f40e0856ac492aded6a25fa0f61ce7ec65fd49d3ee8562829ac8a95c8eac",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "a1f8f40e0856ac492aded6a25fa0f61ce7ec65fd49d3ee8562829ac8a95c8eac",
+      "source_task_id": "tsk_rca_media_disk_pressure",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-005-rca-notifications-node-deadlock",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_type_correct",
+            "offending_key_correct",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "12886c588d86cd644e08f207f7137fb94b4bcd4b953fb965cb82a6e4b2688d2d",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "12886c588d86cd644e08f207f7137fb94b4bcd4b953fb965cb82a6e4b2688d2d",
+      "source_task_id": "tsk_rca_notifications_node_deadlock",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-006-rca-search-unscheduled-reindex",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_type_correct",
+            "offending_key_correct",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "30b45ae49e6dea76e471d5ea9d031fd705ec66beeb292e49c0a9c186236c3ef3",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "30b45ae49e6dea76e471d5ea9d031fd705ec66beeb292e49c0a9c186236c3ef3",
+      "source_task_id": "tsk_rca_search_unscheduled_reindex",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-007-detect-checkout-errors",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "detection_correct",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "4d82c0f83b27044aaa0489bb029a4d0e9e380fea9f8ff74307a2efe3e0b5c399",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 6,
+      "second_oracle_report_sha256": "4d82c0f83b27044aaa0489bb029a4d0e9e380fea9f8ff74307a2efe3e0b5c399",
+      "source_task_id": "tsk_detect_checkout_errors",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-008-detect-inventory",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "detection_correct",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "67a5340a6981980ffe239d31b426e42824c1746deb8b434fd980071a19fbbe4e",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 6,
+      "second_oracle_report_sha256": "67a5340a6981980ffe239d31b426e42824c1746deb8b434fd980071a19fbbe4e",
+      "source_task_id": "tsk_detect_inventory",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-009-detect-payments",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "detection_correct",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "11c04b295d9f2407457dcbc7e9923f71539278d260d472f045569e63bbbbce83",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 6,
+      "second_oracle_report_sha256": "11c04b295d9f2407457dcbc7e9923f71539278d260d472f045569e63bbbbce83",
+      "source_task_id": "tsk_detect_payments",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-010-detect-status-page-recurrence",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "detection_correct",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "service_identified",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "e430db7761c98e9b4a871cc2fb39e08e7b2f37c82555a457334ff8a42f33e588",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 8,
+      "second_oracle_report_sha256": "e430db7761c98e9b4a871cc2fb39e08e7b2f37c82555a457334ff8a42f33e588",
+      "source_task_id": "tsk_detect_status_page_recurrence",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-011-detect-storefront-healthy",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "detection_correct",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "bfb3c55833a77055243605f38bb0855a2f5eb3b55be2295a8b98170046cdea65",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 6,
+      "second_oracle_report_sha256": "bfb3c55833a77055243605f38bb0855a2f5eb3b55be2295a8b98170046cdea65",
+      "source_task_id": "tsk_detect_storefront_healthy",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-012-localize-analytics-crashloop",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_confirmed",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "332fe1fcac2eb6a4974836fc7712c68d2c3b7e4c059f7611111960fb1a46e3b7",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "332fe1fcac2eb6a4974836fc7712c68d2c3b7e4c059f7611111960fb1a46e3b7",
+      "source_task_id": "tsk_localize_analytics_crashloop",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-013-localize-analytics-errors",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_confirmed",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "06d2dee8a73f5a037a57d0447b89a2a46d679b686c10a58acc35a45264a91f58",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "06d2dee8a73f5a037a57d0447b89a2a46d679b686c10a58acc35a45264a91f58",
+      "source_task_id": "tsk_localize_analytics_errors",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-014-localize-checkout-latency",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_confirmed",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "shortcut": {
+          "failed_checks": [
+            "service_localized"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "503f9bfdfe1034d74502307d0a4305e3724a5464f974436a7191d94eb3a88eb9",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "503f9bfdfe1034d74502307d0a4305e3724a5464f974436a7191d94eb3a88eb9",
+      "source_task_id": "tsk_localize_checkout_latency",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-015-localize-gateway-latency",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_confirmed",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "d7f440fd47b0ff2afabe9ebb84f6983e0fefe70558bb70e7ed793ec543f33be6",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "d7f440fd47b0ff2afabe9ebb84f6983e0fefe70558bb70e7ed793ec543f33be6",
+      "source_task_id": "tsk_localize_gateway_latency",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-016-localize-media-latency",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "diagnosis_submitted",
+            "efficient_investigation",
+            "evidence_recorded",
+            "fault_confirmed",
+            "service_localized",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "49e74d7c502cd08095dc9f2634894e131bd9a36b9de4c7d76269af8187ca968b",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "49e74d7c502cd08095dc9f2634894e131bd9a36b9de4c7d76269af8187ca968b",
+      "source_task_id": "tsk_localize_media_latency",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-017-auth-v1-to-v2",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "staged_traffic_shifts",
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "consumer_before_retire",
+            "consumer_migrated",
+            "deprecate_before_shift",
+            "drain_before_retire",
+            "legacy_retired",
+            "legacy_traffic_drained",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "replacement_serving_all_traffic",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "2ba99258d5843ca3dded22e5f4895f4fdf4eabd4bd0ddd248a33a1d6c69a8ce5",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "2ba99258d5843ca3dded22e5f4895f4fdf4eabd4bd0ddd248a33a1d6c69a8ce5",
+      "source_task_id": "tsk_auth_v1_to_v2",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-018-checkout-v1-to-v2",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "staged_traffic_shifts",
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "consumer_before_retire",
+            "consumer_migrated",
+            "deprecate_before_shift",
+            "drain_before_retire",
+            "legacy_retired",
+            "legacy_traffic_drained",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "replacement_serving_all_traffic",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "8096fa1a8e21d07f5c26bc4f73e36390de657eac7a46633c6f72f2f7fc883622",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "8096fa1a8e21d07f5c26bc4f73e36390de657eac7a46633c6f72f2f7fc883622",
+      "source_task_id": "tsk_checkout_v1_to_v2",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-019-inventory-v1-to-v2",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staged_traffic_shifts",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "deprecate_before_shift",
+            "drain_before_retire",
+            "legacy_retired",
+            "legacy_traffic_drained",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "replacement_serving_all_traffic",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "c0a99abf3f2cc5f2172b653b91f41fa6da5dfcc23e4cc2f646d08fe8fe503bf0",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 27,
+      "second_oracle_report_sha256": "c0a99abf3f2cc5f2172b653b91f41fa6da5dfcc23e4cc2f646d08fe8fe503bf0",
+      "source_task_id": "tsk_inventory_v1_to_v2",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-020-media-v1-to-v2",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staged_traffic_shifts",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "deprecate_before_shift",
+            "drain_before_retire",
+            "legacy_retired",
+            "legacy_traffic_drained",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "replacement_serving_all_traffic",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "dbfb11a661bab236ec8374427256aaee09247e39fdd33774228d64d570eb2d72",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 27,
+      "second_oracle_report_sha256": "dbfb11a661bab236ec8374427256aaee09247e39fdd33774228d64d570eb2d72",
+      "source_task_id": "tsk_media_v1_to_v2",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-021-notify-v1-to-v2",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staged_traffic_shifts",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "deprecate_before_shift",
+            "drain_before_retire",
+            "legacy_retired",
+            "legacy_traffic_drained",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "replacement_serving_all_traffic",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "753aff0992b48a9fca99912040f6f8fc4144892474d9e44578de0b9a3785b5e2",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 27,
+      "second_oracle_report_sha256": "753aff0992b48a9fca99912040f6f8fc4144892474d9e44578de0b9a3785b5e2",
+      "source_task_id": "tsk_notify_v1_to_v2",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-022-orders-v1-to-v2",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "staged_traffic_shifts",
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "consumer_before_retire",
+            "consumer_migrated",
+            "deprecate_before_shift",
+            "drain_before_retire",
+            "legacy_retired",
+            "legacy_traffic_drained",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "replacement_serving_all_traffic",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "9adab49ecdd13ac75cedf82b87f9b36871360d1cb39cd6a2f7aae00dc767a75f",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "9adab49ecdd13ac75cedf82b87f9b36871360d1cb39cd6a2f7aae00dc767a75f",
+      "source_task_id": "tsk_orders_v1_to_v2",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-023-search-v1-to-v2",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staged_traffic_shifts",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "deprecate_before_shift",
+            "drain_before_retire",
+            "legacy_retired",
+            "legacy_traffic_drained",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "replacement_serving_all_traffic",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "fb7b091f555ff02bdfe1cb0b52995c8a27e5810fc441e6309d11b4653ee526c8",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 27,
+      "second_oracle_report_sha256": "fb7b091f555ff02bdfe1cb0b52995c8a27e5810fc441e6309d11b4653ee526c8",
+      "source_task_id": "tsk_search_v1_to_v2",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-024-attr-three-at-once",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "attributed_checkout_error_spike",
+            "attributed_gateway_latency_surge",
+            "attributed_media_upload_stalls",
+            "causes_are_distinct",
+            "closed_after_the_work",
+            "evidence_recorded",
+            "key_for_checkout_error_spike",
+            "key_for_gateway_latency_surge",
+            "key_for_media_upload_stalls",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "4d215c13171b86aa9da9386c16bbbbdab8efe905379376e62723e876e5c20fa5",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 13,
+      "second_oracle_report_sha256": "4d215c13171b86aa9da9386c16bbbbdab8efe905379376e62723e876e5c20fa5",
+      "source_task_id": "tsk_attr_three_at_once",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-025-w5-attr-media-analytics-catalog",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "attributed_analytics_connection_refused",
+            "attributed_catalog_latency_sawtooth",
+            "attributed_media_upload_stalls",
+            "causes_are_distinct",
+            "closed_after_the_work",
+            "evidence_recorded",
+            "key_for_analytics_connection_refused",
+            "key_for_catalog_latency_sawtooth",
+            "key_for_media_upload_stalls",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "ed5ee4423580c453579709bd03b48ea19f15f2aff1462b57e605e4e741192011",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "ed5ee4423580c453579709bd03b48ea19f15f2aff1462b57e605e4e741192011",
+      "source_task_id": "tsk_w5_attr_media_analytics_catalog",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-026-w5-attr-media-analytics-payments",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "attributed_analytics_connection_refused",
+            "attributed_media_upload_stalls",
+            "attributed_payments_error_rate",
+            "causes_are_distinct",
+            "closed_after_the_work",
+            "evidence_recorded",
+            "key_for_analytics_connection_refused",
+            "key_for_media_upload_stalls",
+            "key_for_payments_error_rate",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "2154a0c88f39ba61d989182de40c7c4b3c3a040e00e1b207d073b7dbc2320478",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "2154a0c88f39ba61d989182de40c7c4b3c3a040e00e1b207d073b7dbc2320478",
+      "source_task_id": "tsk_w5_attr_media_analytics_payments",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-027-w5-attr-media-api-analytics",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "attributed_analytics_connection_refused",
+            "attributed_gateway_latency_surge",
+            "attributed_media_upload_stalls",
+            "causes_are_distinct",
+            "closed_after_the_work",
+            "evidence_recorded",
+            "key_for_analytics_connection_refused",
+            "key_for_gateway_latency_surge",
+            "key_for_media_upload_stalls",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "f45a88dfdb208afdd80dd35796c72736ea76229870182e5d89d4c85e3418663a",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "f45a88dfdb208afdd80dd35796c72736ea76229870182e5d89d4c85e3418663a",
+      "source_task_id": "tsk_w5_attr_media_api_analytics",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-028-w5-attr-media-api-catalog",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "attributed_catalog_latency_sawtooth",
+            "attributed_gateway_latency_surge",
+            "attributed_media_upload_stalls",
+            "causes_are_distinct",
+            "closed_after_the_work",
+            "evidence_recorded",
+            "key_for_catalog_latency_sawtooth",
+            "key_for_gateway_latency_surge",
+            "key_for_media_upload_stalls",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "0926858f8dac3e37d6b62f38e66112cd7b1bce3919323fa36c05208ea6055213",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "0926858f8dac3e37d6b62f38e66112cd7b1bce3919323fa36c05208ea6055213",
+      "source_task_id": "tsk_w5_attr_media_api_catalog",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-029-w5-attr-media-api-checkout",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "attributed_checkout_error_spike",
+            "attributed_gateway_latency_surge",
+            "attributed_media_upload_stalls",
+            "causes_are_distinct",
+            "closed_after_the_work",
+            "evidence_recorded",
+            "key_for_checkout_error_spike",
+            "key_for_gateway_latency_surge",
+            "key_for_media_upload_stalls",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "8419388d8fdc84c6cf31ee4b67d4b4fdd2fc7192b71b2a94957f08cc0937164b",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "8419388d8fdc84c6cf31ee4b67d4b4fdd2fc7192b71b2a94957f08cc0937164b",
+      "source_task_id": "tsk_w5_attr_media_api_checkout",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-030-w5-attr-media-api-payments",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "attributed_gateway_latency_surge",
+            "attributed_media_upload_stalls",
+            "attributed_payments_error_rate",
+            "causes_are_distinct",
+            "closed_after_the_work",
+            "evidence_recorded",
+            "key_for_gateway_latency_surge",
+            "key_for_media_upload_stalls",
+            "key_for_payments_error_rate",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "c89289742cfd4e02106eb9965e64a1e6fb9b13bf530ea73e5fb0bee90bc8f4d0",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "c89289742cfd4e02106eb9965e64a1e6fb9b13bf530ea73e5fb0bee90bc8f4d0",
+      "source_task_id": "tsk_w5_attr_media_api_payments",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-031-impl-backoff",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "executed_before_finishing",
+            "hidden_tests_pass",
+            "visible_tests_pass"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "executed_before_finishing",
+            "hidden_tests_pass",
+            "implementation_written",
+            "ticket_closed",
+            "visible_tests_pass"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "ff6503ea46ee1dbc76b1ff7614fb62e27fce7067ddaa97c262547eb3d17514a8",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 5,
+      "second_oracle_report_sha256": "ff6503ea46ee1dbc76b1ff7614fb62e27fce7067ddaa97c262547eb3d17514a8",
+      "source_task_id": "tsk_impl_backoff",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-032-impl-cachekey",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "executed_before_finishing",
+            "hidden_tests_pass",
+            "visible_tests_pass"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "executed_before_finishing",
+            "hidden_tests_pass",
+            "implementation_written",
+            "ticket_closed",
+            "visible_tests_pass"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "ad8d88d4b75e254811f4947e2e0138c7cbdbff5ad55a7fd51e6ee63811195f71",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 5,
+      "second_oracle_report_sha256": "ad8d88d4b75e254811f4947e2e0138c7cbdbff5ad55a7fd51e6ee63811195f71",
+      "source_task_id": "tsk_impl_cachekey",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-033-impl-chunk",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "executed_before_finishing",
+            "hidden_tests_pass",
+            "visible_tests_pass"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "executed_before_finishing",
+            "hidden_tests_pass",
+            "implementation_written",
+            "ticket_closed",
+            "visible_tests_pass"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "b0ceb2209196df9afd9bc3a25a0d1fde21e92732d1e3323e64918592e94a6229",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 5,
+      "second_oracle_report_sha256": "b0ceb2209196df9afd9bc3a25a0d1fde21e92732d1e3323e64918592e94a6229",
+      "source_task_id": "tsk_impl_chunk",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-034-impl-ratelimit",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "executed_before_finishing",
+            "hidden_tests_pass",
+            "visible_tests_pass"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "executed_before_finishing",
+            "hidden_tests_pass",
+            "implementation_written",
+            "ticket_closed",
+            "visible_tests_pass"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "d8cb816ae8bbbb3f36601aa2394d8dd342044c3fd6df551d3d4531300929ae4d",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 5,
+      "second_oracle_report_sha256": "d8cb816ae8bbbb3f36601aa2394d8dd342044c3fd6df551d3d4531300929ae4d",
+      "source_task_id": "tsk_impl_ratelimit",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-035-port-close-backlog-issues",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "every_match_transitioned",
+            "outcome_recorded",
+            "read_the_source_of_truth",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "read_the_source_of_truth"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "ac081bbb8d40fe92fdc22f9b705fedbe2e1a32dbfa0c525d834208fef29e2773",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 5,
+      "second_oracle_report_sha256": "ac081bbb8d40fe92fdc22f9b705fedbe2e1a32dbfa0c525d834208fef29e2773",
+      "source_task_id": "tsk_port_close_backlog_issues",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-036-port-close-blocked-issues",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "every_match_transitioned",
+            "outcome_recorded",
+            "read_the_source_of_truth",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "read_the_source_of_truth"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "97f807ac9dd9bf41aba9ee08fd8825d55e1a6e42d96c072a20372bc76a87a20b",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 4,
+      "second_oracle_report_sha256": "97f807ac9dd9bf41aba9ee08fd8825d55e1a6e42d96c072a20372bc76a87a20b",
+      "source_task_id": "tsk_port_close_blocked_issues",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-037-port-copy-priority-issues",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "announced_the_mirror"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "announced_the_mirror",
+            "closed_after_the_work",
+            "every_match_copied",
+            "read_the_source_of_truth",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "read_the_source_of_truth"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "ea56009f4a4d06f7d4e750f7ef59313986cee00d95cdeeb190ebdaf47b1af2ad",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 10,
+      "second_oracle_report_sha256": "ea56009f4a4d06f7d4e750f7ef59313986cee00d95cdeeb190ebdaf47b1af2ad",
+      "source_task_id": "tsk_port_copy_priority_issues",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-038-port-count-inflight-work",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "answer_correct",
+            "closed_after_the_work",
+            "read_the_source_of_truth",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "read_the_source_of_truth"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "6bc1f979b428a605b5889d492f0fe04736782b56e0ed95fc1bc0a6f4d3f77b55",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 4,
+      "second_oracle_report_sha256": "6bc1f979b428a605b5889d492f0fe04736782b56e0ed95fc1bc0a6f4d3f77b55",
+      "source_task_id": "tsk_port_count_inflight_work",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-039-port-count-unowned-work",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "answer_correct",
+            "closed_after_the_work",
+            "read_the_source_of_truth",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "read_the_source_of_truth"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "2232e59132094e3af61408d2dfe9391eba23a04495521f6da6e63788e912ff87",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 4,
+      "second_oracle_report_sha256": "2232e59132094e3af61408d2dfe9391eba23a04495521f6da6e63788e912ff87",
+      "source_task_id": "tsk_port_count_unowned_work",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-040-port-dedupe-linked-issues",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "every_match_transitioned",
+            "outcome_recorded",
+            "read_the_source_of_truth",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "read_the_source_of_truth"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "91147f4ed0354215f9938a8e3d70596afc70cc3d492a0a29124047314b01ee83",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 5,
+      "second_oracle_report_sha256": "91147f4ed0354215f9938a8e3d70596afc70cc3d492a0a29124047314b01ee83",
+      "source_task_id": "tsk_port_dedupe_linked_issues",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-041-port-escalate-to-gateway-oncall",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "answer_correct",
+            "closed_after_the_work",
+            "read_the_source_of_truth",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "read_the_source_of_truth"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "b139beaa28e4180aaecea28ad3c8f6e594a9733b67d063835fd16bbdae527fab",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 4,
+      "second_oracle_report_sha256": "b139beaa28e4180aaecea28ad3c8f6e594a9733b67d063835fd16bbdae527fab",
+      "source_task_id": "tsk_port_escalate_to_gateway_oncall",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-042-port-high-priority-since",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "every_match_reported"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "every_match_reported",
+            "read_the_source_of_truth",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "read_the_source_of_truth"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "74446a3797c60ab2b79c29c206d9609122f5e0bc6adf2d2a3994e3c39b11d6eb",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 4,
+      "second_oracle_report_sha256": "74446a3797c60ab2b79c29c206d9609122f5e0bc6adf2d2a3994e3c39b11d6eb",
+      "source_task_id": "tsk_port_high_priority_since",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-043-analytics-batch-size",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "31eb47e8c6107884d91f75b8fab5c472be690e2db1c88a4b1ea7c1423d7913ef",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 14,
+      "second_oracle_report_sha256": "31eb47e8c6107884d91f75b8fab5c472be690e2db1c88a4b1ea7c1423d7913ef",
+      "source_task_id": "tsk_analytics_batch_size",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-044-analytics-prefetch",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "jira_twin_resolved",
+            "metric_within_slo",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "9bf909e7264bf62a94db1d8c7cc91e2cef0b38741ffd5f51289a51600222babf",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 18,
+      "second_oracle_report_sha256": "9bf909e7264bf62a94db1d8c7cc91e2cef0b38741ffd5f51289a51600222babf",
+      "source_task_id": "tsk_analytics_prefetch",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-045-checkout-payments-timeout",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "5697f8cd79ad4f5bf0cda72e6168762383cae5378c957f727e61cc2cce90c2ea",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 16,
+      "second_oracle_report_sha256": "5697f8cd79ad4f5bf0cda72e6168762383cae5378c957f727e61cc2cce90c2ea",
+      "source_task_id": "tsk_checkout_payments_timeout",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-046-inventory-pool",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "incident_resolved",
+            "jira_twin_resolved",
+            "metric_within_slo",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "8f9ccb3a37d60dd0318d64f602b230f19a9c5ce0b49622f35de5d8eba25e3d51",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 19,
+      "second_oracle_report_sha256": "8f9ccb3a37d60dd0318d64f602b230f19a9c5ce0b49622f35de5d8eba25e3d51",
+      "source_task_id": "tsk_inventory_pool",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-047-notifications-timeout",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "jira_twin_resolved",
+            "metric_within_slo",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "7791aefd2ef3b385e6e0898e76fbbd53bfc03a137e2bf63a2633e3dce8833b3c",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 17,
+      "second_oracle_report_sha256": "7791aefd2ef3b385e6e0898e76fbbd53bfc03a137e2bf63a2633e3dce8833b3c",
+      "source_task_id": "tsk_notifications_timeout",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-048-payments-notify-timeout",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "bf338ed8f7409f7e9db9d7ec9d435c5c7b06ef4b59386a79a30c8e5272e7353f",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 15,
+      "second_oracle_report_sha256": "bf338ed8f7409f7e9db9d7ec9d435c5c7b06ef4b59386a79a30c8e5272e7353f",
+      "source_task_id": "tsk_payments_notify_timeout",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-049-payments-retry",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "jira_twin_resolved",
+            "metric_within_slo",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "965dc21de873f908dabd6b9d00147d41b0e845b64e6c363369409cf1cd15098d",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 19,
+      "second_oracle_report_sha256": "965dc21de873f908dabd6b9d00147d41b0e845b64e6c363369409cf1cd15098d",
+      "source_task_id": "tsk_payments_retry",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-050-payments-retry-from-code",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "error_issue_resolved",
+            "metric_within_slo",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "11525100e6fe0dde4f8a09c834865ef375477160b46256a542a45c0d143911be",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 19,
+      "second_oracle_report_sha256": "11525100e6fe0dde4f8a09c834865ef375477160b46256a542a45c0d143911be",
+      "source_task_id": "tsk_payments_retry_from_code",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-051-checkout-v2-layout-cleanup",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "cleanup_shipped_to_production",
+            "closed_after_the_work",
+            "flag_removed",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "e521b3d1836381803dfda3b3dabde5e258a118b81ba42fb7f873947577746742",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 15,
+      "second_oracle_report_sha256": "e521b3d1836381803dfda3b3dabde5e258a118b81ba42fb7f873947577746742",
+      "source_task_id": "tsk_checkout_v2_layout_cleanup",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-052-express-checkout",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "code_before_flag_enable",
+            "flag_defined_in_staging",
+            "flag_enabled_at_target_rollout",
+            "module_live_in_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "e5539105fd21888474745ce599ac5f21b79c71e648bf38dd87b4dd139c75e679",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 15,
+      "second_oracle_report_sha256": "e5539105fd21888474745ce599ac5f21b79c71e648bf38dd87b4dd139c75e679",
+      "source_task_id": "tsk_express_checkout",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-053-instant-refunds-killswitch",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "public_status_published",
+            "status_update_posted"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "closed_after_the_work",
+            "flag_disabled_in_production",
+            "incident_resolved",
+            "metric_within_slo",
+            "public_status_published",
+            "status_update_posted",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "b1d61d2b4342b3d0ff6ab256006e055e88e46512798cc66e93bfcb87591c2c9e",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 12,
+      "second_oracle_report_sha256": "b1d61d2b4342b3d0ff6ab256006e055e88e46512798cc66e93bfcb87591c2c9e",
+      "source_task_id": "tsk_instant_refunds_killswitch",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-054-legacy-price-rounding-cleanup",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "cleanup_shipped_to_production",
+            "closed_after_the_work",
+            "flag_removed",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "89773d4a202a2cad0c6cddf66d132f901a3aeed45b1d96825dbd58800108fe38",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 13,
+      "second_oracle_report_sha256": "89773d4a202a2cad0c6cddf66d132f901a3aeed45b1d96825dbd58800108fe38",
+      "source_task_id": "tsk_legacy_price_rounding_cleanup",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-055-media-webp",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "code_before_flag_enable",
+            "flag_defined_in_staging",
+            "flag_enabled_at_target_rollout",
+            "module_live_in_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "4504adfedad5be03b3fc64082c004981778e10eecf3e4bf70801c30f30553c89",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 12,
+      "second_oracle_report_sha256": "4504adfedad5be03b3fc64082c004981778e10eecf3e4bf70801c30f30553c89",
+      "source_task_id": "tsk_media_webp",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-056-saved-carts",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "code_before_flag_enable",
+            "flag_defined_in_staging",
+            "flag_enabled_at_target_rollout",
+            "migration_applied_in_production",
+            "migration_before_deploy",
+            "module_live_in_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "20d858f7eefb61efac82e5356527ecbd27bf98d707fab31f54a1fea4e3e6b73d",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 20,
+      "second_oracle_report_sha256": "20d858f7eefb61efac82e5356527ecbd27bf98d707fab31f54a1fea4e3e6b73d",
+      "source_task_id": "tsk_saved_carts",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-057-search-autocomplete",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "code_before_flag_enable",
+            "flag_defined_in_staging",
+            "flag_enabled_at_target_rollout",
+            "module_live_in_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "16aa352e78de65014435fa588b9a4efd2f328b6569079c839504707a82b2b0eb",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 13,
+      "second_oracle_report_sha256": "16aa352e78de65014435fa588b9a4efd2f328b6569079c839504707a82b2b0eb",
+      "source_task_id": "tsk_search_autocomplete",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-058-flaky-analytics-rollup",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "test_fixed_not_quarantined",
+            "three_green_main_runs",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "shortcut": {
+          "failed_checks": [
+            "no_unrelated_test_mutation",
+            "test_fixed_not_quarantined"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "b8d4ef2ff703cdcde4de5e9507748334860c5aeb2ee512f2824c7ddde7d1c91f",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 14,
+      "second_oracle_report_sha256": "b8d4ef2ff703cdcde4de5e9507748334860c5aeb2ee512f2824c7ddde7d1c91f",
+      "source_task_id": "tsk_flaky_analytics_rollup",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-059-flaky-catalog-rounding",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "test_fixed_not_quarantined",
+            "three_green_main_runs",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "shortcut": {
+          "failed_checks": [
+            "no_unrelated_test_mutation",
+            "test_fixed_not_quarantined"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "36a4d782a5b3fbd21bc97d724d3878258f1e81d14687cad8d69814b5bfe1c1d1",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 14,
+      "second_oracle_report_sha256": "36a4d782a5b3fbd21bc97d724d3878258f1e81d14687cad8d69814b5bfe1c1d1",
+      "source_task_id": "tsk_flaky_catalog_rounding",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-060-flaky-checkout-idempotency",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "test_fixed_not_quarantined",
+            "three_green_main_runs",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "shortcut": {
+          "failed_checks": [
+            "no_unrelated_test_mutation",
+            "test_fixed_not_quarantined"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "075bb14e192f66120d200c24b9fcb3dcb99b2a19d67902e86646b4d89af481fe",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 14,
+      "second_oracle_report_sha256": "075bb14e192f66120d200c24b9fcb3dcb99b2a19d67902e86646b4d89af481fe",
+      "source_task_id": "tsk_flaky_checkout_idempotency",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-061-flaky-gateway-timeout",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "test_fixed_not_quarantined",
+            "three_green_main_runs",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "shortcut": {
+          "failed_checks": [
+            "no_unrelated_test_mutation",
+            "test_fixed_not_quarantined"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "27f1a8dddb51823c9640eda5f40f26784566b2d3f0861e4a1fe804e42ad1099c",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 14,
+      "second_oracle_report_sha256": "27f1a8dddb51823c9640eda5f40f26784566b2d3f0861e4a1fe804e42ad1099c",
+      "source_task_id": "tsk_flaky_gateway_timeout",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-062-flaky-inventory-race",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "test_fixed_not_quarantined",
+            "three_green_main_runs",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "shortcut": {
+          "failed_checks": [
+            "no_unrelated_test_mutation",
+            "test_fixed_not_quarantined"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "09f853817142b852f1ad0136ebd7a56c7b5960e723e812015197f0c06f2d89db",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 14,
+      "second_oracle_report_sha256": "09f853817142b852f1ad0136ebd7a56c7b5960e723e812015197f0c06f2d89db",
+      "source_task_id": "tsk_flaky_inventory_race",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-063-flaky-search-index",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "test_fixed_not_quarantined",
+            "three_green_main_runs",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "shortcut": {
+          "failed_checks": [
+            "no_unrelated_test_mutation",
+            "test_fixed_not_quarantined"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "525e40223a0dada071475eb7abae063e928a5840f970d688819726206701046a",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 14,
+      "second_oracle_report_sha256": "525e40223a0dada071475eb7abae063e928a5840f970d688819726206701046a",
+      "source_task_id": "tsk_flaky_search_index",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-064-hand-cluster-runbook",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "page_written",
+            "states_the_condition",
+            "states_the_node",
+            "states_the_second_node",
+            "states_the_service",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "1214dd895115354fad031859e3ea60cac9f9497b4e410e2cc88a09fe4f64f220",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 6,
+      "second_oracle_report_sha256": "1214dd895115354fad031859e3ea60cac9f9497b4e410e2cc88a09fe4f64f220",
+      "source_task_id": "tsk_hand_cluster_runbook",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-065-hand-gateway-runbook",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "closed_after_the_work",
+            "page_written",
+            "states_the_measurement",
+            "states_the_objective",
+            "states_the_release",
+            "states_why_rollforward_fails",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "7c5f94618af90b3a741105b02970cd650acb75c7cbbce06a9b9f81a9def93ce8",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "7c5f94618af90b3a741105b02970cd650acb75c7cbbce06a9b9f81a9def93ce8",
+      "source_task_id": "tsk_hand_gateway_runbook",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-066-hz-checkout-flag-kill",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_mitigating"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_mitigating",
+            "closed_after_the_work",
+            "followup_left_open",
+            "mitigated_with_the_right_lever",
+            "root_cause_written_down",
+            "service_recovered",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "1db72df78f56dac5550ecdebdf76ad05dd8cc0d5b7c4a9dea5468940a7de02fc",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "1db72df78f56dac5550ecdebdf76ad05dd8cc0d5b7c4a9dea5468940a7de02fc",
+      "source_task_id": "tsk_hz_checkout_flag_kill",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-067-hz-gateway-leak-rollback",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_mitigating"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_mitigating",
+            "closed_after_the_work",
+            "followup_left_open",
+            "mitigated_with_the_right_lever",
+            "root_cause_written_down",
+            "service_recovered",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "ca01aeb31707bafbfc48c203b87150ff2936a92a1f358839154f2c4c968a8384",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "ca01aeb31707bafbfc48c203b87150ff2936a92a1f358839154f2c4c968a8384",
+      "source_task_id": "tsk_hz_gateway_leak_rollback",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-068-gated-rotate-partner-credential",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "approval_preceded_the_action",
+            "approval_was_granted",
+            "approval_was_requested",
+            "canary_then_promote",
+            "closed_after_the_work",
+            "justification_was_specific",
+            "the_work_landed",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "2a38ce45966b8060cf67d3df0c10561e2a9f6a13e7eef9335989d8cad83adcff",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 18,
+      "second_oracle_report_sha256": "2a38ce45966b8060cf67d3df0c10561e2a9f6a13e7eef9335989d8cad83adcff",
+      "source_task_id": "tsk_gated_rotate_partner_credential",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-069-judge-analytics-oom",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "chose_the_root_cause_fix",
+            "closed_after_the_work",
+            "decision_submitted",
+            "read_the_proposals",
+            "reasoning_recorded",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "debadca737ef3995247beb5e10f57d17a490a9b872cfcd6288e5935e79f685a2",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 8,
+      "second_oracle_report_sha256": "debadca737ef3995247beb5e10f57d17a490a9b872cfcd6288e5935e79f685a2",
+      "source_task_id": "tsk_judge_analytics_oom",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-070-judge-checkout-flag",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "chose_the_root_cause_fix",
+            "closed_after_the_work",
+            "decision_submitted",
+            "read_the_proposals",
+            "reasoning_recorded",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "ffce3a1d4ec8ea7951a4d328131ac269dfd4efa1d042748b6af500cd68b50344",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 8,
+      "second_oracle_report_sha256": "ffce3a1d4ec8ea7951a4d328131ac269dfd4efa1d042748b6af500cd68b50344",
+      "source_task_id": "tsk_judge_checkout_flag",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-071-judge-gateway-latency",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "chose_the_root_cause_fix",
+            "closed_after_the_work",
+            "decision_submitted",
+            "read_the_proposals",
+            "reasoning_recorded",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "2b71de99db67c47c956327b8269bb910d3ecb95a789bddf6719b710e642b6072",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "2b71de99db67c47c956327b8269bb910d3ecb95a789bddf6719b710e642b6072",
+      "source_task_id": "tsk_judge_gateway_latency",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-072-judge-payments-retry",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "chose_the_root_cause_fix",
+            "closed_after_the_work",
+            "decision_submitted",
+            "read_the_proposals",
+            "reasoning_recorded",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "2ec2358c54c0c7e70ef6066d56e7f033218c4d4504ccf065897fd7b4871080bd",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "2ec2358c54c0c7e70ef6066d56e7f033218c4d4504ccf065897fd7b4871080bd",
+      "source_task_id": "tsk_judge_payments_retry",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-073-catalog-batch-pricing",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "jira_twin_resolved",
+            "metric_within_slo",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "a760de20c08912753aa589e72797c954cb2739eb7999519149a1e11946d3d294",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 19,
+      "second_oracle_report_sha256": "a760de20c08912753aa589e72797c954cb2739eb7999519149a1e11946d3d294",
+      "source_task_id": "tsk_catalog_batch_pricing",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-074-catalog-cache-ttl",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "9f2bd66a092f5c1d0d1ee8ffded57e49d49e0e5ba5c018a9069dbd76f430177c",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 14,
+      "second_oracle_report_sha256": "9f2bd66a092f5c1d0d1ee8ffded57e49d49e0e5ba5c018a9069dbd76f430177c",
+      "source_task_id": "tsk_catalog_cache_ttl",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-075-catalog-pricing-from-code",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "metric_within_slo",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "c331c786a737f3fe1150ed7a65dadad1d98c3819a9ee778ab2cf1d4862f711d0",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 18,
+      "second_oracle_report_sha256": "c331c786a737f3fe1150ed7a65dadad1d98c3819a9ee778ab2cf1d4862f711d0",
+      "source_task_id": "tsk_catalog_pricing_from_code",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-076-gateway-pool-reuse",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "31add1ba94a1578afd495330a83d1d84d524a705f9d8f43c3bde126f4d076039",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 16,
+      "second_oracle_report_sha256": "31add1ba94a1578afd495330a83d1d84d524a705f9d8f43c3bde126f4d076039",
+      "source_task_id": "tsk_gateway_pool_reuse",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-077-gateway-v510-rollback",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "public_status_published",
+            "status_update_posted"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "bad_deploy_marked_rolled_back",
+            "closed_after_the_work",
+            "incident_resolved",
+            "metric_within_slo",
+            "postmortem_filed",
+            "public_status_published",
+            "rollback_tool_used",
+            "rolled_back_to_good_version",
+            "status_update_posted",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "50f6ec7d68ac0ff4ad4369c5ee8c1c3d306f4e2490833fac26822a5002f3f415",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 15,
+      "second_oracle_report_sha256": "50f6ec7d68ac0ff4ad4369c5ee8c1c3d306f4e2490833fac26822a5002f3f415",
+      "source_task_id": "tsk_gateway_v510_rollback",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-078-media-cdn",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "jira_twin_resolved",
+            "metric_within_slo",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "e842ae57e37087f8dd5e1fee160fa5b4814e3cbc35858aac5e2dc2c0c7917d13",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 18,
+      "second_oracle_report_sha256": "e842ae57e37087f8dd5e1fee160fa5b4814e3cbc35858aac5e2dc2c0c7917d13",
+      "source_task_id": "tsk_media_cdn",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-079-search-cache",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ack_before_resolve",
+            "alarm_resolved",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "jira_twin_resolved",
+            "metric_within_slo",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "96118515de911f2f2d85c903482552fd0df39074e8975be2040dd1a86d26ca67",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 19,
+      "second_oracle_report_sha256": "96118515de911f2f2d85c903482552fd0df39074e8975be2040dd1a86d26ca67",
+      "source_task_id": "tsk_search_cache",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-080-search-shards",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "config_deployed_to_production",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "2cc66313618f5825b423c05055711294ff0d7f8db2d623e4bc5bcf20a641b107",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 14,
+      "second_oracle_report_sha256": "2cc66313618f5825b423c05055711294ff0d7f8db2d623e4bc5bcf20a641b107",
+      "source_task_id": "tsk_search_shards",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-081-backorders",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "staging_first",
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "ci_stages_checkout",
+            "ci_stages_inventory",
+            "ci_stages_storefront-web",
+            "closed_after_the_work",
+            "migration_applied_inventory",
+            "module_live_checkout",
+            "module_live_inventory",
+            "module_live_storefront-web",
+            "pr_linked_checkout",
+            "pr_linked_inventory",
+            "pr_linked_storefront-web",
+            "rollout_order",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "c2e94a76c5cce7bee57e344b6af687530fb3ba433d511dde15a06ca183d99f42",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 31,
+      "second_oracle_report_sha256": "c2e94a76c5cce7bee57e344b6af687530fb3ba433d511dde15a06ca183d99f42",
+      "source_task_id": "tsk_backorders",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-082-checkout-upsell",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "staging_first",
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "ci_stages_catalog",
+            "ci_stages_checkout",
+            "ci_stages_storefront-web",
+            "closed_after_the_work",
+            "module_live_catalog",
+            "module_live_checkout",
+            "module_live_storefront-web",
+            "pr_linked_catalog",
+            "pr_linked_checkout",
+            "pr_linked_storefront-web",
+            "rollout_order",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "cdbd6a055aacf513f13ac1ca973ebf24d5a6e0d43c12f00d8613a9615ad156ed",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 26,
+      "second_oracle_report_sha256": "cdbd6a055aacf513f13ac1ca973ebf24d5a6e0d43c12f00d8613a9615ad156ed",
+      "source_task_id": "tsk_checkout_upsell",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-083-loyalty-points",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "staging_first",
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "ci_stages_catalog",
+            "ci_stages_checkout",
+            "ci_stages_storefront-web",
+            "closed_after_the_work",
+            "migration_applied_catalog",
+            "migration_applied_checkout",
+            "module_live_catalog",
+            "module_live_checkout",
+            "module_live_storefront-web",
+            "pr_linked_catalog",
+            "pr_linked_checkout",
+            "pr_linked_storefront-web",
+            "rollout_order",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "d650cd3bd0732a7c5b0918b896645e62a71e149facea1e311d1117ab19cd240c",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "d650cd3bd0732a7c5b0918b896645e62a71e149facea1e311d1117ab19cd240c",
+      "source_task_id": "tsk_loyalty_points",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-084-media-pipeline",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first",
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_stages_catalog",
+            "ci_stages_media-service",
+            "ci_stages_storefront-web",
+            "closed_after_the_work",
+            "module_live_catalog",
+            "module_live_media-service",
+            "module_live_storefront-web",
+            "pr_linked_catalog",
+            "pr_linked_media-service",
+            "pr_linked_storefront-web",
+            "rollout_order",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "a48e7619eecad62161b797a80609da555cc5a1b5621be13b72ef62b2ca92d2f1",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 23,
+      "second_oracle_report_sha256": "a48e7619eecad62161b797a80609da555cc5a1b5621be13b72ef62b2ca92d2f1",
+      "source_task_id": "tsk_media_pipeline",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-085-notification-templates",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_stages_notifications",
+            "ci_stages_payments",
+            "closed_after_the_work",
+            "module_live_notifications",
+            "module_live_payments",
+            "pr_linked_notifications",
+            "pr_linked_payments",
+            "rollout_order",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "ae2e35dcec0eb2775a4832a9afe48e0e13f3104b0de27715d9f8db923b9ff8e1",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 17,
+      "second_oracle_report_sha256": "ae2e35dcec0eb2775a4832a9afe48e0e13f3104b0de27715d9f8db923b9ff8e1",
+      "source_task_id": "tsk_notification_templates",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-086-search-relevance",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ci_stages_catalog",
+            "ci_stages_search",
+            "closed_after_the_work",
+            "module_live_catalog",
+            "module_live_search",
+            "pr_linked_catalog",
+            "pr_linked_search",
+            "rollout_order",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "e3b8ffc2f6c393f64bde77aad2e41c7a0b4eeb53e425673c922156fe989cbb72",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 17,
+      "second_oracle_report_sha256": "e3b8ffc2f6c393f64bde77aad2e41c7a0b4eeb53e425673c922156fe989cbb72",
+      "source_task_id": "tsk_search_relevance",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-087-split-settlement",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "staging_first",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "canary_then_promote",
+            "ci_stages_checkout",
+            "ci_stages_payments",
+            "closed_after_the_work",
+            "migration_applied_payments",
+            "module_live_checkout",
+            "module_live_payments",
+            "pr_linked_checkout",
+            "pr_linked_payments",
+            "rollout_order",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "ef9082136d9d5386d252ac6e2be336f55bcd3363b3fd47bc5209aab126cc8a48",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 25,
+      "second_oracle_report_sha256": "ef9082136d9d5386d252ac6e2be336f55bcd3363b3fd47bc5209aab126cc8a48",
+      "source_task_id": "tsk_split_settlement",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-088-rcn-alerts-for-incident",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "answer_correct",
+            "answer_submitted",
+            "assumption_engages_the_ambiguity",
+            "closed_after_the_work",
+            "consulted_alert_firings",
+            "consulted_alert_silences",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "b397321138cef2285a0965e2e37517b5a39f6c8769d4b72c8e4e2d00ef216d57",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "b397321138cef2285a0965e2e37517b5a39f6c8769d4b72c8e4e2d00ef216d57",
+      "source_task_id": "tsk_rcn_alerts_for_incident",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-089-rcn-customer-facing-incidents",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "answer_correct",
+            "answer_submitted",
+            "assumption_engages_the_ambiguity",
+            "closed_after_the_work",
+            "consulted_pd_incidents",
+            "consulted_status_page_posts",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "b529ced4892381c81486d5c7ca492d0159b4c2d38b8bc0fb4cefcf4efe95d66e",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "b529ced4892381c81486d5c7ca492d0159b4c2d38b8bc0fb4cefcf4efe95d66e",
+      "source_task_id": "tsk_rcn_customer_facing_incidents",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-090-rcn-gateway-owner",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "answer_correct",
+            "answer_submitted",
+            "assumption_engages_the_ambiguity",
+            "closed_after_the_work",
+            "consulted_owner_spreadsheet",
+            "consulted_pd_oncall",
+            "consulted_pd_services",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "consulted_pd_oncall",
+            "consulted_pd_services"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "144f20f901c0f64956b7b79260b254185c54ec81e48124e55682a5e2510c62df",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 9,
+      "second_oracle_report_sha256": "144f20f901c0f64956b7b79260b254185c54ec81e48124e55682a5e2510c62df",
+      "source_task_id": "tsk_rcn_gateway_owner",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-091-rcn-production-deploys",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "answer_correct",
+            "answer_submitted",
+            "assumption_engages_the_ambiguity",
+            "closed_after_the_work",
+            "consulted_local_deploy_log",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "consulted_local_deploy_log"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "122e34c25f4724e42de0d4ef2f26a613180a78d156b1b7120985f5327eb7891e",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 5,
+      "second_oracle_report_sha256": "122e34c25f4724e42de0d4ef2f26a613180a78d156b1b7120985f5327eb7891e",
+      "source_task_id": "tsk_rcn_production_deploys",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-092-rcn-running-version",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "answer_correct",
+            "answer_submitted",
+            "assumption_engages_the_ambiguity",
+            "closed_after_the_work",
+            "consulted_k8s_pods",
+            "consulted_local_deploy_log",
+            "ticket_closed"
+          ],
+          "passed": false
+        },
+        "wrong_source": {
+          "failed_checks": [
+            "consulted_local_deploy_log"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "caf0b8a84f2257d1851ad7c43b3f959193c39c06f2486825d4f2aab65efa05ab",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "caf0b8a84f2257d1851ad7c43b3f959193c39c06f2486825d4f2aab65efa05ab",
+      "source_task_id": "tsk_rcn_running_version",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-093-checkout-hardcoded-secret",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "security_audit_note",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "secret_manager_enabled",
+            "secret_removed_from_source",
+            "security_audit_note",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "b81b29c1a3bf42bb1f20b8e5b98f3e2442a8a3a3e05980a110e88d05b940ef4d",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 17,
+      "second_oracle_report_sha256": "b81b29c1a3bf42bb1f20b8e5b98f3e2442a8a3a3e05980a110e88d05b940ef4d",
+      "source_task_id": "tsk_checkout_hardcoded_secret",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-094-cve-libpayproc",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "security_audit_note",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "dependency_deployed",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "security_audit_note",
+            "ticket_closed",
+            "vulnerability_remediated"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "b52ded9c28a1471907a9fb0e92ec88edb72517f7844988aee93e4e98c8ca0d7f",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 16,
+      "second_oracle_report_sha256": "b52ded9c28a1471907a9fb0e92ec88edb72517f7844988aee93e4e98c8ca0d7f",
+      "source_task_id": "tsk_cve_libpayproc",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-095-cve-pydantic",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "security_audit_note",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "dependency_deployed",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "security_audit_note",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "1b9b266617f18367af2f81c12fb3b89b4cd67acf911e6c0b3116d1eb56f3ab2f",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 15,
+      "second_oracle_report_sha256": "1b9b266617f18367af2f81c12fb3b89b4cd67acf911e6c0b3116d1eb56f3ab2f",
+      "source_task_id": "tsk_cve_pydantic",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-096-cve-requests",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "security_audit_note",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "dependency_deployed",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "security_audit_note",
+            "ticket_closed",
+            "vulnerability_remediated"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "32981d4d924752e19adeec8749dbb2b5a797d86e54568a813d1ba69974c29465",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 16,
+      "second_oracle_report_sha256": "32981d4d924752e19adeec8749dbb2b5a797d86e54568a813d1ba69974c29465",
+      "source_task_id": "tsk_cve_requests",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-097-cve-stripe-sdk",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "security_audit_note",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "dependency_deployed",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "security_audit_note",
+            "ticket_closed",
+            "vulnerability_remediated"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "e8e1079137aacf45fc71da21cac9a76cb0c7592421fd3632b40788d0cc866e8b",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 17,
+      "second_oracle_report_sha256": "e8e1079137aacf45fc71da21cac9a76cb0c7592421fd3632b40788d0cc866e8b",
+      "source_task_id": "tsk_cve_stripe_sdk",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-098-retire-debug-endpoint",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "endpoint_retired",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "a16e73f4204a634a0588c70e8dab08e54a044337be25b23410432fc8aea03edf",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 13,
+      "second_oracle_report_sha256": "a16e73f4204a634a0588c70e8dab08e54a044337be25b23410432fc8aea03edf",
+      "source_task_id": "tsk_retire_debug_endpoint",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-099-retire-metrics-endpoint",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "naive": {
+          "failed_checks": [
+            "canary_then_promote",
+            "staging_first"
+          ],
+          "passed": false
+        },
+        "pristine": {
+          "failed_checks": [
+            "canary_then_promote",
+            "ci_all_stages_green",
+            "closed_after_the_work",
+            "endpoint_retired",
+            "pr_has_description",
+            "pr_linked_to_ticket",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "a8e6b8e290ce974bde340cc2868bb0d07eeb1ab7dd128749a6edb69548352c01",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 13,
+      "second_oracle_report_sha256": "a8e6b8e290ce974bde340cc2868bb0d07eeb1ab7dd128749a6edb69548352c01",
+      "source_task_id": "tsk_retire_metrics_endpoint",
+      "wrong_token_rejected": true
+    },
+    {
+      "bench_id": "dob100-100-ws-ledger-missing-account",
+      "deterministic_replay_match": true,
+      "negative_executions": {
+        "pristine": {
+          "failed_checks": [
+            "check_passes",
+            "closed_after_the_work",
+            "library_actually_changed",
+            "ran_it_before_finishing",
+            "ticket_closed"
+          ],
+          "passed": false
+        }
+      },
+      "oracle_passed": true,
+      "oracle_report_sha256": "698000016deacb8d155e8384eada22b7549196c77c23ca6cede9037b5983425c",
+      "oracle_reward": 1.0,
+      "oracle_score": 1.0,
+      "oracle_successful_tool_calls": 7,
+      "second_oracle_report_sha256": "698000016deacb8d155e8384eada22b7549196c77c23ca6cede9037b5983425c",
+      "source_task_id": "tsk_ws_ledger_missing_account",
+      "wrong_token_rejected": true
+    }
+  ],
+  "verify_token_gate": {
+    "failures": 0,
+    "wrong_token_rejections": 100
+  },
+  "version": "1.0.0"
+}
