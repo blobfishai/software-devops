@@ -1,0 +1,1635 @@
+{
+  "benchmark": "DevOpsBench-100",
+  "schema_version": "1.0",
+  "selection_criteria": {
+    "aiops_detection_cap": 5,
+    "eligibility": "oracle reward 1.0 AND pristine rejected AND all applicable scripted adversaries rejected",
+    "every_category_represented": true,
+    "full_categories": [
+      "judgement",
+      "human_gated",
+      "horizon",
+      "handover",
+      "workspace",
+      "code_implementation",
+      "error_rate_reduction",
+      "latency_optimization",
+      "feature_flag",
+      "security_incident",
+      "api_migration",
+      "multi_service_rollout",
+      "flaky_test",
+      "reconciliation"
+    ],
+    "quotas": {
+      "aiops_analysis": 6,
+      "aiops_detection": 5,
+      "aiops_localization": 5,
+      "attribution": 7,
+      "cross_system": 8
+    }
+  },
+  "source_world": "world/",
+  "tasks": [
+    {
+      "bench_id": "dob100-001-rca-analytics-egress-blocked",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "index": 1,
+      "rationale": [
+        "aiops_analysis",
+        "expert",
+        "9-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_rca_analytics_egress_blocked"
+    },
+    {
+      "bench_id": "dob100-002-rca-analytics-revoked-grant",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "expected_calls": 9,
+      "index": 2,
+      "rationale": [
+        "aiops_analysis",
+        "expert",
+        "9-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_rca_analytics_revoked_grant"
+    },
+    {
+      "bench_id": "dob100-003-rca-checkout-unschedulable-replicas",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 3,
+      "rationale": [
+        "aiops_analysis",
+        "expert",
+        "10-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_rca_checkout_unschedulable_replicas"
+    },
+    {
+      "bench_id": "dob100-004-rca-media-disk-pressure",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 4,
+      "rationale": [
+        "aiops_analysis",
+        "expert",
+        "10-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_rca_media_disk_pressure"
+    },
+    {
+      "bench_id": "dob100-005-rca-notifications-node-deadlock",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 5,
+      "rationale": [
+        "aiops_analysis",
+        "expert",
+        "10-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_rca_notifications_node_deadlock"
+    },
+    {
+      "bench_id": "dob100-006-rca-search-unscheduled-reindex",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 6,
+      "rationale": [
+        "aiops_analysis",
+        "expert",
+        "10-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_rca_search_unscheduled_reindex"
+    },
+    {
+      "bench_id": "dob100-007-detect-checkout-errors",
+      "category": "aiops_detection",
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "index": 7,
+      "rationale": [
+        "aiops_detection",
+        "medium",
+        "6-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_detect_checkout_errors"
+    },
+    {
+      "bench_id": "dob100-008-detect-inventory",
+      "category": "aiops_detection",
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "index": 8,
+      "rationale": [
+        "aiops_detection",
+        "easy",
+        "6-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_detect_inventory"
+    },
+    {
+      "bench_id": "dob100-009-detect-payments",
+      "category": "aiops_detection",
+      "difficulty": "easy",
+      "expected_calls": 6,
+      "index": 9,
+      "rationale": [
+        "aiops_detection",
+        "easy",
+        "6-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_detect_payments"
+    },
+    {
+      "bench_id": "dob100-010-detect-status-page-recurrence",
+      "category": "aiops_detection",
+      "difficulty": "expert",
+      "expected_calls": 8,
+      "index": 10,
+      "rationale": [
+        "aiops_detection",
+        "expert",
+        "8-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_detect_status_page_recurrence"
+    },
+    {
+      "bench_id": "dob100-011-detect-storefront-healthy",
+      "category": "aiops_detection",
+      "difficulty": "medium",
+      "expected_calls": 6,
+      "index": 11,
+      "rationale": [
+        "aiops_detection",
+        "medium",
+        "6-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_detect_storefront_healthy"
+    },
+    {
+      "bench_id": "dob100-012-localize-analytics-crashloop",
+      "category": "aiops_localization",
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "index": 12,
+      "rationale": [
+        "aiops_localization",
+        "expert",
+        "7-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_localize_analytics_crashloop"
+    },
+    {
+      "bench_id": "dob100-013-localize-analytics-errors",
+      "category": "aiops_localization",
+      "difficulty": "medium",
+      "expected_calls": 7,
+      "index": 13,
+      "rationale": [
+        "aiops_localization",
+        "medium",
+        "7-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_localize_analytics_errors"
+    },
+    {
+      "bench_id": "dob100-014-localize-checkout-latency",
+      "category": "aiops_localization",
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "index": 14,
+      "rationale": [
+        "aiops_localization",
+        "hard",
+        "7-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:shortcut,pristine"
+      ],
+      "task_id": "tsk_localize_checkout_latency"
+    },
+    {
+      "bench_id": "dob100-015-localize-gateway-latency",
+      "category": "aiops_localization",
+      "difficulty": "medium",
+      "expected_calls": 7,
+      "index": 15,
+      "rationale": [
+        "aiops_localization",
+        "medium",
+        "7-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_localize_gateway_latency"
+    },
+    {
+      "bench_id": "dob100-016-localize-media-latency",
+      "category": "aiops_localization",
+      "difficulty": "medium",
+      "expected_calls": 7,
+      "index": 16,
+      "rationale": [
+        "aiops_localization",
+        "medium",
+        "7-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_localize_media_latency"
+    },
+    {
+      "bench_id": "dob100-017-auth-v1-to-v2",
+      "category": "api_migration",
+      "difficulty": "expert",
+      "expected_calls": 34,
+      "index": 17,
+      "rationale": [
+        "api_migration",
+        "expert",
+        "34-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_auth_v1_to_v2"
+    },
+    {
+      "bench_id": "dob100-018-checkout-v1-to-v2",
+      "category": "api_migration",
+      "difficulty": "expert",
+      "expected_calls": 34,
+      "index": 18,
+      "rationale": [
+        "api_migration",
+        "expert",
+        "34-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_checkout_v1_to_v2"
+    },
+    {
+      "bench_id": "dob100-019-inventory-v1-to-v2",
+      "category": "api_migration",
+      "difficulty": "hard",
+      "expected_calls": 27,
+      "index": 19,
+      "rationale": [
+        "api_migration",
+        "hard",
+        "27-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_inventory_v1_to_v2"
+    },
+    {
+      "bench_id": "dob100-020-media-v1-to-v2",
+      "category": "api_migration",
+      "difficulty": "hard",
+      "expected_calls": 27,
+      "index": 20,
+      "rationale": [
+        "api_migration",
+        "hard",
+        "27-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_media_v1_to_v2"
+    },
+    {
+      "bench_id": "dob100-021-notify-v1-to-v2",
+      "category": "api_migration",
+      "difficulty": "hard",
+      "expected_calls": 27,
+      "index": 21,
+      "rationale": [
+        "api_migration",
+        "hard",
+        "27-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_notify_v1_to_v2"
+    },
+    {
+      "bench_id": "dob100-022-orders-v1-to-v2",
+      "category": "api_migration",
+      "difficulty": "expert",
+      "expected_calls": 34,
+      "index": 22,
+      "rationale": [
+        "api_migration",
+        "expert",
+        "34-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_orders_v1_to_v2"
+    },
+    {
+      "bench_id": "dob100-023-search-v1-to-v2",
+      "category": "api_migration",
+      "difficulty": "hard",
+      "expected_calls": 27,
+      "index": 23,
+      "rationale": [
+        "api_migration",
+        "hard",
+        "27-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_search_v1_to_v2"
+    },
+    {
+      "bench_id": "dob100-024-attr-three-at-once",
+      "category": "attribution",
+      "difficulty": "expert",
+      "expected_calls": 13,
+      "index": 24,
+      "rationale": [
+        "attribution",
+        "expert",
+        "13-call-oracle",
+        "curated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_attr_three_at_once"
+    },
+    {
+      "bench_id": "dob100-025-w5-attr-media-analytics-catalog",
+      "category": "attribution",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 25,
+      "rationale": [
+        "attribution",
+        "expert",
+        "10-call-oracle",
+        "wave-generated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_w5_attr_media_analytics_catalog"
+    },
+    {
+      "bench_id": "dob100-026-w5-attr-media-analytics-payments",
+      "category": "attribution",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 26,
+      "rationale": [
+        "attribution",
+        "expert",
+        "10-call-oracle",
+        "wave-generated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_w5_attr_media_analytics_payments"
+    },
+    {
+      "bench_id": "dob100-027-w5-attr-media-api-analytics",
+      "category": "attribution",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 27,
+      "rationale": [
+        "attribution",
+        "expert",
+        "10-call-oracle",
+        "wave-generated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_w5_attr_media_api_analytics"
+    },
+    {
+      "bench_id": "dob100-028-w5-attr-media-api-catalog",
+      "category": "attribution",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 28,
+      "rationale": [
+        "attribution",
+        "expert",
+        "10-call-oracle",
+        "wave-generated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_w5_attr_media_api_catalog"
+    },
+    {
+      "bench_id": "dob100-029-w5-attr-media-api-checkout",
+      "category": "attribution",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 29,
+      "rationale": [
+        "attribution",
+        "expert",
+        "10-call-oracle",
+        "wave-generated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_w5_attr_media_api_checkout"
+    },
+    {
+      "bench_id": "dob100-030-w5-attr-media-api-payments",
+      "category": "attribution",
+      "difficulty": "expert",
+      "expected_calls": 10,
+      "index": 30,
+      "rationale": [
+        "attribution",
+        "expert",
+        "10-call-oracle",
+        "wave-generated",
+        "hardest-of-category-quota",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_w5_attr_media_api_payments"
+    },
+    {
+      "bench_id": "dob100-031-impl-backoff",
+      "category": "code_implementation",
+      "difficulty": "hard",
+      "expected_calls": 5,
+      "index": 31,
+      "rationale": [
+        "code_implementation",
+        "hard",
+        "5-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_impl_backoff"
+    },
+    {
+      "bench_id": "dob100-032-impl-cachekey",
+      "category": "code_implementation",
+      "difficulty": "hard",
+      "expected_calls": 5,
+      "index": 32,
+      "rationale": [
+        "code_implementation",
+        "hard",
+        "5-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_impl_cachekey"
+    },
+    {
+      "bench_id": "dob100-033-impl-chunk",
+      "category": "code_implementation",
+      "difficulty": "medium",
+      "expected_calls": 5,
+      "index": 33,
+      "rationale": [
+        "code_implementation",
+        "medium",
+        "5-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_impl_chunk"
+    },
+    {
+      "bench_id": "dob100-034-impl-ratelimit",
+      "category": "code_implementation",
+      "difficulty": "expert",
+      "expected_calls": 5,
+      "index": 34,
+      "rationale": [
+        "code_implementation",
+        "expert",
+        "5-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_impl_ratelimit"
+    },
+    {
+      "bench_id": "dob100-035-port-close-backlog-issues",
+      "category": "cross_system",
+      "difficulty": "hard",
+      "expected_calls": 5,
+      "index": 35,
+      "rationale": [
+        "cross_system",
+        "hard",
+        "5-call-oracle",
+        "ported",
+        "hardest-of-category-quota",
+        "controls-rejected:wrong_source,pristine"
+      ],
+      "task_id": "tsk_port_close_backlog_issues"
+    },
+    {
+      "bench_id": "dob100-036-port-close-blocked-issues",
+      "category": "cross_system",
+      "difficulty": "expert",
+      "expected_calls": 4,
+      "index": 36,
+      "rationale": [
+        "cross_system",
+        "expert",
+        "4-call-oracle",
+        "ported",
+        "hardest-of-category-quota",
+        "controls-rejected:wrong_source,pristine"
+      ],
+      "task_id": "tsk_port_close_blocked_issues"
+    },
+    {
+      "bench_id": "dob100-037-port-copy-priority-issues",
+      "category": "cross_system",
+      "difficulty": "hard",
+      "expected_calls": 10,
+      "index": 37,
+      "rationale": [
+        "cross_system",
+        "hard",
+        "10-call-oracle",
+        "ported",
+        "hardest-of-category-quota",
+        "controls-rejected:naive,wrong_source,pristine"
+      ],
+      "task_id": "tsk_port_copy_priority_issues"
+    },
+    {
+      "bench_id": "dob100-038-port-count-inflight-work",
+      "category": "cross_system",
+      "difficulty": "hard",
+      "expected_calls": 4,
+      "index": 38,
+      "rationale": [
+        "cross_system",
+        "hard",
+        "4-call-oracle",
+        "ported",
+        "hardest-of-category-quota",
+        "controls-rejected:wrong_source,pristine"
+      ],
+      "task_id": "tsk_port_count_inflight_work"
+    },
+    {
+      "bench_id": "dob100-039-port-count-unowned-work",
+      "category": "cross_system",
+      "difficulty": "hard",
+      "expected_calls": 4,
+      "index": 39,
+      "rationale": [
+        "cross_system",
+        "hard",
+        "4-call-oracle",
+        "ported",
+        "hardest-of-category-quota",
+        "controls-rejected:wrong_source,pristine"
+      ],
+      "task_id": "tsk_port_count_unowned_work"
+    },
+    {
+      "bench_id": "dob100-040-port-dedupe-linked-issues",
+      "category": "cross_system",
+      "difficulty": "expert",
+      "expected_calls": 5,
+      "index": 40,
+      "rationale": [
+        "cross_system",
+        "expert",
+        "5-call-oracle",
+        "ported",
+        "hardest-of-category-quota",
+        "controls-rejected:wrong_source,pristine"
+      ],
+      "task_id": "tsk_port_dedupe_linked_issues"
+    },
+    {
+      "bench_id": "dob100-041-port-escalate-to-gateway-oncall",
+      "category": "cross_system",
+      "difficulty": "expert",
+      "expected_calls": 4,
+      "index": 41,
+      "rationale": [
+        "cross_system",
+        "expert",
+        "4-call-oracle",
+        "ported",
+        "hardest-of-category-quota",
+        "controls-rejected:wrong_source,pristine"
+      ],
+      "task_id": "tsk_port_escalate_to_gateway_oncall"
+    },
+    {
+      "bench_id": "dob100-042-port-high-priority-since",
+      "category": "cross_system",
+      "difficulty": "hard",
+      "expected_calls": 4,
+      "index": 42,
+      "rationale": [
+        "cross_system",
+        "hard",
+        "4-call-oracle",
+        "ported",
+        "hardest-of-category-quota",
+        "controls-rejected:naive,wrong_source,pristine"
+      ],
+      "task_id": "tsk_port_high_priority_since"
+    },
+    {
+      "bench_id": "dob100-043-analytics-batch-size",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "index": 43,
+      "rationale": [
+        "error_rate_reduction",
+        "medium",
+        "14-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_analytics_batch_size"
+    },
+    {
+      "bench_id": "dob100-044-analytics-prefetch",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "expected_calls": 18,
+      "index": 44,
+      "rationale": [
+        "error_rate_reduction",
+        "medium",
+        "18-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_analytics_prefetch"
+    },
+    {
+      "bench_id": "dob100-045-checkout-payments-timeout",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "expected_calls": 16,
+      "index": 45,
+      "rationale": [
+        "error_rate_reduction",
+        "medium",
+        "16-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_checkout_payments_timeout"
+    },
+    {
+      "bench_id": "dob100-046-inventory-pool",
+      "category": "error_rate_reduction",
+      "difficulty": "hard",
+      "expected_calls": 19,
+      "index": 46,
+      "rationale": [
+        "error_rate_reduction",
+        "hard",
+        "19-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_inventory_pool"
+    },
+    {
+      "bench_id": "dob100-047-notifications-timeout",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "expected_calls": 17,
+      "index": 47,
+      "rationale": [
+        "error_rate_reduction",
+        "medium",
+        "17-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_notifications_timeout"
+    },
+    {
+      "bench_id": "dob100-048-payments-notify-timeout",
+      "category": "error_rate_reduction",
+      "difficulty": "medium",
+      "expected_calls": 15,
+      "index": 48,
+      "rationale": [
+        "error_rate_reduction",
+        "medium",
+        "15-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_payments_notify_timeout"
+    },
+    {
+      "bench_id": "dob100-049-payments-retry",
+      "category": "error_rate_reduction",
+      "difficulty": "hard",
+      "expected_calls": 19,
+      "index": 49,
+      "rationale": [
+        "error_rate_reduction",
+        "hard",
+        "19-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_payments_retry"
+    },
+    {
+      "bench_id": "dob100-050-payments-retry-from-code",
+      "category": "error_rate_reduction",
+      "difficulty": "expert",
+      "expected_calls": 19,
+      "index": 50,
+      "rationale": [
+        "error_rate_reduction",
+        "expert",
+        "19-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_payments_retry_from_code"
+    },
+    {
+      "bench_id": "dob100-051-checkout-v2-layout-cleanup",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "expected_calls": 15,
+      "index": 51,
+      "rationale": [
+        "feature_flag",
+        "medium",
+        "15-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_checkout_v2_layout_cleanup"
+    },
+    {
+      "bench_id": "dob100-052-express-checkout",
+      "category": "feature_flag",
+      "difficulty": "hard",
+      "expected_calls": 15,
+      "index": 52,
+      "rationale": [
+        "feature_flag",
+        "hard",
+        "15-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_express_checkout"
+    },
+    {
+      "bench_id": "dob100-053-instant-refunds-killswitch",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "expected_calls": 12,
+      "index": 53,
+      "rationale": [
+        "feature_flag",
+        "medium",
+        "12-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_instant_refunds_killswitch"
+    },
+    {
+      "bench_id": "dob100-054-legacy-price-rounding-cleanup",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "expected_calls": 13,
+      "index": 54,
+      "rationale": [
+        "feature_flag",
+        "medium",
+        "13-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_legacy_price_rounding_cleanup"
+    },
+    {
+      "bench_id": "dob100-055-media-webp",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "expected_calls": 12,
+      "index": 55,
+      "rationale": [
+        "feature_flag",
+        "medium",
+        "12-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_media_webp"
+    },
+    {
+      "bench_id": "dob100-056-saved-carts",
+      "category": "feature_flag",
+      "difficulty": "expert",
+      "expected_calls": 20,
+      "index": 56,
+      "rationale": [
+        "feature_flag",
+        "expert",
+        "20-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_saved_carts"
+    },
+    {
+      "bench_id": "dob100-057-search-autocomplete",
+      "category": "feature_flag",
+      "difficulty": "medium",
+      "expected_calls": 13,
+      "index": 57,
+      "rationale": [
+        "feature_flag",
+        "medium",
+        "13-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_search_autocomplete"
+    },
+    {
+      "bench_id": "dob100-058-flaky-analytics-rollup",
+      "category": "flaky_test",
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "index": 58,
+      "rationale": [
+        "flaky_test",
+        "medium",
+        "14-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:shortcut,pristine"
+      ],
+      "task_id": "tsk_flaky_analytics_rollup"
+    },
+    {
+      "bench_id": "dob100-059-flaky-catalog-rounding",
+      "category": "flaky_test",
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "index": 59,
+      "rationale": [
+        "flaky_test",
+        "medium",
+        "14-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:shortcut,pristine"
+      ],
+      "task_id": "tsk_flaky_catalog_rounding"
+    },
+    {
+      "bench_id": "dob100-060-flaky-checkout-idempotency",
+      "category": "flaky_test",
+      "difficulty": "hard",
+      "expected_calls": 14,
+      "index": 60,
+      "rationale": [
+        "flaky_test",
+        "hard",
+        "14-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:shortcut,pristine"
+      ],
+      "task_id": "tsk_flaky_checkout_idempotency"
+    },
+    {
+      "bench_id": "dob100-061-flaky-gateway-timeout",
+      "category": "flaky_test",
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "index": 61,
+      "rationale": [
+        "flaky_test",
+        "medium",
+        "14-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:shortcut,pristine"
+      ],
+      "task_id": "tsk_flaky_gateway_timeout"
+    },
+    {
+      "bench_id": "dob100-062-flaky-inventory-race",
+      "category": "flaky_test",
+      "difficulty": "hard",
+      "expected_calls": 14,
+      "index": 62,
+      "rationale": [
+        "flaky_test",
+        "hard",
+        "14-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:shortcut,pristine"
+      ],
+      "task_id": "tsk_flaky_inventory_race"
+    },
+    {
+      "bench_id": "dob100-063-flaky-search-index",
+      "category": "flaky_test",
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "index": 63,
+      "rationale": [
+        "flaky_test",
+        "medium",
+        "14-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:shortcut,pristine"
+      ],
+      "task_id": "tsk_flaky_search_index"
+    },
+    {
+      "bench_id": "dob100-064-hand-cluster-runbook",
+      "category": "handover",
+      "difficulty": "expert",
+      "expected_calls": 6,
+      "index": 64,
+      "rationale": [
+        "handover",
+        "expert",
+        "6-call-oracle",
+        "ported",
+        "category-shipped-whole",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_hand_cluster_runbook"
+    },
+    {
+      "bench_id": "dob100-065-hand-gateway-runbook",
+      "category": "handover",
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "index": 65,
+      "rationale": [
+        "handover",
+        "hard",
+        "7-call-oracle",
+        "ported",
+        "category-shipped-whole",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_hand_gateway_runbook"
+    },
+    {
+      "bench_id": "dob100-066-hz-checkout-flag-kill",
+      "category": "horizon",
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "index": 66,
+      "rationale": [
+        "horizon",
+        "hard",
+        "7-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_hz_checkout_flag_kill"
+    },
+    {
+      "bench_id": "dob100-067-hz-gateway-leak-rollback",
+      "category": "horizon",
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "index": 67,
+      "rationale": [
+        "horizon",
+        "expert",
+        "7-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_hz_gateway_leak_rollback"
+    },
+    {
+      "bench_id": "dob100-068-gated-rotate-partner-credential",
+      "category": "human_gated",
+      "difficulty": "expert",
+      "expected_calls": 18,
+      "index": 68,
+      "rationale": [
+        "human_gated",
+        "expert",
+        "18-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_gated_rotate_partner_credential"
+    },
+    {
+      "bench_id": "dob100-069-judge-analytics-oom",
+      "category": "judgement",
+      "difficulty": "expert",
+      "expected_calls": 8,
+      "index": 69,
+      "rationale": [
+        "judgement",
+        "expert",
+        "8-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_judge_analytics_oom"
+    },
+    {
+      "bench_id": "dob100-070-judge-checkout-flag",
+      "category": "judgement",
+      "difficulty": "hard",
+      "expected_calls": 8,
+      "index": 70,
+      "rationale": [
+        "judgement",
+        "hard",
+        "8-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_judge_checkout_flag"
+    },
+    {
+      "bench_id": "dob100-071-judge-gateway-latency",
+      "category": "judgement",
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "index": 71,
+      "rationale": [
+        "judgement",
+        "expert",
+        "7-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_judge_gateway_latency"
+    },
+    {
+      "bench_id": "dob100-072-judge-payments-retry",
+      "category": "judgement",
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "index": 72,
+      "rationale": [
+        "judgement",
+        "hard",
+        "7-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_judge_payments_retry"
+    },
+    {
+      "bench_id": "dob100-073-catalog-batch-pricing",
+      "category": "latency_optimization",
+      "difficulty": "hard",
+      "expected_calls": 19,
+      "index": 73,
+      "rationale": [
+        "latency_optimization",
+        "hard",
+        "19-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_catalog_batch_pricing"
+    },
+    {
+      "bench_id": "dob100-074-catalog-cache-ttl",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "index": 74,
+      "rationale": [
+        "latency_optimization",
+        "medium",
+        "14-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_catalog_cache_ttl"
+    },
+    {
+      "bench_id": "dob100-075-catalog-pricing-from-code",
+      "category": "latency_optimization",
+      "difficulty": "expert",
+      "expected_calls": 18,
+      "index": 75,
+      "rationale": [
+        "latency_optimization",
+        "expert",
+        "18-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_catalog_pricing_from_code"
+    },
+    {
+      "bench_id": "dob100-076-gateway-pool-reuse",
+      "category": "latency_optimization",
+      "difficulty": "hard",
+      "expected_calls": 16,
+      "index": 76,
+      "rationale": [
+        "latency_optimization",
+        "hard",
+        "16-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_gateway_pool_reuse"
+    },
+    {
+      "bench_id": "dob100-077-gateway-v510-rollback",
+      "category": "latency_optimization",
+      "difficulty": "hard",
+      "expected_calls": 15,
+      "index": 77,
+      "rationale": [
+        "latency_optimization",
+        "hard",
+        "15-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_gateway_v510_rollback"
+    },
+    {
+      "bench_id": "dob100-078-media-cdn",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "expected_calls": 18,
+      "index": 78,
+      "rationale": [
+        "latency_optimization",
+        "medium",
+        "18-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_media_cdn"
+    },
+    {
+      "bench_id": "dob100-079-search-cache",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "expected_calls": 19,
+      "index": 79,
+      "rationale": [
+        "latency_optimization",
+        "medium",
+        "19-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_search_cache"
+    },
+    {
+      "bench_id": "dob100-080-search-shards",
+      "category": "latency_optimization",
+      "difficulty": "medium",
+      "expected_calls": 14,
+      "index": 80,
+      "rationale": [
+        "latency_optimization",
+        "medium",
+        "14-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_search_shards"
+    },
+    {
+      "bench_id": "dob100-081-backorders",
+      "category": "multi_service_rollout",
+      "difficulty": "expert",
+      "expected_calls": 31,
+      "index": 81,
+      "rationale": [
+        "multi_service_rollout",
+        "expert",
+        "31-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_backorders"
+    },
+    {
+      "bench_id": "dob100-082-checkout-upsell",
+      "category": "multi_service_rollout",
+      "difficulty": "expert",
+      "expected_calls": 26,
+      "index": 82,
+      "rationale": [
+        "multi_service_rollout",
+        "expert",
+        "26-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_checkout_upsell"
+    },
+    {
+      "bench_id": "dob100-083-loyalty-points",
+      "category": "multi_service_rollout",
+      "difficulty": "expert",
+      "expected_calls": 33,
+      "index": 83,
+      "rationale": [
+        "multi_service_rollout",
+        "expert",
+        "33-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_loyalty_points"
+    },
+    {
+      "bench_id": "dob100-084-media-pipeline",
+      "category": "multi_service_rollout",
+      "difficulty": "hard",
+      "expected_calls": 23,
+      "index": 84,
+      "rationale": [
+        "multi_service_rollout",
+        "hard",
+        "23-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_media_pipeline"
+    },
+    {
+      "bench_id": "dob100-085-notification-templates",
+      "category": "multi_service_rollout",
+      "difficulty": "hard",
+      "expected_calls": 17,
+      "index": 85,
+      "rationale": [
+        "multi_service_rollout",
+        "hard",
+        "17-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_notification_templates"
+    },
+    {
+      "bench_id": "dob100-086-search-relevance",
+      "category": "multi_service_rollout",
+      "difficulty": "hard",
+      "expected_calls": 17,
+      "index": 86,
+      "rationale": [
+        "multi_service_rollout",
+        "hard",
+        "17-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_search_relevance"
+    },
+    {
+      "bench_id": "dob100-087-split-settlement",
+      "category": "multi_service_rollout",
+      "difficulty": "expert",
+      "expected_calls": 25,
+      "index": 87,
+      "rationale": [
+        "multi_service_rollout",
+        "expert",
+        "25-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_split_settlement"
+    },
+    {
+      "bench_id": "dob100-088-rcn-alerts-for-incident",
+      "category": "reconciliation",
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "index": 88,
+      "rationale": [
+        "reconciliation",
+        "expert",
+        "7-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_rcn_alerts_for_incident"
+    },
+    {
+      "bench_id": "dob100-089-rcn-customer-facing-incidents",
+      "category": "reconciliation",
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "index": 89,
+      "rationale": [
+        "reconciliation",
+        "expert",
+        "7-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_rcn_customer_facing_incidents"
+    },
+    {
+      "bench_id": "dob100-090-rcn-gateway-owner",
+      "category": "reconciliation",
+      "difficulty": "hard",
+      "expected_calls": 9,
+      "index": 90,
+      "rationale": [
+        "reconciliation",
+        "hard",
+        "9-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:wrong_source,pristine"
+      ],
+      "task_id": "tsk_rcn_gateway_owner"
+    },
+    {
+      "bench_id": "dob100-091-rcn-production-deploys",
+      "category": "reconciliation",
+      "difficulty": "hard",
+      "expected_calls": 5,
+      "index": 91,
+      "rationale": [
+        "reconciliation",
+        "hard",
+        "5-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:wrong_source,pristine"
+      ],
+      "task_id": "tsk_rcn_production_deploys"
+    },
+    {
+      "bench_id": "dob100-092-rcn-running-version",
+      "category": "reconciliation",
+      "difficulty": "expert",
+      "expected_calls": 7,
+      "index": 92,
+      "rationale": [
+        "reconciliation",
+        "expert",
+        "7-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:wrong_source,pristine"
+      ],
+      "task_id": "tsk_rcn_running_version"
+    },
+    {
+      "bench_id": "dob100-093-checkout-hardcoded-secret",
+      "category": "security_incident",
+      "difficulty": "expert",
+      "expected_calls": 17,
+      "index": 93,
+      "rationale": [
+        "security_incident",
+        "expert",
+        "17-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_checkout_hardcoded_secret"
+    },
+    {
+      "bench_id": "dob100-094-cve-libpayproc",
+      "category": "security_incident",
+      "difficulty": "hard",
+      "expected_calls": 16,
+      "index": 94,
+      "rationale": [
+        "security_incident",
+        "hard",
+        "16-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_cve_libpayproc"
+    },
+    {
+      "bench_id": "dob100-095-cve-pydantic",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "expected_calls": 15,
+      "index": 95,
+      "rationale": [
+        "security_incident",
+        "medium",
+        "15-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_cve_pydantic"
+    },
+    {
+      "bench_id": "dob100-096-cve-requests",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "expected_calls": 16,
+      "index": 96,
+      "rationale": [
+        "security_incident",
+        "medium",
+        "16-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_cve_requests"
+    },
+    {
+      "bench_id": "dob100-097-cve-stripe-sdk",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "expected_calls": 17,
+      "index": 97,
+      "rationale": [
+        "security_incident",
+        "medium",
+        "17-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_cve_stripe_sdk"
+    },
+    {
+      "bench_id": "dob100-098-retire-debug-endpoint",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "expected_calls": 13,
+      "index": 98,
+      "rationale": [
+        "security_incident",
+        "medium",
+        "13-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_retire_debug_endpoint"
+    },
+    {
+      "bench_id": "dob100-099-retire-metrics-endpoint",
+      "category": "security_incident",
+      "difficulty": "medium",
+      "expected_calls": 13,
+      "index": 99,
+      "rationale": [
+        "security_incident",
+        "medium",
+        "13-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:naive,pristine"
+      ],
+      "task_id": "tsk_retire_metrics_endpoint"
+    },
+    {
+      "bench_id": "dob100-100-ws-ledger-missing-account",
+      "category": "workspace",
+      "difficulty": "hard",
+      "expected_calls": 7,
+      "index": 100,
+      "rationale": [
+        "workspace",
+        "hard",
+        "7-call-oracle",
+        "curated",
+        "category-shipped-whole",
+        "controls-rejected:pristine"
+      ],
+      "task_id": "tsk_ws_ledger_missing_account"
+    }
+  ]
+}
