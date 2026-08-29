@@ -35,6 +35,7 @@ import json
 import os
 import pathlib
 import shutil
+import sqlite3
 import subprocess
 import sys
 import threading
@@ -61,6 +62,12 @@ class DevOpsWorld:
         state.mkdir(parents=True, exist_ok=True)
         self.db = state / "world.db"
         shutil.copyfile(self.dir / "environment.db", self.db)
+        with sqlite3.connect(self.db) as connection:
+            connection.execute(
+                "CREATE TABLE IF NOT EXISTS mcp_trace ("
+                "seq INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "tool TEXT NOT NULL, args_json TEXT NOT NULL, ok INTEGER NOT NULL)"
+            )
         self.lock = threading.Lock()
         self.successful_tool_calls = 0
         self.failed_tool_calls = 0
@@ -76,12 +83,13 @@ class DevOpsWorld:
         return out
 
     def call_tool(self, name, arguments):
+        arguments = dict(arguments or {})
+        arguments.pop("db_path", None)
         if name not in self.by_name:
+            self._record_trace(name, arguments, False)
             self.failed_tool_calls += 1
             return {"ok": False, "error": "unknown tool: %s" % name}
         fn = self.tool_ns.get(name)
-        arguments = dict(arguments or {})
-        arguments.pop("db_path", None)
         with self.lock:
             snapshot = self.db.with_suffix(".snap")
             shutil.copyfile(self.db, snapshot)
@@ -94,6 +102,7 @@ class DevOpsWorld:
                 params = spec.get("parameters", [])
                 req = [p["name"] for p in params if p.get("required")]
                 opt = [p["name"] for p in params if not p.get("required")]
+                self._record_trace(name, arguments, False)
                 self.failed_tool_calls += 1
                 return {"ok": False,
                         "error": "bad arguments for %s: %s" % (name, e),
@@ -103,11 +112,13 @@ class DevOpsWorld:
             except Exception as e:  # noqa: BLE001
                 shutil.copyfile(snapshot, self.db)
                 snapshot.unlink(missing_ok=True)
+                self._record_trace(name, arguments, False)
                 self.failed_tool_calls += 1
                 return {"ok": False, "error": "%s: %s" % (type(e).__name__, e)}
             if self._is_structured_error(result):
                 shutil.copyfile(snapshot, self.db)
             snapshot.unlink(missing_ok=True)
+            self._record_trace(name, arguments, not self._is_structured_error(result))
         if isinstance(result, list):
             result = {"rows": result, "count": len(result)}
         elif not isinstance(result, dict):
@@ -117,6 +128,19 @@ class DevOpsWorld:
         else:
             self.successful_tool_calls += 1
         return result
+
+    def _record_trace(self, name, arguments, ok):
+        """Persist the exact MCP request and outcome for causal verification."""
+        with sqlite3.connect(self.db) as connection:
+            connection.execute(
+                "INSERT INTO mcp_trace(tool, args_json, ok) VALUES (?,?,?)",
+                (
+                    str(name),
+                    json.dumps(arguments, ensure_ascii=False, sort_keys=True,
+                               separators=(",", ":")),
+                    1 if ok else 0,
+                ),
+            )
 
     @staticmethod
     def _is_structured_error(result):
@@ -189,7 +213,7 @@ def rpc_response(world: DevOpsWorld, request):
 
 class Handler(BaseHTTPRequestHandler):
     world: DevOpsWorld = None  # injected
-    server_version = "DevOpsBenchWorld/1.0"
+    server_version = "DevOpsBenchWorld/3.0"
 
     def log_message(self, fmt, *args):
         return

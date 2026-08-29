@@ -14,6 +14,7 @@ import argparse
 import hashlib
 import json
 import pathlib
+import shutil
 
 
 def sha256_file(path: pathlib.Path) -> str:
@@ -42,21 +43,46 @@ def seal(release: pathlib.Path) -> dict:
     qualification = json.loads((release / "reports" / "qualification.json").read_text())
     if not qualification.get("release_passed"):
         raise ValueError("refusing to seal: qualification.json is not green")
+    controls = qualification.get("negative_controls") or {}
+    if (
+        qualification.get("version") != "3.0.0"
+        or qualification.get("executions") != 1200
+        or qualification.get("expected_executions") != 1200
+        or qualification.get("oracle", {}).get("passes") != 100
+        or qualification.get("determinism", {}).get("exact_report_matches") != 100
+        or len(controls) != 10
+        or any(
+            row.get("applicable_executions") != 100
+            or row.get("false_accepts") != 0
+            for row in controls.values()
+        )
+    ):
+        raise ValueError("refusing to seal: v3 1,200-execution contract is incomplete")
+
+    for cache in release.rglob("__pycache__"):
+        if cache.is_dir():
+            shutil.rmtree(cache)
+    for bytecode in release.rglob("*.py[co]"):
+        bytecode.unlink()
 
     files = sorted(path for path in release.rglob("*")
-                   if path.is_file() and path != manifest_path)
+                   if path.is_file() and path != manifest_path
+                   and "__pycache__" not in path.parts
+                   and path.suffix not in {".pyc", ".pyo"})
     manifest = {
-        "schema_version": "1.0",
+        "schema_version": "2.0",
         "benchmark": "DevOpsBench-100",
-        "version": "2.0.0",
+        "version": "3.0.0",
         "qualification": {
             "release_passed": qualification["release_passed"],
             "executions": qualification["executions"],
             "oracle_passes": qualification["oracle"]["passes"],
             "determinism_matches": qualification["determinism"]["exact_report_matches"],
+            "negative_controls": len(controls),
+            "negative_executions": sum(
+                row["applicable_executions"] for row in controls.values()),
             "negative_false_accepts": sum(
-                row["false_accepts"]
-                for row in qualification["negative_controls"].values()),
+                row["false_accepts"] for row in controls.values()),
         },
         "files": [
             {

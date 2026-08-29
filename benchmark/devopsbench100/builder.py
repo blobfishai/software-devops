@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import ast
 import csv
+import difflib
 import hashlib
 import io
 import json
@@ -38,10 +39,23 @@ HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 from export_harbor import VERIFIER_TEMPLATE  # noqa: E402  (reused verbatim)
+from benchmark.devopsbench100.realism import (  # noqa: E402
+    augment_vcode as v3_augment_vcode,
+    case_contract as v3_case_contract,
+    check_descriptions as v3_check_descriptions,
+    decision_options as v3_decision_options,
+    reasoning_criteria as v3_reasoning_criteria,
+    rebase_vcode_invariants as v3_rebase_vcode_invariants,
+    reference_calls as v3_reference_calls,
+    release_prompt as v3_release_prompt,
+    seed_case_evidence as v3_seed_case_evidence,
+    validate_native_asset as v3_validate_native_asset,
+    write_asset_views as v3_write_asset_views,
+)
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "2.0.0"
+RELEASE_VERSION = "3.0.0"
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
 CODE_LICENSE = "Apache-2.0"
@@ -177,6 +191,12 @@ def employee_instruction(task: dict, row: dict) -> str:
 
     prompt = task["instruction"].strip()
     prompt = re.sub(
+        r"^This is an investigation, not a change\..*?(?:\n\s*\n|$)",
+        "Keep this to an investigation; production should remain unchanged. ",
+        prompt,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    prompt = re.sub(
         r"Read the specification with read_exercise\('[^']+'\), write your implementation with "
         r"write_implementation, and run it with run_exercise_tests until the visible tests pass\.",
         "Use the repository's documented behavior to complete it and leave the available test suite passing.",
@@ -214,6 +234,32 @@ def employee_instruction(task: dict, row: dict) -> str:
     )
     prompt = prompt.replace("submit_diagnosis(...)", "the incident record")
     prompt = prompt.replace("submit_answer(...)", "the task result")
+    prompt = re.sub(
+        r"Submit one diagnosis per scope listed above\s*[—-]\s*the scope strings are "
+        r"([^—]+)\s*[—-]\s*each naming",
+        r"Give the incident lead one finding for each listed scope (\1), each naming",
+        prompt,
+        flags=re.IGNORECASE,
+    )
+    prompt = re.sub(r"\bSubmit\b", "Record", prompt, flags=re.IGNORECASE)
+    prompt = re.sub(
+        r"Record the result under scope '([^']+)'",
+        r"Give the incident lead a finding for '\1'",
+        prompt,
+        flags=re.IGNORECASE,
+    )
+    prompt = prompt.replace("the read tools", "the available records")
+    prompt = prompt.replace("the task's auditable result", "the incident record")
+    prompt = prompt.replace(
+        "Ops would like to treat this as a single incident with a single cause, because that is one "
+        "rollback instead of three investigations. Work out whether that is true.",
+        "Ops suspects one rollback could cover all three; determine whether the evidence supports that.",
+    )
+    prompt = prompt.replace(
+        "They may share a cause and they may not. Deciding that is the task; do not assume either way, "
+        "and do not attribute a symptom to a fault you happened to find while looking at something else.",
+        "Treat a shared cause as a hypothesis, and attribute each symptom only to evidence for its own scope.",
+    )
     if len(prompt.split()) < 45:
         prompt += (
             " Reconcile the live systems rather than trusting a single tracker, preserve unrelated "
@@ -250,7 +296,12 @@ def _literal_dict(vcode: str, name: str) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
-def rubric_criteria(task: dict, bench_id: str) -> list[dict[str, str]]:
+def rubric_criteria(
+    task: dict,
+    row: dict,
+    contract: dict,
+    trace_contract: dict,
+) -> list[dict[str, str]]:
     """Expose the concrete subconditions behind the executable vcode."""
 
     rows: list[dict[str, str]] = []
@@ -265,27 +316,19 @@ def rubric_criteria(task: dict, bench_id: str) -> list[dict[str, str]]:
             }
         )
 
+    descriptions = v3_check_descriptions(task["vcode"])
     for dimension, names in check_names(task["vcode"]).items():
         for name in names:
             add(
                 dimension,
                 name,
-                f"For {bench_id}, verify {name.replace('_', ' ')} against the final SQLite state and append-only audit log.",
+                descriptions.get(
+                    (dimension, name),
+                    f"Verify {name.replace('_', ' ')} against the task-scoped final state and append-only audit log.",
+                ),
                 f"vcode:{dimension}.{name}",
             )
-    observed: set[str] = set()
-    for call in task["expected_calls"]:
-        tool = call["tool"]
-        if tool in observed:
-            continue
-        observed.add(tool)
-        arguments = call.get("args", {})
-        add(
-            "investigation",
-            tool,
-            f"Use {tool} to establish the task-scoped evidence represented by {arguments!r}; no fixed call order is graded.",
-            "vcode:tool_calls and task-specific evidence checks",
-        )
+    rows.extend(v3_reasoning_criteria(row, contract, trace_contract))
     for table, digest in sorted(_literal_dict(task["vcode"], "_FROZEN").items()):
         add(
             "containment",
@@ -309,15 +352,15 @@ def rubric_criteria(task: dict, bench_id: str) -> list[dict[str, str]]:
         None,
     )
     if submission:
-        for field, value in submission.get("args", {}).items():
+        for field in submission.get("args", {}):
             add(
                 "answer",
                 field,
-                f"Return the task-supported {field} value in the auditable result; the oracle value is {value!r}.",
+                f"Return the task-supported {field} field in the auditable result, with the exact type and scope enforced by the source-state verifier.",
                 "vcode:correctness answer or diagnosis checks",
             )
-    if len(rows) < 40:
-        raise ValueError(f"{bench_id} exposes only {len(rows)} criteria")
+    if len(rows) < 20:
+        raise ValueError(f"{row['bench_id']} exposes only {len(rows)} criteria")
     return rows
 
 
@@ -909,50 +952,71 @@ def build(output: pathlib.Path) -> dict:
     tools = json.loads((ROOT / "world" / "tools.json").read_text())
     tools_by_name = {tool["name"]: tool for tool in tools}
     slim = json.dumps(slim_tools(tools), indent=1, ensure_ascii=False, sort_keys=True)
-    world_connection = sqlite3.connect(ROOT / "world" / "environment.db")
-    world_connection.row_factory = sqlite3.Row
-
     records = []
     dataset_rows = []
     call_counts = []
     categories: dict[str, int] = {}
     difficulties: dict[str, int] = {}
     prompts = set()
+    prompt_values: list[str] = []
     prompt_words: list[int] = []
     reference_sequences: list[tuple[str, ...]] = []
-    seen_sequences: set[tuple[str, ...]] = set()
+    semantic_graphs: list[tuple[str, ...]] = []
+    context_counts: list[int] = []
     asset_counts: list[int] = []
+    asset_hashes: list[str] = []
+    asset_leakage_hits: list[str] = []
+    native_formats: set[str] = set()
     criteria_counts: list[int] = []
 
     for row in catalog["tasks"]:
         source_task = world_tasks[row["task_id"]]
-        prompt = employee_instruction(source_task, row)
-        reference_calls = distinct_reference_calls(
-            source_task["expected_calls"], seen_sequences
-        )
-        task = {
-            **source_task,
-            "instruction": prompt,
-            "expected_calls": reference_calls,
-            "vcode": realism_vcode(source_task),
-        }
         bench_id = row["bench_id"]
+        contract = v3_case_contract(row, source_task)
+        prompt = v3_release_prompt(
+            row,
+            employee_instruction(source_task, row),
+            contract,
+        )
         split = "heldout" if row["task_id"] in heldout else "train"
         token = verification_token(bench_id)
         task_dir = tasks_root / bench_id
         env = task_dir / "environment"
         world_dir = env / "world"
 
+        world_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(HERE / "runtime" / "server.py", world_dir / "server.py")
+        shutil.copy2(ROOT / "world" / "tools_combined.py", world_dir / "tools_combined.py")
+        shutil.copy2(ROOT / "world" / "environment.db", world_dir / "environment.db")
+        v3_seed_case_evidence(
+            world_dir / "environment.db",
+            row,
+            source_task,
+            prompt,
+            contract,
+        )
+        reference_calls, trace_contract = v3_reference_calls(
+            row,
+            source_task,
+            contract,
+            tools_by_name,
+        )
+        vcode = v3_rebase_vcode_invariants(
+            source_task["vcode"], world_dir / "environment.db"
+        )
+        vcode = v3_augment_vcode(vcode, row, contract, trace_contract)
+        task = {
+            **source_task,
+            "instruction": prompt,
+            "expected_calls": reference_calls,
+            "vcode": vcode,
+        }
+
         write_text(task_dir / "task.toml", task_toml(row, task, split))
         write_text(task_dir / "instruction.md", prompt + "\n")
         write_text(env / "Dockerfile", main_dockerfile())
         write_text(env / "docker-compose.yaml", compose_yaml(row["task_id"]))
         write_text(env / "tool", tool_cli(), executable=True)
-
-        world_dir.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(HERE / "runtime" / "server.py", world_dir / "server.py")
-        shutil.copy2(ROOT / "world" / "tools_combined.py", world_dir / "tools_combined.py")
-        shutil.copy2(ROOT / "world" / "environment.db", world_dir / "environment.db")
         write_text(world_dir / "tools.json", slim + "\n")
         write_text(world_dir / "verify_task.py", verifier_source(task))
         write_json(world_dir / "spec.json", {
@@ -965,13 +1029,20 @@ def build(output: pathlib.Path) -> dict:
             "difficulty": row["difficulty"],
             "world_id": world_meta["world_id"],
             "world_digest": world_meta["world_digest"],
+            "case_id": contract["case_id"],
+            "service": contract["service"],
+            "context_call_count": trace_contract["context_call_count"],
             "verify_token_sha256": hashlib.sha256(token.encode()).hexdigest(),
         })
         write_text(world_dir / "Dockerfile", world_dockerfile())
 
         write_json(task_dir / "solution" / "reference.json", {
             "task_id": row["task_id"], "bench_id": bench_id,
-            "expected_calls": task["expected_calls"]})
+            "case_contract": contract,
+            "trace_contract": trace_contract,
+            "source_expected_calls": source_task["expected_calls"],
+            "expected_calls": task["expected_calls"],
+        })
         write_text(task_dir / "solution" / "solve.py", solution_script(),
                    executable=True)
         write_text(task_dir / "solution" / "solve.sh",
@@ -985,18 +1056,42 @@ def build(output: pathlib.Path) -> dict:
         categories[row["category"]] = categories.get(row["category"], 0) + 1
         difficulties[row["difficulty"]] = difficulties.get(row["difficulty"], 0) + 1
         prompts.add(prompt)
+        prompt_values.append(prompt)
         prompt_words.append(len(prompt.split()))
         reference_sequences.append(tuple(call["tool"] for call in task["expected_calls"]))
-        criteria = rubric_criteria(task, bench_id)
-        options = decision_options(task, row)
-        context_files, assets = write_asset_views(
-            hf_root,
-            bench_id,
-            world_connection,
-            task,
-            prompt,
-            tools_by_name,
+        semantic_graphs.append(tuple(trace_contract["semantic_action_graph"]))
+        context_counts.append(trace_contract["context_call_count"])
+        criteria = rubric_criteria(task, row, contract, trace_contract)
+        options = v3_decision_options(
+            row, contract, trace_contract["source_mutation_tools"]
         )
+        asset_root = hf_root / "task_files" / bench_id
+        assets = v3_write_asset_views(
+            asset_root,
+            world_dir / "environment.db",
+            prompt,
+            row,
+            contract,
+        )
+        context_files = [asset["path"] for asset in assets]
+        for asset in assets:
+            asset_path = hf_root / asset["path"]
+            if not v3_validate_native_asset(asset_path):
+                raise ValueError(f"invalid native asset: {asset_path}")
+            asset_hashes.append(sha256_file(asset_path))
+            native_formats.add(asset_path.suffix.casefold().lstrip("."))
+            searchable = asset_path.read_bytes().decode("utf-8", errors="ignore").casefold()
+            if any(
+                marker in searchable
+                for marker in (
+                    '"expected_calls"',
+                    '"gold_output"',
+                    "solution/reference.json",
+                    "submit_answer(",
+                    "submit_diagnosis(",
+                )
+            ):
+                asset_leakage_hits.append(asset["path"])
         asset_counts.append(len(assets))
         criteria_counts.append(len(criteria))
 
@@ -1033,6 +1128,11 @@ def build(output: pathlib.Path) -> dict:
                 "origin": task.get("origin", "curated"),
                 "source_split": split,
                 "reference_tool_calls": n_calls,
+                "evidence_reads": trace_contract["context_call_count"],
+                "semantic_action_graph": trace_contract["semantic_action_graph"],
+                "providers": trace_contract["providers"],
+                "case_id": contract["case_id"],
+                "service": contract["service"],
                 "required_tools": task.get("required_tools", []),
                 "reference_tools": list(dict.fromkeys(call["tool"] for call in reference_calls)),
                 "guided_instruction_available": True,
@@ -1047,8 +1147,6 @@ def build(output: pathlib.Path) -> dict:
         write_text(hf_root / "verifiers" / f"verify_{bench_id}.py",
                    verifier_source(task), executable=True)
         dataset_rows.append((f"{HARBOR_ORG}/{bench_id}", task_dir))
-
-    world_connection.close()
 
     # ---- huggingface shared files
     write_text(hf_root / "data" / "tasks.jsonl",
@@ -1093,6 +1191,28 @@ def build(output: pathlib.Path) -> dict:
     category_table = "\n".join(
         "| %s | %d |" % (CATEGORY_LABELS[c], n)
         for c, n in sorted(categories.items(), key=lambda kv: (-kv[1], kv[0])))
+
+    def token_set(value: str) -> set[str]:
+        return set(re.findall(r"[a-z0-9]+", value.casefold()))
+
+    def max_jaccard(values: list[set[str]]) -> float:
+        best = 0.0
+        for left_index, left in enumerate(values):
+            for right in values[left_index + 1:]:
+                union = left | right
+                best = max(best, len(left & right) / len(union) if union else 1.0)
+        return round(best, 6)
+
+    prompt_max_jaccard = max_jaccard([token_set(prompt) for prompt in prompt_values])
+    semantic_max_jaccard = max_jaccard([set(graph) for graph in semantic_graphs])
+    sequence_max_similarity = round(
+        max(
+            difflib.SequenceMatcher(a=left, b=right, autojunk=False).ratio()
+            for index, left in enumerate(reference_sequences)
+            for right in reference_sequences[index + 1:]
+        ),
+        6,
+    )
     stats = {
         "schema_version": "1.0",
         "benchmark": RELEASE_NAME,
@@ -1113,12 +1233,21 @@ def build(output: pathlib.Path) -> dict:
             "total": sum(call_counts_sorted),
         },
         "exact_duplicate_prompts": len(records) - len(prompts),
+        "prompt_max_pairwise_jaccard": prompt_max_jaccard,
         "prompt_words": {
             "min": min(prompt_words),
             "median": sorted(prompt_words)[len(prompt_words) // 2],
             "max": max(prompt_words),
         },
         "unique_reference_tool_name_sequences": len(set(reference_sequences)),
+        "reference_sequence_max_pairwise_similarity": sequence_max_similarity,
+        "unique_semantic_action_graphs": len(set(semantic_graphs)),
+        "semantic_graph_max_pairwise_jaccard": semantic_max_jaccard,
+        "evidence_reads_per_task": {
+            "min": min(context_counts),
+            "median": sorted(context_counts)[len(context_counts) // 2],
+            "max": max(context_counts),
+        },
         "assets_per_task": {
             "min": min(asset_counts),
             "median": sorted(asset_counts)[len(asset_counts) // 2],
@@ -1130,6 +1259,10 @@ def build(output: pathlib.Path) -> dict:
             "max": max(criteria_counts),
         },
         "decision_options_per_task": 3,
+        "native_asset_formats": sorted(native_formats),
+        "unique_agent_visible_assets": len(set(asset_hashes)),
+        "agent_visible_asset_count": len(asset_hashes),
+        "asset_leakage_hits": asset_leakage_hits,
         "verifier": {"deterministic": True, "network_calls": 0,
                      "model_calls": 0, "wall_clock_reads": 0, "random_calls": 0},
         "category_table": "| Family | Tasks |\n|---|---:|\n" + category_table,
@@ -1137,13 +1270,22 @@ def build(output: pathlib.Path) -> dict:
     quality_gates = {
         "one_hundred_tasks": len(records) == 100,
         "high_level_prompts_unique": len(prompts) == 100,
-        "high_level_prompt_length": min(prompt_words) >= 45 and max(prompt_words) <= 190,
+        "high_level_prompt_length": min(prompt_words) >= 45 and max(prompt_words) <= 220,
+        "high_level_prompt_similarity": prompt_max_jaccard < 0.72,
         "no_harness_or_grading_leakage_in_prompts": all(
             PROMPT_LEAKAGE_PATTERN.search(prompt) is None for prompt in prompts
         ),
         "unique_reference_tool_sequences": len(set(reference_sequences)) == 100,
-        "deep_task_assets": min(asset_counts) >= 12,
-        "specific_public_criteria": min(criteria_counts) >= 40,
+        "reference_tool_sequence_similarity": sequence_max_similarity < 0.985,
+        "unique_semantic_action_graphs": len(set(semantic_graphs)) == 100,
+        "semantic_action_graph_similarity": semantic_max_jaccard < 0.85,
+        "deep_causal_evidence_reads": min(context_counts) >= 19,
+        "long_horizon_reference": min(call_counts) >= 24,
+        "deep_task_assets": min(asset_counts) == 28 and max(asset_counts) == 28,
+        "native_asset_formats": {"csv", "eml", "json", "log", "md", "pdf", "sql", "txt", "xlsx", "yaml"} <= native_formats,
+        "all_agent_visible_assets_unique": len(set(asset_hashes)) == len(asset_hashes),
+        "no_gold_or_recipe_leakage_in_assets": not asset_leakage_hits,
+        "specific_public_criteria": min(criteria_counts) >= 20,
         "three_options_one_selected": all(
             len(record["rubric"]["decision_options"]) == 3
             and sum(option["selected"] for option in record["rubric"]["decision_options"]) == 1
