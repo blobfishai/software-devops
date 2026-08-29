@@ -138,11 +138,12 @@ def run(release: pathlib.Path) -> dict:
         token_gate_passes += int(wrong_rejected)
 
         negative_plans = {"pristine": []}
+        source_calls = task["expected_calls"]
         naive = EM.naive_calls(task)
-        if procedure_relevant(naive) != procedure_relevant(ref_calls):
+        if json.dumps(naive, sort_keys=True) != json.dumps(source_calls, sort_keys=True):
             negative_plans["naive"] = naive
         shortcut = EM.shortcut_calls(task)
-        if json.dumps(shortcut, sort_keys=True) != json.dumps(ref_calls, sort_keys=True):
+        if json.dumps(shortcut, sort_keys=True) != json.dumps(source_calls, sort_keys=True):
             negative_plans["shortcut"] = shortcut
         wrong = EM.wrong_source_calls(task)
         if wrong is not None:
@@ -184,7 +185,7 @@ def run(release: pathlib.Path) -> dict:
     report = {
         "schema_version": "1.0",
         "benchmark": "DevOpsBench-100",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "task_count": len(task_dirs),
         "executions": executions,
         "oracle": {

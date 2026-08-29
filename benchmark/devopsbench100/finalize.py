@@ -48,7 +48,7 @@ def seal(release: pathlib.Path) -> dict:
     manifest = {
         "schema_version": "1.0",
         "benchmark": "DevOpsBench-100",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "qualification": {
             "release_passed": qualification["release_passed"],
             "executions": qualification["executions"],
