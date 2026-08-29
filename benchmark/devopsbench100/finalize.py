@@ -45,7 +45,7 @@ def seal(release: pathlib.Path) -> dict:
         raise ValueError("refusing to seal: qualification.json is not green")
     controls = qualification.get("negative_controls") or {}
     if (
-        qualification.get("version") != "3.0.0"
+        qualification.get("version") != "3.1.0"
         or qualification.get("executions") != 1200
         or qualification.get("expected_executions") != 1200
         or qualification.get("oracle", {}).get("passes") != 100
@@ -57,7 +57,7 @@ def seal(release: pathlib.Path) -> dict:
             for row in controls.values()
         )
     ):
-        raise ValueError("refusing to seal: v3 1,200-execution contract is incomplete")
+        raise ValueError("refusing to seal: v3.1 1,200-execution contract is incomplete")
 
     for cache in release.rglob("__pycache__"):
         if cache.is_dir():
@@ -70,9 +70,9 @@ def seal(release: pathlib.Path) -> dict:
                    and "__pycache__" not in path.parts
                    and path.suffix not in {".pyc", ".pyo"})
     manifest = {
-        "schema_version": "2.0",
+        "schema_version": "3.0",
         "benchmark": "DevOpsBench-100",
-        "version": "3.0.0",
+        "version": "3.1.0",
         "qualification": {
             "release_passed": qualification["release_passed"],
             "executions": qualification["executions"],

@@ -1,4 +1,4 @@
-"""Causal-evidence release layer for DevOpsBench-100 v3.
+"""Causal-evidence release layer for DevOpsBench-100 v3.1.
 
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
@@ -24,7 +24,23 @@ from typing import Any
 from xml.sax.saxutils import escape
 
 
-RELEASE_VERSION = "3.0.0"
+RELEASE_VERSION = "3.1.0"
+SEMANTIC_MILESTONE_WEIGHTS = {
+    "investigation.scope": 5,
+    "investigation.authority": 6,
+    "investigation.live_state": 9,
+    "analysis.causal_reasoning": 9,
+    "decision.supported_path": 7,
+    "state.primary": 16,
+    "state.coordination": 8,
+    "verification.outcome": 8,
+    "verification.readback": 6,
+    "execution.sequence": 7,
+    "containment.scope": 8,
+    "answer.insights": 5,
+    "execution.efficiency": 3,
+    "execution.delivery": 3,
+}
 FIXED_XLSX_ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 CURRENT_CONTROL = "OPS-CONTROL-2026.03"
 RETIRED_CONTROL = "OPS-CONTROL-2025.11"
@@ -241,7 +257,9 @@ def seed_case_evidence(
     """Seed current and stale evidence into the task's isolated world copy."""
 
     cx = sqlite3.connect(database)
-    title = employee_title(task)
+    title = employee_title(
+        {"instruction": task.get("source_instruction", task.get("instruction", ""))}
+    )
     index = int(row["index"])
     current_body = (
         f"Control {CURRENT_CONTROL} is effective for {contract['case_id']} and supersedes "
@@ -424,6 +442,99 @@ def _route_calls(category: str, service: str) -> list[dict[str, Any]]:
     ]
 
 
+def _material_route_calls(category: str, service: str) -> list[dict[str, Any]]:
+    """Select the live-system joins that actually control the task decision."""
+
+    preferred = (
+        (
+            "resolve_service_alias",
+            "list_alert_firings",
+            "k8s_pods_list",
+            "get_runtime_stats",
+        )
+        if category in OBSERVABILITY_CATEGORIES
+        else (
+            "get_service",
+            "list_deployments",
+            "get_traffic_stats",
+            "get_slo_status",
+        )
+        if category in DELIVERY_CATEGORIES
+        else (
+            "get_service",
+            "list_files",
+            "list_tests",
+            "list_approval_policy",
+        )
+        if category in ENGINEERING_CATEGORIES
+        else (
+            "resolve_service_alias",
+            "list_tickets",
+            "list_deployments",
+            "list_commits",
+        )
+    )
+    by_name = {call["tool"]: call for call in _route_calls(category, service)}
+    selected = [deepcopy(by_name[name]) for name in preferred if name in by_name]
+    if len(selected) != 4:
+        raise ValueError(
+            f"expected four material live-state calls for {category}, got {len(selected)}"
+        )
+    return selected
+
+
+def material_context_calls(
+    row: dict[str, Any], contract: dict[str, Any]
+) -> tuple[list[dict[str, Any]], dict[str, list[dict[str, Any]]]]:
+    """Return the causal evidence subset within the larger reference investigation."""
+
+    groups = {
+        "identity": [
+            {"tool": "jira_get_issue", "args": {"key": contract["case_id"]}},
+            {"tool": "list_issue_links", "args": {"source": contract["case_id"]}},
+            {
+                "tool": "github_list_issues",
+                "args": {"repo": contract["repo"], "state": "open"},
+            },
+        ],
+        "authority": [
+            {
+                "tool": "confluence_search",
+                "args": {"query": contract["case_id"], "space": "OPS"},
+            },
+            {
+                "tool": "confluence_get_page",
+                "args": {"page_id": contract["current_page"]},
+            },
+            {
+                "tool": "confluence_get_page",
+                "args": {"page_id": contract["retired_page"]},
+            },
+        ],
+        "ownership_and_conversation": [
+            {
+                "tool": "list_messages",
+                "args": {"channel": contract["channel"], "limit": 50},
+            },
+            {"tool": "read_owner_spreadsheet", "args": {}},
+            {
+                "tool": "pd_list_change_events",
+                "args": {
+                    "pd_service_id": contract["pd_service_id"],
+                    "since_day": 90,
+                },
+            },
+        ],
+        "live_state": _material_route_calls(row["category"], contract["service"]),
+    }
+    calls = [deepcopy(call) for values in groups.values() for call in values]
+    if len(calls) != 13:
+        raise ValueError(
+            f"{row['bench_id']} has {len(calls)} material context calls, expected 13"
+        )
+    return calls, groups
+
+
 def context_calls(
     row: dict[str, Any], contract: dict[str, Any]
 ) -> list[dict[str, Any]]:
@@ -485,6 +596,62 @@ def context_calls(
     return deduped
 
 
+def postwrite_readback_calls(
+    task: dict[str, Any], contract: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Derive provider reads that reopen the task's persisted state after writes."""
+
+    calls: list[dict[str, Any]] = []
+
+    def add(tool: str, args: dict[str, Any]) -> None:
+        candidate = {"tool": tool, "args": deepcopy(args)}
+        signature = json.dumps(candidate, sort_keys=True, separators=(",", ":"))
+        if all(
+            json.dumps(existing, sort_keys=True, separators=(",", ":")) != signature
+            for existing in calls
+        ):
+            calls.append(candidate)
+
+    for call in task["expected_calls"]:
+        tool = call["tool"]
+        args = call.get("args") or {}
+        service = args.get("service") or contract["service"]
+        if tool in {"deploy_service", "promote_canary", "rollback_deployment"}:
+            add("list_deployments", {"service": service, "limit": 20})
+        elif tool == "set_feature_flag":
+            add("list_feature_flags", {"service": service})
+        elif tool == "apply_migration":
+            add("list_migrations", {"service": service})
+        elif tool in {"open_pull_request", "merge_pull_request"}:
+            add("list_pull_requests", {"service": service})
+        elif tool in {"acknowledge_alert", "resolve_alert"}:
+            add("list_alerts", {"service": service})
+        elif tool in {"create_incident", "update_incident"}:
+            add("list_incidents", {})
+        elif tool == "resolve_error_event":
+            add("list_error_events", {"service": service})
+        elif tool == "jira_transition_issue" and args.get("key"):
+            add("jira_get_issue", {"key": args["key"]})
+        elif tool == "publish_status_update":
+            add("get_status_page", {"limit": 20})
+        elif tool == "write_runbook":
+            add("list_authored_docs", {})
+        elif tool == "post_message" and args.get("channel"):
+            add("list_messages", {"channel": args["channel"], "limit": 50})
+        elif tool == "create_ticket":
+            add("list_tickets", {"service": service})
+        elif tool == "shift_endpoint_traffic":
+            add("list_api_endpoints", {"service": service})
+        elif tool == "ws_write" and args.get("path"):
+            add("ws_read", {"path": args["path"]})
+        elif tool == "update_ticket" and args.get("key"):
+            add("get_ticket", {"key": args["key"]})
+
+    if not calls:
+        add("get_service", {"service": contract["service"]})
+    return calls
+
+
 def reference_calls(
     row: dict[str, Any],
     task: dict[str, Any],
@@ -492,7 +659,23 @@ def reference_calls(
     tools_by_name: dict[str, dict[str, Any]],
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     reads = context_calls(row, contract)
+    material_reads, material_groups = material_context_calls(row, contract)
+    read_signatures = {
+        json.dumps(call, sort_keys=True, separators=(",", ":")) for call in reads
+    }
+    missing_material = [
+        call
+        for call in material_reads
+        if json.dumps(call, sort_keys=True, separators=(",", ":"))
+        not in read_signatures
+    ]
+    if missing_material:
+        raise ValueError(
+            f"{row['bench_id']} material evidence is absent from its reference: "
+            f"{missing_material}"
+        )
     source = deepcopy(task["expected_calls"])
+    postwrite_reads = postwrite_readback_calls(task, contract)
     handoff = {
         "tool": "post_message",
         "args": {
@@ -515,8 +698,18 @@ def reference_calls(
             if (tools_by_name.get(call["tool"], {}).get("write_tables") or [])
         }
     )
+    source_mutation_calls = [
+        deepcopy(call)
+        for call in source
+        if (tools_by_name.get(call["tool"], {}).get("write_tables") or [])
+    ]
     if not mutation_tools:
         raise ValueError(f"{row['bench_id']} source task has no state transition")
+    all_mutation_tools = sorted(
+        name
+        for name, tool in tools_by_name.items()
+        if (tool.get("write_tables") or [])
+    )
     workflow_slug = _slug(row["task_id"])
     graph = [
         f"intake_{_slug(contract['case_id'])}",
@@ -531,9 +724,16 @@ def reference_calls(
         f"reopen_{_slug(contract['case_id'])}_conversation",
     ]
     trace_contract = {
-        "required_context_calls": reads,
+        "required_context_calls": material_reads,
+        "material_context_groups": material_groups,
+        "reference_context_calls": reads,
+        "material_context_call_count": len(material_reads),
+        "reference_context_call_count": len(reads),
         "context_call_count": len(reads),
         "source_mutation_tools": mutation_tools,
+        "source_mutation_calls": source_mutation_calls,
+        "all_mutation_tools": all_mutation_tools,
+        "postwrite_readback_calls": postwrite_reads,
         "handoff_call": handoff,
         "readback_call": readback,
         "semantic_action_graph": graph,
@@ -541,7 +741,7 @@ def reference_calls(
             {PROVIDER_MAPPINGS[call["tool"]] for call in reads if call["tool"] in PROVIDER_MAPPINGS}
         ),
     }
-    return [*reads, *source, handoff, readback], trace_contract
+    return [*reads, *source, *postwrite_reads, handoff, readback], trace_contract
 
 
 def _literal_mapping(vcode: str, name: str) -> dict[str, Any]:
@@ -580,33 +780,41 @@ def augment_vcode(
     contract: dict[str, Any],
     trace_contract: dict[str, Any],
 ) -> str:
-    """Add exact, argument-aware causal checks to the source state verifier."""
+    """Add semantic causal checks around the source final-state verifier."""
 
     required = trace_contract["required_context_calls"]
+    groups = trace_contract["material_context_groups"]
     mutation_tools = trace_contract["source_mutation_tools"]
+    source_mutation_calls = trace_contract["source_mutation_calls"]
+    all_mutation_tools = trace_contract["all_mutation_tools"]
+    postwrite_readbacks = trace_contract["postwrite_readback_calls"]
     handoff = trace_contract["handoff_call"]
     readback = trace_contract["readback_call"]
     block = f'''
 
-# DevOpsBench v3 causal-evidence contract for {row["bench_id"]}.
-_V3_REQUIRED = {required!r}
-_V3_MUTATION_TOOLS = {mutation_tools!r}
-_V3_HANDOFF = {handoff!r}
-_V3_READBACK = {readback!r}
+# DevOpsBench v3.1 semantic causal-evidence contract for {row["bench_id"]}.
+_V4_REQUIRED = {required!r}
+_V4_GROUPS = {groups!r}
+_V4_SOURCE_MUTATION_TOOLS = {mutation_tools!r}
+_V4_SOURCE_MUTATION_CALLS = {source_mutation_calls!r}
+_V4_ALL_MUTATION_TOOLS = {all_mutation_tools!r}
+_V4_POSTWRITE_READBACKS = {postwrite_readbacks!r}
+_V4_HANDOFF = {handoff!r}
+_V4_HANDOFF_READBACK = {readback!r}
 
-def _v3_subset(_actual, _expected):
+def _v4_subset(_actual, _expected):
     if isinstance(_expected, dict):
         return isinstance(_actual, dict) and all(
-            _k in _actual and _v3_subset(_actual[_k], _v)
+            _k in _actual and _v4_subset(_actual[_k], _v)
             for _k, _v in _expected.items()
         )
     if isinstance(_expected, list):
         return isinstance(_actual, list) and len(_actual) == len(_expected) and all(
-            _v3_subset(_a, _e) for _a, _e in zip(_actual, _expected)
+            _v4_subset(_a, _e) for _a, _e in zip(_actual, _expected)
         )
     return _actual == _expected
 
-def _v3_positions(_selector, _successful=False):
+def _v4_positions(_selector, _successful=False):
     _rows = conn.execute(
         "SELECT seq, tool, args_json, ok FROM mcp_trace WHERE tool=? ORDER BY seq",
         (_selector["tool"],),
@@ -615,46 +823,107 @@ def _v3_positions(_selector, _successful=False):
     for _row in _rows:
         if _successful and not int(_row[3]):
             continue
-        if _v3_subset(json.loads(_row[2]), _selector.get("args") or {{}}):
+        if _v4_subset(json.loads(_row[2]), _selector.get("args") or {{}}):
             _out.append(int(_row[0]))
     return _out
 
-_v3_missing = [_r for _r in _V3_REQUIRED if not _v3_positions(_r)]
-_v3_failed = [_r for _r in _V3_REQUIRED if not _v3_positions(_r, True)]
-_v3_context_positions = [min(_v3_positions(_r)) for _r in _V3_REQUIRED if _v3_positions(_r)]
-_v3_first_write = _one(
-    "SELECT MIN(seq) FROM mcp_trace WHERE tool IN (" +
-    ",".join("?" for _ in _V3_MUTATION_TOOLS) + ")",
-    *_V3_MUTATION_TOOLS,
-) or 0
-_v3_handoff_positions = _v3_positions(_V3_HANDOFF, True)
-_v3_readback_positions = _v3_positions(_V3_READBACK, True)
-_v3_handoff_seq = min(_v3_handoff_positions) if _v3_handoff_positions else 0
-_v3_prior_source_write = _one(
-    "SELECT MAX(seq) FROM mcp_trace WHERE seq < ? AND tool IN (" +
-    ",".join("?" for _ in _V3_MUTATION_TOOLS) + ")",
-    _v3_handoff_seq,
-    *_V3_MUTATION_TOOLS,
+def _v4_success_before(_selectors, _boundary):
+    return bool(_boundary) and all(
+        any(_position < _boundary for _position in _v4_positions(_selector, True))
+        for _selector in _selectors
+    )
+
+def _v4_success_after(_selectors, _boundary):
+    return bool(_boundary) and all(
+        any(_position > _boundary for _position in _v4_positions(_selector, True))
+        for _selector in _selectors
+    )
+
+_v4_source_write_positions = sorted({{
+    _position
+    for _selector in _V4_SOURCE_MUTATION_CALLS
+    for _position in _v4_positions(_selector, True)
+}})
+_v4_first_source_write = min(_v4_source_write_positions) if _v4_source_write_positions else 0
+_v4_last_source_write = max(_v4_source_write_positions) if _v4_source_write_positions else 0
+_v4_material_before_write = _v4_success_before(
+    _V4_REQUIRED, _v4_first_source_write
+)
+_v4_source_mutations_completed = all(
+    bool(_v4_positions(_selector, True))
+    for _selector in _V4_SOURCE_MUTATION_CALLS
+)
+_v4_source_hard_ok = all(
+    bool(_ok) for _dimension, _name, _ok, _message in _checks
+    if _dimension in ("correctness", "deployment")
+)
+_v4_postwrite_complete = _v4_success_after(
+    _V4_POSTWRITE_READBACKS, _v4_last_source_write
+)
+_v4_postwrite_positions = [
+    min(
+        _position for _position in _v4_positions(_selector, True)
+        if _position > _v4_last_source_write
+    )
+    for _selector in _V4_POSTWRITE_READBACKS
+    if any(
+        _position > _v4_last_source_write
+        for _position in _v4_positions(_selector, True)
+    )
+]
+_v4_handoff_positions = _v4_positions(_V4_HANDOFF, True)
+_v4_handoff_seq = min(_v4_handoff_positions) if _v4_handoff_positions else 0
+_v4_handoff_readback_positions = [
+    _position for _position in _v4_positions(_V4_HANDOFF_READBACK, True)
+    if _position > _v4_handoff_seq
+]
+_v4_rejected_mutations = _one(
+    "SELECT COUNT(*) FROM mcp_trace WHERE ok=0 AND tool IN (" +
+    ",".join("?" for _ in _V4_ALL_MUTATION_TOOLS) + ")",
+    *_V4_ALL_MUTATION_TOOLS,
 ) or 0
 
-_c("correctness", "v3_case_identity_resolved", not _v3_missing,
-   "resolve {contract['case_id']} across the exact Jira, GitHub, Confluence, Slack, PagerDuty and workbook records")
-_c("correctness", "v3_context_reads_succeeded", not _v3_failed,
-   "the required evidence lookups must succeed; failed or unrelated requests are not investigation")
-_c("deployment", "v3_evidence_before_state_change",
-   bool(_v3_context_positions) and _v3_first_write > max(_v3_context_positions),
-   "establish current evidence before the first task state transition")
-_c("correctness", "v3_completion_handoff_exactly_once",
+_c("correctness", "v4_case_identity_resolved",
+   _v4_success_before(_V4_GROUPS["identity"], _v4_first_source_write),
+   "resolve {contract['case_id']} through its immutable Jira key, linked GitHub issue, and cross-tracker relationship")
+_c("correctness", "v4_authority_reconciled",
+   _v4_success_before(_V4_GROUPS["authority"], _v4_first_source_write),
+   "compare current control {CURRENT_CONTROL} with retired control {RETIRED_CONTROL} before acting")
+_c("correctness", "v4_live_state_correlated",
+   _v4_success_before(_V4_GROUPS["live_state"], _v4_first_source_write),
+   "correlate the task-specific {contract['service']} provider state instead of relying on files or tracker text alone")
+_c("correctness", "v4_material_evidence_complete",
+   _v4_material_before_write,
+   "complete the 13 materially causal evidence joins inside the larger reference investigation before changing state")
+_c("deployment", "v4_evidence_before_state_change",
+   _v4_material_before_write and _v4_first_source_write > 0,
+   "establish every material fact before the first successful task state transition")
+_c("correctness", "v4_supported_path_selected",
+   _v4_source_hard_ok and _v4_source_mutations_completed,
+   "derive and execute the task-supported branch rather than the stale-note or broad-workaround alternatives")
+_c("correctness", "v4_source_mutations_completed",
+   _v4_source_mutations_completed,
+   "complete each task-required state-changing capability at least once successfully")
+_c("deployment", "v4_state_readbacks_complete",
+   _v4_postwrite_complete,
+   "reopen the persisted provider and tracker state after the final source mutation instead of trusting acknowledgements")
+_c("correctness", "v4_completion_handoff_exactly_once",
    _one("SELECT COUNT(*) FROM messages WHERE channel=? AND author='agent' AND body LIKE ?",
         {contract['channel']!r}, '%{contract['completion_marker']}%') == 1,
    "write exactly one scoped completion handoff for {contract['case_id']}")
-_c("deployment", "v3_source_work_precedes_handoff",
-   _v3_prior_source_write > 0 and _v3_handoff_seq > _v3_prior_source_write,
-   "record the handoff only after the task-specific operational state change")
-_c("deployment", "v3_handoff_read_back",
-   bool(_v3_readback_positions) and _v3_handoff_seq > 0 and
-   max(_v3_readback_positions) > _v3_handoff_seq,
+_c("deployment", "v4_source_work_precedes_readback",
+   _v4_last_source_write > 0 and _v4_postwrite_complete,
+   "perform provider readback only after the task-specific operational state change")
+_c("deployment", "v4_readback_precedes_handoff",
+   _v4_postwrite_complete and _v4_handoff_seq > 0 and
+   bool(_v4_postwrite_positions) and _v4_handoff_seq > max(_v4_postwrite_positions),
+   "post the completion handoff only after the changed provider state has been reopened")
+_c("deployment", "v4_handoff_read_back",
+   bool(_v4_handoff_readback_positions) and _v4_handoff_seq > 0,
    "reopen the exact case-room conversation after posting the completion handoff")
+_c("deployment", "v4_no_rejected_mutations",
+   _v4_rejected_mutations == 0,
+   "complete without a rejected state-changing call; failed exploratory reads remain recoverable")
 '''
     return vcode.rstrip() + "\n" + block
 
@@ -715,23 +984,210 @@ def decision_options(
     ]
 
 
-def reasoning_criteria(
-    row: dict[str, Any], contract: dict[str, Any], trace_contract: dict[str, Any]
-) -> list[dict[str, str]]:
-    slug = _slug(row["task_id"])
-    return [
-        {"id": f"investigation.{slug}.identity", "category": "investigation", "description": f"Resolve {contract['case_id']} by immutable Jira key and its explicit cross-tracker link; a matching title is insufficient.", "enforced_by": "exact argument-aware MCP trace"},
-        {"id": f"investigation.{slug}.authority", "category": "investigation", "description": f"Establish {CURRENT_CONTROL} as operative and treat {RETIRED_CONTROL} only as a competing historical hypothesis.", "enforced_by": "current and retired Confluence page reads"},
-        {"id": f"investigation.{slug}.conversation", "category": "investigation", "description": f"Use the {contract['channel']} room to recover the request, the live-system warning, and the unverified prior-owner suggestion.", "enforced_by": "exact Slack history read"},
-        {"id": f"investigation.{slug}.ownership", "category": "investigation", "description": f"Confirm current {contract['service']} ownership and escalation context instead of trusting a stale display name.", "enforced_by": "owner workbook and provider identity reads"},
-        {"id": f"investigation.{slug}.live-state", "category": "investigation", "description": f"Reconcile the task's source systems with live {contract['service']} operational state before choosing the supported branch.", "enforced_by": "successful category-specific evidence route"},
-        {"id": f"decision.{slug}.alternatives", "category": "decision", "description": "Keep the stale-note and broad-workaround alternatives visible, and reject them for evidence and scope reasons rather than by label.", "enforced_by": "task-specific options and negative controls"},
-        {"id": f"procedure.{slug}.read-before-write", "category": "procedure", "description": "Complete every causal context read before the first operational mutation; a final state reached before investigation is not accepted.", "enforced_by": "mcp_trace sequence check"},
-        {"id": f"state.{slug}.source-transition", "category": "state", "description": f"Produce the exact task-specific source transition using only {', '.join(trace_contract['source_mutation_tools'])} where supported by the live state.", "enforced_by": "source vcode final-state and audit checks"},
-        {"id": f"state.{slug}.handoff", "category": "state", "description": f"Write exactly one completion handoff for {contract['case_id']} after the supported work, without claiming a broader result.", "enforced_by": "exact message state assertion"},
-        {"id": f"procedure.{slug}.readback", "category": "procedure", "description": f"Reopen {contract['channel']} after the handoff so the persisted post, not the write response, is verified.", "enforced_by": "post-write readback sequence check"},
-        {"id": f"containment.{slug}.scope", "category": "containment", "description": "Preserve all frozen neighboring services, policies, trackers, secrets, and seeded audit history outside the task-authorized changes.", "enforced_by": "source blast-radius and unauthorized-write control"},
+def atomic_checks(vcode: str) -> list[dict[str, str]]:
+    """Extract stable occurrence-aware IDs for every executable low-level check."""
+
+    tree = ast.parse(vcode)
+    raw: list[tuple[str, str, str]] = []
+    for node in ast.walk(tree):
+        if (
+            not isinstance(node, ast.Call)
+            or not isinstance(node.func, ast.Name)
+            or node.func.id != "_c"
+            or len(node.args) < 4
+        ):
+            continue
+        dimension = node.args[0].value if isinstance(node.args[0], ast.Constant) else None
+        name = node.args[1].value if isinstance(node.args[1], ast.Constant) else None
+        message = node.args[3].value if isinstance(node.args[3], ast.Constant) else None
+        if isinstance(dimension, str) and isinstance(name, str):
+            raw.append(
+                (
+                    dimension,
+                    name,
+                    message if isinstance(message, str) else name.replace("_", " "),
+                )
+            )
+
+    totals: dict[tuple[str, str], int] = {}
+    for dimension, name, _ in raw:
+        totals[(dimension, name)] = totals.get((dimension, name), 0) + 1
+    seen: dict[tuple[str, str], int] = {}
+    checks: list[dict[str, str]] = []
+    for dimension, name, description in raw:
+        key = (dimension, name)
+        seen[key] = seen.get(key, 0) + 1
+        suffix = f"#{seen[key]}" if totals[key] > 1 else ""
+        checks.append(
+            {
+                "id": f"{dimension}.{name}{suffix}",
+                "dimension": dimension,
+                "name": name,
+                "description": description,
+            }
+        )
+    return checks
+
+
+def semantic_milestones(
+    task: dict[str, Any],
+    row: dict[str, Any],
+    contract: dict[str, Any],
+    trace_contract: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Group low-level verifier evidence into task-specific employee outcomes."""
+
+    milestone_ids = list(SEMANTIC_MILESTONE_WEIGHTS)
+    grouped: dict[str, list[dict[str, str]]] = {key: [] for key in milestone_ids}
+    explicit = {
+        "v4_case_identity_resolved": "investigation.scope",
+        "v4_authority_reconciled": "investigation.authority",
+        "v4_live_state_correlated": "investigation.live_state",
+        "v4_material_evidence_complete": "analysis.causal_reasoning",
+        "v4_evidence_before_state_change": "execution.sequence",
+        "v4_supported_path_selected": "decision.supported_path",
+        "v4_source_mutations_completed": "state.primary",
+        "v4_state_readbacks_complete": "verification.outcome",
+        "v4_completion_handoff_exactly_once": "answer.insights",
+        "v4_source_work_precedes_readback": "verification.readback",
+        "v4_readback_precedes_handoff": "execution.delivery",
+        "v4_handoff_read_back": "verification.readback",
+        "v4_no_rejected_mutations": "execution.efficiency",
+    }
+    containment_tokens = (
+        "scoped_change",
+        "world_invariants",
+        "no_unrelated",
+        "nothing_extra",
+        "no_new_hardcoded_secrets",
+        "check_not_weakened",
+        "staging_untouched",
+    )
+    coordination_tokens = (
+        "ticket_closed",
+        "jira_twin",
+        "pr_linked",
+        "pr_has_description",
+        "public_status",
+        "status_update",
+        "postmortem",
+        "followup",
+        "security_audit",
+        "justification",
+        "announced",
+    )
+    verification_tokens = (
+        "ci_",
+        "test",
+        "metric",
+        "slo",
+        "alarm_resolved",
+        "incident_resolved",
+        "three_green",
+        "check_passes",
+        "no_alarming",
+    )
+    analysis_tokens = (
+        "consulted",
+        "read_the_source",
+        "read_the_proposals",
+        "investigation_was_read_only",
+        "decision_was_read_only",
+        "assumption",
+        "fault_type",
+        "offending_key",
+        "service_localized",
+        "causes_are_distinct",
+    )
+    answer_tokens = (
+        "answer",
+        "diagnosis",
+        "decision_submitted",
+        "reasoning_recorded",
+        "evidence_recorded",
+        "states_",
+        "root_cause_written",
+        "attributed_",
+        "key_for_",
+        "detection_correct",
+        "fault_confirmed",
+        "chose_the_root",
+        "outcome_recorded",
+        "every_match_reported",
+    )
+
+    for check in atomic_checks(task["vcode"]):
+        name = check["name"]
+        if name in explicit:
+            milestone_id = explicit[name]
+        elif any(token in name for token in containment_tokens):
+            milestone_id = "containment.scope"
+        elif name in {"no_unproductive_ci_loops", "efficient_investigation"}:
+            milestone_id = "execution.efficiency"
+        elif name == "closed_after_the_work":
+            milestone_id = "execution.delivery"
+        elif any(token in name for token in coordination_tokens):
+            milestone_id = "state.coordination"
+        elif any(token in name for token in verification_tokens):
+            milestone_id = "verification.outcome"
+        elif any(token in name for token in analysis_tokens):
+            milestone_id = "analysis.causal_reasoning"
+        elif any(token in name for token in answer_tokens):
+            milestone_id = "answer.insights"
+        elif check["dimension"] == "deployment":
+            milestone_id = "execution.sequence"
+        elif check["dimension"] == "quality":
+            milestone_id = "state.coordination"
+        else:
+            milestone_id = "state.primary"
+        grouped[milestone_id].append(check)
+
+    empty = [key for key, checks in grouped.items() if not checks]
+    if empty:
+        raise ValueError(f"{row['bench_id']} has empty semantic milestones: {empty}")
+    assigned = [check["id"] for checks in grouped.values() for check in checks]
+    expected = [check["id"] for check in atomic_checks(task["vcode"])]
+    if len(assigned) != len(set(assigned)) or sorted(assigned) != sorted(expected):
+        raise ValueError(f"{row['bench_id']} semantic check assignment is not one-to-one")
+
+    # The release prompt deliberately starts with a rotating workplace-context
+    # sentence.  Rubric language must name the employee's actual request, not
+    # that wrapper, or unrelated tasks appear to share the same decision.
+    title = employee_title(
+        {"instruction": task.get("source_instruction", task.get("instruction", ""))}
+    )
+    material = trace_contract["material_context_call_count"]
+    reference = trace_contract["reference_context_call_count"]
+    mutation_tools = ", ".join(trace_contract["source_mutation_tools"])
+    descriptions = {
+        "investigation.scope": f"Resolve {contract['case_id']} for {contract['service']} through immutable Jira and GitHub identities and keep neighboring NovaCart work outside the case.",
+        "investigation.authority": f"Establish {CURRENT_CONTROL} as current for {contract['case_id']} and reject the conflicting {RETIRED_CONTROL} shortcut as historical evidence.",
+        "investigation.live_state": f"Interrogate the live {contract['service']} provider surfaces that control this {row['category']} decision; files and tracker prose alone are insufficient.",
+        "analysis.causal_reasoning": f"Join the {material} materially causal lookups inside the {reference}-read reference investigation and explain which evidence supports or blocks the requested outcome.",
+        "decision.supported_path": f"For “{title}”, choose the evidence-supported path after comparing the stale-note and broad-workaround alternatives, then execute only that bounded path.",
+        "state.primary": f"Produce the task-specific source-of-truth transition with the required {mutation_tools} capabilities and satisfy every authored final-state invariant.",
+        "state.coordination": f"Bring the linked tracker, pull-request, incident, status, approval, or follow-up records required by {contract['case_id']} to their supported coordinated state.",
+        "verification.outcome": f"Confirm the changed {contract['service']} outcome through its tests, CI, metrics, alarms, or provider records rather than inferring success from a write acknowledgement.",
+        "verification.readback": f"After the final operational mutation, reopen every task-specific provider record and finally reopen {contract['channel']} after its completion handoff.",
+        "execution.sequence": f"Respect the task's evidence, approval, staging, canary, mitigation, and closure ordering while allowing independent evidence sources to be investigated in any valid order.",
+        "containment.scope": f"Preserve frozen services, unrelated records, seeded audit history, and credentials outside {contract['case_id']}; no fabricated or broad workaround state is accepted.",
+        "answer.insights": f"Leave a concise {contract['case_id']} conclusion that states the supported result and evidence without overstating what changed or copying the retired hypothesis.",
+        "execution.efficiency": "Recover from exploratory read mistakes, but complete without a rejected mutation, a CI loop, or repeated unproductive investigation.",
+        "execution.delivery": f"Finish the source work, verify persisted state, post exactly one scoped handoff, reopen it, and only then close the employee work item.",
+    }
+    milestones = [
+        {
+            "id": milestone_id,
+            "category": milestone_id.split(".", 1)[0],
+            "description": descriptions[milestone_id],
+            "weight": SEMANTIC_MILESTONE_WEIGHTS[milestone_id],
+            "atomic_checks": grouped[milestone_id],
+        }
+        for milestone_id in milestone_ids
     ]
+    if sum(item["weight"] for item in milestones) != 100:
+        raise AssertionError("semantic milestone weights must total 100")
+    return milestones
 
 
 def _excel_col(number: int) -> str:
@@ -848,13 +1304,53 @@ def write_asset_views(
     prompt: str,
     row: dict[str, Any],
     contract: dict[str, Any],
-) -> list[dict[str, str]]:
+) -> list[dict[str, Any]]:
     """Write 28 human-shaped, native evidence files without gold or recipes."""
 
     root.mkdir(parents=True, exist_ok=True)
     cx = sqlite3.connect(database)
     cx.row_factory = sqlite3.Row
-    assets: list[dict[str, str]] = []
+    assets: list[dict[str, Any]] = []
+    material_live_assets = (
+        {
+            "14-service-catalog.csv",
+            "16-metrics-export.csv",
+            "18-sentry-issues.json",
+            "19-kubernetes-pods.yaml",
+        }
+        if row["category"] in OBSERVABILITY_CATEGORIES
+        else {
+            "14-service-catalog.csv",
+            "21-deployment-history.json",
+            "22-ci-runs.csv",
+            "23-pull-request-context.json",
+        }
+        if row["category"] in DELIVERY_CATEGORIES
+        else {
+            "14-service-catalog.csv",
+            "22-ci-runs.csv",
+            "23-pull-request-context.json",
+            "24-migration-state.sql",
+        }
+        if row["category"] in ENGINEERING_CATEGORIES
+        else {
+            "14-service-catalog.csv",
+            "15-slo-export.csv",
+            "21-deployment-history.json",
+            "23-pull-request-context.json",
+        }
+    )
+    material_assets = {
+        "02-jira-work-item.csv",
+        "03-cross-tracker-links.json",
+        "04-github-issue.json",
+        "05-current-operating-control.pdf",
+        "06-retired-shortcut-note.pdf",
+        "07-case-room-thread.json",
+        "08-pagerduty-change-events.csv",
+        "09-service-owner-register.xlsx",
+        *material_live_assets,
+    }
 
     def add(name: str, source: str, content: str | bytes, role: str) -> None:
         target = root / name
@@ -863,7 +1359,15 @@ def write_asset_views(
             target.write_bytes(content)
         else:
             target.write_text(content, encoding="utf-8", newline="\n")
-        assets.append({"path": str(target.relative_to(root.parent.parent)), "source": source, "kind": target.suffix.lstrip("."), "evidence_role": role})
+        assets.append(
+            {
+                "path": str(target.relative_to(root.parent.parent)),
+                "source": source,
+                "kind": target.suffix.lstrip("."),
+                "evidence_role": role,
+                "material": name in material_assets,
+            }
+        )
 
     case = dict(cx.execute("SELECT * FROM jira_issues WHERE key=?", (contract["case_id"],)).fetchone())
     github = dict(cx.execute("SELECT * FROM github_issues WHERE number=?", (contract["github_issue"],)).fetchone())
@@ -913,6 +1417,8 @@ def write_asset_views(
     cx.close()
     if len(assets) != 28:
         raise ValueError(f"expected 28 assets for {row['bench_id']}, wrote {len(assets)}")
+    if sum(bool(asset["material"]) for asset in assets) != 12:
+        raise ValueError(f"expected 12 material assets for {row['bench_id']}")
     return assets
 
 
