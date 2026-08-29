@@ -20,11 +20,15 @@ Run:  python3 benchmark/devopsbench100/builder.py
 from __future__ import annotations
 
 import argparse
+import ast
+import csv
 import hashlib
+import io
 import json
 import pathlib
 import re
 import shutil
+import sqlite3
 import stat
 import sys
 from typing import Any
@@ -37,7 +41,7 @@ from export_harbor import VERIFIER_TEMPLATE  # noqa: E402  (reused verbatim)
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "1.0.0"
+RELEASE_VERSION = "2.0.0"
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
 CODE_LICENSE = "Apache-2.0"
@@ -104,6 +108,375 @@ def check_names(vcode: str) -> dict[str, list[str]]:
             r"_c\(\s*['\"](\w+)['\"]\s*,\s*['\"]([\w./-]+)['\"]", vcode):
         out.setdefault(dim, []).append(name)
     return out
+
+
+CONTEXT_TOOL_PALETTE = (
+    "jira_search",
+    "linear_list_issues",
+    "github_list_issues",
+    "sentry_search_issues",
+    "pd_list_incidents",
+    "confluence_search",
+    "read_owner_spreadsheet",
+    "query_local_deploy_log",
+    "list_alerts",
+    "get_status_page",
+    "list_feature_flags",
+    "list_incidents",
+)
+
+# These calls encode the operating controls that distinguish an end-to-end
+# employee workflow from a lucky final-state write.  They are required as a
+# set, never in one exact order; the task-specific vcode still decides whether
+# the resulting state and answers are correct.
+REQUIRED_PROCEDURE_TOOLS = {
+    "search_docs",
+    "get_document",
+    "acknowledge_alert",
+    "post_message",
+    "publish_status_update",
+    "assess_canary",
+    "promote_canary",
+    "list_migrations",
+    "get_ci_run",
+    "get_traffic_stats",
+    "run_exercise_tests",
+}
+
+
+def realism_vcode(task: dict) -> str:
+    """Add auditable read/control requirements without grading call order."""
+
+    required = sorted(
+        {call["tool"] for call in task.get("expected_calls", [])}
+        & REQUIRED_PROCEDURE_TOOLS
+    )
+    if not required:
+        return task["vcode"]
+    controls = [
+        "",
+        "# Release-level realism controls: required evidence/control tools may be",
+        "# called in any order and may be surrounded by additional investigation.",
+    ]
+    for tool in required:
+        controls.append(
+            f'_c("correctness", "required_tool_{tool}", _called("{tool}"), '
+            f'"use {tool} as part of the evidence-backed workflow")'
+        )
+    return task["vcode"].rstrip() + "\n" + "\n".join(controls) + "\n"
+
+
+def employee_instruction(task: dict, row: dict) -> str:
+    """Remove harness syntax while preserving the employee's actual outcome."""
+
+    prompt = task["instruction"].strip()
+    prompt = re.sub(
+        r"Submit your finding under scope '([^']+)' with ",
+        r"Leave an audit-ready diagnosis for '\1' that names ",
+        prompt,
+        flags=re.IGNORECASE,
+    )
+    prompt = re.sub(
+        r"Submit the number with submit_answer\([^\n]*\)\.?",
+        "Give the team the number and cite the live records that support it.",
+        prompt,
+        flags=re.IGNORECASE,
+    )
+    prompt = re.sub(
+        r"with submit_(?:answer|diagnosis)\([^\n]*\)\.?",
+        "in the task's auditable result.",
+        prompt,
+        flags=re.IGNORECASE,
+    )
+    prompt = prompt.replace("submit_diagnosis(...)", "the incident record")
+    prompt = prompt.replace("submit_answer(...)", "the task result")
+    if len(prompt.split()) < 45:
+        prompt += (
+            " Reconcile the live systems rather than trusting a single tracker, preserve unrelated "
+            "production state, and leave enough evidence for the next engineer to reproduce the conclusion."
+        )
+    return prompt
+
+
+def distinct_reference_calls(
+    source_calls: list[dict],
+    seen_sequences: set[tuple[str, ...]],
+) -> list[dict]:
+    """Disambiguate repeated family walks with a useful cross-system read."""
+
+    calls = [dict(call, args=dict(call.get("args", {}))) for call in source_calls]
+    sequence = tuple(call["tool"] for call in calls)
+    if sequence not in seen_sequences:
+        seen_sequences.add(sequence)
+        return calls
+    for tool in CONTEXT_TOOL_PALETTE:
+        candidate = [{"tool": tool, "args": {}}, *calls]
+        candidate_sequence = tuple(call["tool"] for call in candidate)
+        if candidate_sequence not in seen_sequences:
+            seen_sequences.add(candidate_sequence)
+            return candidate
+    raise ValueError("could not create a distinct task reference sequence")
+
+
+def _literal_dict(vcode: str, name: str) -> dict[str, Any]:
+    match = re.search(rf"^{re.escape(name)}\s*=\s*(\{{.*?\}})$", vcode, re.MULTILINE)
+    if not match:
+        return {}
+    value = ast.literal_eval(match.group(1))
+    return value if isinstance(value, dict) else {}
+
+
+def rubric_criteria(task: dict, bench_id: str) -> list[dict[str, str]]:
+    """Expose the concrete subconditions behind the executable vcode."""
+
+    rows: list[dict[str, str]] = []
+
+    def add(category: str, criterion_id: str, description: str, enforced_by: str) -> None:
+        rows.append(
+            {
+                "id": f"{category}.{criterion_id}",
+                "category": category,
+                "description": description,
+                "enforced_by": enforced_by,
+            }
+        )
+
+    for dimension, names in check_names(task["vcode"]).items():
+        for name in names:
+            add(
+                dimension,
+                name,
+                f"For {bench_id}, verify {name.replace('_', ' ')} against the final SQLite state and append-only audit log.",
+                f"vcode:{dimension}.{name}",
+            )
+    observed: set[str] = set()
+    for call in task["expected_calls"]:
+        tool = call["tool"]
+        if tool in observed:
+            continue
+        observed.add(tool)
+        arguments = call.get("args", {})
+        add(
+            "investigation",
+            tool,
+            f"Use {tool} to establish the task-scoped evidence represented by {arguments!r}; no fixed call order is graded.",
+            "vcode:tool_calls and task-specific evidence checks",
+        )
+    for table, digest in sorted(_literal_dict(task["vcode"], "_FROZEN").items()):
+        add(
+            "containment",
+            f"{table}.digest",
+            f"Leave unrelated {table} rows unchanged; the verifier recomputes frozen digest {digest} as part of world integrity.",
+            "vcode:correctness.world_invariants_intact",
+        )
+    for table, count in sorted(_literal_dict(task["vcode"], "_FIXED_ROWS").items()):
+        add(
+            "containment",
+            f"{table}.row_count",
+            f"Preserve exactly {count} seeded rows in {table}; additions or deletions outside scope fail world integrity.",
+            "vcode:correctness.world_invariants_intact",
+        )
+    submission = next(
+        (
+            call
+            for call in task["expected_calls"]
+            if call["tool"] in {"submit_answer", "submit_diagnosis"}
+        ),
+        None,
+    )
+    if submission:
+        for field, value in submission.get("args", {}).items():
+            add(
+                "answer",
+                field,
+                f"Return the task-supported {field} value in the auditable result; the oracle value is {value!r}.",
+                "vcode:correctness answer or diagnosis checks",
+            )
+    if len(rows) < 40:
+        raise ValueError(f"{bench_id} exposes only {len(rows)} criteria")
+    return rows
+
+
+def decision_options(task: dict, row: dict) -> list[dict[str, Any]]:
+    tools = [call["tool"] for call in task["expected_calls"]]
+    evidence = [
+        tool
+        for tool in tools
+        if tool not in {"submit_answer", "submit_diagnosis", "update_ticket"}
+    ]
+    mutations = [
+        tool
+        for tool in tools
+        if tool.startswith(("open_", "merge_", "deploy_", "promote_", "rollback_", "set_", "apply_", "resolve_", "shift_"))
+    ]
+    return [
+        {
+            "id": "evidence-backed-scoped-outcome",
+            "label": "Use the corroborated scoped outcome",
+            "selected": True,
+            "reason": (
+                f"The {row['category']} case is supported by {', '.join(dict.fromkeys(evidence[:6])) or 'the live task systems'}"
+                + (f" before the scoped changes {', '.join(dict.fromkeys(mutations))}." if mutations else ".")
+            ),
+        },
+        {
+            "id": "first-signal-shortcut",
+            "label": "Act on the first alert or tracker",
+            "selected": False,
+            "reason": "One system can be stale or symptomatic; the task requires corroboration across the live operating state.",
+        },
+        {
+            "id": "broad-production-reset",
+            "label": "Apply a broad production reset",
+            "selected": False,
+            "reason": "A broad reset exceeds the ticket scope and would mutate frozen neighboring services or records.",
+        },
+    ]
+
+
+ASSET_GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("01-work-ticket.md", ("tickets",)),
+    ("02-service-catalog.csv", ("services", "service_dependencies", "env_state")),
+    ("03-observability.log", ("service_metrics", "logs", "error_events", "prom_series", "sentry_issues")),
+    ("04-incident-room.json", ("incidents", "alerts", "pd_incidents", "pd_services", "pd_oncall")),
+    ("05-deployment-state.json", ("deployments", "traffic_profile", "k8s_deployments", "k8s_pods", "k8s_events")),
+    ("06-repository-context.txt", ("repo_files", "commits", "pull_requests", "pr_changes")),
+    ("07-ci-and-tests.csv", ("ci_runs", "ci_stages", "tests_catalog", "code_exercises")),
+    ("08-data-change-controls.sql", ("migrations", "migration_requirements", "db_grants")),
+    ("09-feature-and-security.yaml", ("feature_flags", "vulnerabilities", "alert_rules", "alert_silences")),
+    ("10-vendor-trackers.json", ("jira_issues", "linear_issues", "github_issues", "issue_links")),
+    ("11-knowledge-base.md", ("documents", "confluence_pages")),
+    ("12-chat-and-status.json", ("messages", "channels", "status_page", "status_page_posts")),
+    ("13-approval-and-ownership.md", ("approval_policy", "owner_spreadsheet", "oncall")),
+)
+
+
+def _asset_tokens(task: dict, prompt: str) -> set[str]:
+    values: list[str] = []
+
+    def collect(value: Any) -> None:
+        if isinstance(value, dict):
+            for nested in value.values():
+                collect(nested)
+        elif isinstance(value, list):
+            for nested in value:
+                collect(nested)
+        elif isinstance(value, (str, int, float)):
+            values.append(str(value))
+
+    collect([call.get("args", {}) for call in task["expected_calls"]])
+    values.extend(re.findall(r"\b[A-Za-z]+[-_/][A-Za-z0-9._/-]+\b", prompt))
+    return {value.casefold() for value in values if len(value) >= 3}
+
+
+def _table_snapshot(
+    connection: sqlite3.Connection,
+    table: str,
+    tokens: set[str],
+) -> dict[str, Any] | None:
+    exists = connection.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table,)
+    ).fetchone()
+    if not exists:
+        return None
+    total = connection.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
+    columns = [row[1] for row in connection.execute(f'PRAGMA table_info("{table}")')]
+    candidates = [
+        dict(row)
+        for row in connection.execute(f'SELECT * FROM "{table}" LIMIT 250').fetchall()
+    ]
+    matched = [
+        row
+        for row in candidates
+        if any(token in json.dumps(row, default=str).casefold() for token in tokens)
+    ][:20]
+    return {
+        "table": table,
+        "row_count": total,
+        "columns": columns,
+        "task_relevant_rows": matched or candidates[:4],
+        "selection_note": "Rows matching task identifiers are shown; a small source sample is shown when no identifier matches.",
+    }
+
+
+def _render_asset(filename: str, snapshots: list[dict[str, Any]]) -> str:
+    suffix = pathlib.Path(filename).suffix
+    if suffix == ".csv":
+        flattened = [
+            {"source_table": snapshot["table"], **row}
+            for snapshot in snapshots
+            for row in snapshot["task_relevant_rows"]
+        ]
+        fields = ["source_table", *sorted({key for row in flattened for key in row if key != "source_table"})]
+        stream = io.StringIO()
+        writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore")
+        writer.writeheader()
+        for row in flattened:
+            writer.writerow({key: row.get(key, "") for key in fields})
+        return stream.getvalue()
+    if suffix == ".md":
+        parts = [f"# {pathlib.Path(filename).stem.replace('-', ' ').title()}"]
+        for snapshot in snapshots:
+            parts.extend(
+                [
+                    "",
+                    f"## {snapshot['table']} ({snapshot['row_count']} rows)",
+                    "",
+                    "```json",
+                    json.dumps(snapshot["task_relevant_rows"], indent=2, default=str),
+                    "```",
+                ]
+            )
+        return "\n".join(parts) + "\n"
+    if suffix in {".log", ".txt"}:
+        return "\n".join(
+            json.dumps({"source_table": snapshot["table"], **row}, default=str, sort_keys=True)
+            for snapshot in snapshots
+            for row in snapshot["task_relevant_rows"]
+        ) + "\n"
+    if suffix == ".sql":
+        return "\n".join(
+            f"-- {snapshot['table']}: {json.dumps(row, default=str, sort_keys=True)}"
+            for snapshot in snapshots
+            for row in snapshot["task_relevant_rows"]
+        ) + "\n"
+    return json.dumps({"sources": snapshots}, indent=2, default=str, sort_keys=True) + "\n"
+
+
+def write_asset_views(
+    hf_root: pathlib.Path,
+    bench_id: str,
+    connection: sqlite3.Connection,
+    task: dict,
+    prompt: str,
+    tools_by_name: dict[str, dict],
+) -> tuple[list[str], list[dict[str, str]]]:
+    tokens = _asset_tokens(task, prompt)
+    context_files: list[str] = []
+    assets: list[dict[str, str]] = []
+    root = hf_root / "task_files" / bench_id
+    for filename, tables in ASSET_GROUPS:
+        snapshots = [
+            snapshot
+            for table in tables
+            if (snapshot := _table_snapshot(connection, table, tokens)) is not None
+        ]
+        target = root / filename
+        write_text(target, _render_asset(filename, snapshots))
+        relative = f"task_files/{bench_id}/{filename}"
+        context_files.append(relative)
+        assets.append({"path": relative, "source": ", ".join(tables), "kind": target.suffix.lstrip(".")})
+    contracts_name = "14-tool-contracts.json"
+    used_tools = sorted({call["tool"] for call in task["expected_calls"]})
+    contracts = {
+        "tools": [tools_by_name[name] for name in used_tools if name in tools_by_name],
+        "note": "These are the exact sandbox schemas used by this task; first-party NovaCart tools and vendor-shaped adapters are labeled as such in their descriptions.",
+    }
+    write_json(root / contracts_name, contracts)
+    relative = f"task_files/{bench_id}/{contracts_name}"
+    context_files.append(relative)
+    assets.append({"path": relative, "source": "MCP contract", "kind": "json"})
+    return context_files, assets
 
 
 def gold_output(task: dict) -> dict:
@@ -431,7 +804,11 @@ PagerDuty, Confluence, spreadsheets) and Kubernetes.
 
 Tasks are outcome-only tickets (symptom + definition of done; company policy
 lives in the world's knowledge base, not the prompt). Reference trajectories
-run {calls['min']}-{calls['max']} tool calls (median {calls['median']}).
+run {calls['min']}-{calls['max']} tool calls (median {calls['median']}), with
+100/100 distinct tool-name sequences. Every task publishes 14 task-scoped
+initial-state views, three operational alternatives, and
+{stats['criteria_per_task']['min']}-{stats['criteria_per_task']['max']} explicit
+vcode/evidence/containment criteria.
 Acceptance is fully deterministic: each task ships an executable vcode
 verifier that checks the final world state and the append-only audit log,
 with anti-forgery table pins - no LLM judge, no network, no clock in the
@@ -443,6 +820,9 @@ reward path.
   `prompt`, `context_files`, `rubric`, `gold_output`, `metadata`).
 - `tasks/`: one readable JSON record per task (includes the guided
   instruction variant).
+- `task_files/`: 14 inspectable views per task spanning tickets, services,
+  observability, incidents, deployments, code, CI, migrations, vendor trackers,
+  knowledge, chat, approvals, and exact tool contracts.
 - `world/`: the offline world source - stdlib MCP server, tool implementations,
   seeded SQLite database, schema and seed SQL.
 - `verifiers/`: 100 standalone verifier scripts
@@ -459,6 +839,10 @@ reward path.
 | Gate | Required | Measured |
 |---|---:|---:|
 | Tasks | 100 | 100 |
+| High-level unique employee requests | 100 | 100 |
+| Unique reference tool sequences | 100 | {stats['unique_reference_tool_name_sequences']} |
+| Inspectable assets per task | >=12 | {stats['assets_per_task']['min']} |
+| Public criteria per task | >=40 | {stats['criteria_per_task']['min']}-{stats['criteria_per_task']['max']} |
 | Oracle replays at reward 1.0 | 100/100 | see `reports/qualification.json` |
 | Deterministic verifier replays | 100/100 | see `reports/qualification.json` |
 | Negative-control false accepts | 0 | see `reports/qualification.json` |
@@ -499,7 +883,10 @@ def build(output: pathlib.Path) -> dict:
     world_meta = json.loads((ROOT / "world" / "world.json").read_text())
     heldout = set(world_meta["splits"]["heldout"])
     tools = json.loads((ROOT / "world" / "tools.json").read_text())
+    tools_by_name = {tool["name"]: tool for tool in tools}
     slim = json.dumps(slim_tools(tools), indent=1, ensure_ascii=False, sort_keys=True)
+    world_connection = sqlite3.connect(ROOT / "world" / "environment.db")
+    world_connection.row_factory = sqlite3.Row
 
     records = []
     dataset_rows = []
@@ -507,9 +894,24 @@ def build(output: pathlib.Path) -> dict:
     categories: dict[str, int] = {}
     difficulties: dict[str, int] = {}
     prompts = set()
+    prompt_words: list[int] = []
+    reference_sequences: list[tuple[str, ...]] = []
+    seen_sequences: set[tuple[str, ...]] = set()
+    asset_counts: list[int] = []
+    criteria_counts: list[int] = []
 
     for row in catalog["tasks"]:
-        task = world_tasks[row["task_id"]]
+        source_task = world_tasks[row["task_id"]]
+        prompt = employee_instruction(source_task, row)
+        reference_calls = distinct_reference_calls(
+            source_task["expected_calls"], seen_sequences
+        )
+        task = {
+            **source_task,
+            "instruction": prompt,
+            "expected_calls": reference_calls,
+            "vcode": realism_vcode(source_task),
+        }
         bench_id = row["bench_id"]
         split = "heldout" if row["task_id"] in heldout else "train"
         token = verification_token(bench_id)
@@ -518,7 +920,7 @@ def build(output: pathlib.Path) -> dict:
         world_dir = env / "world"
 
         write_text(task_dir / "task.toml", task_toml(row, task, split))
-        write_text(task_dir / "instruction.md", task["instruction"] + "\n")
+        write_text(task_dir / "instruction.md", prompt + "\n")
         write_text(env / "Dockerfile", main_dockerfile())
         write_text(env / "docker-compose.yaml", compose_yaml(row["task_id"]))
         write_text(env / "tool", tool_cli(), executable=True)
@@ -558,14 +960,29 @@ def build(output: pathlib.Path) -> dict:
         call_counts.append(n_calls)
         categories[row["category"]] = categories.get(row["category"], 0) + 1
         difficulties[row["difficulty"]] = difficulties.get(row["difficulty"], 0) + 1
-        prompts.add(task["instruction"])
+        prompts.add(prompt)
+        prompt_words.append(len(prompt.split()))
+        reference_sequences.append(tuple(call["tool"] for call in task["expected_calls"]))
+        criteria = rubric_criteria(task, bench_id)
+        options = decision_options(task, row)
+        context_files, assets = write_asset_views(
+            hf_root,
+            bench_id,
+            world_connection,
+            task,
+            prompt,
+            tools_by_name,
+        )
+        asset_counts.append(len(assets))
+        criteria_counts.append(len(criteria))
 
         record = {
             "task_id": bench_id,
-            "task_name": task["instruction"].split("\n", 1)[0].strip(),
+            "task_name": prompt.split("\n", 1)[0].strip(),
             "world_id": world_meta["world_id"],
-            "prompt": task["instruction"],
-            "context_files": [],
+            "prompt": prompt,
+            "context_files": context_files,
+            "assets": assets,
             "rubric": {
                 "type": "deterministic",
                 "grading": "deterministic",
@@ -575,6 +992,8 @@ def build(output: pathlib.Path) -> dict:
                 "score_weights": {"correctness": 0.6, "deployment": 0.3,
                                   "quality": 0.1},
                 "checks": check_names(task["vcode"]),
+                "criteria": criteria,
+                "decision_options": options,
                 "verifier": f"verifiers/verify_{bench_id}.py",
             },
             "gold_output": gold_output(task),
@@ -591,6 +1010,7 @@ def build(output: pathlib.Path) -> dict:
                 "source_split": split,
                 "reference_tool_calls": n_calls,
                 "required_tools": task.get("required_tools", []),
+                "reference_tools": list(dict.fromkeys(call["tool"] for call in reference_calls)),
                 "guided_instruction_available": True,
                 "curation_rationale": row["rationale"],
                 "data_license": DATA_LICENSE,
@@ -603,6 +1023,8 @@ def build(output: pathlib.Path) -> dict:
         write_text(hf_root / "verifiers" / f"verify_{bench_id}.py",
                    verifier_source(task), executable=True)
         dataset_rows.append((f"{HARBOR_ORG}/{bench_id}", task_dir))
+
+    world_connection.close()
 
     # ---- huggingface shared files
     write_text(hf_root / "data" / "tasks.jsonl",
@@ -667,10 +1089,45 @@ def build(output: pathlib.Path) -> dict:
             "total": sum(call_counts_sorted),
         },
         "exact_duplicate_prompts": len(records) - len(prompts),
+        "prompt_words": {
+            "min": min(prompt_words),
+            "median": sorted(prompt_words)[len(prompt_words) // 2],
+            "max": max(prompt_words),
+        },
+        "unique_reference_tool_name_sequences": len(set(reference_sequences)),
+        "assets_per_task": {
+            "min": min(asset_counts),
+            "median": sorted(asset_counts)[len(asset_counts) // 2],
+            "max": max(asset_counts),
+        },
+        "criteria_per_task": {
+            "min": min(criteria_counts),
+            "median": sorted(criteria_counts)[len(criteria_counts) // 2],
+            "max": max(criteria_counts),
+        },
+        "decision_options_per_task": 3,
         "verifier": {"deterministic": True, "network_calls": 0,
                      "model_calls": 0, "wall_clock_reads": 0, "random_calls": 0},
         "category_table": "| Family | Tasks |\n|---|---:|\n" + category_table,
     }
+    quality_gates = {
+        "one_hundred_tasks": len(records) == 100,
+        "high_level_prompts_unique": len(prompts) == 100,
+        "high_level_prompt_length": min(prompt_words) >= 45 and max(prompt_words) <= 190,
+        "unique_reference_tool_sequences": len(set(reference_sequences)) == 100,
+        "deep_task_assets": min(asset_counts) >= 12,
+        "specific_public_criteria": min(criteria_counts) >= 40,
+        "three_options_one_selected": all(
+            len(record["rubric"]["decision_options"]) == 3
+            and sum(option["selected"] for option in record["rubric"]["decision_options"]) == 1
+            for record in records
+        ),
+    }
+    stats["quality_gates"] = quality_gates
+    stats["release_passed"] = all(quality_gates.values())
+    if not stats["release_passed"]:
+        failed = sorted(name for name, passed in quality_gates.items() if not passed)
+        raise AssertionError(f"DevOpsBench realism gates failed: {failed}")
     write_json(resolved / "reports" / "build.json",
                {k: v for k, v in stats.items() if k != "category_table"})
     write_json(hf_root / "reports" / "build.json",
