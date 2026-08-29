@@ -47,6 +47,12 @@ DATA_LICENSE = "CC-BY-4.0"
 CODE_LICENSE = "Apache-2.0"
 PYTHON_BASE = ("python:3.12-slim@sha256:"
                "7a8b475003c4fe15a2cd4e55e5cfc2f3560bdc9333d624f24cdd6d4340fd7a17")
+PROMPT_LEAKAGE_PATTERN = re.compile(
+    r"\b(?:read_exercise|write_implementation|run_exercise_tests|write_runbook|"
+    r"submit_answer|submit_diagnosis)\s*\(|"
+    r"\b(?:grading|hidden tests?|benchmark|verifier|expected tool calls?)\b",
+    flags=re.IGNORECASE,
+)
 
 CATEGORY_LABELS = {
     "error_rate_reduction": "Error-rate SLO recovery",
@@ -170,6 +176,24 @@ def employee_instruction(task: dict, row: dict) -> str:
     """Remove harness syntax while preserving the employee's actual outcome."""
 
     prompt = task["instruction"].strip()
+    prompt = re.sub(
+        r"Read the specification with read_exercise\('[^']+'\), write your implementation with "
+        r"write_implementation, and run it with run_exercise_tests until the visible tests pass\.",
+        "Use the repository's documented behavior to complete it and leave the available test suite passing.",
+        prompt,
+        flags=re.IGNORECASE,
+    )
+    prompt = prompt.replace(
+        "Write it with write_runbook(title=..., body=...).",
+        "Leave the completed runbook in the shared on-call knowledge base.",
+    )
+    prompt = prompt.replace(
+        "The visible tests are not the whole specification. Other tests run at grading time and are not "
+        "shown to you, so satisfying what you can see is necessary and not sufficient — read the "
+        "specification and implement what it actually says.",
+        "Cover the documented edge cases, not only the obvious happy path. Keep the change scoped to this "
+        "module and leave enough test evidence for an engineer reviewing the patch.",
+    )
     prompt = re.sub(
         r"Submit your finding under scope '([^']+)' with ",
         r"Leave an audit-ready diagnosis for '\1' that names ",
@@ -1114,6 +1138,9 @@ def build(output: pathlib.Path) -> dict:
         "one_hundred_tasks": len(records) == 100,
         "high_level_prompts_unique": len(prompts) == 100,
         "high_level_prompt_length": min(prompt_words) >= 45 and max(prompt_words) <= 190,
+        "no_harness_or_grading_leakage_in_prompts": all(
+            PROMPT_LEAKAGE_PATTERN.search(prompt) is None for prompt in prompts
+        ),
         "unique_reference_tool_sequences": len(set(reference_sequences)) == 100,
         "deep_task_assets": min(asset_counts) >= 12,
         "specific_public_criteria": min(criteria_counts) >= 40,
