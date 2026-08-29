@@ -1,25 +1,10 @@
 #!/usr/bin/env python3
-"""Qualify the built DevOpsBench-100 release by executing every pack.
+"""Execute the DevOpsBench-100 v3 release qualification.
 
-For each of the 100 Harbor packs in dist/devopsbench-100/harbor/tasks this
-suite instantiates the PACK's own world server code (environment/world/
-server.py, loaded from the pack, not from the repo) and runs:
-
-  1. oracle          replay solution/reference.json; verifier must accept with
-                     reward 1.0 (trajectory recorded to huggingface/trajectories/)
-  2. determinism     replay the oracle a second time from pristine state; the
-                     two verifier reports must be exactly identical
-  3. token gate      a wrong capability token must be rejected
-  4. negative controls, each of which must score 0:
-       pristine      a world nobody touched (applies to every task)
-       naive         the policy-blind adversary from eval_model.py, where it
-                     perturbs the procedure-relevant reference steps
-       shortcut      the forbidden-shortcut adversary, where it differs from
-                     the reference
-       wrong_source  right answers read from the wrong system of record,
-                     where the task pins a source of truth
-
-Writes reports/qualification.json (release root + huggingface/reports/).
+Every task is evaluated from pristine state twelve times: an oracle run, an
+exact deterministic replay, and ten task-applicable adversarial controls. A
+release passes only when all 100 oracles and replays pass and all 1,000
+negative executions are rejected by the executable verifier.
 
 Run:  python3 benchmark/devopsbench100/run_suite.py
 """
@@ -27,30 +12,32 @@ Run:  python3 benchmark/devopsbench100/run_suite.py
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 import importlib.util
 import json
 import pathlib
-import shutil
+import sqlite3
 import sys
 import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-import eval_model as EM  # noqa: E402  (scripted adversaries)
-from builder import verification_token  # noqa: E402
+from benchmark.devopsbench100.builder import verification_token  # noqa: E402
 
-sys.path.insert(0, str(HERE))
-
-INSTRUMENTAL = {"search_docs", "get_document", "get_ci_run", "list_migrations",
-                "get_traffic_stats"}
+CONTROL_NAMES = (
+    "noop",
+    "shortcut",
+    "state_only",
+    "incomplete_read",
+    "write_before_read",
+    "missing_readback",
+    "unauthorized_write",
+    "wrong_value",
+    "wrong_decision",
+    "wrong_evidence",
+)
 TRUNCATE_RESULT_AT = 4000
-
-
-def procedure_relevant(calls):
-    return json.dumps([c for c in calls if c["tool"] not in INSTRUMENTAL],
-                      sort_keys=True)
 
 
 def load_pack_world_class(pack_dir: pathlib.Path):
@@ -61,14 +48,151 @@ def load_pack_world_class(pack_dir: pathlib.Path):
     return module.DevOpsWorld
 
 
-def execute(pack_dir: pathlib.Path, calls, task_id: str,
-            trace_destination: pathlib.Path | None = None):
+def _subset(actual, expected) -> bool:
+    if isinstance(expected, dict):
+        return isinstance(actual, dict) and all(
+            key in actual and _subset(actual[key], value)
+            for key, value in expected.items()
+        )
+    if isinstance(expected, list):
+        return (
+            isinstance(actual, list)
+            and len(actual) == len(expected)
+            and all(_subset(left, right) for left, right in zip(actual, expected))
+        )
+    return actual == expected
+
+
+def _matches(call: dict, selector: dict) -> bool:
+    return call.get("tool") == selector.get("tool") and _subset(
+        call.get("args") or {}, selector.get("args") or {}
+    )
+
+
+def negative_plans(reference: dict) -> dict[str, dict]:
+    """Create ten distinct attacks against one task's causal contract."""
+
+    full = deepcopy(reference["expected_calls"])
+    source = deepcopy(reference["source_expected_calls"])
+    contract = reference["trace_contract"]
+    context_count = int(contract["context_call_count"])
+    required = contract["required_context_calls"]
+    mutation_tools = set(contract["source_mutation_tools"])
+    handoff = deepcopy(contract["handoff_call"])
+    readback = deepcopy(contract["readback_call"])
+
+    if full[:context_count] != required:
+        raise ValueError("reference context prefix does not match trace contract")
+    if full[context_count:context_count + len(source)] != source:
+        raise ValueError("reference source workflow does not match trace contract")
+
+    state_only_source = [
+        deepcopy(call) for call in source if call["tool"] in mutation_tools
+    ]
+    if not state_only_source:
+        raise ValueError("state_only control needs at least one source mutation")
+
+    incomplete = deepcopy(full)
+    removable = next(
+        (
+            selector
+            for selector in required
+            if sum(_matches(call, selector) for call in full) == 1
+        ),
+        None,
+    )
+    if removable is None:
+        raise ValueError("no uniquely satisfied evidence selector for incomplete_read")
+    incomplete.pop(next(i for i, call in enumerate(incomplete) if _matches(call, removable)))
+
+    reordered = deepcopy(full)
+    first_mutation = next(
+        i
+        for i in range(context_count, context_count + len(source))
+        if reordered[i]["tool"] in mutation_tools
+    )
+    reordered.insert(0, reordered.pop(first_mutation))
+
+    no_readback = deepcopy(full)
+    readback_positions = [
+        i for i, call in enumerate(no_readback) if _matches(call, readback)
+    ]
+    if not readback_positions or readback_positions[-1] != len(no_readback) - 1:
+        raise ValueError("reference does not end with the contracted readback")
+    no_readback.pop(readback_positions[-1])
+
+    wrong_value = deepcopy(full)
+    handoff_index = context_count + len(source)
+    if not _matches(wrong_value[handoff_index], handoff):
+        raise ValueError("reference handoff position drifted")
+    wrong_value[handoff_index]["args"]["body"] = (
+        "Unsupported completion claim: the case evidence was not reopened or verified."
+    )
+
+    wrong_decision_source = [
+        deepcopy(call) for call in source if call["tool"] not in mutation_tools
+    ]
+    wrong_decision = [
+        *deepcopy(required),
+        *wrong_decision_source,
+        handoff,
+        readback,
+    ]
+
+    wrong_evidence = deepcopy(full)
+    evidence_index = next(
+        (
+            i
+            for i, call in enumerate(wrong_evidence[:context_count])
+            if call.get("tool") == "jira_search"
+            and (call.get("args") or {}).get("project") == "DOB"
+        ),
+        None,
+    )
+    if evidence_index is None:
+        raise ValueError("wrong_evidence control needs the DOB Jira lookup")
+    wrong_evidence[evidence_index]["args"]["project"] = "ENG"
+
+    controls = {
+        "noop": {"calls": []},
+        "shortcut": {"calls": source},
+        "state_only": {"calls": [*state_only_source, handoff, readback]},
+        "incomplete_read": {"calls": incomplete},
+        "write_before_read": {"calls": reordered},
+        "missing_readback": {"calls": no_readback},
+        "unauthorized_write": {"calls": full, "tamper_frozen_state": True},
+        "wrong_value": {"calls": wrong_value},
+        "wrong_decision": {"calls": wrong_decision},
+        "wrong_evidence": {"calls": wrong_evidence},
+    }
+    if tuple(controls) != CONTROL_NAMES:
+        raise AssertionError("negative-control registry drifted")
+    reference_json = json.dumps(full, sort_keys=True)
+    for name, control in controls.items():
+        if (
+            not control.get("tamper_frozen_state")
+            and json.dumps(control["calls"], sort_keys=True) == reference_json
+        ):
+            raise ValueError(f"{name} control is identical to the oracle")
+    return controls
+
+
+def execute(
+    pack_dir: pathlib.Path,
+    calls: list[dict],
+    task_id: str,
+    trace_destination: pathlib.Path | None = None,
+    *,
+    tamper_frozen_state: bool = False,
+):
     """Run one episode against a fresh copy of the pack's world."""
+
     DevOpsWorld = load_pack_world_class(pack_dir)
     world_dir = pack_dir / "environment" / "world"
     with tempfile.TemporaryDirectory(prefix="dob_suite_") as temporary:
-        world = DevOpsWorld(world_dir, pathlib.Path(temporary) / "state",
-                            task_id=task_id)
+        world = DevOpsWorld(
+            world_dir, pathlib.Path(temporary) / "state", task_id=task_id
+        )
         trace = []
         for call in calls:
             result = world.call_tool(call["tool"], call.get("args", {}))
@@ -76,10 +200,25 @@ def execute(pack_dir: pathlib.Path, calls, task_id: str,
                 text = json.dumps(result, ensure_ascii=False, sort_keys=True)
                 if len(text) > TRUNCATE_RESULT_AT:
                     text = text[:TRUNCATE_RESULT_AT] + "...[truncated]"
-                trace.append({"tool": call["tool"],
-                              "args": call.get("args", {}),
-                              "ok": not DevOpsWorld._is_structured_error(result),
-                              "result": text})
+                trace.append(
+                    {
+                        "tool": call["tool"],
+                        "args": call.get("args", {}),
+                        "ok": not DevOpsWorld._is_structured_error(result),
+                        "result": text,
+                    }
+                )
+        if tamper_frozen_state:
+            with sqlite3.connect(world.db) as connection:
+                channel = connection.execute(
+                    "SELECT channel FROM channels ORDER BY channel LIMIT 1"
+                ).fetchone()
+                if channel is None:
+                    raise ValueError("channels table is unexpectedly empty")
+                connection.execute(
+                    "UPDATE channels SET purpose=purpose || ? WHERE channel=?",
+                    (" [unauthorized negative-control mutation]", channel[0]),
+                )
         token = verification_token(pack_dir.name)
         wrong_token_rejected = False
         try:
@@ -91,13 +230,23 @@ def execute(pack_dir: pathlib.Path, calls, task_id: str,
             trace_destination.parent.mkdir(parents=True, exist_ok=True)
             with trace_destination.open("w", encoding="utf-8") as stream:
                 for step in trace:
-                    stream.write(json.dumps(step, ensure_ascii=False,
-                                            sort_keys=True) + "\n")
-                stream.write(json.dumps(
-                    {"verdict": {"passed": report.get("passed"),
-                                 "reward": report.get("reward"),
-                                 "score": report.get("score")}},
-                    ensure_ascii=False, sort_keys=True) + "\n")
+                    stream.write(
+                        json.dumps(step, ensure_ascii=False, sort_keys=True) + "\n"
+                    )
+                stream.write(
+                    json.dumps(
+                        {
+                            "verdict": {
+                                "passed": report.get("passed"),
+                                "reward": report.get("reward"),
+                                "score": report.get("score"),
+                            }
+                        },
+                        ensure_ascii=False,
+                        sort_keys=True,
+                    )
+                    + "\n"
+                )
     return report, wrong_token_rejected
 
 
@@ -108,28 +257,29 @@ def run(release: pathlib.Path) -> dict:
     if len(task_dirs) != 100:
         raise ValueError(f"expected 100 packs, found {len(task_dirs)}")
 
-    world_tasks = {t["task_id"]: t for t in
-                   json.loads((ROOT / "world" / "tasks.json").read_text())}
-
     oracle_passes = 0
     determinism_matches = 0
     token_gate_passes = 0
-    false_accepts = {"pristine": 0, "naive": 0, "shortcut": 0, "wrong_source": 0}
-    applicable = {"pristine": 0, "naive": 0, "shortcut": 0, "wrong_source": 0}
+    false_accepts = {name: 0 for name in CONTROL_NAMES}
+    applicable = {name: 0 for name in CONTROL_NAMES}
     task_results = []
     executions = 0
 
     for pack_dir in task_dirs:
         bench_id = pack_dir.name
         reference = json.loads(
-            (pack_dir / "solution" / "reference.json").read_text())
-        task = world_tasks[reference["task_id"]]
+            (pack_dir / "solution" / "reference.json").read_text()
+        )
+        task_id = reference["task_id"]
         ref_calls = reference["expected_calls"]
 
         first, wrong_rejected = execute(
-            pack_dir, ref_calls, reference["task_id"],
-            trace_destination=hf_root / "trajectories" / f"{bench_id}.jsonl")
-        second, _ = execute(pack_dir, ref_calls, reference["task_id"])
+            pack_dir,
+            ref_calls,
+            task_id,
+            trace_destination=hf_root / "trajectories" / f"{bench_id}.jsonl",
+        )
+        second, _ = execute(pack_dir, ref_calls, task_id)
         executions += 2
         oracle_ok = bool(first.get("passed")) and first.get("reward") == 1.0
         oracle_passes += int(oracle_ok)
@@ -137,21 +287,14 @@ def run(release: pathlib.Path) -> dict:
         determinism_matches += int(deterministic)
         token_gate_passes += int(wrong_rejected)
 
-        negative_plans = {"pristine": []}
-        source_calls = task["expected_calls"]
-        naive = EM.naive_calls(task)
-        if json.dumps(naive, sort_keys=True) != json.dumps(source_calls, sort_keys=True):
-            negative_plans["naive"] = naive
-        shortcut = EM.shortcut_calls(task)
-        if json.dumps(shortcut, sort_keys=True) != json.dumps(source_calls, sort_keys=True):
-            negative_plans["shortcut"] = shortcut
-        wrong = EM.wrong_source_calls(task)
-        if wrong is not None:
-            negative_plans["wrong_source"] = wrong
-
         negatives = {}
-        for name, plan in negative_plans.items():
-            report, _ = execute(pack_dir, plan, reference["task_id"])
+        for name, control in negative_plans(reference).items():
+            report, _ = execute(
+                pack_dir,
+                control["calls"],
+                task_id,
+                tamper_frozen_state=control.get("tamper_frozen_state", False),
+            )
             executions += 1
             applicable[name] += 1
             accepted = bool(report.get("passed"))
@@ -159,35 +302,48 @@ def run(release: pathlib.Path) -> dict:
             negatives[name] = {
                 "passed": accepted,
                 "failed_checks": sorted(
-                    a["name"] for a in report.get("assertions", [])
-                    if not a["passed"]),
+                    assertion["name"]
+                    for assertion in report.get("assertions", [])
+                    if not assertion["passed"]
+                ),
             }
 
-        task_results.append({
-            "bench_id": bench_id,
-            "source_task_id": reference["task_id"],
-            "oracle_passed": oracle_ok,
-            "oracle_reward": first.get("reward"),
-            "oracle_score": first.get("score"),
-            "oracle_successful_tool_calls": first.get("successful_tool_calls"),
-            "oracle_report_sha256": first.get("report_sha256"),
-            "second_oracle_report_sha256": second.get("report_sha256"),
-            "deterministic_replay_match": deterministic,
-            "wrong_token_rejected": wrong_rejected,
-            "negative_executions": negatives,
-        })
-        print("[%3d/100] %-44s oracle=%s det=%s gate=%s negatives=%s"
-              % (len(task_results), bench_id, oracle_ok, deterministic,
-                 wrong_rejected,
-                 {k: v["passed"] for k, v in sorted(negatives.items())}),
-              flush=True)
+        task_results.append(
+            {
+                "bench_id": bench_id,
+                "source_task_id": task_id,
+                "oracle_passed": oracle_ok,
+                "oracle_reward": first.get("reward"),
+                "oracle_score": first.get("score"),
+                "oracle_successful_tool_calls": first.get("successful_tool_calls"),
+                "oracle_report_sha256": first.get("report_sha256"),
+                "second_oracle_report_sha256": second.get("report_sha256"),
+                "deterministic_replay_match": deterministic,
+                "wrong_token_rejected": wrong_rejected,
+                "negative_executions": negatives,
+            }
+        )
+        print(
+            "[%3d/100] %-44s oracle=%s det=%s gate=%s negatives=%s"
+            % (
+                len(task_results),
+                bench_id,
+                oracle_ok,
+                deterministic,
+                wrong_rejected,
+                {key: value["passed"] for key, value in negatives.items()},
+            ),
+            flush=True,
+        )
 
+    expected_executions = len(task_dirs) * (2 + len(CONTROL_NAMES))
     report = {
-        "schema_version": "1.0",
+        "schema_version": "2.0",
         "benchmark": "DevOpsBench-100",
-        "version": "2.0.0",
+        "version": "3.0.0",
         "task_count": len(task_dirs),
         "executions": executions,
+        "expected_executions": expected_executions,
         "oracle": {
             "executions": len(task_dirs),
             "passes": oracle_passes,
@@ -211,29 +367,51 @@ def run(release: pathlib.Path) -> dict:
             for name, count in false_accepts.items()
         },
         "release_passed": (
-            oracle_passes == len(task_dirs)
+            executions == expected_executions
+            and oracle_passes == len(task_dirs)
             and determinism_matches == len(task_dirs)
             and token_gate_passes == len(task_dirs)
+            and all(applicable[name] == len(task_dirs) for name in CONTROL_NAMES)
             and not any(false_accepts.values())
         ),
         "task_results": task_results,
     }
-    for target in (release / "reports" / "qualification.json",
-                   hf_root / "reports" / "qualification.json"):
+    for target in (
+        release / "reports" / "qualification.json",
+        hf_root / "reports" / "qualification.json",
+    ):
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n",
-                          encoding="utf-8")
-    print(json.dumps({k: report[k] for k in
-                      ("release_passed", "executions", "oracle", "determinism",
-                       "verify_token_gate", "negative_controls")},
-                     indent=2, sort_keys=True))
+        target.write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+    print(
+        json.dumps(
+            {
+                key: report[key]
+                for key in (
+                    "release_passed",
+                    "executions",
+                    "expected_executions",
+                    "oracle",
+                    "determinism",
+                    "verify_token_gate",
+                    "negative_controls",
+                )
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
     return report
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--release", type=pathlib.Path,
-                        default=ROOT / "dist" / "devopsbench-100")
+    parser.add_argument(
+        "--release",
+        type=pathlib.Path,
+        default=ROOT / "dist" / "devopsbench-100",
+    )
     return parser.parse_args()
 
 
