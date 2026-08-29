@@ -30,9 +30,9 @@
   },
   "category_count": 19,
   "criteria_per_task": {
-    "max": 86,
-    "median": 78,
-    "min": 71
+    "max": 14,
+    "median": 14,
+    "min": 14
   },
   "decision_options_per_task": 3,
   "difficulties": {
@@ -41,12 +41,17 @@
     "hard": 31,
     "medium": 29
   },
-  "evidence_reads_per_task": {
-    "max": 25,
-    "median": 22,
-    "min": 20
-  },
   "exact_duplicate_prompts": 0,
+  "material_assets_per_task": {
+    "max": 12,
+    "median": 12,
+    "min": 12
+  },
+  "material_evidence_reads_per_task": {
+    "max": 13,
+    "median": 13,
+    "min": 13
+  },
   "native_asset_formats": [
     "csv",
     "eml",
@@ -59,6 +64,11 @@
     "xlsx",
     "yaml"
   ],
+  "postwrite_readbacks_per_task": {
+    "max": 9,
+    "median": 3,
+    "min": 1
+  },
   "prompt_max_pairwise_jaccard": 0.709924,
   "prompt_words": {
     "max": 219,
@@ -67,32 +77,41 @@
   },
   "quality_gates": {
     "all_agent_visible_assets_unique": true,
-    "deep_causal_evidence_reads": true,
+    "deep_reference_investigation": true,
     "deep_task_assets": true,
+    "explicit_postwrite_readback": true,
     "high_level_prompt_length": true,
     "high_level_prompt_similarity": true,
     "high_level_prompts_unique": true,
     "long_horizon_reference": true,
+    "material_assets_inside_evidence_room": true,
+    "material_causal_evidence_reads": true,
     "native_asset_formats": true,
     "no_gold_or_recipe_leakage_in_assets": true,
     "no_harness_or_grading_leakage_in_prompts": true,
     "one_hundred_tasks": true,
     "reference_tool_sequence_similarity": true,
     "semantic_action_graph_similarity": true,
-    "specific_public_criteria": true,
+    "semantic_milestone_weights": true,
+    "semantic_public_milestones": true,
     "three_options_one_selected": true,
     "unique_reference_tool_sequences": true,
     "unique_semantic_action_graphs": true
   },
-  "reference_sequence_max_pairwise_similarity": 0.96,
+  "reference_evidence_reads_per_task": {
+    "max": 25,
+    "median": 22,
+    "min": 20
+  },
+  "reference_sequence_max_pairwise_similarity": 0.962963,
   "reference_tool_calls": {
-    "max": 58,
-    "median": 37,
-    "min": 27,
-    "total": 3716
+    "max": 67,
+    "median": 40,
+    "min": 28,
+    "total": 4010
   },
   "release_passed": true,
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "semantic_graph_max_pairwise_jaccard": 0.1,
   "task_count": 100,
   "unique_agent_visible_assets": 2800,
@@ -105,7 +124,7 @@
     "random_calls": 0,
     "wall_clock_reads": 0
   },
-  "version": "3.0.0",
+  "version": "3.1.0",
   "world_commits": 417,
   "world_documents": 30,
   "world_seeded_rows": 1451,

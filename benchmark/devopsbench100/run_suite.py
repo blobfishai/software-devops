@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execute the DevOpsBench-100 v3 release qualification.
+"""Execute the DevOpsBench-100 v3.1 semantic release qualification.
 
 Every task is evaluated from pristine state twelve times: an oracle run, an
 exact deterministic replay, and ten task-applicable adversarial controls. A
@@ -16,6 +16,7 @@ from copy import deepcopy
 import importlib.util
 import json
 import pathlib
+import re
 import sqlite3
 import sys
 import tempfile
@@ -38,6 +39,21 @@ CONTROL_NAMES = (
     "wrong_evidence",
 )
 TRUNCATE_RESULT_AT = 4000
+EPHEMERAL_TOOL_DIRECTORY = re.compile(
+    r"(?:/[^\s\"'\\]+)*/(?:ws|exercise|dob_suite)_[A-Za-z0-9_-]+"
+)
+
+
+def stable_trace_value(value):
+    """Remove host-specific temporary directory names from public traces."""
+
+    if isinstance(value, str):
+        return EPHEMERAL_TOOL_DIRECTORY.sub("<task-workspace>", value)
+    if isinstance(value, list):
+        return [stable_trace_value(item) for item in value]
+    if isinstance(value, dict):
+        return {key: stable_trace_value(item) for key, item in value.items()}
+    return value
 
 
 def load_pack_world_class(pack_dir: pathlib.Path):
@@ -75,16 +91,25 @@ def negative_plans(reference: dict) -> dict[str, dict]:
     full = deepcopy(reference["expected_calls"])
     source = deepcopy(reference["source_expected_calls"])
     contract = reference["trace_contract"]
-    context_count = int(contract["context_call_count"])
+    context_count = int(contract["reference_context_call_count"])
+    reference_context = contract["reference_context_calls"]
     required = contract["required_context_calls"]
     mutation_tools = set(contract["source_mutation_tools"])
+    postwrite_readbacks = deepcopy(contract["postwrite_readback_calls"])
     handoff = deepcopy(contract["handoff_call"])
     readback = deepcopy(contract["readback_call"])
 
-    if full[:context_count] != required:
+    if full[:context_count] != reference_context:
         raise ValueError("reference context prefix does not match trace contract")
     if full[context_count:context_count + len(source)] != source:
         raise ValueError("reference source workflow does not match trace contract")
+    postwrite_start = context_count + len(source)
+    postwrite_end = postwrite_start + len(postwrite_readbacks)
+    if full[postwrite_start:postwrite_end] != postwrite_readbacks:
+        raise ValueError("reference post-write readbacks do not match trace contract")
+    handoff_index = postwrite_end
+    if not _matches(full[handoff_index], handoff):
+        raise ValueError("reference handoff position drifted")
 
     state_only_source = [
         deepcopy(call) for call in source if call["tool"] in mutation_tools
@@ -93,17 +118,17 @@ def negative_plans(reference: dict) -> dict[str, dict]:
         raise ValueError("state_only control needs at least one source mutation")
 
     incomplete = deepcopy(full)
-    removable = next(
-        (
-            selector
-            for selector in required
-            if sum(_matches(call, selector) for call in full) == 1
+    removable = min(
+        required,
+        key=lambda selector: sum(
+            _matches(call, selector) for call in full[:context_count]
         ),
-        None,
     )
-    if removable is None:
-        raise ValueError("no uniquely satisfied evidence selector for incomplete_read")
-    incomplete.pop(next(i for i, call in enumerate(incomplete) if _matches(call, removable)))
+    incomplete = [
+        call
+        for index, call in enumerate(incomplete)
+        if index >= context_count or not _matches(call, removable)
+    ]
 
     reordered = deepcopy(full)
     first_mutation = next(
@@ -113,16 +138,18 @@ def negative_plans(reference: dict) -> dict[str, dict]:
     )
     reordered.insert(0, reordered.pop(first_mutation))
 
-    no_readback = deepcopy(full)
-    readback_positions = [
-        i for i, call in enumerate(no_readback) if _matches(call, readback)
+    if not _matches(full[-1], readback):
+        raise ValueError("reference does not end with the contracted handoff readback")
+    no_readback = [
+        call
+        for index, call in enumerate(deepcopy(full))
+        if not (postwrite_start <= index < postwrite_end)
+        and index != len(full) - 1
     ]
-    if not readback_positions or readback_positions[-1] != len(no_readback) - 1:
-        raise ValueError("reference does not end with the contracted readback")
-    no_readback.pop(readback_positions[-1])
+    if not postwrite_readbacks:
+        raise ValueError("reference must contain provider post-write readbacks")
 
     wrong_value = deepcopy(full)
-    handoff_index = context_count + len(source)
     if not _matches(wrong_value[handoff_index], handoff):
         raise ValueError("reference handoff position drifted")
     wrong_value[handoff_index]["args"]["body"] = (
@@ -133,25 +160,22 @@ def negative_plans(reference: dict) -> dict[str, dict]:
         deepcopy(call) for call in source if call["tool"] not in mutation_tools
     ]
     wrong_decision = [
-        *deepcopy(required),
+        *deepcopy(reference_context),
         *wrong_decision_source,
         handoff,
         readback,
     ]
 
     wrong_evidence = deepcopy(full)
-    evidence_index = next(
-        (
-            i
-            for i, call in enumerate(wrong_evidence[:context_count])
-            if call.get("tool") == "jira_search"
-            and (call.get("args") or {}).get("project") == "DOB"
-        ),
-        None,
+    wrong_evidence = [
+        call
+        for index, call in enumerate(wrong_evidence)
+        if index >= context_count or not _matches(call, removable)
+    ]
+    wrong_evidence.insert(
+        0,
+        {"tool": "jira_search", "args": {"project": "ENG"}},
     )
-    if evidence_index is None:
-        raise ValueError("wrong_evidence control needs the DOB Jira lookup")
-    wrong_evidence[evidence_index]["args"]["project"] = "ENG"
 
     controls = {
         "noop": {"calls": []},
@@ -197,7 +221,9 @@ def execute(
         for call in calls:
             result = world.call_tool(call["tool"], call.get("args", {}))
             if trace_destination is not None:
-                text = json.dumps(result, ensure_ascii=False, sort_keys=True)
+                text = json.dumps(
+                    stable_trace_value(result), ensure_ascii=False, sort_keys=True
+                )
                 if len(text) > TRUNCATE_RESULT_AT:
                     text = text[:TRUNCATE_RESULT_AT] + "...[truncated]"
                 trace.append(
@@ -315,6 +341,16 @@ def run(release: pathlib.Path) -> dict:
                 "oracle_passed": oracle_ok,
                 "oracle_reward": first.get("reward"),
                 "oracle_score": first.get("score"),
+                "oracle_points": first.get("points"),
+                "semantic_weights": first.get("semantic_weights"),
+                "semantic_milestones": {
+                    milestone["id"]: {
+                        "passed": milestone["passed"],
+                        "points": milestone["points"],
+                        "weight": milestone["weight"],
+                    }
+                    for milestone in first.get("milestones", [])
+                },
                 "oracle_successful_tool_calls": first.get("successful_tool_calls"),
                 "oracle_report_sha256": first.get("report_sha256"),
                 "second_oracle_report_sha256": second.get("report_sha256"),
@@ -338,10 +374,16 @@ def run(release: pathlib.Path) -> dict:
 
     expected_executions = len(task_dirs) * (2 + len(CONTROL_NAMES))
     report = {
-        "schema_version": "2.0",
+        "schema_version": "3.0",
         "benchmark": "DevOpsBench-100",
-        "version": "3.0.0",
+        "version": "3.1.0",
         "task_count": len(task_dirs),
+        "metric": {
+            "name": "DevOpsBench semantic causal completion",
+            "milestones_per_task": 14,
+            "points_per_task": 100,
+            "pass_rule": "all semantic milestones pass",
+        },
         "executions": executions,
         "expected_executions": expected_executions,
         "oracle": {
@@ -384,6 +426,10 @@ def run(release: pathlib.Path) -> dict:
         target.write_text(
             json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
+    if report["release_passed"]:
+        from benchmark.devopsbench100.finalize import seal
+
+        seal(release)
     print(
         json.dumps(
             {

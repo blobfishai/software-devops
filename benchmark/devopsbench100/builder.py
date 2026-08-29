@@ -38,16 +38,14 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from export_harbor import VERIFIER_TEMPLATE  # noqa: E402  (reused verbatim)
 from benchmark.devopsbench100.realism import (  # noqa: E402
     augment_vcode as v3_augment_vcode,
     case_contract as v3_case_contract,
-    check_descriptions as v3_check_descriptions,
     decision_options as v3_decision_options,
-    reasoning_criteria as v3_reasoning_criteria,
     rebase_vcode_invariants as v3_rebase_vcode_invariants,
     reference_calls as v3_reference_calls,
     release_prompt as v3_release_prompt,
+    semantic_milestones as v31_semantic_milestones,
     seed_case_evidence as v3_seed_case_evidence,
     validate_native_asset as v3_validate_native_asset,
     write_asset_views as v3_write_asset_views,
@@ -55,7 +53,7 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "3.0.0"
+RELEASE_VERSION = "3.1.0"
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
 CODE_LICENSE = "Apache-2.0"
@@ -288,79 +286,17 @@ def distinct_reference_calls(
     raise ValueError("could not create a distinct task reference sequence")
 
 
-def _literal_dict(vcode: str, name: str) -> dict[str, Any]:
-    match = re.search(rf"^{re.escape(name)}\s*=\s*(\{{.*?\}})$", vcode, re.MULTILINE)
-    if not match:
-        return {}
-    value = ast.literal_eval(match.group(1))
-    return value if isinstance(value, dict) else {}
-
-
 def rubric_criteria(
     task: dict,
     row: dict,
     contract: dict,
     trace_contract: dict,
-) -> list[dict[str, str]]:
-    """Expose the concrete subconditions behind the executable vcode."""
+) -> list[dict[str, Any]]:
+    """Expose semantic employee outcomes with raw checks nested as evidence."""
 
-    rows: list[dict[str, str]] = []
-
-    def add(category: str, criterion_id: str, description: str, enforced_by: str) -> None:
-        rows.append(
-            {
-                "id": f"{category}.{criterion_id}",
-                "category": category,
-                "description": description,
-                "enforced_by": enforced_by,
-            }
-        )
-
-    descriptions = v3_check_descriptions(task["vcode"])
-    for dimension, names in check_names(task["vcode"]).items():
-        for name in names:
-            add(
-                dimension,
-                name,
-                descriptions.get(
-                    (dimension, name),
-                    f"Verify {name.replace('_', ' ')} against the task-scoped final state and append-only audit log.",
-                ),
-                f"vcode:{dimension}.{name}",
-            )
-    rows.extend(v3_reasoning_criteria(row, contract, trace_contract))
-    for table, digest in sorted(_literal_dict(task["vcode"], "_FROZEN").items()):
-        add(
-            "containment",
-            f"{table}.digest",
-            f"Leave unrelated {table} rows unchanged; the verifier recomputes frozen digest {digest} as part of world integrity.",
-            "vcode:correctness.world_invariants_intact",
-        )
-    for table, count in sorted(_literal_dict(task["vcode"], "_FIXED_ROWS").items()):
-        add(
-            "containment",
-            f"{table}.row_count",
-            f"Preserve exactly {count} seeded rows in {table}; additions or deletions outside scope fail world integrity.",
-            "vcode:correctness.world_invariants_intact",
-        )
-    submission = next(
-        (
-            call
-            for call in task["expected_calls"]
-            if call["tool"] in {"submit_answer", "submit_diagnosis"}
-        ),
-        None,
-    )
-    if submission:
-        for field in submission.get("args", {}):
-            add(
-                "answer",
-                field,
-                f"Return the task-supported {field} field in the auditable result, with the exact type and scope enforced by the source-state verifier.",
-                "vcode:correctness answer or diagnosis checks",
-            )
-    if len(rows) < 20:
-        raise ValueError(f"{row['bench_id']} exposes only {len(rows)} criteria")
+    rows = v31_semantic_milestones(task, row, contract, trace_contract)
+    if len(rows) != 14 or sum(row["weight"] for row in rows) != 100:
+        raise ValueError(f"{row['bench_id']} semantic rubric is not 14 milestones / 100")
     return rows
 
 
@@ -546,18 +482,26 @@ def write_asset_views(
     return context_files, assets
 
 
-def gold_output(task: dict) -> dict:
+def gold_output(task: dict, milestones: list[dict[str, Any]]) -> dict:
     submitted = [
         {"tool": c["tool"], "arguments": c.get("args", {})}
         for c in task.get("expected_calls", [])
         if c["tool"] in ("submit_answer", "submit_diagnosis")
     ]
     return {
-        "expected_final_state_checks": check_names(task["vcode"]),
+        "expected_semantic_milestones": [
+            {"id": milestone["id"], "weight": milestone["weight"]}
+            for milestone in milestones
+        ],
+        "atomic_check_count": sum(
+            len(milestone["atomic_checks"]) for milestone in milestones
+        ),
         "ground_truth_submissions": submitted,
-        "note": ("Acceptance is state-based: every correctness and deployment "
-                 "check must hold over the final world database and its "
-                 "append-only audit log."),
+        "note": (
+            "Acceptance is causal and state-based: all semantic milestones must "
+            "hold over successful material reads, provider state, post-write "
+            "readback, the append-only audit log, and write-scope containment."
+        ),
     }
 
 
@@ -794,11 +738,126 @@ def slim_tools(tools: list[dict]) -> list[dict]:
              "json_schema": t.get("json_schema", {})} for t in tools]
 
 
-def verifier_source(task: dict) -> str:
-    return VERIFIER_TEMPLATE.format(
-        task_id=task["task_id"], category=task.get("category", ""),
-        fname="verify_task.py",
-        vcode=task["vcode"].replace("\\", "\\\\").replace('"""', '\\"\\"\\"'))
+def verifier_source(task: dict, milestones: list[dict[str, Any]]) -> str:
+    """Render the standalone verifier with one 100-point semantic metric."""
+
+    return f'''#!/usr/bin/env python3
+"""Deterministic semantic verifier for {task["task_id"]}."""
+import hashlib
+import json
+import sqlite3
+import sys
+
+TASK_ID = {task["task_id"]!r}
+CATEGORY = {task.get("category", "")!r}
+MILESTONES = {milestones!r}
+VCODE = {task["vcode"]!r}
+
+
+def _runtime_atomic_checks(checks):
+    totals = {{}}
+    for dimension, name, _passed, _message in checks:
+        key = (dimension, name)
+        totals[key] = totals.get(key, 0) + 1
+    seen = {{}}
+    output = {{}}
+    for dimension, name, passed, message in checks:
+        key = (dimension, name)
+        seen[key] = seen.get(key, 0) + 1
+        suffix = "#%d" % seen[key] if totals[key] > 1 else ""
+        check_id = "%s.%s%s" % (dimension, name, suffix)
+        output[check_id] = {{
+            "id": check_id,
+            "dimension": dimension,
+            "name": name,
+            "passed": bool(passed),
+            "message": message,
+        }}
+    return output
+
+
+def verify(db_path):
+    conn = sqlite3.connect("file:%s?mode=ro" % db_path, uri=True)
+    conn.row_factory = sqlite3.Row
+    namespace = {{
+        "conn": conn,
+        "sqlite3": sqlite3,
+        "json": json,
+        "hashlib": hashlib,
+        "db_path": db_path,
+        "DB_PATH": db_path,
+        "final_answer": "",
+        "answer": "",
+    }}
+    namespace["get_db"] = lambda: conn
+    error = None
+    try:
+        exec(compile(VCODE, "<vcode>", "exec"), namespace)
+    except AssertionError as exc:
+        error = "assertion: %s" % exc
+    except Exception as exc:  # noqa: BLE001
+        error = "%s: %s" % (type(exc).__name__, exc)
+    finally:
+        conn.close()
+
+    atomic = _runtime_atomic_checks(namespace.get("_checks") or [])
+    milestone_reports = []
+    for milestone in MILESTONES:
+        evidence = []
+        passed_count = 0
+        for expected in milestone["atomic_checks"]:
+            actual = atomic.get(expected["id"])
+            passed = bool(actual and actual["passed"])
+            passed_count += int(passed)
+            evidence.append({{
+                "id": expected["id"],
+                "passed": passed,
+                "message": (actual or expected).get("message")
+                    or expected.get("description", ""),
+            }})
+        total = len(evidence)
+        fraction = passed_count / total if total else 0.0
+        points = round(float(milestone["weight"]) * fraction, 6)
+        milestone_reports.append({{
+            "id": milestone["id"],
+            "category": milestone["category"],
+            "description": milestone["description"],
+            "weight": milestone["weight"],
+            "passed": total > 0 and passed_count == total,
+            "passed_checks": passed_count,
+            "total_checks": total,
+            "points": points,
+            "evidence": evidence,
+        }})
+
+    points = round(sum(item["points"] for item in milestone_reports), 6)
+    reward = round(points / 100.0, 4)
+    failed = [item["id"] for item in milestone_reports if not item["passed"]]
+    passed = bool(milestone_reports) and not failed and error is None
+    return {{
+        "task_id": TASK_ID,
+        "category": CATEGORY,
+        "passed": passed,
+        "reward": reward,
+        "score": reward,
+        "points": points,
+        "semantic_weights": {{item["id"]: item["weight"] for item in MILESTONES}},
+        "milestones": milestone_reports,
+        "dimensions": {{
+            item["id"]: "%d/%d" % (item["passed_checks"], item["total_checks"])
+            for item in milestone_reports
+        }},
+        "assertions": list(atomic.values()),
+        "failure_reason": error or "; ".join(failed),
+    }}
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("usage: %s <world.db>" % sys.argv[0], file=sys.stderr)
+        raise SystemExit(2)
+    print(json.dumps(verify(sys.argv[1]), indent=2))
+'''
 
 
 # ------------------------------------------------------- harbor content digest
@@ -872,14 +931,16 @@ PagerDuty, Confluence, spreadsheets) and Kubernetes.
 Tasks are outcome-only tickets (symptom + definition of done; company policy
 lives in the world's knowledge base, not the prompt). Reference trajectories
 run {calls['min']}-{calls['max']} tool calls (median {calls['median']}), with
-100/100 distinct tool-name sequences. Every task publishes 14 task-scoped
-initial-state views, three operational alternatives, and
-{stats['criteria_per_task']['min']}-{stats['criteria_per_task']['max']} explicit
-vcode/evidence/containment criteria.
-Acceptance is fully deterministic: each task ships an executable vcode
-verifier that checks the final world state and the append-only audit log,
-with anti-forgery table pins - no LLM judge, no network, no clock in the
-reward path.
+100/100 distinct tool-name sequences. Every task publishes 28 task-scoped
+native assets, with 12 marked materially causal and the remainder retained as
+context, conflicts, lineage, and decoys. The reference performs
+{stats['reference_evidence_reads_per_task']['min']}-{stats['reference_evidence_reads_per_task']['max']}
+context reads, while the verifier requires the 13 decision-controlling joins,
+task-specific state transitions, provider readback, and a reopened handoff.
+Acceptance is fully deterministic and expressed as 14 task-specific semantic
+milestones totaling 100 points. Low-level vcode, final-state, sequence, and
+anti-forgery checks remain nested verifier evidence - no LLM judge, network,
+or clock is in the reward path.
 
 ## What is included
 
@@ -887,7 +948,7 @@ reward path.
   `prompt`, `context_files`, `rubric`, `gold_output`, `metadata`).
 - `tasks/`: one readable JSON record per task (includes the guided
   instruction variant).
-- `task_files/`: 14 inspectable views per task spanning tickets, services,
+- `task_files/`: 28 inspectable views per task spanning tickets, services,
   observability, incidents, deployments, code, CI, migrations, vendor trackers,
   knowledge, chat, approvals, and exact tool contracts.
 - `world/`: the offline world source - stdlib MCP server, tool implementations,
@@ -908,8 +969,10 @@ reward path.
 | Tasks | 100 | 100 |
 | High-level unique employee requests | 100 | 100 |
 | Unique reference tool sequences | 100 | {stats['unique_reference_tool_name_sequences']} |
-| Inspectable assets per task | >=12 | {stats['assets_per_task']['min']} |
-| Public criteria per task | >=40 | {stats['criteria_per_task']['min']}-{stats['criteria_per_task']['max']} |
+| Inspectable assets per task | 28 | {stats['assets_per_task']['min']} |
+| Material assets per task | 12 | {stats['material_assets_per_task']['min']} |
+| Material causal reads per task | 13 | {stats['material_evidence_reads_per_task']['min']} |
+| Semantic milestones / points | 14 / 100 | {stats['criteria_per_task']['min']} / 100 |
 | Oracle replays at reward 1.0 | 100/100 | see `reports/qualification.json` |
 | Deterministic verifier replays | 100/100 | see `reports/qualification.json` |
 | Negative-control false accepts | 0 | see `reports/qualification.json` |
@@ -963,11 +1026,15 @@ def build(output: pathlib.Path) -> dict:
     reference_sequences: list[tuple[str, ...]] = []
     semantic_graphs: list[tuple[str, ...]] = []
     context_counts: list[int] = []
+    material_context_counts: list[int] = []
+    postwrite_readback_counts: list[int] = []
     asset_counts: list[int] = []
+    material_asset_counts: list[int] = []
     asset_hashes: list[str] = []
     asset_leakage_hits: list[str] = []
     native_formats: set[str] = set()
     criteria_counts: list[int] = []
+    criteria_weight_totals: list[int] = []
 
     for row in catalog["tasks"]:
         source_task = world_tasks[row["task_id"]]
@@ -1008,9 +1075,11 @@ def build(output: pathlib.Path) -> dict:
         task = {
             **source_task,
             "instruction": prompt,
+            "source_instruction": source_task["instruction"],
             "expected_calls": reference_calls,
             "vcode": vcode,
         }
+        criteria = rubric_criteria(task, row, contract, trace_contract)
 
         write_text(task_dir / "task.toml", task_toml(row, task, split))
         write_text(task_dir / "instruction.md", prompt + "\n")
@@ -1018,9 +1087,9 @@ def build(output: pathlib.Path) -> dict:
         write_text(env / "docker-compose.yaml", compose_yaml(row["task_id"]))
         write_text(env / "tool", tool_cli(), executable=True)
         write_text(world_dir / "tools.json", slim + "\n")
-        write_text(world_dir / "verify_task.py", verifier_source(task))
+        write_text(world_dir / "verify_task.py", verifier_source(task, criteria))
         write_json(world_dir / "spec.json", {
-            "schema_version": "1.0",
+            "schema_version": "2.0",
             "benchmark": RELEASE_NAME,
             "benchmark_version": RELEASE_VERSION,
             "bench_id": bench_id,
@@ -1031,7 +1100,10 @@ def build(output: pathlib.Path) -> dict:
             "world_digest": world_meta["world_digest"],
             "case_id": contract["case_id"],
             "service": contract["service"],
-            "context_call_count": trace_contract["context_call_count"],
+            "material_context_call_count": trace_contract["material_context_call_count"],
+            "reference_context_call_count": trace_contract["reference_context_call_count"],
+            "postwrite_readback_count": len(trace_contract["postwrite_readback_calls"]),
+            "semantic_milestones": criteria,
             "verify_token_sha256": hashlib.sha256(token.encode()).hexdigest(),
         })
         write_text(world_dir / "Dockerfile", world_dockerfile())
@@ -1060,8 +1132,9 @@ def build(output: pathlib.Path) -> dict:
         prompt_words.append(len(prompt.split()))
         reference_sequences.append(tuple(call["tool"] for call in task["expected_calls"]))
         semantic_graphs.append(tuple(trace_contract["semantic_action_graph"]))
-        context_counts.append(trace_contract["context_call_count"])
-        criteria = rubric_criteria(task, row, contract, trace_contract)
+        context_counts.append(trace_contract["reference_context_call_count"])
+        material_context_counts.append(trace_contract["material_context_call_count"])
+        postwrite_readback_counts.append(len(trace_contract["postwrite_readback_calls"]))
         options = v3_decision_options(
             row, contract, trace_contract["source_mutation_tools"]
         )
@@ -1074,6 +1147,9 @@ def build(output: pathlib.Path) -> dict:
             contract,
         )
         context_files = [asset["path"] for asset in assets]
+        material_context_files = [
+            asset["path"] for asset in assets if asset.get("material")
+        ]
         for asset in assets:
             asset_path = hf_root / asset["path"]
             if not v3_validate_native_asset(asset_path):
@@ -1093,7 +1169,9 @@ def build(output: pathlib.Path) -> dict:
             ):
                 asset_leakage_hits.append(asset["path"])
         asset_counts.append(len(assets))
+        material_asset_counts.append(len(material_context_files))
         criteria_counts.append(len(criteria))
+        criteria_weight_totals.append(sum(item["weight"] for item in criteria))
 
         record = {
             "task_id": bench_id,
@@ -1106,16 +1184,20 @@ def build(output: pathlib.Path) -> dict:
                 "type": "deterministic",
                 "grading": "deterministic",
                 "llm_judge": False,
-                "pass_rule": ("every correctness and deployment check holds "
-                              "over the final world state and audit log"),
-                "score_weights": {"correctness": 0.6, "deployment": 0.3,
-                                  "quality": 0.1},
-                "checks": check_names(task["vcode"]),
+                "pass_rule": (
+                    "all 14 semantic milestones hold over causal tool evidence, "
+                    "final world state, readback, and containment"
+                ),
+                "score_weights": {
+                    criterion["id"]: criterion["weight"]
+                    for criterion in criteria
+                },
+                "checks": [criterion["id"] for criterion in criteria],
                 "criteria": criteria,
                 "decision_options": options,
                 "verifier": f"verifiers/verify_{bench_id}.py",
             },
-            "gold_output": gold_output(task),
+            "gold_output": gold_output(task, criteria),
             "metadata": {
                 "benchmark": RELEASE_NAME,
                 "version": RELEASE_VERSION,
@@ -1128,7 +1210,17 @@ def build(output: pathlib.Path) -> dict:
                 "origin": task.get("origin", "curated"),
                 "source_split": split,
                 "reference_tool_calls": n_calls,
-                "evidence_reads": trace_contract["context_call_count"],
+                "material_evidence_reads": trace_contract["material_context_call_count"],
+                "reference_evidence_reads": trace_contract["reference_context_call_count"],
+                "postwrite_readbacks": len(trace_contract["postwrite_readback_calls"]),
+                "material_assets": material_context_files,
+                "reference_assets": context_files,
+                "call_order_policy": (
+                    "The reference trajectory is illustrative. Material evidence may be "
+                    "investigated in any valid order and equivalent query shapes may add "
+                    "safe optional arguments; each causal read must succeed before its "
+                    "dependent mutation, and persisted state must be read back afterward."
+                ),
                 "semantic_action_graph": trace_contract["semantic_action_graph"],
                 "providers": trace_contract["providers"],
                 "case_id": contract["case_id"],
@@ -1145,7 +1237,7 @@ def build(output: pathlib.Path) -> dict:
         write_json(hf_root / "tasks" / f"{bench_id}.json",
                    {**record, "instruction_guided": task.get("instruction_guided", "")})
         write_text(hf_root / "verifiers" / f"verify_{bench_id}.py",
-                   verifier_source(task), executable=True)
+                   verifier_source(task, criteria), executable=True)
         dataset_rows.append((f"{HARBOR_ORG}/{bench_id}", task_dir))
 
     # ---- huggingface shared files
@@ -1214,7 +1306,7 @@ def build(output: pathlib.Path) -> dict:
         6,
     )
     stats = {
-        "schema_version": "1.0",
+        "schema_version": "2.0",
         "benchmark": RELEASE_NAME,
         "version": RELEASE_VERSION,
         "task_count": len(records),
@@ -1243,15 +1335,30 @@ def build(output: pathlib.Path) -> dict:
         "reference_sequence_max_pairwise_similarity": sequence_max_similarity,
         "unique_semantic_action_graphs": len(set(semantic_graphs)),
         "semantic_graph_max_pairwise_jaccard": semantic_max_jaccard,
-        "evidence_reads_per_task": {
+        "material_evidence_reads_per_task": {
+            "min": min(material_context_counts),
+            "median": sorted(material_context_counts)[len(material_context_counts) // 2],
+            "max": max(material_context_counts),
+        },
+        "reference_evidence_reads_per_task": {
             "min": min(context_counts),
             "median": sorted(context_counts)[len(context_counts) // 2],
             "max": max(context_counts),
+        },
+        "postwrite_readbacks_per_task": {
+            "min": min(postwrite_readback_counts),
+            "median": sorted(postwrite_readback_counts)[len(postwrite_readback_counts) // 2],
+            "max": max(postwrite_readback_counts),
         },
         "assets_per_task": {
             "min": min(asset_counts),
             "median": sorted(asset_counts)[len(asset_counts) // 2],
             "max": max(asset_counts),
+        },
+        "material_assets_per_task": {
+            "min": min(material_asset_counts),
+            "median": sorted(material_asset_counts)[len(material_asset_counts) // 2],
+            "max": max(material_asset_counts),
         },
         "criteria_per_task": {
             "min": min(criteria_counts),
@@ -1279,13 +1386,27 @@ def build(output: pathlib.Path) -> dict:
         "reference_tool_sequence_similarity": sequence_max_similarity < 0.985,
         "unique_semantic_action_graphs": len(set(semantic_graphs)) == 100,
         "semantic_action_graph_similarity": semantic_max_jaccard < 0.85,
-        "deep_causal_evidence_reads": min(context_counts) >= 19,
+        "material_causal_evidence_reads": (
+            min(material_context_counts) == 13
+            and max(material_context_counts) == 13
+        ),
+        "deep_reference_investigation": min(context_counts) >= 19,
+        "explicit_postwrite_readback": min(postwrite_readback_counts) >= 1,
         "long_horizon_reference": min(call_counts) >= 24,
         "deep_task_assets": min(asset_counts) == 28 and max(asset_counts) == 28,
+        "material_assets_inside_evidence_room": (
+            min(material_asset_counts) == 12 and max(material_asset_counts) == 12
+        ),
         "native_asset_formats": {"csv", "eml", "json", "log", "md", "pdf", "sql", "txt", "xlsx", "yaml"} <= native_formats,
         "all_agent_visible_assets_unique": len(set(asset_hashes)) == len(asset_hashes),
         "no_gold_or_recipe_leakage_in_assets": not asset_leakage_hits,
-        "specific_public_criteria": min(criteria_counts) >= 20,
+        "semantic_public_milestones": (
+            min(criteria_counts) == 14 and max(criteria_counts) == 14
+        ),
+        "semantic_milestone_weights": (
+            min(criteria_weight_totals) == 100
+            and max(criteria_weight_totals) == 100
+        ),
         "three_options_one_selected": all(
             len(record["rubric"]["decision_options"]) == 3
             and sum(option["selected"] for option in record["rubric"]["decision_options"]) == 1
