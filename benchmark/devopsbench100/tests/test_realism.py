@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import difflib
+import io
 import json
 from pathlib import Path
 import re
 import shutil
 import tempfile
 import unittest
+import zipfile
 
 from benchmark.devopsbench100 import builder
 from benchmark.devopsbench100.realism import (
+    FIXED_XLSX_ZIP_TIMESTAMP,
     case_contract,
     reference_calls,
     release_prompt,
@@ -134,6 +137,37 @@ class DevOpsRealismTests(unittest.TestCase):
                 <= suffixes
             )
             self.assertTrue(all(validate_native_asset(path) for path in asset_root.iterdir()))
+
+    def test_native_xlsx_assets_are_byte_reproducible_and_timestamp_pinned(self) -> None:
+        row, source, contract, prompt, _calls, _trace = self.contracts[0]
+        with tempfile.TemporaryDirectory(prefix="dob_xlsx_repro_") as temporary:
+            temporary_root = Path(temporary)
+            database = temporary_root / "environment.db"
+            shutil.copy2(ROOT / "world" / "environment.db", database)
+            seed_case_evidence(database, row, source, prompt, contract)
+            first_root = temporary_root / "first" / row["bench_id"]
+            second_root = temporary_root / "second" / row["bench_id"]
+            write_asset_views(first_root, database, prompt, row, contract)
+            write_asset_views(second_root, database, prompt, row, contract)
+            first_xlsx = {
+                path.name: path.read_bytes()
+                for path in first_root.glob("*.xlsx")
+            }
+            second_xlsx = {
+                path.name: path.read_bytes()
+                for path in second_root.glob("*.xlsx")
+            }
+            self.assertEqual(first_xlsx, second_xlsx)
+            self.assertEqual(len(first_xlsx), 2)
+            for content in first_xlsx.values():
+                with zipfile.ZipFile(io.BytesIO(content)) as archive:
+                    self.assertTrue(archive.infolist())
+                    self.assertTrue(
+                        all(
+                            member.date_time == FIXED_XLSX_ZIP_TIMESTAMP
+                            for member in archive.infolist()
+                        )
+                    )
 
 
 if __name__ == "__main__":
