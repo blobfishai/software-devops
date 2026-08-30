@@ -16,9 +16,13 @@ import json
 import pathlib
 import shutil
 
-RELEASE_VERSION = "3.2.3"
+RELEASE_VERSION = "3.2.4"
 NEGATIVE_CONTROLS = 14
 EXPECTED_EXECUTIONS = 100 * (2 + NEGATIVE_CONTROLS)
+DEFAULT_RELEASE = (
+    pathlib.Path(__file__).resolve().parents[2] / "dist" / "devopsbench-100"
+)
+TRACKED_REPORTS = pathlib.Path(__file__).resolve().parent / "reports"
 
 
 def sha256_file(path: pathlib.Path) -> str:
@@ -104,6 +108,14 @@ def seal(release: pathlib.Path) -> dict:
     ).hexdigest()
     manifest_path.write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    if release == DEFAULT_RELEASE.resolve():
+        TRACKED_REPORTS.mkdir(parents=True, exist_ok=True)
+        for source in (
+            release / "reports" / "build.json",
+            release / "reports" / "qualification.json",
+            manifest_path,
+        ):
+            shutil.copy2(source, TRACKED_REPORTS / source.name)
     return {"files": len(manifest["files"]),
             "manifest_sha256": manifest["manifest_sha256"]}
 
@@ -111,6 +123,5 @@ def seal(release: pathlib.Path) -> dict:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--release", type=pathlib.Path,
-                        default=pathlib.Path(__file__).resolve().parents[2]
-                        / "dist" / "devopsbench-100")
+                        default=DEFAULT_RELEASE)
     print(json.dumps(seal(parser.parse_args().release), indent=2, sort_keys=True))
