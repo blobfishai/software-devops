@@ -1,34 +1,40 @@
 {
-  "agent_visible_asset_count": 3300,
+  "agent_visible_asset_count": 5100,
   "asset_leakage_hits": [],
   "assets_per_task": {
-    "max": 33,
-    "median": 33,
-    "min": 33
+    "max": 51,
+    "median": 51,
+    "min": 51
   },
   "benchmark": "DevOpsBench-100",
   "categories": {
-    "aiops_analysis": 6,
-    "aiops_detection": 5,
+    "aiops_analysis": 17,
+    "aiops_detection": 4,
     "aiops_localization": 5,
-    "api_migration": 7,
-    "attribution": 7,
+    "api_migration": 1,
+    "attribution": 1,
     "code_implementation": 4,
-    "cross_system": 8,
-    "error_rate_reduction": 8,
+    "cross_system": 13,
+    "error_rate_reduction": 7,
     "feature_flag": 7,
-    "flaky_test": 6,
+    "flaky_test": 5,
     "handover": 2,
     "horizon": 2,
     "human_gated": 1,
     "judgement": 4,
-    "latency_optimization": 8,
+    "latency_optimization": 6,
     "multi_service_rollout": 7,
-    "reconciliation": 5,
-    "security_incident": 7,
+    "reconciliation": 7,
+    "security_incident": 6,
     "workspace": 1
   },
   "category_count": 19,
+  "causal_profile_outputs_nonempty": true,
+  "causal_profile_reads_per_task": {
+    "max": 7,
+    "median": 6,
+    "min": 3
+  },
   "criteria_per_task": {
     "max": 16,
     "median": 16,
@@ -40,21 +46,23 @@
     "ON_TIME"
   ],
   "difficulties": {
-    "easy": 2,
-    "expert": 38,
-    "hard": 31,
-    "medium": 29
+    "easy": 1,
+    "expert": 36,
+    "hard": 33,
+    "medium": 30
   },
   "exact_duplicate_prompts": 0,
   "graded_answer_fields_per_task": {
     "max": 23,
     "min": 23
   },
+  "identifier_or_group_permutation_used": false,
   "material_assets_per_task": {
-    "max": 17,
-    "median": 17,
-    "min": 17
+    "max": 18,
+    "median": 18,
+    "min": 18
   },
+  "material_evidence_outputs_nonempty": true,
   "material_evidence_reads_per_task": {
     "max": 18,
     "median": 18,
@@ -74,17 +82,21 @@
   ],
   "postwrite_readbacks_per_task": {
     "max": 9,
-    "median": 3,
+    "median": 2,
     "min": 1
   },
-  "prompt_max_pairwise_jaccard": 0.60625,
+  "prompt_max_pairwise_jaccard": 0.691729,
+  "prompt_repeated_leading_phrases": 0,
+  "prompt_tool_hits": [],
   "prompt_words": {
-    "max": 219,
-    "median": 167,
-    "min": 135
+    "max": 177,
+    "median": 132,
+    "min": 108
   },
   "quality_gates": {
     "all_agent_visible_assets_unique": true,
+    "causal_profile_outputs_nonempty": true,
+    "complete_causal_evidence_profiles": true,
     "decision_options_fully_qualified": true,
     "decision_regimes_vary": true,
     "deep_reference_investigation": true,
@@ -97,15 +109,22 @@
     "long_horizon_reference": true,
     "material_assets_inside_evidence_room": true,
     "material_causal_evidence_reads": true,
+    "material_evidence_outputs_nonempty": true,
     "native_asset_formats": true,
     "no_gold_or_recipe_leakage_in_assets": true,
     "no_harness_or_grading_leakage_in_prompts": true,
+    "no_reference_tool_names_in_prompts": true,
+    "no_repeated_leading_prompt_phrase": true,
     "one_hundred_tasks": true,
     "reference_tool_sequence_similarity": true,
+    "repeated_source_harnesses_have_distinct_causal_profiles": true,
     "semantic_action_graph_similarity": true,
+    "semantic_identity_inputs_ignored": true,
     "semantic_milestone_weights": true,
     "semantic_public_milestones": true,
+    "sequence_diversity_is_not_identifier_permutation": true,
     "three_options_one_selected": true,
+    "unique_causal_evidence_profiles": true,
     "unique_reference_tool_sequences": true,
     "unique_semantic_action_graphs": true
   },
@@ -114,22 +133,33 @@
     "standard_capacity_plan"
   ],
   "reference_evidence_reads_per_task": {
-    "max": 29,
-    "median": 27,
-    "min": 24
+    "max": 28,
+    "median": 23,
+    "min": 19
   },
-  "reference_sequence_max_pairwise_similarity": 0.956522,
+  "reference_sequence_max_pair": [
+    "dob100-074-catalog-cache-ttl",
+    "dob100-076-gateway-pool-reuse"
+  ],
+  "reference_sequence_max_pairwise_similarity": 0.948718,
   "reference_tool_calls": {
-    "max": 73,
-    "median": 46,
-    "min": 34,
-    "total": 4563
+    "max": 65,
+    "median": 32,
+    "min": 26,
+    "total": 3506
   },
   "release_passed": true,
+  "repeated_source_profiles_distinct": true,
   "schema_version": "2.0",
-  "semantic_graph_max_pairwise_jaccard": 0.142857,
+  "semantic_graph_max_pair": [
+    "dob100-045-checkout-payments-timeout",
+    "dob100-047-notifications-timeout"
+  ],
+  "semantic_graph_max_pairwise_jaccard": 0.666667,
+  "semantic_identity_inputs_ignored": true,
   "task_count": 100,
-  "unique_agent_visible_assets": 3300,
+  "unique_agent_visible_assets": 5100,
+  "unique_causal_profile_tool_sequences": 100,
   "unique_reference_tool_name_sequences": 100,
   "unique_semantic_action_graphs": 100,
   "verifier": {

@@ -25,8 +25,13 @@ import json
 from copy import deepcopy
 from typing import Any
 
-TODAY = datetime.date(2026, 3, 3)  # NovaCart case-room day 100
-TODAY_DAY = 100
+TODAY = datetime.date(2026, 3, 3)
+# DevOpsBench's source world uses an abstract monotonically increasing day
+# counter.  Keep the capacity evidence on the same frozen snapshot as the
+# deeper causal-evidence layer instead of silently mixing day-100 and day-420
+# records in one case room.
+TODAY_DAY = 420
+EVIDENCE_WINDOW_START = TODAY_DAY - 90
 VENDOR = "CloudCap"
 QUANTITY_UNIT = "replicas"
 OPTION_STANDARD = "standard_capacity_plan"
@@ -391,7 +396,7 @@ def capacity_context_calls(contract: dict[str, Any]) -> list[dict[str, Any]]:
         {"tool": "jira_get_issue", "args": {"key": contract["vendor_ticket"]}},
         {"tool": "jira_get_issue", "args": {"key": contract["approval_ticket"]}},
         {"tool": "linear_list_issues", "args": {"team": f"team-{contract['service']}"}},
-        {"tool": "list_status_page_posts", "args": {"since_day": 90}},
+        {"tool": "list_status_page_posts", "args": {"since_day": EVIDENCE_WINDOW_START}},
     ]
 
 
@@ -400,7 +405,13 @@ def decision_context_calls(contract: dict[str, Any]) -> list[dict[str, Any]]:
 
     return [
         *capacity_context_calls(contract),
-        {"tool": "pd_list_change_events", "args": {"pd_service_id": contract["pd_service_id"], "since_day": 90}},
+        {
+            "tool": "pd_list_change_events",
+            "args": {
+                "pd_service_id": contract["pd_service_id"],
+                "since_day": EVIDENCE_WINDOW_START,
+            },
+        },
         {"tool": "list_messages", "args": {"channel": contract["channel"], "limit": 50}},
         {"tool": "confluence_get_page", "args": {"page_id": contract["current_page"]}},
     ]
@@ -750,7 +761,7 @@ def vcode_block(row: dict[str, Any], contract: dict[str, Any]) -> str:
     for token in handoff_tokens(contract):
         message = (
             f"state the {token['name'].replace('_', ' ')} ({token['token']}) in the "
-            f"{contract['case_id']} handoff"
+            "scoped completion handoff"
         )
         lines.extend(
             [

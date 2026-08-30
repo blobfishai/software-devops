@@ -27,7 +27,9 @@
       "aiops_localization": 5,
       "attribution": 7,
       "cross_system": 8
-    }
+    },
+    "human_job_diversity": "Task IDs, service names, endpoints, and alarm permutations do not count as distinct employee jobs. The release recomputes identifier-neutral semantic similarity and records the worst pair.",
+    "parameter_variant_replacements": 18
   },
   "source_world": "world/",
   "tasks": [
@@ -160,20 +162,19 @@
       "task_id": "tsk_detect_inventory"
     },
     {
-      "bench_id": "dob100-009-detect-payments",
-      "category": "aiops_detection",
-      "difficulty": "easy",
-      "expected_calls": 6,
+      "bench_id": "dob100-009-rcn-checkout-error-rate",
+      "category": "reconciliation",
+      "difficulty": "expert",
+      "expected_calls": 9,
       "index": 9,
       "rationale": [
-        "aiops_detection",
-        "easy",
-        "6-call-oracle",
+        "reconciliation",
+        "expert",
+        "9-call-oracle",
         "curated",
-        "hardest-of-category-quota",
-        "controls-rejected:pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_detect_payments"
+      "task_id": "tsk_rcn_checkout_error_rate"
     },
     {
       "bench_id": "dob100-010-detect-status-page-recurrence",
@@ -304,100 +305,94 @@
       "task_id": "tsk_auth_v1_to_v2"
     },
     {
-      "bench_id": "dob100-018-checkout-v1-to-v2",
-      "category": "api_migration",
-      "difficulty": "expert",
-      "expected_calls": 34,
+      "bench_id": "dob100-018-rca-payments-retry",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "expected_calls": 9,
       "index": 18,
       "rationale": [
-        "api_migration",
-        "expert",
-        "34-call-oracle",
+        "aiops_analysis",
+        "hard",
+        "9-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_checkout_v1_to_v2"
+      "task_id": "tsk_rca_payments_retry"
     },
     {
-      "bench_id": "dob100-019-inventory-v1-to-v2",
-      "category": "api_migration",
+      "bench_id": "dob100-019-rca-catalog-n-plus-one",
+      "category": "aiops_analysis",
       "difficulty": "hard",
-      "expected_calls": 27,
+      "expected_calls": 9,
       "index": 19,
       "rationale": [
-        "api_migration",
+        "aiops_analysis",
         "hard",
-        "27-call-oracle",
+        "9-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_inventory_v1_to_v2"
+      "task_id": "tsk_rca_catalog_n_plus_one"
     },
     {
-      "bench_id": "dob100-020-media-v1-to-v2",
-      "category": "api_migration",
+      "bench_id": "dob100-020-rca-notifications-timeout",
+      "category": "aiops_analysis",
       "difficulty": "hard",
-      "expected_calls": 27,
+      "expected_calls": 9,
       "index": 20,
       "rationale": [
-        "api_migration",
+        "aiops_analysis",
         "hard",
-        "27-call-oracle",
+        "9-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_media_v1_to_v2"
+      "task_id": "tsk_rca_notifications_timeout"
     },
     {
-      "bench_id": "dob100-021-notify-v1-to-v2",
-      "category": "api_migration",
+      "bench_id": "dob100-021-rca-inventory-pool",
+      "category": "aiops_analysis",
       "difficulty": "hard",
-      "expected_calls": 27,
+      "expected_calls": 9,
       "index": 21,
       "rationale": [
-        "api_migration",
+        "aiops_analysis",
         "hard",
-        "27-call-oracle",
+        "9-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_notify_v1_to_v2"
+      "task_id": "tsk_rca_inventory_pool"
     },
     {
-      "bench_id": "dob100-022-orders-v1-to-v2",
-      "category": "api_migration",
+      "bench_id": "dob100-022-rca-inventory-migrator-security-context",
+      "category": "aiops_analysis",
       "difficulty": "expert",
-      "expected_calls": 34,
+      "expected_calls": 9,
       "index": 22,
       "rationale": [
-        "api_migration",
+        "aiops_analysis",
         "expert",
-        "34-call-oracle",
+        "9-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_orders_v1_to_v2"
+      "task_id": "tsk_rca_inventory_migrator_security_context"
     },
     {
-      "bench_id": "dob100-023-search-v1-to-v2",
-      "category": "api_migration",
-      "difficulty": "hard",
-      "expected_calls": 27,
+      "bench_id": "dob100-023-rca-inventory-missing-role",
+      "category": "aiops_analysis",
+      "difficulty": "expert",
+      "expected_calls": 9,
       "index": 23,
       "rationale": [
-        "api_migration",
-        "hard",
-        "27-call-oracle",
+        "aiops_analysis",
+        "expert",
+        "9-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_search_v1_to_v2"
+      "task_id": "tsk_rca_inventory_missing_role"
     },
     {
       "bench_id": "dob100-024-attr-three-at-once",
@@ -416,100 +411,94 @@
       "task_id": "tsk_attr_three_at_once"
     },
     {
-      "bench_id": "dob100-025-w5-attr-media-analytics-catalog",
-      "category": "attribution",
+      "bench_id": "dob100-025-rca-catalog-gc-thrash",
+      "category": "aiops_analysis",
       "difficulty": "expert",
-      "expected_calls": 10,
+      "expected_calls": 9,
       "index": 25,
       "rationale": [
-        "attribution",
+        "aiops_analysis",
         "expert",
-        "10-call-oracle",
-        "wave-generated",
-        "hardest-of-category-quota",
-        "controls-rejected:pristine"
+        "9-call-oracle",
+        "curated",
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_w5_attr_media_analytics_catalog"
+      "task_id": "tsk_rca_catalog_gc_thrash"
     },
     {
-      "bench_id": "dob100-026-w5-attr-media-analytics-payments",
-      "category": "attribution",
-      "difficulty": "expert",
-      "expected_calls": 10,
+      "bench_id": "dob100-026-rca-storefront-traffic-flood",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "expected_calls": 9,
       "index": 26,
       "rationale": [
-        "attribution",
-        "expert",
-        "10-call-oracle",
-        "wave-generated",
-        "hardest-of-category-quota",
-        "controls-rejected:pristine"
+        "aiops_analysis",
+        "hard",
+        "9-call-oracle",
+        "curated",
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_w5_attr_media_analytics_payments"
+      "task_id": "tsk_rca_storefront_traffic_flood"
     },
     {
-      "bench_id": "dob100-027-w5-attr-media-api-analytics",
-      "category": "attribution",
+      "bench_id": "dob100-027-rca-analytics-untolerated-taint",
+      "category": "aiops_analysis",
       "difficulty": "expert",
-      "expected_calls": 10,
+      "expected_calls": 9,
       "index": 27,
       "rationale": [
-        "attribution",
+        "aiops_analysis",
         "expert",
-        "10-call-oracle",
-        "wave-generated",
-        "hardest-of-category-quota",
-        "controls-rejected:pristine"
+        "9-call-oracle",
+        "curated",
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_w5_attr_media_api_analytics"
+      "task_id": "tsk_rca_analytics_untolerated_taint"
     },
     {
-      "bench_id": "dob100-028-w5-attr-media-api-catalog",
-      "category": "attribution",
-      "difficulty": "expert",
-      "expected_calls": 10,
+      "bench_id": "dob100-028-rca-media-recreate-strategy",
+      "category": "aiops_analysis",
+      "difficulty": "hard",
+      "expected_calls": 9,
       "index": 28,
       "rationale": [
-        "attribution",
-        "expert",
-        "10-call-oracle",
-        "wave-generated",
-        "hardest-of-category-quota",
-        "controls-rejected:pristine"
+        "aiops_analysis",
+        "hard",
+        "9-call-oracle",
+        "curated",
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_w5_attr_media_api_catalog"
+      "task_id": "tsk_rca_media_recreate_strategy"
     },
     {
-      "bench_id": "dob100-029-w5-attr-media-api-checkout",
-      "category": "attribution",
+      "bench_id": "dob100-029-rca-inventory-unbound-storage",
+      "category": "aiops_analysis",
       "difficulty": "expert",
-      "expected_calls": 10,
+      "expected_calls": 9,
       "index": 29,
       "rationale": [
-        "attribution",
+        "aiops_analysis",
         "expert",
-        "10-call-oracle",
-        "wave-generated",
-        "hardest-of-category-quota",
-        "controls-rejected:pristine"
+        "9-call-oracle",
+        "curated",
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_w5_attr_media_api_checkout"
+      "task_id": "tsk_rca_inventory_unbound_storage"
     },
     {
-      "bench_id": "dob100-030-w5-attr-media-api-payments",
-      "category": "attribution",
-      "difficulty": "expert",
-      "expected_calls": 10,
+      "bench_id": "dob100-030-rcn-distinct-checkout-bugs",
+      "category": "reconciliation",
+      "difficulty": "hard",
+      "expected_calls": 8,
       "index": 30,
       "rationale": [
-        "attribution",
-        "expert",
-        "10-call-oracle",
-        "wave-generated",
-        "hardest-of-category-quota",
-        "controls-rejected:pristine"
+        "reconciliation",
+        "hard",
+        "8-call-oracle",
+        "curated",
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_w5_attr_media_api_payments"
+      "task_id": "tsk_rcn_distinct_checkout_bugs"
     },
     {
       "bench_id": "dob100-031-impl-backoff",
@@ -784,20 +773,19 @@
       "task_id": "tsk_notifications_timeout"
     },
     {
-      "bench_id": "dob100-048-payments-notify-timeout",
-      "category": "error_rate_reduction",
+      "bench_id": "dob100-048-port-count-open-priority",
+      "category": "cross_system",
       "difficulty": "medium",
-      "expected_calls": 15,
+      "expected_calls": 4,
       "index": 48,
       "rationale": [
-        "error_rate_reduction",
+        "cross_system",
         "medium",
-        "15-call-oracle",
+        "4-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_payments_notify_timeout"
+      "task_id": "tsk_port_count_open_priority"
     },
     {
       "bench_id": "dob100-049-payments-retry",
@@ -1008,20 +996,19 @@
       "task_id": "tsk_flaky_gateway_timeout"
     },
     {
-      "bench_id": "dob100-062-flaky-inventory-race",
-      "category": "flaky_test",
-      "difficulty": "hard",
-      "expected_calls": 14,
+      "bench_id": "dob100-062-w6-copy-13",
+      "category": "cross_system",
+      "difficulty": "medium",
+      "expected_calls": 18,
       "index": 62,
       "rationale": [
-        "flaky_test",
-        "hard",
-        "14-call-oracle",
+        "cross_system",
+        "medium",
+        "18-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:shortcut,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_flaky_inventory_race"
+      "task_id": "tsk_w6_copy_13"
     },
     {
       "bench_id": "dob100-063-flaky-search-index",
@@ -1280,36 +1267,34 @@
       "task_id": "tsk_media_cdn"
     },
     {
-      "bench_id": "dob100-079-search-cache",
-      "category": "latency_optimization",
+      "bench_id": "dob100-079-port-collect-open-issues",
+      "category": "cross_system",
       "difficulty": "medium",
-      "expected_calls": 19,
+      "expected_calls": 4,
       "index": 79,
       "rationale": [
-        "latency_optimization",
+        "cross_system",
         "medium",
-        "19-call-oracle",
+        "4-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_search_cache"
+      "task_id": "tsk_port_collect_open_issues"
     },
     {
-      "bench_id": "dob100-080-search-shards",
-      "category": "latency_optimization",
+      "bench_id": "dob100-080-port-report-customer-reports",
+      "category": "cross_system",
       "difficulty": "medium",
-      "expected_calls": 14,
+      "expected_calls": 4,
       "index": 80,
       "rationale": [
-        "latency_optimization",
+        "cross_system",
         "medium",
-        "14-call-oracle",
+        "4-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_search_shards"
+      "task_id": "tsk_port_report_customer_reports"
     },
     {
       "bench_id": "dob100-081-backorders",
@@ -1600,20 +1585,19 @@
       "task_id": "tsk_retire_debug_endpoint"
     },
     {
-      "bench_id": "dob100-099-retire-metrics-endpoint",
-      "category": "security_incident",
+      "bench_id": "dob100-099-port-count-gateway-surface",
+      "category": "cross_system",
       "difficulty": "medium",
-      "expected_calls": 13,
+      "expected_calls": 4,
       "index": 99,
       "rationale": [
-        "security_incident",
+        "cross_system",
         "medium",
-        "13-call-oracle",
+        "4-call-oracle",
         "curated",
-        "category-shipped-whole",
-        "controls-rejected:naive,pristine"
+        "human-job-diversity-replacement"
       ],
-      "task_id": "tsk_retire_metrics_endpoint"
+      "task_id": "tsk_port_count_gateway_surface"
     },
     {
       "bench_id": "dob100-100-ws-ledger-missing-account",
@@ -1631,5 +1615,82 @@
       ],
       "task_id": "tsk_ws_ledger_missing_account"
     }
-  ]
+  ],
+  "recuration": {
+    "reason": "replace parameter variants with distinct executable employee jobs",
+    "replacements": [
+      {
+        "from": "tsk_detect_payments",
+        "to": "tsk_rcn_checkout_error_rate"
+      },
+      {
+        "from": "tsk_checkout_v1_to_v2",
+        "to": "tsk_rca_payments_retry"
+      },
+      {
+        "from": "tsk_inventory_v1_to_v2",
+        "to": "tsk_rca_catalog_n_plus_one"
+      },
+      {
+        "from": "tsk_media_v1_to_v2",
+        "to": "tsk_rca_notifications_timeout"
+      },
+      {
+        "from": "tsk_notify_v1_to_v2",
+        "to": "tsk_rca_inventory_pool"
+      },
+      {
+        "from": "tsk_orders_v1_to_v2",
+        "to": "tsk_rca_inventory_migrator_security_context"
+      },
+      {
+        "from": "tsk_search_v1_to_v2",
+        "to": "tsk_rca_inventory_missing_role"
+      },
+      {
+        "from": "tsk_w5_attr_media_analytics_catalog",
+        "to": "tsk_rca_catalog_gc_thrash"
+      },
+      {
+        "from": "tsk_w5_attr_media_analytics_payments",
+        "to": "tsk_rca_storefront_traffic_flood"
+      },
+      {
+        "from": "tsk_w5_attr_media_api_analytics",
+        "to": "tsk_rca_analytics_untolerated_taint"
+      },
+      {
+        "from": "tsk_w5_attr_media_api_catalog",
+        "to": "tsk_rca_media_recreate_strategy"
+      },
+      {
+        "from": "tsk_w5_attr_media_api_checkout",
+        "to": "tsk_rca_inventory_unbound_storage"
+      },
+      {
+        "from": "tsk_w5_attr_media_api_payments",
+        "to": "tsk_rcn_distinct_checkout_bugs"
+      },
+      {
+        "from": "tsk_flaky_inventory_race",
+        "to": "tsk_w6_copy_13"
+      },
+      {
+        "from": "tsk_search_cache",
+        "to": "tsk_port_collect_open_issues"
+      },
+      {
+        "from": "tsk_search_shards",
+        "to": "tsk_port_report_customer_reports"
+      },
+      {
+        "from": "tsk_retire_metrics_endpoint",
+        "to": "tsk_port_count_gateway_surface"
+      },
+      {
+        "from": "tsk_payments_notify_timeout",
+        "to": "tsk_port_count_open_priority"
+      }
+    ]
+  }
 }

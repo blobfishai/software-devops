@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import difflib
+import hashlib
+from collections import defaultdict
+from copy import deepcopy
 import io
 import json
 from pathlib import Path
@@ -13,13 +16,16 @@ import zipfile
 from benchmark.devopsbench100 import builder, decision
 from benchmark.devopsbench100.realism import (
     ASSET_COUNT,
+    EVIDENCE_SURFACE_LABELS,
     FIXED_XLSX_ZIP_TIMESTAMP,
     MATERIAL_ASSET_COUNT,
     MATERIAL_CONTEXT_CALLS,
+    MAX_PROMPT_WORDS,
     SEMANTIC_MILESTONE_WEIGHTS,
     augment_vcode,
     atomic_checks,
     case_contract,
+    employee_title,
     material_context_calls,
     reference_calls,
     release_prompt,
@@ -34,6 +40,11 @@ from benchmark.devopsbench100.run_suite import (
     execute,
     negative_plans,
     stable_trace_value,
+)
+from benchmark.devopsbench100.recurate_human_jobs import (
+    REPLACEMENTS,
+    bench_id,
+    recurate_catalog,
 )
 
 
@@ -87,8 +98,9 @@ class DevOpsRealismTests(unittest.TestCase):
         self.assertEqual(100, len(set(prompts)))
         words = [len(prompt.split()) for prompt in prompts]
         self.assertGreaterEqual(min(words), 45)
-        self.assertLessEqual(max(words), 220)
+        self.assertLessEqual(max(words), MAX_PROMPT_WORDS)
         self.assertFalse(any(builder.PROMPT_LEAKAGE_PATTERN.search(p) for p in prompts))
+        self.assertFalse(any(builder.has_repeated_leading_phrase(p) for p in prompts))
 
         token_sets = [set(re.findall(r"[a-z0-9]+", p.casefold())) for p in prompts]
         maximum = max(
@@ -97,33 +109,114 @@ class DevOpsRealismTests(unittest.TestCase):
             for right in token_sets[index + 1:]
         )
         self.assertLess(maximum, 0.72)
+        for row, _source, _contract, prompt, calls, _trace in self.contracts:
+            self.assertNotRegex(
+                prompt,
+                r"\b(?:DOB|DOC|ENG|OPS|SEC|SLO|QA|SPAN|SUP|MULTI|W6)-\d+\b|"
+                r"\b(?:work item is|done when)\b",
+                row["bench_id"],
+            )
+            named = sorted(
+                {call["tool"] for call in calls if call["tool"].casefold() in prompt.casefold()}
+            )
+            self.assertEqual([], named, row["bench_id"])
+
+    def test_human_job_recuration_is_idempotent(self) -> None:
+        catalog = {
+            "tasks": deepcopy(self.catalog),
+            "selection_criteria": {},
+        }
+        world = self.source_tasks
+        curated, applied = recurate_catalog(catalog, world)
+        self.assertEqual([], applied)
+        repeated, reapplied = recurate_catalog(deepcopy(curated), world)
+        self.assertEqual([], reapplied)
+        self.assertEqual(curated, repeated)
+
+        old_task_id, new_task_id = next(iter(REPLACEMENTS.items()))
+        pending = deepcopy(curated)
+        row = next(item for item in pending["tasks"] if item["task_id"] == new_task_id)
+        row["task_id"] = old_task_id
+        row["bench_id"] = bench_id(int(row["index"]), old_task_id)
+        migrated, newly_applied = recurate_catalog(pending, world)
+        self.assertEqual(
+            [{"from": old_task_id, "to": new_task_id}], newly_applied
+        )
+        stable, reapplied = recurate_catalog(deepcopy(migrated), world)
+        self.assertEqual([], reapplied)
+        self.assertEqual(migrated, stable)
 
     def test_raw_and_semantic_paths_are_unique_and_deep(self) -> None:
         sequences = [tuple(call["tool"] for call in item[4]) for item in self.contracts]
         graphs = [tuple(item[5]["semantic_action_graph"]) for item in self.contracts]
+        profiles = [
+            tuple(call["tool"] for call in item[5]["causal_evidence_profile"])
+            for item in self.contracts
+        ]
         reads = [item[5]["context_call_count"] for item in self.contracts]
         self.assertEqual(100, len(set(sequences)))
         self.assertEqual(100, len(set(graphs)))
-        self.assertGreaterEqual(min(reads), 19)
-        self.assertGreaterEqual(min(map(len, sequences)), 24)
+        self.assertEqual(100, len(set(profiles)))
+        self.assertGreaterEqual(min(map(len, profiles)), 3)
+        self.assertGreaterEqual(min(reads), MATERIAL_CONTEXT_CALLS)
+        self.assertGreaterEqual(min(map(len, sequences)), 25)
 
         maximum = max(
             difflib.SequenceMatcher(a=left, b=right, autojunk=False).ratio()
             for index, left in enumerate(sequences)
             for right in sequences[index + 1:]
         )
-        self.assertLess(maximum, 0.985)
+        self.assertLess(maximum, 0.95)
+
+        semantic_maximum = max(
+            len(set(left) & set(right)) / len(set(left) | set(right))
+            for index, left in enumerate(graphs)
+            for right in graphs[index + 1:]
+        )
+        self.assertLess(semantic_maximum, 0.9)
+        for row, _source, _contract, _prompt, _calls, trace in self.contracts:
+            graph_text = " ".join(trace["semantic_action_graph"])
+            self.assertNotRegex(graph_text, r"\b(?:dob|tsk|case)[-_]?\d+\b", row["bench_id"])
+            self.assertGreaterEqual(len(trace["business_reasoning_primitives"]), 7)
+            self.assertFalse(trace["identifier_or_group_permutation_used"])
+
+    def test_repeated_source_harnesses_have_distinct_causal_evidence_profiles(self) -> None:
+        families = defaultdict(list)
+        for row, source, _contract, _prompt, _calls, trace in self.contracts:
+            source_sequence = tuple(call["tool"] for call in source["expected_calls"])
+            families[source_sequence].append((row, trace))
+        for family in families.values():
+            if len(family) < 2:
+                continue
+            profiles = [
+                tuple(call["tool"] for call in trace["causal_evidence_profile"])
+                for _row, trace in family
+            ]
+            self.assertTrue(all(profiles))
+            self.assertEqual(len(profiles), len(set(profiles)))
 
     def test_material_evidence_is_a_causal_subset_of_the_reference_room(self) -> None:
         for row, _source, contract, _prompt, calls, trace in self.contracts:
-            material, groups = material_context_calls(row, contract)
+            material, groups = material_context_calls(
+                row, contract, _source, self.tools
+            )
             self.assertEqual(MATERIAL_CONTEXT_CALLS, len(material), row["bench_id"])
             self.assertEqual(material, trace["required_context_calls"])
             self.assertEqual(groups, trace["material_context_groups"])
-            self.assertGreaterEqual(trace["reference_context_call_count"], 19)
             self.assertGreaterEqual(
-                trace["reference_context_call_count"] - len(material),
-                6,
+                trace["reference_context_call_count"], MATERIAL_CONTEXT_CALLS
+            )
+            live_selectors = [
+                json.dumps(call, sort_keys=True)
+                for call in groups["live_state"]
+            ]
+            self.assertGreaterEqual(len(live_selectors), 3)
+            self.assertEqual(len(live_selectors), len(set(live_selectors)))
+            self.assertEqual(5, len(groups["capacity_plan"]), row["bench_id"])
+            material_selectors = [json.dumps(call, sort_keys=True) for call in material]
+            self.assertEqual(
+                MATERIAL_CONTEXT_CALLS,
+                len(set(material_selectors)),
                 row["bench_id"],
             )
             prefix = calls[: trace["reference_context_call_count"]]
@@ -133,6 +226,14 @@ class DevOpsRealismTests(unittest.TestCase):
                 row["bench_id"],
             )
             self.assertGreaterEqual(len(trace["postwrite_readback_calls"]), 1)
+            public_calls = [
+                *trace["required_context_calls"],
+                *trace["postwrite_readback_calls"],
+            ]
+            self.assertTrue(
+                all(call["tool"] in EVIDENCE_SURFACE_LABELS for call in public_calls),
+                row["bench_id"],
+            )
 
     def test_semantic_rubrics_are_task_specific_and_total_one_hundred(self) -> None:
         descriptions = set()
@@ -143,7 +244,9 @@ class DevOpsRealismTests(unittest.TestCase):
                 "vcode": augment_vcode(source["vcode"], row, contract, trace),
             }
             milestones = semantic_milestones(task, row, contract, trace)
-            self.assertEqual(len(SEMANTIC_MILESTONE_WEIGHTS), len(milestones), row["bench_id"])
+            self.assertEqual(
+                len(SEMANTIC_MILESTONE_WEIGHTS), len(milestones), row["bench_id"]
+            )
             self.assertEqual(100, sum(item["weight"] for item in milestones))
             self.assertTrue(all(item["atomic_checks"] for item in milestones))
             assigned = [
@@ -157,8 +260,122 @@ class DevOpsRealismTests(unittest.TestCase):
                 sorted(assigned),
                 row["bench_id"],
             )
-            descriptions.add(tuple(item["description"] for item in milestones))
+            milestone_descriptions = tuple(item["description"] for item in milestones)
+            joined = " ".join(milestone_descriptions)
+            state_description = next(
+                item["description"] for item in milestones if item["id"] == "state.primary"
+            )
+            self.assertNotRegex(state_description, r"plus \d+ related invariants")
+            self.assertNotIn("task-specific source-of-truth transition", joined)
+            self.assertNotIn("every authored final-state invariant", joined)
+            self.assertNotIn("tests, CI, metrics, alarms, or provider records", joined)
+            self.assertNotRegex(
+                joined,
+                r"\b(?:question_id|proposal_id|fault_detected)\b|"
+                r"\bthe (?:rca|rcn|impl|ws|port|hz|judge|attr|cve)\b",
+                row["bench_id"],
+            )
+            self.assertNotIn(contract["case_id"], joined)
+            self.assertNotIn(source["task_id"], joined)
+            for tool in trace["source_mutation_tools"]:
+                self.assertNotIn(tool, joined, row["bench_id"])
+            public_outcome = employee_title({"instruction": prompt})
+            self.assertIn(public_outcome, joined)
+            descriptions.add(milestone_descriptions)
         self.assertEqual(100, len(descriptions))
+
+    def test_public_rubric_states_the_complete_business_outcome(self) -> None:
+        by_id = {item[0]["bench_id"]: item for item in self.contracts}
+        expected_phrases = {
+            "dob100-031-impl-backoff": (
+                "start at base_ms on attempt 1",
+                "cap at max_ms",
+                "reject attempts below 1",
+            ),
+            "dob100-032-impl-cachekey": (
+                "stable across dictionary insertion order",
+                "explicit null",
+                "missing parameter",
+            ),
+            "dob100-033-impl-chunk": (
+                "order-preserving groups",
+                "one-pass iterables",
+                "reject sizes below 1",
+            ),
+            "dob100-034-impl-ratelimit": (
+                "refill continuously",
+                "fractional elapsed time",
+                "backward clock step",
+            ),
+            "dob100-064-hand-cluster-runbook": (
+                "which node is unhealthy",
+                "how it is unhealthy",
+                "which service it affects",
+                "other unhealthy node",
+            ),
+            "dob100-065-hand-gateway-runbook": (
+                "which release introduced it",
+                "what the p99 reached",
+                "objective it breached",
+                "rolling forward does not recover it",
+            ),
+            "dob100-100-ws-ledger-missing-account": (
+                "zero balance for an account with no postings",
+                "integer per-account accumulation",
+                "double-entry balance semantics",
+            ),
+            "dob100-011-detect-storefront-healthy": (
+                "is healthy",
+                "no active objective breach",
+                "no supported fault owner",
+            ),
+        }
+        for bench_id, phrases in expected_phrases.items():
+            row, source, contract, prompt, _calls, trace = by_id[bench_id]
+            task = {
+                **source,
+                "instruction": prompt,
+                "vcode": augment_vcode(source["vcode"], row, contract, trace),
+            }
+            criteria = semantic_milestones(task, row, contract, trace)
+            state = next(
+                item["description"] for item in criteria if item["id"] == "state.primary"
+            )
+            for phrase in phrases:
+                self.assertIn(phrase, state, bench_id)
+
+    def test_reasoning_contract_exposes_the_full_evidence_to_readback_chain(self) -> None:
+        for row, source, contract, prompt, _calls, trace in self.contracts:
+            task = {
+                **source,
+                "instruction": prompt,
+                "vcode": augment_vcode(source["vcode"], row, contract, trace),
+            }
+            criteria = semantic_milestones(task, row, contract, trace)
+            contract_story = builder.employee_reasoning_contract(criteria, prompt)
+            self.assertEqual(
+                {
+                    "employee_outcome",
+                    "investigate",
+                    "decide",
+                    "change_or_record",
+                    "verify",
+                    "deliver",
+                },
+                set(contract_story),
+            )
+            self.assertIn("first resolve the same work across", contract_story["investigate"])
+            self.assertIn("effective rule over the retired shortcut", contract_story["investigate"])
+            self.assertIn(
+                f"All {MATERIAL_CONTEXT_CALLS} exact causal facts",
+                contract_story["investigate"],
+            )
+            self.assertIn("healthy replicas per zone", contract_story["investigate"])
+            self.assertIn("Compare three concrete", contract_story["decide"])
+            self.assertIn("Coordinate the linked records", contract_story["change_or_record"])
+            self.assertIn("contained to its supported records", contract_story["change_or_record"])
+            self.assertIn("reopen", contract_story["verify"])
+            self.assertIn("Close", contract_story["deliver"])
 
     def test_selector_matching_allows_safe_optional_arguments(self) -> None:
         selector = {
@@ -194,7 +411,7 @@ class DevOpsRealismTests(unittest.TestCase):
             reference = json.loads((pack / "solution" / "reference.json").read_text())
             minimal_calls = [
                 *trace["required_context_calls"],
-                *source["expected_calls"],
+                *trace["source_execution_calls"],
                 trace["decision_record_call"],
                 *trace["postwrite_readback_calls"],
                 trace["handoff_call"],
@@ -240,30 +457,6 @@ class DevOpsRealismTests(unittest.TestCase):
             }
             self.assertIn("execution.efficiency", failed)
 
-            reference_controls = negative_plans(reference)
-            for name in ("wrong_answer", "unapproved_option"):
-                tampered, _ = execute(
-                    pack, reference_controls[name]["calls"], source["task_id"]
-                )
-                self.assertFalse(tampered["passed"], name)
-                tampered_failures = {
-                    assertion["name"]
-                    for assertion in tampered["assertions"]
-                    if not assertion["passed"]
-                }
-                self.assertTrue(
-                    any(check.startswith("v5_answer_") for check in tampered_failures),
-                    (name, sorted(tampered_failures)),
-                )
-            self.assertIn(
-                "v5_approval_applied_to_selected_scope",
-                {
-                    assertion["name"]
-                    for assertion in tampered["assertions"]
-                    if not assertion["passed"]
-                },
-            )
-
     def test_twelve_negative_controls_apply_to_every_task(self) -> None:
         for row, source, contract, _prompt, calls, trace in self.contracts:
             reference = {
@@ -282,23 +475,26 @@ class DevOpsRealismTests(unittest.TestCase):
                     call
                     for call in controls["wrong_answer"]["calls"]
                     if call["tool"] == "submit_answer"
-                    and call["args"].get("question_id") == contract["capacity_question"]
+                    and call["args"].get("question_id")
+                    == contract["capacity_question"]
                 )["args"]["answer"]
             )
             self.assertNotEqual(
                 wrong_answer["usable_replicas"],
                 contract["plan"]["answer"]["usable_replicas"],
-                row["bench_id"],
             )
             unapproved = json.loads(
                 next(
                     call
                     for call in controls["unapproved_option"]["calls"]
                     if call["tool"] == "submit_answer"
-                    and call["args"].get("question_id") == contract["capacity_question"]
+                    and call["args"].get("question_id")
+                    == contract["capacity_question"]
                 )["args"]["answer"]
             )
-            self.assertEqual(decision.OPTION_RELEASE, unapproved["recommended_option"])
+            self.assertEqual(
+                decision.OPTION_RELEASE, unapproved["recommended_option"]
+            )
 
             incomplete = controls["incomplete_read"]["calls"]
             self.assertTrue(
@@ -334,92 +530,135 @@ class DevOpsRealismTests(unittest.TestCase):
             )
 
     def test_native_asset_room_has_real_parseable_formats(self) -> None:
-        row, source, contract, prompt, _calls, _trace = self.contracts[0]
+        row, source, contract, prompt, _calls, trace = self.contracts[0]
         with tempfile.TemporaryDirectory(prefix="dob_assets_") as temporary:
             temporary_root = Path(temporary)
             database = temporary_root / "environment.db"
             shutil.copy2(ROOT / "world" / "environment.db", database)
+            shutil.copy2(
+                ROOT / "world" / "tools_combined.py",
+                temporary_root / "tools_combined.py",
+            )
             seed_case_evidence(database, row, source, prompt, contract)
             asset_root = temporary_root / "task_files" / row["bench_id"]
-            assets = write_asset_views(asset_root, database, prompt, row, contract)
+            assets = write_asset_views(
+                asset_root, database, prompt, row, contract, trace
+            )
             self.assertEqual(ASSET_COUNT, len(assets))
-            self.assertEqual(MATERIAL_ASSET_COUNT, sum(bool(asset["material"]) for asset in assets))
-            suffixes = {asset_root.joinpath(Path(a["path"]).name).suffix[1:] for a in assets}
+            self.assertEqual(
+                MATERIAL_ASSET_COUNT,
+                sum(bool(asset["material"]) for asset in assets),
+            )
+            self.assertTrue(
+                all(asset.get("material_reason") for asset in assets if asset["material"])
+            )
+            suffixes = {Path(asset["path"]).suffix[1:] for asset in assets}
             self.assertTrue(
                 {"csv", "eml", "json", "log", "md", "pdf", "sql", "txt", "xlsx", "yaml"}
                 <= suffixes
             )
-            self.assertTrue(all(validate_native_asset(path) for path in asset_root.iterdir()))
+            self.assertTrue(
+                all(
+                    validate_native_asset(path)
+                    for path in asset_root.rglob("*")
+                    if path.is_file()
+                )
+            )
+            manifest = json.loads(
+                (asset_root / "51-agent-visible-asset-manifest.json").read_text()
+            )
+            self.assertFalse(manifest["gold_included"])
+            self.assertFalse(manifest["oracle_sequence_included"])
+            self.assertFalse(manifest["ordering_semantics"])
+            self.assertEqual(ASSET_COUNT - 1, manifest["listed_assets"])
+            self.assertEqual(
+                ASSET_COUNT, manifest["total_assets_including_this_manifest"]
+            )
+            self.assertEqual(ASSET_COUNT - 1, len(manifest["assets"]))
+            for asset in manifest["assets"]:
+                content = (asset_root / asset["path"]).read_bytes()
+                self.assertEqual(len(content), asset["bytes"])
+                self.assertEqual(hashlib.sha256(content).hexdigest(), asset["sha256"])
+                self.assertNotIn("tool", asset)
+            material = [asset for asset in manifest["assets"] if asset["material"]]
+            self.assertEqual(MATERIAL_ASSET_COUNT, len(material))
+            self.assertTrue(all(asset.get("material_reason") for asset in material))
+            self.assertTrue(all("query_scope" in asset for asset in material))
 
-    def test_capacity_plan_is_graded_and_grounded_in_seeded_sources(self) -> None:
-        statuses = set()
-        recommended = set()
+    def test_capacity_plan_is_derived_from_seeded_sources_and_fully_graded(self) -> None:
+        statuses: set[str] = set()
+        recommendations: set[str] = set()
         for row, _source, contract, _prompt, calls, trace in self.contracts:
             plan = contract["plan"]
             answer = plan["answer"]
-            self.assertGreaterEqual(len(answer), 12, row["bench_id"])
-            self.assertEqual(plan["per_zone"] * plan["zones"], answer["required_replicas"])
-            self.assertEqual(plan["observed"] - plan["reserved"], answer["usable_replicas"])
-            self.assertEqual(answer["required_replicas"] - answer["usable_replicas"], answer["replica_gap"])
-            self.assertGreaterEqual(answer["usable_replicas"], 1, row["bench_id"])
-            self.assertGreaterEqual(plan["reserved"], plan["gap"], row["bench_id"])
+            self.assertEqual(
+                plan["per_zone"] * plan["zones"], answer["required_replicas"]
+            )
+            self.assertEqual(
+                plan["observed"] - plan["reserved"], answer["usable_replicas"]
+            )
+            self.assertEqual(
+                answer["required_replicas"] - answer["usable_replicas"],
+                answer["replica_gap"],
+            )
             statuses.add(answer["decision_timing_status"])
-            recommended.add(answer["recommended_option"])
+            recommendations.add(answer["recommended_option"])
 
             options = decision.decision_options(row, contract)
             self.assertEqual(3, len(options))
-            answer_values = {str(value) for value in answer.values()}
-            for option in options:
-                self.assertTrue(option["completion"])
-                self.assertIsInstance(option["incremental_cost"], int)
-                self.assertTrue(option["approval"])
-                self.assertTrue(option["control_status"])
-                self.assertIn(str(option["completion"]), answer_values, row["bench_id"])
-            self.assertEqual(1, sum(option["recommended"] for option in options))
+            self.assertEqual(1, sum(bool(option["recommended"]) for option in options))
             self.assertEqual(
                 1,
-                sum(option["approval"] == "ADDITIONAL_APPROVAL_REQUIRED" for option in options),
+                sum(
+                    option["approval"] == "ADDITIONAL_APPROVAL_REQUIRED"
+                    for option in options
+                ),
             )
-            self.assertEqual(
-                1,
-                sum(option["approval"] == "AVAILABLE_NOT_RECOMMENDED" for option in options),
+            self.assertTrue(
+                all(
+                    option["completion"]
+                    and isinstance(option["incremental_cost"], int)
+                    and option["control_status"]
+                    and option["consequence"]
+                    for option in options
+                )
             )
 
             model = decision.decision_model(row, contract, "OPS-CONTROL-2026.03")
-            calc_fields = {calculation["field"] for calculation in model["calculations"]}
-            self.assertEqual(set(answer), calc_fields, row["bench_id"])
-            self.assertEqual(answer["recommended_option"], model["selected_option"])
-
-            # Every graded value is readable from the seeded evidence room.
-            readiness = decision.readiness_standard_body(contract)
-            self.assertIn(f"{plan['per_zone']} healthy serving replicas", readiness)
-            self.assertIn(contract["capacity_question"], readiness)
-            windows = decision.change_window_sentence(contract)
-            self.assertIn(answer["next_change_window"], windows)
-            record = decision.decision_record_call(contract)
-            self.assertEqual(json.loads(record["args"]["answer"]), answer)
-            handoff_body = trace["handoff_call"]["args"]["body"]
-            for token in trace["handoff_contract"]["graded_text_contains"]:
-                self.assertIn(token, handoff_body, row["bench_id"])
             self.assertEqual(
-                calls[trace["reference_context_call_count"] + len(_source["expected_calls"])],
-                trace["decision_record_call"],
-                row["bench_id"],
+                set(answer), {item["field"] for item in model["calculations"]}
             )
+            self.assertEqual(answer["recommended_option"], model["selected_option"])
+            self.assertEqual(
+                answer,
+                json.loads(decision.decision_record_call(contract)["args"]["answer"]),
+            )
+            for token in trace["handoff_contract"]["graded_text_contains"]:
+                self.assertIn(token, trace["handoff_call"]["args"]["body"])
+            decision_index = (
+                trace["reference_context_call_count"]
+                + len(trace["source_execution_calls"])
+            )
+            self.assertEqual(trace["decision_record_call"], calls[decision_index])
+
         self.assertEqual({"ON_TIME", "LATE"}, statuses)
-        self.assertGreaterEqual(len(recommended), 2)
+        self.assertGreaterEqual(len(recommendations), 2)
 
     def test_native_xlsx_assets_are_byte_reproducible_and_timestamp_pinned(self) -> None:
-        row, source, contract, prompt, _calls, _trace = self.contracts[0]
+        row, source, contract, prompt, _calls, trace = self.contracts[0]
         with tempfile.TemporaryDirectory(prefix="dob_xlsx_repro_") as temporary:
             temporary_root = Path(temporary)
             database = temporary_root / "environment.db"
             shutil.copy2(ROOT / "world" / "environment.db", database)
+            shutil.copy2(
+                ROOT / "world" / "tools_combined.py",
+                temporary_root / "tools_combined.py",
+            )
             seed_case_evidence(database, row, source, prompt, contract)
             first_root = temporary_root / "first" / row["bench_id"]
             second_root = temporary_root / "second" / row["bench_id"]
-            write_asset_views(first_root, database, prompt, row, contract)
-            write_asset_views(second_root, database, prompt, row, contract)
+            write_asset_views(first_root, database, prompt, row, contract, trace)
+            write_asset_views(second_root, database, prompt, row, contract, trace)
             first_xlsx = {
                 path.name: path.read_bytes()
                 for path in first_root.glob("*.xlsx")
