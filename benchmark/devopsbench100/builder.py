@@ -65,7 +65,7 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "3.2.1"
+RELEASE_VERSION = "3.2.2"
 MILESTONE_COUNT = len(SEMANTIC_MILESTONE_WEIGHTS)
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
@@ -250,7 +250,7 @@ def employee_instruction(task: dict, row: dict) -> str:
         return (
             f"{sentence(headline)} Three customer-impacting alarms arrived within the same "
             "twenty-minute window. Determine whether one mechanism explains them or whether they "
-            "are independent failures, localize each supported cause, and leave a read-only finding "
+            "are independent failures, localize each supported cause, and record a production-safe finding "
             "that tells the incident lead how many investigations are actually needed."
         )
     if row["category"] == "reconciliation":
