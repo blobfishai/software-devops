@@ -871,11 +871,13 @@ def _causal_live_state_calls(
             {"tool": "github_list_issues", "args": {"state": "open"}},
             {"tool": "jira_search", "args": {"project": "ENG"}},
             {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+            {"tool": "list_issue_links", "args": {}},
         ],
         "port_report_customer_reports": [
             {"tool": "github_list_issues", "args": {"state": "open"}},
             {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
             {"tool": "get_status_page", "args": {"limit": 20}},
+            {"tool": "list_tickets", "args": {}},
         ],
         "batch_size": [
             {"tool": "get_runtime_stats", "args": {"service": service}},
@@ -1474,6 +1476,13 @@ def _coordination_context_calls(
         "tool": "list_messages",
         "args": {"channel": contract["channel"], "limit": 50},
     }
+    scale_record = {
+        "tool": "pd_list_change_events",
+        "args": {
+            "pd_service_id": contract["pd_service_id"],
+            "since_day": EVIDENCE_WINDOW_START,
+        },
+    }
     if row["category"] in {
         "aiops_analysis",
         "aiops_detection",
@@ -1483,55 +1492,37 @@ def _coordination_context_calls(
     }:
         return [
             conversation,
-            {
-                "tool": "pd_list_change_events",
-                "args": {
-                    "pd_service_id": contract["pd_service_id"],
-                    "since_day": EVIDENCE_WINDOW_START,
-                },
-            },
+            scale_record,
             {"tool": "get_status_page", "args": {"limit": 20}},
         ]
     if row["category"] in DELIVERY_CATEGORIES:
         return [
             conversation,
             {"tool": "list_approval_policy", "args": {}},
-            {
-                "tool": "pd_list_change_events",
-                "args": {
-                    "pd_service_id": contract["pd_service_id"],
-                    "since_day": EVIDENCE_WINDOW_START,
-                },
-            },
+            scale_record,
         ]
     if row["category"] == "handover":
         return [
             conversation,
             {"tool": "get_status_page", "args": {"limit": 20}},
-            {
-                "tool": "pd_list_change_events",
-                "args": {
-                    "pd_service_id": contract["pd_service_id"],
-                    "since_day": EVIDENCE_WINDOW_START,
-                },
-            },
+            scale_record,
         ]
     if row["category"] == "workspace":
         return [
             conversation,
             {"tool": "jira_search", "args": {"project": "ENG"}},
-            {"tool": "list_approval_policy", "args": {}},
+            scale_record,
         ]
     if row["category"] in ENGINEERING_CATEGORIES:
         return [
             conversation,
             {"tool": "list_ci_runs", "args": {"service": contract["service"]}},
-            {"tool": "list_commits", "args": {"service": contract["service"]}},
+            scale_record,
         ]
     return [
         conversation,
         {"tool": "linear_list_issues", "args": {}},
-        {"tool": "jira_search", "args": {"project": "ENG"}},
+        scale_record,
     ]
 
 
