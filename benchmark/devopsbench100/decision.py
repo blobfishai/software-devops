@@ -457,7 +457,7 @@ def handoff_tokens(contract: dict[str, Any]) -> list[dict[str, str]]:
 def handoff_body(contract: dict[str, Any], current_control: str) -> str:
     plan = contract["plan"]
     return (
-        f"{contract['completion_marker']}. Current authority: {current_control}. Capacity plan "
+        f"{contract['case_id']}: evidence-backed handoff complete. Current authority: {current_control}. Capacity plan "
         f"{plan['recommended_option']}: {contract['service']} reaches {plan['required']} healthy replicas on "
         f"{iso(plan['recommended_completion'])} ({plan['status']}, {plan['variance']:+d} day(s) versus the "
         f"{plan['cutover_date']} cutover) for USD {plan['recommended_cost']} under change approval "
@@ -715,9 +715,10 @@ def vcode_block(row: dict[str, Any], contract: dict[str, Any]) -> str:
         "_v5_record_positions = _v4_positions({'tool': 'submit_answer', 'args': {'question_id': _V5_QUESTION}}, True)",
         "_v5_record_seq = max(_v5_record_positions) if _v5_record_positions else 0",
         "_v5_handoff_body = _one(",
-        "    \"SELECT body FROM messages WHERE channel=? AND author='agent' AND body LIKE ? ORDER BY message_id DESC\",",
-        f"    {contract['channel']!r}, '%{contract['completion_marker']}%'",
+        "    \"SELECT body FROM messages WHERE channel=? AND author='agent' ORDER BY message_id DESC\",",
+        f"    {contract['channel']!r}",
         ") or ''",
+        "_v5_handoff_words = _v5_handoff_body.split()",
         "",
         "_c('correctness', 'v5_capacity_plan_recorded',",
         "   bool(_v5_record_positions) and bool(_v5_answer),",
@@ -756,6 +757,11 @@ def vcode_block(row: dict[str, Any], contract: dict[str, Any]) -> str:
             f"   and _v5_same(_v5_answer.get('recommended_option'), {plan['recommended_option']!r})",
             "   and _v5_same(_v5_answer.get('escalation_approval_required'), 1),",
             f"   {approval_message!r})",
+            "_c('correctness', 'v5_handoff_is_natural_completion',",
+            "   len(_v5_handoff_words) >= 30",
+            "   and sum(_v5_handoff_body.count(_mark) for _mark in ('.', ';', ':')) >= 2",
+            "   and not _v5_handoff_body.lstrip().startswith(('{', '[')),",
+            "   'write a natural scoped completion note, not a keyword list or serialized benchmark object')",
         ]
     )
     for token in handoff_tokens(contract):
@@ -783,6 +789,7 @@ def check_names() -> dict[str, str]:
         "v5_decision_evidence_precedes_record": "execution.sequence",
         "v5_record_precedes_handoff": "execution.sequence",
         "v5_approval_applied_to_selected_scope": DECISION_MILESTONE,
+        "v5_handoff_is_natural_completion": "answer.insights",
     }
     for field in ANSWER_FIELDS:
         names[f"v5_answer_{field}"] = ANALYSIS_MILESTONE if field in ANALYSIS_FIELDS else DECISION_MILESTONE
@@ -820,7 +827,7 @@ def unapproved_answer(contract: dict[str, Any]) -> dict[str, Any]:
 def unapproved_handoff_body(contract: dict[str, Any], current_control: str) -> str:
     plan = contract["plan"]
     return (
-        f"{contract['completion_marker']}. Current authority: {current_control}. Capacity plan {OPTION_RELEASE}: "
+        f"{contract['case_id']}: evidence-backed handoff complete. Current authority: {current_control}. Capacity plan {OPTION_RELEASE}: "
         f"{contract['service']} reaches {plan['required']} healthy replicas on {iso(plan['release_completion'])} "
         f"(ON_TIME) by releasing the reserved capacity under {contract['approval_ticket']}."
     )

@@ -424,7 +424,7 @@ class DevOpsRealismTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="dob_semantic_runtime_") as temporary:
             release = Path(temporary) / "devopsbench-100"
             builder.build(release)
-            row, source, _contract, _prompt, _calls, trace = self.contracts[0]
+            row, source, contract, _prompt, _calls, trace = self.contracts[0]
             pack = release / "harbor" / "tasks" / row["bench_id"]
             reference = json.loads((pack / "solution" / "reference.json").read_text())
             minimal_calls = [
@@ -443,6 +443,31 @@ class DevOpsRealismTests(unittest.TestCase):
             minimal, _ = execute(pack, minimal_calls, source["task_id"])
             self.assertTrue(minimal["passed"])
             self.assertEqual(1.0, minimal["reward"])
+
+            semantic_calls = deepcopy(minimal_calls)
+            semantic_handoff = next(
+                call
+                for call in semantic_calls
+                if call["tool"] == "post_message"
+                and call["args"].get("channel") == contract["channel"]
+            )
+            tokens = {
+                row["name"]: row["token"]
+                for row in decision.handoff_tokens(contract)
+            }
+            semantic_handoff["args"]["body"] = (
+                f"We selected {tokens['selected_option']} after reconciling the current capacity evidence. "
+                f"The supported outcome is {tokens['outcome_date']}, with timing reported honestly as "
+                f"{tokens['timing_status']} under approval {tokens['approval_reference']}. The binding "
+                f"constraint is {tokens['binding_constraint']}. The scoped operating record was updated, "
+                "then reopened successfully, and no neighboring service or reserved capacity was changed."
+            )
+            semantic, _ = execute(pack, semantic_calls, source["task_id"])
+            self.assertTrue(
+                semantic["passed"],
+                [row["id"] for row in semantic["assertions"] if not row["passed"]],
+            )
+            self.assertEqual(1.0, semantic["reward"])
 
             recovered, _ = execute(
                 pack,
@@ -475,7 +500,7 @@ class DevOpsRealismTests(unittest.TestCase):
             }
             self.assertIn("execution.efficiency", failed)
 
-    def test_twelve_negative_controls_apply_to_every_task(self) -> None:
+    def test_fourteen_negative_controls_apply_to_every_task(self) -> None:
         for row, source, contract, _prompt, calls, trace in self.contracts:
             reference = {
                 "expected_calls": calls,
@@ -485,9 +510,31 @@ class DevOpsRealismTests(unittest.TestCase):
             }
             controls = negative_plans(reference)
             self.assertEqual(CONTROL_NAMES, tuple(controls), row["bench_id"])
-            self.assertEqual(12, len(controls), row["bench_id"])
+            self.assertEqual(14, len(controls), row["bench_id"])
             self.assertFalse(controls["noop"]["calls"])
             self.assertTrue(controls["unauthorized_write"]["tamper_frozen_state"])
+            self.assertTrue(
+                any(
+                    call["tool"] == "post_message"
+                    and call["args"].get("channel") == "#eng"
+                    for call in controls["wrong_target"]["calls"]
+                )
+            )
+            self.assertLess(
+                len(
+                    next(
+                        call
+                        for call in controls["keyword_stuffing"]["calls"]
+                        if call["tool"] == "post_message"
+                        and call["args"].get("channel") == contract["channel"]
+                        and all(
+                            token["token"] in call["args"]["body"]
+                            for token in decision.handoff_tokens(contract)
+                        )
+                    )["args"]["body"].split()
+                ),
+                30,
+            )
             wrong_answer = json.loads(
                 next(
                     call

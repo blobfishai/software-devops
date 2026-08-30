@@ -65,7 +65,7 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "3.2.2"
+RELEASE_VERSION = "3.2.3"
 MILESTONE_COUNT = len(SEMANTIC_MILESTONE_WEIGHTS)
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"

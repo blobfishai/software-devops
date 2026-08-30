@@ -1,4 +1,4 @@
-"""Causal-evidence release layer for DevOpsBench-100 v3.2.2.
+"""Causal-evidence release layer for DevOpsBench-100 v3.2.3.
 
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
@@ -31,7 +31,7 @@ from xml.sax.saxutils import escape
 from benchmark.devopsbench100 import decision
 
 
-RELEASE_VERSION = "3.2.2"
+RELEASE_VERSION = "3.2.3"
 SEMANTIC_MILESTONE_WEIGHTS = {
     "investigation.scope": 5,
     "investigation.authority": 5,
@@ -414,7 +414,6 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
         "pd_service_id": f"PD-DOB-{index:03d}",
         "control_revision": CURRENT_CONTROL,
         "retired_revision": RETIRED_CONTROL,
-        "completion_marker": f"{case_id} evidence-backed handoff complete",
         "plan": decision.capacity_plan(
             index, service, secondary_service, SERVICE_NAMES, approval_ticket
         ),
@@ -2119,7 +2118,11 @@ def augment_vcode(
     source_mutation_calls = trace_contract["source_mutation_calls"]
     all_mutation_tools = trace_contract["all_mutation_tools"]
     postwrite_readbacks = trace_contract["postwrite_readback_calls"]
-    handoff = trace_contract["handoff_call"]
+    reference_handoff = trace_contract["handoff_call"]
+    handoff = {
+        "tool": reference_handoff["tool"],
+        "args": dict(trace_contract["handoff_contract"]["args"]),
+    }
     readback = trace_contract["readback_call"]
     block = f'''
 
@@ -2239,8 +2242,7 @@ _c("deployment", "v4_state_readbacks_complete",
    _v4_postwrite_complete,
    "reopen the persisted provider and tracker state after the final source mutation instead of trusting acknowledgements")
 _c("correctness", "v4_completion_handoff_exactly_once",
-   _one("SELECT COUNT(*) FROM messages WHERE channel=? AND author='agent' AND body LIKE ?",
-        {contract['channel']!r}, '%{contract['completion_marker']}%') == 1,
+   len(_v4_handoff_positions) == 1,
    "write exactly one scoped completion handoff for {contract['case_id']}")
 _c("deployment", "v4_source_work_precedes_readback",
    _v4_last_source_write > 0 and _v4_postwrite_complete,
