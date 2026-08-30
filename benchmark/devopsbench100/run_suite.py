@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Execute the DevOpsBench-100 v3.2 semantic release qualification.
 
-Every task is evaluated from pristine state fourteen times: an oracle run, an
-exact deterministic replay, and twelve task-applicable adversarial controls. A
-release passes only when all 100 oracles and replays pass and all 1,200
+Every task is evaluated from pristine state sixteen times: an oracle run, an
+exact deterministic replay, and fourteen task-applicable adversarial controls. A
+release passes only when all 100 oracles and replays pass and all 1,400
 negative executions are rejected by the executable verifier.
 
 Run:  python3 benchmark/devopsbench100/run_suite.py
@@ -41,6 +41,8 @@ CONTROL_NAMES = (
     "wrong_evidence",
     "wrong_answer",
     "unapproved_option",
+    "wrong_target",
+    "keyword_stuffing",
 )
 TRUNCATE_RESULT_AT = 4000
 EPHEMERAL_TOOL_DIRECTORY = re.compile(
@@ -90,7 +92,7 @@ def _matches(call: dict, selector: dict) -> bool:
 
 
 def negative_plans(reference: dict) -> dict[str, dict]:
-    """Create twelve distinct attacks against one task's causal contract."""
+    """Create fourteen distinct attacks against one task's causal contract."""
 
     full = deepcopy(reference["expected_calls"])
     contract = reference["trace_contract"]
@@ -206,6 +208,14 @@ def negative_plans(reference: dict) -> dict[str, dict]:
         case, CURRENT_CONTROL
     )
 
+    wrong_target = deepcopy(full)
+    wrong_target[handoff_index]["args"]["channel"] = "#eng"
+
+    keyword_stuffing = deepcopy(full)
+    keyword_stuffing[handoff_index]["args"]["body"] = " ".join(
+        token["token"] for token in decision.handoff_tokens(case)
+    )
+
     controls = {
         "noop": {"calls": []},
         "shortcut": {"calls": source},
@@ -219,6 +229,8 @@ def negative_plans(reference: dict) -> dict[str, dict]:
         "wrong_evidence": {"calls": wrong_evidence},
         "wrong_answer": {"calls": wrong_answer},
         "unapproved_option": {"calls": unapproved_option},
+        "wrong_target": {"calls": wrong_target},
+        "keyword_stuffing": {"calls": keyword_stuffing},
     }
     if tuple(controls) != CONTROL_NAMES:
         raise AssertionError("negative-control registry drifted")
