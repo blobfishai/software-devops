@@ -103,6 +103,13 @@ class DevOpsRealismTests(unittest.TestCase):
         self.assertLessEqual(max(words), MAX_PROMPT_WORDS)
         self.assertFalse(any(builder.PROMPT_LEAKAGE_PATTERN.search(p) for p in prompts))
         self.assertFalse(any(builder.has_repeated_leading_phrase(p) for p in prompts))
+        self.assertFalse(
+            any("affected business boundary includes" in p.casefold() for p in prompts)
+        )
+        self.assertFalse(any("that finding is the release gate" in p.casefold() for p in prompts))
+        self.assertFalse(
+            any("treat the code result as the candidate" in p.casefold() for p in prompts)
+        )
 
         token_sets = [set(re.findall(r"[a-z0-9]+", p.casefold())) for p in prompts]
         maximum = max(
@@ -122,6 +129,29 @@ class DevOpsRealismTests(unittest.TestCase):
                 {call["tool"] for call in calls if call["tool"].casefold() in prompt.casefold()}
             )
             self.assertEqual([], named, row["bench_id"])
+
+    def test_employee_requests_do_not_restate_the_same_point_sentence_by_sentence(self) -> None:
+        for row, _source, _contract, prompt, _calls, _trace in self.contracts:
+            sentence_text = [
+                sentence
+                for sentence in re.split(r"(?<=[.!?])\s+", prompt)
+                if sentence.strip()
+            ]
+            self.assertFalse(
+                any(sentence[0].islower() for sentence in sentence_text),
+                f"{row['bench_id']} contains a machine-derived sentence start: {prompt}",
+            )
+            sentences = [
+                set(re.findall(r"[a-z0-9]+", sentence.casefold()))
+                for sentence in sentence_text
+            ]
+            for left, right in zip(sentences, sentences[1:]):
+                similarity = len(left & right) / len(left | right)
+                self.assertLess(
+                    similarity,
+                    0.45,
+                    f"{row['bench_id']} repeats adjacent context: {prompt}",
+                )
 
     def test_stateful_closeout_never_conflicts_with_a_read_only_request(self) -> None:
         forbidden = re.compile(
@@ -151,7 +181,10 @@ class DevOpsRealismTests(unittest.TestCase):
                 self.assertTrue(
                     prompt_has_coherent_readiness(row, contract, prompt), prompt
                 )
-                self.assertIn(contract["planning_subject"].casefold(), prompt.casefold())
+                self.assertIn(
+                    contract["planning_subject"].replace("-", " ").casefold(),
+                    prompt.casefold(),
+                )
                 self.assertIsNone(forbidden_appendage.search(prompt), prompt)
 
         _row, _source, contract, prompt, _calls, _trace = by_id[
@@ -167,7 +200,7 @@ class DevOpsRealismTests(unittest.TestCase):
         ]
         self.assertEqual("api-gateway", contract["service"])
         self.assertEqual("engineering-portfolio automation", contract["planning_subject"])
-        self.assertIn("engineering-portfolio automation", prompt)
+        self.assertIn("engineering portfolio automation", prompt)
 
         _row, _source, contract, prompt, _calls, _trace = by_id[
             "dob100-091-rcn-production-deploys"
@@ -181,6 +214,16 @@ class DevOpsRealismTests(unittest.TestCase):
             "dob100-033-impl-chunk"
         ]
         self.assertEqual("payments", contract["service"])
+
+        for task_id in (
+            "dob100-064-hand-cluster-runbook",
+            "dob100-065-hand-gateway-runbook",
+        ):
+            _row, _source, contract, prompt, _calls, _trace = by_id[task_id]
+            self.assertEqual("shared on-call operating model", contract["business_scope"])
+            self.assertRegex(prompt.casefold(), r"(?:worked|recovery) example")
+            self.assertNotIn("engineering ticket", prompt.casefold())
+            self.assertNotIn("release train", prompt.casefold())
 
     def test_human_job_recuration_is_idempotent(self) -> None:
         catalog = {

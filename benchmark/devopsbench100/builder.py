@@ -66,7 +66,7 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "3.2.5"
+RELEASE_VERSION = "3.2.6"
 MILESTONE_COUNT = len(SEMANTIC_MILESTONE_WEIGHTS)
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
@@ -82,6 +82,19 @@ PROMPT_LEAKAGE_PATTERN = re.compile(
 )
 STRUCTURAL_CLONE_RAW_THRESHOLD = 0.90
 STRUCTURAL_CLONE_SEMANTIC_THRESHOLD = 0.70
+
+# A few source jobs were written as harness tickets whose first body sentence
+# merely paraphrases the title.  The public employee request should spend that
+# sentence on the operating uncertainty a human actually needs to resolve.
+AUTHORED_DETAIL_REWRITES = {
+    "tsk_gateway_pool_reuse": (
+        "Steady traffic drives the connection count upward until request latency degrades."
+    ),
+    "tsk_port_report_customer_reports": (
+        "Support needs a reliable customer-impact view, but labels, ownership, and lifecycle "
+        "state disagree across the issue trackers."
+    ),
+}
 
 
 def _clone_identity_values(record: dict[str, Any]) -> list[str]:
@@ -399,6 +412,12 @@ def employee_instruction(task: dict, row: dict) -> str:
         return value
 
     detail = without_repeated_headline(lines[1], headline) if len(lines) > 1 else ""
+    authored_detail = AUTHORED_DETAIL_REWRITES.get(str(row["task_id"]))
+    if authored_detail:
+        if len(lines) > 1:
+            prompt = prompt.replace(lines[1], authored_detail, 1)
+            lines[1] = authored_detail
+        detail = authored_detail
     if row["category"] == "attribution":
         return (
             f"{sentence(headline)} Three customer-impacting alarms arrived within the same "

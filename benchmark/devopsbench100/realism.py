@@ -1,4 +1,4 @@
-"""Causal-evidence release layer for DevOpsBench-100 v3.2.5.
+"""Causal-evidence release layer for DevOpsBench-100 v3.2.6.
 
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
@@ -31,7 +31,7 @@ from xml.sax.saxutils import escape
 from benchmark.devopsbench100 import decision
 
 
-RELEASE_VERSION = "3.2.5"
+RELEASE_VERSION = "3.2.6"
 SEMANTIC_MILESTONE_WEIGHTS = {
     "investigation.scope": 5,
     "investigation.authority": 5,
@@ -410,12 +410,12 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
                 "Its business boundary is the account population, zero-balance behavior, executable "
                 "export check, and the integrity of unrelated ledger files."
             )
-        elif row["category"] == "handover":
-            business_scope = "shared on-call operating model"
-            business_context = (
-                "Its business boundary is symptom triage, escalation ownership, safe diagnostic "
-                "commands, and guidance the next engineer can reproduce during an incident."
-            )
+    if row["category"] == "handover":
+        business_scope = "shared on-call operating model"
+        business_context = (
+            "Its business boundary is symptom triage, escalation ownership, safe diagnostic "
+            "commands, and guidance the next engineer can reproduce during an incident."
+        )
     planning_subject = TASK_PLANNING_SUBJECTS.get(str(task.get("task_id")), service)
     if not explicit_service and str(task.get("task_id")) not in TASK_PLANNING_SUBJECTS:
         planning_subject = {
@@ -466,49 +466,107 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
 
 READINESS_LINKS = {
     "investigation": (
-        "That finding is the release gate for the {cutover} recovery of {subject}, so the diagnosis and the readiness decision must describe the same operating reality.",
-        "The incident owner will use this conclusion for the {cutover} release of {subject}; a diagnosis that cannot support that decision is not finished.",
-        "The supported cause controls whether {subject} can enter the recovery window on {cutover}, making this one incident decision rather than a separate planning exercise.",
+        "This diagnosis will decide whether {subject} enters recovery on {cutover}.",
+        "The incident owner is using this finding to set the {cutover} recovery plan for {subject}.",
+        "{subject} is tentatively booked for recovery on {cutover}; the evidence here determines whether that promise is credible.",
     ),
     "delivery": (
-        "This production change and the {cutover} cutover for {subject} are one release decision.",
-        "The proposed remediation is meant to carry {subject} through the release on {cutover}, so feasibility belongs in the same go-or-no-go call.",
-        "The customer outcome depends on both the scoped change and whether {subject} can safely make the window on {cutover}.",
+        "The supported change is supposed to take {subject} through its {cutover} release window.",
+        "Operations needs one go-or-no-go call for the change and the {cutover} cutover of {subject}.",
+        "Customers are expecting the result from {subject} in the {cutover} window, so the change is not complete until that promise is credible.",
     ),
     "engineering": (
-        "This repaired behavior is the release candidate for the controlled deployment of {subject} on {cutover}.",
-        "The implementation is only useful if {subject} can carry it through the release window on {cutover}.",
-        "Treat the code result as the candidate for the {cutover} deployment of {subject}, with readiness decided before the ticket is closed.",
+        "The repaired behavior is intended for the {cutover} release of {subject}.",
+        "The team wants this change on the {subject} release train for {cutover}.",
+        "Before the engineering ticket closes, decide whether {subject} can carry the fix into the {cutover} window.",
     ),
     "reporting": (
-        "The reconciled result controls the {cutover} operating review for {subject}; delivering the number and establishing that its supporting workflow is ready are one reporting commitment.",
-        "The team will publish this answer for {subject} on {cutover}, so data correctness and delivery readiness must agree.",
-        "This answer gates the reporting window on {cutover} for {subject}; a correct number that cannot be delivered is not a complete operating result.",
+        "The reconciled answer is due in the {cutover} operating review for {subject}.",
+        "The team plans to publish this answer through {subject} on {cutover}.",
+        "Management expects the result from {subject} in the {cutover} reporting window, including an honest delivery date if the target will slip.",
     ),
     "coordination": (
-        "The requested operating change runs through {subject} and must finish inside the {cutover} business window.",
-        "The cross-system outcome is scheduled through {subject} for {cutover}, so scope and execution readiness belong in one decision.",
-        "The requesting team needs the scoped result from {subject} by {cutover}, not a tracker update that cannot be executed safely.",
+        "The requesting team expects the result through {subject} by {cutover}.",
+        "The cross-system handoff is scheduled through {subject} for {cutover}.",
+        "{subject} owns the {cutover} delivery promise for this request.",
+    ),
+    "handover": (
+        "Use the current {subject} recovery as the worked example in the page, including whether its {cutover} promise is credible.",
+        "The runbook should carry the live {subject} incident through a supportable recovery plan for {cutover}, not stop at symptom identification.",
+        "Ground the on-call guidance in the current {subject} case and its proposed {cutover} recovery window.",
     ),
 }
 
-READINESS_QUESTIONS = (
-    "Can it make that date without taking capacity protected for another team, and is standard supply, paid expedite, or an exception the defensible tradeoff? Leave the dated, costed recommendation where the incoming owner can verify it.",
-    "Which of the available capacity paths is actually supportable once protected load, delivery commitments, change windows, cost, and approval authority are taken seriously? Record the realistic date and any shortfall.",
-    "Give the owner an honest on-time-or-late answer and the best authorised option, including the cost and operational consequence of the alternatives.",
-    "Decide whether the current pool, an expedited addition, or a separately approved exception can support the date without displacing protected work. Preserve the evidence behind the chosen completion.",
-    "What completion can the team responsibly promise, what constraint controls it, and would expediting or seeking broader authority materially improve the result? Record the supported choice in the durable handoff.",
-    "Settle the release promise from the real capacity and calendar, not the target date alone. Compare the feasible paths on timing, spend, authority, and consequence, then leave one verifiable recommendation.",
-    "Is the date achievable under current approval, and if not, what is the earliest defensible outcome? Make the tradeoff between waiting, expediting, and requesting an exception explicit for the next owner.",
-    "Choose the lowest-risk supported path that respects protected capacity and the governed release windows. The final handoff should state its date, cost, approval basis, and schedule variance.",
-    "Resolve whether the committed window can be met and what would have to change to improve it. Distinguish an approved acceleration from an attractive but unauthorised shortcut.",
-    "Give management a decision, not a copied milestone: the supported completion, the binding constraint, the price of acceleration, and the consequence of the option that needs more authority.",
-    "Can the authorised choices deliver on time, and which one offers the best timing-cost tradeoff without borrowing another team's reservation? Save the answer and make it independently checkable.",
-    "State the earliest credible completion and whether it meets the business window. Include the best approved path and the faster or cheaper alternatives that the evidence or authority rules out.",
+READINESS_QUESTIONS = {
+    "investigation": (
+        "Before closing the incident record, give the incoming owner the earliest credible recovery date, the constraint behind it, and whether approved acceleration or an exception would materially help.",
+        "Say whether the date holds against current on-call commitments and change windows, what a sanctioned acceleration costs, and which faster route still lacks authority.",
+        "Turn the finding into a recovery promise the next shift can defend: supported date, schedule variance, cost, approval basis, and the consequence of waiting.",
+        "Compare the staffed recovery path with paid acceleration and a separately approved exception, without borrowing capacity protected for another incident.",
+    ),
+    "delivery": (
+        "Make the go-or-no-go call against the real change window and team availability; state the supported date, the cost of acceleration, and any exception that remains unapproved.",
+        "Give the release owner an honest completion date and show whether the normal path, paid expedite, or a governed exception best protects customers and rollback safety.",
+        "If the committed window will slip, identify the binding constraint and the earliest defensible alternative rather than taking another team's reserved slot.",
+        "Record the chosen rollout date, schedule variance, incremental cost, and approval basis, along with the tempting option the current authority does not support.",
+    ),
+    "engineering": (
+        "Include where the fix fits in the release train, whether reviewer and pipeline capacity support the date, and what paid acceleration or an exception would actually change.",
+        "Give the maintainer a credible completion rather than the target milestone: account for protected engineering work, release windows, cost, and approval authority.",
+        "Compare the normal release path with an approved expedite and the faster exception path, then record the earliest date the evidence truly supports.",
+        "State whether the requested window survives the current queue, what constraint controls it, and the cost and authority trade-off of improving the date.",
+    ),
+    "reporting": (
+        "State when the result can reliably publish after current refreshes, protected workloads, and review capacity, plus what an approved acceleration would cost.",
+        "If the review date cannot hold, give management the earliest defensible publication date and separate a funded expedite from an unapproved exception.",
+        "Choose the reporting path that best balances timeliness, cost, authority, and displaced work, then leave the dated recommendation reproducible.",
+        "Record whether the normal cycle meets the window, the constraint that governs it, and the consequences of waiting, expediting, or seeking broader authority.",
+    ),
+    "coordination": (
+        "Give the requesting team a supported delivery date based on the real queue and protected commitments, including the cost and authority needed to improve it.",
+        "Compare the normal handoff, approved acceleration, and exception path on timing and operational consequence without displacing another team's reservation.",
+        "If the promised date is not credible, record the earliest workable alternative, its schedule variance, and the approval still needed for anything faster.",
+        "Leave one independently checkable recommendation with its completion date, incremental cost, approval basis, binding constraint, and rejected alternative.",
+    ),
+    "handover": (
+        "Show the serving-capacity requirement, protected reservation, confirmed vendor dates, and governed change windows behind the recovery example, then state the supported date and alternative.",
+        "Include the normal, expedited, and exception paths in the worked example so the next engineer can see the timing, cost, approval, and displaced-work trade-offs.",
+        "Make the example operational: earliest credible recovery, schedule variance, binding constraint, incremental cost, approval basis, and the tempting path the current authority rules out.",
+        "Leave the page with one reproducible recovery recommendation and enough capacity and calendar evidence for the next on-call to challenge it.",
+    ),
+}
+
+BUSINESS_CONTEXT_FRAMES = (
+    "The decision affects {details}.",
+    "For {scope}, the operational risk spans {details}.",
+    "The service owner is accountable for {details}.",
+    "The next owner needs this settled across {details}.",
+    "The practical blast radius covers {details}.",
+    "This cannot be closed without accounting for {details}.",
+    "The live operating picture includes {details}.",
+    "The handoff has to remain sound across {details}.",
+    "The decision must hold across {details}.",
+    "Current customer and operator exposure includes {details}.",
+    "The affected workflow reaches {details}.",
+    "For {scope}, a credible answer has to reconcile {details}.",
 )
 
 
+def business_context_sentence(contract: dict[str, Any], ordinal: int) -> str:
+    raw = str(contract.get("business_context", SERVICE_CONTEXT[contract["service"]]))
+    details = re.sub(r"^Its business boundary is\s+", "", raw).rstrip(".")
+    scope = str(contract.get("business_scope", contract["service"])).replace("-", " ")
+    if scope == "shared on call operating model":
+        return f"The page has to support {details}."
+    return BUSINESS_CONTEXT_FRAMES[(ordinal * 7 + ordinal // 12) % len(BUSINESS_CONTEXT_FRAMES)].format(
+        scope=scope,
+        details=details,
+    )
+
+
 def readiness_family(category: str) -> str:
+    if category == "handover":
+        return "handover"
     if category == "reconciliation":
         return "reporting"
     if category in READ_ONLY_CATEGORIES:
@@ -531,8 +589,9 @@ def prompt_has_coherent_readiness(
     row: dict[str, Any], contract: dict[str, Any], prompt: str
 ) -> bool:
     subject = str(contract["planning_subject"])
+    human_subject = subject.replace("-", " ")
     return (
-        subject.casefold() in prompt.casefold()
+        human_subject.casefold() in prompt.casefold()
         and str(contract["plan"]["cutover_date"]) in prompt
         and SYNTHETIC_APPENDAGE_PATTERN.search(prompt) is None
         and any(
@@ -622,24 +681,21 @@ def release_prompt(
         close = engineering_closes[position]
     else:
         close = coordination_closes[position]
-    service_context = contract.get(
-        "business_context", SERVICE_CONTEXT[contract["service"]]
-    ).replace(
-        "Its business boundary is",
-        f"For {contract.get('business_scope', contract['service'])}, the affected business boundary includes",
-    )
+    service_context = business_context_sentence(contract, ordinal)
     topic_context = contract.get("topic_context", "")
     # The readiness decision is a consequence of the primary employee outcome,
     # never a second generic assignment appended for benchmark depth.
     family = readiness_family(row["category"])
     links = READINESS_LINKS[family]
+    planning_subject = str(contract["planning_subject"]).replace("-", " ")
+    planning_subject = re.sub(r"\bapi\b", "API", planning_subject, flags=re.IGNORECASE)
     link = links[(ordinal * 2 + ordinal // 12) % len(links)].format(
-        subject=contract["planning_subject"],
+        subject=planning_subject,
         cutover=contract["plan"]["cutover_date"],
     )
-    readiness_question = READINESS_QUESTIONS[
-        (ordinal * 5 + ordinal // 12) % len(READINESS_QUESTIONS)
-    ]
+    link = link[:1].upper() + link[1:]
+    questions = READINESS_QUESTIONS[family]
+    readiness_question = questions[(ordinal * 5 + ordinal // 12) % len(questions)]
     readiness_close = f"{link} {readiness_question}"
     attempts = (
         (employee_request.strip(), service_context, topic_context, close, readiness_close),
