@@ -1,4 +1,4 @@
-"""Causal-evidence release layer for DevOpsBench-100 v3.2.
+"""Causal-evidence release layer for DevOpsBench-100 v3.2.1.
 
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
@@ -31,7 +31,7 @@ from xml.sax.saxutils import escape
 from benchmark.devopsbench100 import decision
 
 
-RELEASE_VERSION = "3.2.0"
+RELEASE_VERSION = "3.2.1"
 SEMANTIC_MILESTONE_WEIGHTS = {
     "investigation.scope": 5,
     "investigation.authority": 5,
@@ -50,9 +50,10 @@ SEMANTIC_MILESTONE_WEIGHTS = {
     "execution.efficiency": 3,
     "execution.delivery": 2,
 }
-MATERIAL_CONTEXT_CALLS = 18
-ASSET_COUNT = 51
-MATERIAL_ASSET_COUNT = 18
+MATERIAL_CONTEXT_CALLS = 20
+MINIMUM_REFERENCE_CONTEXT_CALLS = 26
+ASSET_COUNT = 53
+MATERIAL_ASSET_COUNT = 20
 MAX_PROMPT_WORDS = 220
 FIXED_XLSX_ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 CURRENT_CONTROL = "OPS-CONTROL-2026.03"
@@ -888,6 +889,9 @@ def _causal_live_state_calls(
             {"tool": "get_traffic_stats", "args": {"service": service}},
             {"tool": "list_feature_flags", "args": {"service": service}},
             {"tool": "get_runtime_stats", "args": {"service": service}},
+            {"tool": "query_metrics", "args": {"service": service}},
+            {"tool": "get_slo_status", "args": {"service": service}},
+            {"tool": "search_logs", "args": {"service": service}},
         ],
         "timeout": [
             {"tool": "check_network_path", "args": {"from_service": dependency_source}},
@@ -898,6 +902,9 @@ def _causal_live_state_calls(
             {"tool": "get_traffic_stats", "args": {"service": service}},
             {"tool": "get_runtime_stats", "args": {"service": service}},
             {"tool": "list_deployments", "args": {"service": service}},
+            {"tool": "list_infra", "args": {}},
+            {"tool": "query_metrics", "args": {"service": service}},
+            {"tool": "list_alerts", "args": {"service": service}},
         ],
         "flaky_rollup": [
             {"tool": "list_ci_runs", "args": {"service": service}},
@@ -1629,6 +1636,18 @@ def material_context_calls(
     missing = MATERIAL_CONTEXT_CALLS - len(calls)
     if missing > 0:
         candidates = [
+            # These cross-functional registers are populated for every world
+            # and resolve ownership, service identity, active escalation, and
+            # mutation authority.  They are reliable evidence; an empty alert
+            # or deployment query is not promoted merely to increase a count.
+            {"tool": "read_owner_spreadsheet", "args": {}},
+            {"tool": "pd_list_services", "args": {}},
+            {"tool": "pd_list_oncalls", "args": {}},
+            {"tool": "list_approval_policy", "args": {}},
+            {"tool": "sentry_list_projects", "args": {}},
+            {"tool": "list_tickets", "args": {}},
+            {"tool": "jira_search", "args": {"project": "DOB"}},
+            {"tool": "github_list_issues", "args": {"state": "open"}},
             *_causal_live_state_calls(row, task, contract, tools_by_name),
             *_leading_source_reads(task or {}, tools_by_name or {}),
             *_supplemental_context_calls(row, contract),
@@ -1693,8 +1712,34 @@ def context_calls(
         if key not in seen:
             seen.add(key)
             deduped.append(deepcopy(call))
-    if len(deduped) < MATERIAL_CONTEXT_CALLS:
-        raise ValueError(f"{row['bench_id']} has only {len(deduped)} contextual reads")
+    # The causal subset above is what the deterministic verifier requires.  A
+    # real investigation also needs enough independent corroboration to avoid
+    # treating one dashboard or ticket as the whole system.  Fill the released
+    # reference route from valid, task-scoped provider reads; never pad it with
+    # duplicate selectors or mutations.
+    if len(deduped) < MINIMUM_REFERENCE_CONTEXT_CALLS:
+        candidates = [
+            *_route_calls(row["category"], contract["service"]),
+            *_supplemental_context_calls(row, contract),
+            *_coordination_context_calls(row, contract),
+            *decision.capacity_context_calls(contract),
+        ]
+        for call in candidates:
+            tool = (tools_by_name or {}).get(str(call.get("tool")), {})
+            if tool.get("write_tables"):
+                continue
+            key = json.dumps(call, sort_keys=True, separators=(",", ":"))
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(deepcopy(call))
+            if len(deduped) == MINIMUM_REFERENCE_CONTEXT_CALLS:
+                break
+    if len(deduped) < MINIMUM_REFERENCE_CONTEXT_CALLS:
+        raise ValueError(
+            f"{row['bench_id']} has only {len(deduped)} contextual reads; "
+            f"expected at least {MINIMUM_REFERENCE_CONTEXT_CALLS}"
+        )
     return deduped
 
 

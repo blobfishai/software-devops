@@ -20,6 +20,7 @@ from benchmark.devopsbench100.realism import (
     FIXED_XLSX_ZIP_TIMESTAMP,
     MATERIAL_ASSET_COUNT,
     MATERIAL_CONTEXT_CALLS,
+    MINIMUM_REFERENCE_CONTEXT_CALLS,
     MAX_PROMPT_WORDS,
     SEMANTIC_MILESTONE_WEIGHTS,
     augment_vcode,
@@ -158,7 +159,7 @@ class DevOpsRealismTests(unittest.TestCase):
         self.assertEqual(100, len(set(graphs)))
         self.assertEqual(100, len(set(profiles)))
         self.assertGreaterEqual(min(map(len, profiles)), 3)
-        self.assertGreaterEqual(min(reads), MATERIAL_CONTEXT_CALLS)
+        self.assertGreaterEqual(min(reads), MINIMUM_REFERENCE_CONTEXT_CALLS)
         self.assertGreaterEqual(min(map(len, sequences)), 25)
 
         maximum = max(
@@ -204,7 +205,8 @@ class DevOpsRealismTests(unittest.TestCase):
             self.assertEqual(material, trace["required_context_calls"])
             self.assertEqual(groups, trace["material_context_groups"])
             self.assertGreaterEqual(
-                trace["reference_context_call_count"], MATERIAL_CONTEXT_CALLS
+                trace["reference_context_call_count"],
+                MINIMUM_REFERENCE_CONTEXT_CALLS,
             )
             live_selectors = [
                 json.dumps(call, sort_keys=True)
