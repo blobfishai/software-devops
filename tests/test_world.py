@@ -811,6 +811,15 @@ def test_the_corpus_map_is_generated_not_hand_written():
     next run - which happened once, when four newly-covered fault families were
     written into the document rather than into its source."""
     import subprocess
+    corpus_root = ROOT / "research" / "repos" / "evals"
+    required = (
+        corpus_root / "microsoft__AIOpsLab" / "aiopslab" / "orchestrator" / "problems" / "registry.py",
+        corpus_root / "TheAgentCompany__TheAgentCompany" / "workspaces" / "tasks",
+        corpus_root / "sierra-research__tau-bench" / "tau_bench" / "envs",
+        corpus_root / "princeton-nlp__SWE-bench" / "swebench" / "harness" / "constants" / "constants.py",
+    )
+    if not all(path.exists() for path in required):
+        pytest.skip("benchmark corpus is an optional gitignored local fixture")
     doc = ROOT / "research" / "02-CORPUS-MAP.md"
     before = doc.read_text()
     try:
@@ -1074,6 +1083,12 @@ def test_the_parity_report_does_not_drift_from_the_generated_corpus_map():
     a parity claim that is wrong in the optimistic direction is worse than no
     claim at all."""
     import subprocess
+    registry = (
+        ROOT / "research" / "repos" / "evals" / "microsoft__AIOpsLab"
+        / "aiopslab" / "orchestrator" / "problems" / "registry.py"
+    )
+    if not registry.exists():
+        pytest.skip("AIOpsLab corpus is an optional gitignored local fixture")
     # The map documents AIOpsLab AND TheAgentCompany families in one file, so a raw
     # marker count conflates them. The generator prints the authoritative figure.
     gen = subprocess.run([sys.executable, str(ROOT / "import_corpus_tasks.py")],

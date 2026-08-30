@@ -241,6 +241,77 @@ class DevOpsRealismTests(unittest.TestCase):
             self.assertGreaterEqual(len(trace["business_reasoning_primitives"]), 7)
             self.assertFalse(trace["identifier_or_group_permutation_used"])
 
+    def test_cross_service_security_work_keeps_the_accountable_owner(self) -> None:
+        for task_id in ("tsk_cve_libpayproc", "tsk_cve_requests"):
+            row = next(item for item in self.catalog if item["task_id"] == task_id)
+            contract = case_contract(row, self.source_tasks[task_id])
+            self.assertEqual("payments", contract["service"], task_id)
+            self.assertIn("payments", contract["business_scope"], task_id)
+
+    def test_clone_gate_ignores_identifier_only_differences(self) -> None:
+        record = {
+            "task_id": "dob100-001-alpha",
+            "metadata": {
+                "service": "alpha",
+                "semantic_action_graph": [
+                    "investigate_alpha_capacity",
+                    "execute_update_ticket",
+                    "reopen_persisted_state",
+                ],
+                "required_tools": ["get_service", "update_ticket"],
+            },
+            "allowed_write_tables": ["tickets"],
+            "answer_schema": {"completion": {"type": "string"}},
+            "gold_output": {"completion": "2026-03-05"},
+            "rubric": {
+                "criteria": [{
+                    "category": "investigation",
+                    "description": "Investigate alpha capacity before changing the ticket.",
+                }],
+                "decision_options": [{
+                    "selected": True,
+                    "label": "Use alpha capacity on 2026-03-05",
+                    "reason": "The supported option has current approval.",
+                    "consequence": "The order completes on 2026-03-05.",
+                }],
+            },
+        }
+        renamed = deepcopy(record)
+        renamed["task_id"] = "dob100-002-beta"
+        renamed["metadata"]["service"] = "beta"
+        renamed["metadata"]["semantic_action_graph"][0] = (
+            "investigate_beta_capacity"
+        )
+        renamed["rubric"]["criteria"][0]["description"] = (
+            "Investigate beta capacity before changing the ticket."
+        )
+        renamed["rubric"]["decision_options"][0]["label"] = (
+            "Use beta capacity on 2026-03-06"
+        )
+        pairs = builder.structural_clone_pairs(
+            [record, renamed],
+            [
+                ("get_service", "update_ticket", "get_ticket"),
+                ("get_service", "update_ticket", "get_ticket"),
+            ],
+        )
+        self.assertEqual(1, len(pairs))
+
+    def test_deepened_jobs_grade_evidence_before_decision_and_readback_after_write(self) -> None:
+        for task_id in (
+            "tsk_cve_libpayproc",
+            "tsk_cve_pydantic",
+            "tsk_cve_requests",
+        ):
+            vcode = self.source_tasks[task_id]["vcode"]
+            self.assertIn("< _call_seq('open_pull_request')", vcode, task_id)
+            self.assertIn("_call_seq('deploy_service', 'max')", vcode, task_id)
+            self.assertIn("_call_seq('promote_canary', 'max')", vcode, task_id)
+        inventory = self.source_tasks["tsk_detect_inventory"]["vcode"]
+        self.assertIn("< _call_seq('submit_diagnosis')", inventory)
+        self.assertIn("fault_type_identified", inventory)
+        self.assertIn("controlling_setting_identified", inventory)
+
     def test_repeated_source_harnesses_have_distinct_causal_evidence_profiles(self) -> None:
         families = defaultdict(list)
         for row, source, _contract, _prompt, _calls, trace in self.contracts:
@@ -467,7 +538,9 @@ class DevOpsRealismTests(unittest.TestCase):
     def test_runtime_skips_context_and_recovers_only_from_failed_reads(self) -> None:
         with tempfile.TemporaryDirectory(prefix="dob_semantic_runtime_") as temporary:
             release = Path(temporary) / "devopsbench-100"
-            builder.build(release)
+            report = builder.build(release)
+            self.assertEqual(0, report["structural_clone_gate"]["pair_count"])
+            self.assertTrue(report["quality_gates"]["no_structural_template_clones"])
             row, source, contract, _prompt, _calls, trace = self.contracts[0]
             pack = release / "harbor" / "tasks" / row["bench_id"]
             reference = json.loads((pack / "solution" / "reference.json").read_text())

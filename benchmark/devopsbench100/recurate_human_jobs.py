@@ -92,6 +92,23 @@ def recurate_catalog(
     if len(task_ids) != 100 or len(set(task_ids)) != 100 or len(set(bench_ids)) != 100:
         raise ValueError("recurated catalog must contain 100 unique jobs and benchmark IDs")
 
+    # Source jobs can deepen without changing identity.  Keep the frozen
+    # selection's executable measurements synchronized with the rebuilt world
+    # instead of preserving a stale call count from an older release.
+    for row in catalog["tasks"]:
+        task = world[str(row["task_id"])]
+        call_count = len(task["expected_calls"])
+        row["category"] = task["category"]
+        row["difficulty"] = task["difficulty"]
+        row["expected_calls"] = call_count
+        rationale = [
+            item
+            for item in row.get("rationale", [])
+            if not str(item).endswith("-call-oracle")
+        ]
+        rationale.insert(2, f"{call_count}-call-oracle")
+        row["rationale"] = rationale
+
     selection = catalog["selection_criteria"]
     selection["human_job_diversity"] = (
         "Task IDs, service names, endpoints, and alarm permutations do not count as "

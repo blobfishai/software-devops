@@ -67,12 +67,10 @@ def correctness_assertions(task):
 # so that any new duplicate fails the build. Named rather than counted, because a
 # count lets one duplicate be swapped for another and still pass.
 #
-# Almost all of these are aiops_detection, and the cause is structural. That
-# verifier asserts only that a fault was reported in a scope, so a CVE triage, a
-# latency complaint and an error-rate alarm on the same service are identical to
-# it. Fixing them means asserting the fault type, which changes what the category
-# measures - a design decision rather than a cleanup, so they are recorded here
-# instead of being quietly tolerated.
+# These are legacy world tasks outside the curated release whose verifiers still
+# assert only that a fault was reported in a scope. Curated benchmark jobs must
+# not rely on this exception: once a task grades the causal mechanism and
+# controlling setting, remove it from the grandfathered group.
 KNOWN_DUPLICATE_GROUPS = (
     frozenset({
         "tsk_detect_checkout_errors",
@@ -88,7 +86,6 @@ KNOWN_DUPLICATE_GROUPS = (
         "tsk_w1_detect_payments_errors",
     }),
     frozenset({
-        "tsk_detect_inventory",
         "tsk_w1_detect_inventory_errors",
         "tsk_w1_triage_test_reservation_race",
     }),

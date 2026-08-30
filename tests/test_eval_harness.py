@@ -610,6 +610,9 @@ def test_terminal_adapter_enumerates_and_parses():
     sys.path.insert(0, str(ROOT))
     import terminal_adapter as TA
 
+    if not TA.TASKS.is_dir():
+        pytest.skip("terminal-bench corpus is an optional gitignored local fixture")
+
     names = TA.list_tasks()
     assert len(names) > 100, "expected terminal-bench tasks on disk, found %d" % len(names)
     for n in names[:5]:

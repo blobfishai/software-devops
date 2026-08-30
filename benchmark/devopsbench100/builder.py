@@ -66,7 +66,7 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "3.2.4"
+RELEASE_VERSION = "3.2.5"
 MILESTONE_COUNT = len(SEMANTIC_MILESTONE_WEIGHTS)
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
@@ -80,6 +80,158 @@ PROMPT_LEAKAGE_PATTERN = re.compile(
     r"work item is|done when)\b|\b(?:DOB|DOC|ENG|OPS|SEC|SLO|QA|SPAN|SUP|MULTI|W6)-\d+\b",
     flags=re.IGNORECASE,
 )
+STRUCTURAL_CLONE_RAW_THRESHOLD = 0.90
+STRUCTURAL_CLONE_SEMANTIC_THRESHOLD = 0.70
+
+
+def _clone_identity_values(record: dict[str, Any]) -> list[str]:
+    metadata = record.get("metadata") or {}
+    values: list[str] = []
+    for source in (record, metadata):
+        for key in (
+            "task_id", "taskId", "id", "case_id", "caseId", "company",
+            "organization", "service", "requester", "world_id", "worldId",
+        ):
+            value = source.get(key) if isinstance(source, dict) else None
+            if isinstance(value, str) and len(value.strip()) >= 3:
+                values.append(value.strip())
+    return sorted(set(values), key=len, reverse=True)
+
+
+def _normalize_clone_text(value: Any, identities: list[str]) -> str:
+    text = str(value).casefold()
+    for identity in identities:
+        text = text.replace(identity.casefold(), " ")
+    text = re.sub(r"\bdob100[-_ ]?\d{3}\b", " ", text)
+    text = re.sub(r"\b(?:case|row|chg|msg|task)[-_ ]?\d+[a-z0-9_-]*\b", " ", text)
+    text = re.sub(r"\b[0-9a-f]{8}-[0-9a-f-]{27,}\b", " ", text)
+    text = re.sub(r"\b\d{4}[-_/]\d{1,2}(?:[-_/]\d{1,2})?\b", " ", text)
+    text = re.sub(r"\b\d+(?:\.\d+)?\b", " ", text)
+    text = re.sub(r"\b(?:tsk|taskid|recordid|caseid)\b", " ", text)
+    return " ".join(re.findall(r"[a-z][a-z0-9]+", text))
+
+
+def _clone_phrase_tokens(prefix: str, value: Any, identities: list[str]) -> set[str]:
+    words = _normalize_clone_text(value, identities).split()
+    if not words:
+        return set()
+    if len(words) < 4:
+        return {f"{prefix}:{' '.join(words)}"}
+    return {
+        f"{prefix}:{' '.join(words[index:index + 4])}"
+        for index in range(len(words) - 3)
+    }
+
+
+def structural_clone_tokens(
+    record: dict[str, Any], reference_sequence: tuple[str, ...]
+) -> set[str]:
+    """Describe the employee job while ignoring IDs, names, dates, and values."""
+
+    identities = _clone_identity_values(record)
+    metadata = record.get("metadata") or {}
+    tokens: set[str] = set()
+    authored_graph = (
+        record.get("semantic_action_graph")
+        or metadata.get("semantic_action_graph")
+        or []
+    )
+    nodes = [
+        _normalize_clone_text(node, identities) for node in authored_graph
+    ]
+    nodes = [node for node in nodes if node]
+    for node in nodes:
+        tokens.update(_clone_phrase_tokens("authored-node", node, []))
+    for left, right in zip(nodes, nodes[1:]):
+        tokens.add(f"authored-edge:{left}>{right}")
+
+    normalized_tools = [
+        _normalize_clone_text(tool, []) for tool in reference_sequence
+    ]
+    for left, right in zip(normalized_tools, normalized_tools[1:]):
+        tokens.add(f"tool-edge:{left}>{right}")
+    for tool in metadata.get("required_tools") or record.get("required_tools") or []:
+        tokens.add(f"required-tool:{_normalize_clone_text(tool, [])}")
+    for table in record.get("allowed_write_tables") or []:
+        tokens.add(f"state:{_normalize_clone_text(table, identities)}")
+
+    rubric = record.get("rubric") or {}
+    for milestone in rubric.get("criteria") or []:
+        category = _normalize_clone_text(
+            milestone.get("category") or "milestone", []
+        )
+        tokens.update(
+            _clone_phrase_tokens(
+                f"milestone-{category}",
+                milestone.get("description") or "",
+                identities,
+            )
+        )
+    for option in rubric.get("decision_options") or []:
+        branch = (
+            "selected"
+            if option.get("selected") is True or option.get("recommended") is True
+            else "rejected"
+        )
+        tokens.update(
+            _clone_phrase_tokens(
+                f"option-{branch}",
+                " ".join(
+                    str(option.get(key) or "")
+                    for key in ("label", "reason", "approach", "consequence")
+                ),
+                identities,
+            )
+        )
+    for field in (record.get("answer_schema") or {}):
+        tokens.add(f"answer-field:{_normalize_clone_text(field, identities)}")
+    for field in (record.get("gold_output") or {}):
+        tokens.add(f"deliverable:{_normalize_clone_text(field, identities)}")
+    if not tokens:
+        raise ValueError(f"{record.get('task_id')}: no identifier-neutral clone graph")
+    return tokens
+
+
+def structural_clone_pairs(
+    records: list[dict[str, Any]], reference_sequences: list[tuple[str, ...]]
+) -> list[dict[str, Any]]:
+    semantic = [
+        structural_clone_tokens(record, sequence)
+        for record, sequence in zip(records, reference_sequences, strict=True)
+    ]
+    pairs: list[dict[str, Any]] = []
+    for left_index, left in enumerate(reference_sequences):
+        for right_index in range(left_index + 1, len(reference_sequences)):
+            raw = difflib.SequenceMatcher(
+                a=left, b=reference_sequences[right_index], autojunk=False
+            ).ratio()
+            union = semantic[left_index] | semantic[right_index]
+            meaning = (
+                len(semantic[left_index] & semantic[right_index]) / len(union)
+                if union
+                else 1.0
+            )
+            if (
+                raw > STRUCTURAL_CLONE_RAW_THRESHOLD
+                and meaning > STRUCTURAL_CLONE_SEMANTIC_THRESHOLD
+            ):
+                pairs.append(
+                    {
+                        "left": records[left_index]["task_id"],
+                        "right": records[right_index]["task_id"],
+                        "raw_sequence_similarity": round(raw, 6),
+                        "identifier_neutral_semantic_similarity": round(meaning, 6),
+                    }
+                )
+    return sorted(
+        pairs,
+        key=lambda pair: (
+            -pair["raw_sequence_similarity"],
+            -pair["identifier_neutral_semantic_similarity"],
+            pair["left"],
+            pair["right"],
+        ),
+    )
 
 CATEGORY_LABELS = {
     "error_rate_reduction": "Error-rate SLO recovery",
@@ -1690,6 +1842,7 @@ def build(output: pathlib.Path) -> dict:
                     records[left_index]["task_id"], records[right_index]["task_id"]
                 ]
     sequence_max_similarity = round(max(sequence_max_similarity, 0.0), 6)
+    clone_pairs = structural_clone_pairs(records, reference_sequences)
     source_families: dict[tuple[str, ...], list[tuple[str, ...]]] = {}
     for source_sequence, profile_sequence in zip(
         source_sequences, causal_profile_sequences, strict=True
@@ -1729,6 +1882,14 @@ def build(output: pathlib.Path) -> dict:
         "unique_reference_tool_name_sequences": len(set(reference_sequences)),
         "reference_sequence_max_pairwise_similarity": sequence_max_similarity,
         "reference_sequence_max_pair": sequence_max_pair,
+        "structural_clone_gate": {
+            "raw_sequence_threshold": STRUCTURAL_CLONE_RAW_THRESHOLD,
+            "identifier_neutral_semantic_threshold": (
+                STRUCTURAL_CLONE_SEMANTIC_THRESHOLD
+            ),
+            "pair_count": len(clone_pairs),
+            "pairs": clone_pairs,
+        },
         "repeated_source_profiles_distinct": repeated_source_profiles_distinct,
         "unique_causal_profile_tool_sequences": len(set(causal_profile_sequences)),
         "causal_profile_reads_per_task": {
@@ -1810,6 +1971,7 @@ def build(output: pathlib.Path) -> dict:
         ),
         "unique_reference_tool_sequences": len(set(reference_sequences)) == 100,
         "reference_tool_sequence_similarity": sequence_max_similarity < 0.95,
+        "no_structural_template_clones": not clone_pairs,
         "repeated_source_harnesses_have_distinct_causal_profiles": (
             repeated_source_profiles_distinct
         ),
