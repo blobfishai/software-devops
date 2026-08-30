@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Execute the DevOpsBench-100 v3.1 semantic release qualification.
+"""Execute the DevOpsBench-100 v3.2 semantic release qualification.
 
-Every task is evaluated from pristine state twelve times: an oracle run, an
-exact deterministic replay, and ten task-applicable adversarial controls. A
-release passes only when all 100 oracles and replays pass and all 1,000
+Every task is evaluated from pristine state fourteen times: an oracle run, an
+exact deterministic replay, and twelve task-applicable adversarial controls. A
+release passes only when all 100 oracles and replays pass and all 1,200
 negative executions are rejected by the executable verifier.
 
 Run:  python3 benchmark/devopsbench100/run_suite.py
@@ -24,7 +24,9 @@ import tempfile
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from benchmark.devopsbench100.builder import verification_token  # noqa: E402
+from benchmark.devopsbench100 import decision  # noqa: E402
+from benchmark.devopsbench100.builder import RELEASE_VERSION, verification_token  # noqa: E402
+from benchmark.devopsbench100.realism import CURRENT_CONTROL, SEMANTIC_MILESTONE_WEIGHTS  # noqa: E402
 
 CONTROL_NAMES = (
     "noop",
@@ -37,6 +39,8 @@ CONTROL_NAMES = (
     "wrong_value",
     "wrong_decision",
     "wrong_evidence",
+    "wrong_answer",
+    "unapproved_option",
 )
 TRUNCATE_RESULT_AT = 4000
 EPHEMERAL_TOOL_DIRECTORY = re.compile(
@@ -86,15 +90,17 @@ def _matches(call: dict, selector: dict) -> bool:
 
 
 def negative_plans(reference: dict) -> dict[str, dict]:
-    """Create ten distinct attacks against one task's causal contract."""
+    """Create twelve distinct attacks against one task's causal contract."""
 
     full = deepcopy(reference["expected_calls"])
     source = deepcopy(reference["source_expected_calls"])
     contract = reference["trace_contract"]
+    case = reference["case_contract"]
     context_count = int(contract["reference_context_call_count"])
     reference_context = contract["reference_context_calls"]
     required = contract["required_context_calls"]
     mutation_tools = set(contract["source_mutation_tools"])
+    decision_record = deepcopy(contract["decision_record_call"])
     postwrite_readbacks = deepcopy(contract["postwrite_readback_calls"])
     handoff = deepcopy(contract["handoff_call"])
     readback = deepcopy(contract["readback_call"])
@@ -103,7 +109,10 @@ def negative_plans(reference: dict) -> dict[str, dict]:
         raise ValueError("reference context prefix does not match trace contract")
     if full[context_count:context_count + len(source)] != source:
         raise ValueError("reference source workflow does not match trace contract")
-    postwrite_start = context_count + len(source)
+    decision_index = context_count + len(source)
+    if full[decision_index] != decision_record:
+        raise ValueError("reference decision record does not match trace contract")
+    postwrite_start = decision_index + 1
     postwrite_end = postwrite_start + len(postwrite_readbacks)
     if full[postwrite_start:postwrite_end] != postwrite_readbacks:
         raise ValueError("reference post-write readbacks do not match trace contract")
@@ -162,6 +171,7 @@ def negative_plans(reference: dict) -> dict[str, dict]:
     wrong_decision = [
         *deepcopy(reference_context),
         *wrong_decision_source,
+        decision_record,
         handoff,
         readback,
     ]
@@ -177,6 +187,23 @@ def negative_plans(reference: dict) -> dict[str, dict]:
         {"tool": "jira_search", "args": {"project": "ENG"}},
     )
 
+    # Every operational step is right, but the decision record ignores the
+    # reservation: usable capacity and the gap are wrong intermediate values.
+    wrong_answer = deepcopy(full)
+    wrong_answer[decision_index]["args"]["answer"] = json.dumps(
+        decision.tampered_answer(case), sort_keys=True, separators=(",", ":")
+    )
+
+    # Every operational step is right, but the record and the handoff select
+    # the plan that needs approval beyond the change approval.
+    unapproved_option = deepcopy(full)
+    unapproved_option[decision_index]["args"]["answer"] = json.dumps(
+        decision.unapproved_answer(case), sort_keys=True, separators=(",", ":")
+    )
+    unapproved_option[handoff_index]["args"]["body"] = decision.unapproved_handoff_body(
+        case, CURRENT_CONTROL
+    )
+
     controls = {
         "noop": {"calls": []},
         "shortcut": {"calls": source},
@@ -188,6 +215,8 @@ def negative_plans(reference: dict) -> dict[str, dict]:
         "wrong_value": {"calls": wrong_value},
         "wrong_decision": {"calls": wrong_decision},
         "wrong_evidence": {"calls": wrong_evidence},
+        "wrong_answer": {"calls": wrong_answer},
+        "unapproved_option": {"calls": unapproved_option},
     }
     if tuple(controls) != CONTROL_NAMES:
         raise AssertionError("negative-control registry drifted")
@@ -376,11 +405,11 @@ def run(release: pathlib.Path) -> dict:
     report = {
         "schema_version": "3.0",
         "benchmark": "DevOpsBench-100",
-        "version": "3.1.0",
+        "version": RELEASE_VERSION,
         "task_count": len(task_dirs),
         "metric": {
             "name": "DevOpsBench semantic causal completion",
-            "milestones_per_task": 14,
+            "milestones_per_task": len(SEMANTIC_MILESTONE_WEIGHTS),
             "points_per_task": 100,
             "pass_rule": "all semantic milestones pass",
         },

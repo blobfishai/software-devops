@@ -38,13 +38,23 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
+from benchmark.devopsbench100 import decision as v32_decision  # noqa: E402
 from benchmark.devopsbench100.realism import (  # noqa: E402
+    ASSET_COUNT,
+    CURRENT_CONTROL,
+    MATERIAL_ASSET_COUNT,
+    MATERIAL_CONTEXT_CALLS,
+    MAX_PROMPT_WORDS,
+    SEMANTIC_MILESTONE_WEIGHTS,
+    allowed_write_tables as v32_allowed_write_tables,
     augment_vcode as v3_augment_vcode,
     case_contract as v3_case_contract,
     decision_options as v3_decision_options,
+    post_write_verifications as v32_post_write_verifications,
     rebase_vcode_invariants as v3_rebase_vcode_invariants,
     reference_calls as v3_reference_calls,
     release_prompt as v3_release_prompt,
+    required_investigations as v32_required_investigations,
     semantic_milestones as v31_semantic_milestones,
     seed_case_evidence as v3_seed_case_evidence,
     validate_native_asset as v3_validate_native_asset,
@@ -53,7 +63,8 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "3.1.0"
+RELEASE_VERSION = "3.2.0"
+MILESTONE_COUNT = len(SEMANTIC_MILESTONE_WEIGHTS)
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
 CODE_LICENSE = "Apache-2.0"
@@ -295,8 +306,10 @@ def rubric_criteria(
     """Expose semantic employee outcomes with raw checks nested as evidence."""
 
     rows = v31_semantic_milestones(task, row, contract, trace_contract)
-    if len(rows) != 14 or sum(row["weight"] for row in rows) != 100:
-        raise ValueError(f"{row['bench_id']} semantic rubric is not 14 milestones / 100")
+    if len(rows) != MILESTONE_COUNT or sum(row["weight"] for row in rows) != 100:
+        raise ValueError(
+            f"{row['bench_id']} semantic rubric is not {MILESTONE_COUNT} milestones / 100"
+        )
     return rows
 
 
@@ -931,13 +944,28 @@ PagerDuty, Confluence, spreadsheets) and Kubernetes.
 Tasks are outcome-only tickets (symptom + definition of done; company policy
 lives in the world's knowledge base, not the prompt). Reference trajectories
 run {calls['min']}-{calls['max']} tool calls (median {calls['median']}), with
-100/100 distinct tool-name sequences. Every task publishes 28 task-scoped
-native assets, with 12 marked materially causal and the remainder retained as
+100/100 distinct tool-name sequences. Every task publishes {stats['assets_per_task']['min']} task-scoped
+native assets, with {stats['material_assets_per_task']['min']} marked materially causal and the remainder retained as
 context, conflicts, lineage, and decoys. The reference performs
 {stats['reference_evidence_reads_per_task']['min']}-{stats['reference_evidence_reads_per_task']['max']}
-context reads, while the verifier requires the 13 decision-controlling joins,
+context reads, while the verifier requires the {stats['material_evidence_reads_per_task']['min']} decision-controlling joins,
 task-specific state transitions, provider readback, and a reopened handoff.
-Acceptance is fully deterministic and expressed as 14 task-specific semantic
+
+Every task also carries a graded capacity-plan decision model: the required
+healthy-replica count is derived from a readiness standard and the PagerDuty
+scale record, the usable pool nets out a Linear reservation, the gap is bound
+to a confirmed {v32_decision.VENDOR} vendor order with standard and expedited
+delivery dates, completions land in published change windows, and three costed
+plans (standard, paid expedite, and releasing reserved capacity, which needs
+approval beyond the recorded change approval) are weighed against the
+published customer cutover date. The reference records the full
+{stats['graded_answer_fields_per_task']['min']}-field decision - every
+intermediate quantity, every plan outcome, the signed schedule variance, and
+an honest ON_TIME/LATE status - and the verifier grades each field, the
+evidence-before-decision ordering, and the handoff's stated option, outcome,
+approval scope, constraint, and timing.
+
+Acceptance is fully deterministic and expressed as {stats['criteria_per_task']['min']} task-specific semantic
 milestones totaling 100 points. Low-level vcode, final-state, sequence, and
 anti-forgery checks remain nested verifier evidence - no LLM judge, network,
 or clock is in the reward path.
@@ -969,10 +997,12 @@ or clock is in the reward path.
 | Tasks | 100 | 100 |
 | High-level unique employee requests | 100 | 100 |
 | Unique reference tool sequences | 100 | {stats['unique_reference_tool_name_sequences']} |
-| Inspectable assets per task | 28 | {stats['assets_per_task']['min']} |
-| Material assets per task | 12 | {stats['material_assets_per_task']['min']} |
-| Material causal reads per task | 13 | {stats['material_evidence_reads_per_task']['min']} |
-| Semantic milestones / points | 14 / 100 | {stats['criteria_per_task']['min']} / 100 |
+| Inspectable assets per task | 33 | {stats['assets_per_task']['min']} |
+| Material assets per task | 17 | {stats['material_assets_per_task']['min']} |
+| Material causal reads per task | 18 | {stats['material_evidence_reads_per_task']['min']} |
+| Semantic milestones / points | 16 / 100 | {stats['criteria_per_task']['min']} / 100 |
+| Graded decision-record fields per task | >= 12 | {stats['graded_answer_fields_per_task']['min']} |
+| Costed, authority-labeled options per task | 3 | {stats['decision_options_per_task']} |
 | Oracle replays at reward 1.0 | 100/100 | see `reports/qualification.json` |
 | Deterministic verifier replays | 100/100 | see `reports/qualification.json` |
 | Negative-control false accepts | 0 | see `reports/qualification.json` |
@@ -1035,6 +1065,10 @@ def build(output: pathlib.Path) -> dict:
     native_formats: set[str] = set()
     criteria_counts: list[int] = []
     criteria_weight_totals: list[int] = []
+    answer_field_counts: list[int] = []
+    decision_gate_rows: list[bool] = []
+    timing_statuses: set[str] = set()
+    recommended_plans: set[str] = set()
 
     for row in catalog["tasks"]:
         source_task = world_tasks[row["task_id"]]
@@ -1108,10 +1142,20 @@ def build(output: pathlib.Path) -> dict:
         })
         write_text(world_dir / "Dockerfile", world_dockerfile())
 
+        model = v32_decision.decision_model(row, contract, CURRENT_CONTROL)
+        expected = v32_decision.expected_contract(contract)
+        investigations = v32_required_investigations(row, contract, trace_contract)
+        readback_contract = v32_post_write_verifications(source_task, contract)
+        write_tables = v32_allowed_write_tables(source_task, tools_by_name)
         write_json(task_dir / "solution" / "reference.json", {
             "task_id": row["task_id"], "bench_id": bench_id,
             "case_contract": contract,
             "trace_contract": trace_contract,
+            "decision_model": model,
+            "expected_answer": expected,
+            "required_investigations": investigations,
+            "post_write_verifications": readback_contract,
+            "allowed_write_tables": write_tables,
             "source_expected_calls": source_task["expected_calls"],
             "expected_calls": task["expected_calls"],
         })
@@ -1137,6 +1181,32 @@ def build(output: pathlib.Path) -> dict:
         postwrite_readback_counts.append(len(trace_contract["postwrite_readback_calls"]))
         options = v3_decision_options(
             row, contract, trace_contract["source_mutation_tools"]
+        )
+        answer_values = {str(value) for value in expected["answer"].values()}
+        calculation_fields = {item["field"] for item in model["calculations"]}
+        answer_field_counts.append(len(expected["answer"]))
+        timing_statuses.add(contract["plan"]["status"])
+        recommended_plans.add(contract["plan"]["recommended_option"])
+        decision_gate_rows.append(
+            len(options) == 3
+            and all(
+                option.get("completion")
+                and isinstance(option.get("incremental_cost"), (int, float))
+                and option.get("approval")
+                and option.get("control_status")
+                and option.get("consequence")
+                for option in options
+            )
+            and sum(option["approval"] == "ADDITIONAL_APPROVAL_REQUIRED" for option in options) >= 1
+            and sum(
+                option["approval"] in ("AVAILABLE_NOT_RECOMMENDED", "NOT_SUPPORTED_BY_CURRENT_EVIDENCE")
+                for option in options
+            )
+            >= 1
+            and sum(bool(option.get("recommended")) for option in options) == 1
+            and all(str(option["completion"]) in answer_values for option in options)
+            and calculation_fields <= set(expected["answer"])
+            and {check["field"] for check in expected["answer_checks"]} == set(expected["answer"])
         )
         asset_root = hf_root / "task_files" / bench_id
         assets = v3_write_asset_views(
@@ -1180,13 +1250,20 @@ def build(output: pathlib.Path) -> dict:
             "prompt": prompt,
             "context_files": context_files,
             "assets": assets,
+            "decision_model": model,
+            "expected": expected,
+            "answer_schema": v32_decision.answer_schema(),
+            "required_investigations": investigations,
+            "post_write_verifications": readback_contract,
+            "allowed_write_tables": write_tables,
             "rubric": {
                 "type": "deterministic",
                 "grading": "deterministic",
                 "llm_judge": False,
                 "pass_rule": (
-                    "all 14 semantic milestones hold over causal tool evidence, "
-                    "final world state, readback, and containment"
+                    f"all {MILESTONE_COUNT} semantic milestones hold over causal tool "
+                    "evidence, the graded capacity-plan decision record, final world "
+                    "state, readback, and containment"
                 ),
                 "score_weights": {
                     criterion["id"]: criterion["weight"]
@@ -1225,6 +1302,8 @@ def build(output: pathlib.Path) -> dict:
                 "providers": trace_contract["providers"],
                 "case_id": contract["case_id"],
                 "service": contract["service"],
+                "decision_mode": model["mode"],
+                "graded_answer_fields": len(expected["answer"]),
                 "required_tools": task.get("required_tools", []),
                 "reference_tools": list(dict.fromkeys(call["tool"] for call in reference_calls)),
                 "guided_instruction_available": True,
@@ -1366,6 +1445,12 @@ def build(output: pathlib.Path) -> dict:
             "max": max(criteria_counts),
         },
         "decision_options_per_task": 3,
+        "graded_answer_fields_per_task": {
+            "min": min(answer_field_counts),
+            "max": max(answer_field_counts),
+        },
+        "decision_timing_statuses": sorted(timing_statuses),
+        "recommended_plans": sorted(recommended_plans),
         "native_asset_formats": sorted(native_formats),
         "unique_agent_visible_assets": len(set(asset_hashes)),
         "agent_visible_asset_count": len(asset_hashes),
@@ -1377,7 +1462,7 @@ def build(output: pathlib.Path) -> dict:
     quality_gates = {
         "one_hundred_tasks": len(records) == 100,
         "high_level_prompts_unique": len(prompts) == 100,
-        "high_level_prompt_length": min(prompt_words) >= 45 and max(prompt_words) <= 220,
+        "high_level_prompt_length": min(prompt_words) >= 45 and max(prompt_words) <= MAX_PROMPT_WORDS,
         "high_level_prompt_similarity": prompt_max_jaccard < 0.72,
         "no_harness_or_grading_leakage_in_prompts": all(
             PROMPT_LEAKAGE_PATTERN.search(prompt) is None for prompt in prompts
@@ -1387,21 +1472,25 @@ def build(output: pathlib.Path) -> dict:
         "unique_semantic_action_graphs": len(set(semantic_graphs)) == 100,
         "semantic_action_graph_similarity": semantic_max_jaccard < 0.85,
         "material_causal_evidence_reads": (
-            min(material_context_counts) == 13
-            and max(material_context_counts) == 13
+            min(material_context_counts) == MATERIAL_CONTEXT_CALLS
+            and max(material_context_counts) == MATERIAL_CONTEXT_CALLS
         ),
-        "deep_reference_investigation": min(context_counts) >= 19,
+        "deep_reference_investigation": min(context_counts) >= 24,
         "explicit_postwrite_readback": min(postwrite_readback_counts) >= 1,
         "long_horizon_reference": min(call_counts) >= 24,
-        "deep_task_assets": min(asset_counts) == 28 and max(asset_counts) == 28,
+        "deep_task_assets": (
+            min(asset_counts) == ASSET_COUNT and max(asset_counts) == ASSET_COUNT
+        ),
         "material_assets_inside_evidence_room": (
-            min(material_asset_counts) == 12 and max(material_asset_counts) == 12
+            min(material_asset_counts) == MATERIAL_ASSET_COUNT
+            and max(material_asset_counts) == MATERIAL_ASSET_COUNT
         ),
         "native_asset_formats": {"csv", "eml", "json", "log", "md", "pdf", "sql", "txt", "xlsx", "yaml"} <= native_formats,
         "all_agent_visible_assets_unique": len(set(asset_hashes)) == len(asset_hashes),
         "no_gold_or_recipe_leakage_in_assets": not asset_leakage_hits,
         "semantic_public_milestones": (
-            min(criteria_counts) == 14 and max(criteria_counts) == 14
+            min(criteria_counts) == MILESTONE_COUNT
+            and max(criteria_counts) == MILESTONE_COUNT
         ),
         "semantic_milestone_weights": (
             min(criteria_weight_totals) == 100
@@ -1411,6 +1500,11 @@ def build(output: pathlib.Path) -> dict:
             len(record["rubric"]["decision_options"]) == 3
             and sum(option["selected"] for option in record["rubric"]["decision_options"]) == 1
             for record in records
+        ),
+        "decision_options_fully_qualified": all(decision_gate_rows),
+        "graded_decision_answer_fields": min(answer_field_counts) >= 12,
+        "decision_regimes_vary": (
+            timing_statuses == {"ON_TIME", "LATE"} and len(recommended_plans) >= 2
         ),
     }
     stats["quality_gates"] = quality_gates

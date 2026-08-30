@@ -1,10 +1,10 @@
 {
-  "agent_visible_asset_count": 2800,
+  "agent_visible_asset_count": 3300,
   "asset_leakage_hits": [],
   "assets_per_task": {
-    "max": 28,
-    "median": 28,
-    "min": 28
+    "max": 33,
+    "median": 33,
+    "min": 33
   },
   "benchmark": "DevOpsBench-100",
   "categories": {
@@ -30,11 +30,15 @@
   },
   "category_count": 19,
   "criteria_per_task": {
-    "max": 14,
-    "median": 14,
-    "min": 14
+    "max": 16,
+    "median": 16,
+    "min": 16
   },
   "decision_options_per_task": 3,
+  "decision_timing_statuses": [
+    "LATE",
+    "ON_TIME"
+  ],
   "difficulties": {
     "easy": 2,
     "expert": 38,
@@ -42,15 +46,19 @@
     "medium": 29
   },
   "exact_duplicate_prompts": 0,
+  "graded_answer_fields_per_task": {
+    "max": 23,
+    "min": 23
+  },
   "material_assets_per_task": {
-    "max": 12,
-    "median": 12,
-    "min": 12
+    "max": 17,
+    "median": 17,
+    "min": 17
   },
   "material_evidence_reads_per_task": {
-    "max": 13,
-    "median": 13,
-    "min": 13
+    "max": 18,
+    "median": 18,
+    "min": 18
   },
   "native_asset_formats": [
     "csv",
@@ -69,17 +77,20 @@
     "median": 3,
     "min": 1
   },
-  "prompt_max_pairwise_jaccard": 0.709924,
+  "prompt_max_pairwise_jaccard": 0.60625,
   "prompt_words": {
     "max": 219,
-    "median": 129,
-    "min": 98
+    "median": 167,
+    "min": 135
   },
   "quality_gates": {
     "all_agent_visible_assets_unique": true,
+    "decision_options_fully_qualified": true,
+    "decision_regimes_vary": true,
     "deep_reference_investigation": true,
     "deep_task_assets": true,
     "explicit_postwrite_readback": true,
+    "graded_decision_answer_fields": true,
     "high_level_prompt_length": true,
     "high_level_prompt_similarity": true,
     "high_level_prompts_unique": true,
@@ -98,23 +109,27 @@
     "unique_reference_tool_sequences": true,
     "unique_semantic_action_graphs": true
   },
+  "recommended_plans": [
+    "expedite_capacity",
+    "standard_capacity_plan"
+  ],
   "reference_evidence_reads_per_task": {
-    "max": 25,
-    "median": 22,
-    "min": 20
+    "max": 29,
+    "median": 27,
+    "min": 24
   },
-  "reference_sequence_max_pairwise_similarity": 0.962963,
+  "reference_sequence_max_pairwise_similarity": 0.956522,
   "reference_tool_calls": {
-    "max": 67,
-    "median": 40,
-    "min": 28,
-    "total": 4010
+    "max": 73,
+    "median": 46,
+    "min": 34,
+    "total": 4563
   },
   "release_passed": true,
   "schema_version": "2.0",
-  "semantic_graph_max_pairwise_jaccard": 0.1,
+  "semantic_graph_max_pairwise_jaccard": 0.142857,
   "task_count": 100,
-  "unique_agent_visible_assets": 2800,
+  "unique_agent_visible_assets": 3300,
   "unique_reference_tool_name_sequences": 100,
   "unique_semantic_action_graphs": 100,
   "verifier": {
@@ -124,7 +139,7 @@
     "random_calls": 0,
     "wall_clock_reads": 0
   },
-  "version": "3.1.0",
+  "version": "3.2.0",
   "world_commits": 417,
   "world_documents": 30,
   "world_seeded_rows": 1451,
