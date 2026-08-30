@@ -93,8 +93,10 @@ def negative_plans(reference: dict) -> dict[str, dict]:
     """Create twelve distinct attacks against one task's causal contract."""
 
     full = deepcopy(reference["expected_calls"])
-    source = deepcopy(reference["source_expected_calls"])
     contract = reference["trace_contract"]
+    source = deepcopy(
+        contract.get("source_execution_calls", reference["source_expected_calls"])
+    )
     case = reference["case_contract"]
     context_count = int(contract["reference_context_call_count"])
     reference_context = contract["reference_context_calls"]

@@ -3,10 +3,10 @@
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
 resolve a work item across disagreeing systems, establish which control is
-current, inspect the live service state, settle the graded capacity plan for
-the customer cutover (see ``decision.py``), make the supported change, and
-reopen the handoff after writing it.  The public prompt stays outcome-oriented;
-the exact causal contract remains in the deterministic verifier.
+current, inspect the live service state, settle the graded capacity decision,
+make the supported change, and reopen the handoff after writing it.  The public
+prompt stays outcome-oriented; the exact causal contract remains in the
+deterministic verifier.
 """
 
 from __future__ import annotations
@@ -14,10 +14,13 @@ from __future__ import annotations
 import ast
 import csv
 import hashlib
+import importlib.util
 import io
 import json
 import re
+import shutil
 import sqlite3
+import tempfile
 import textwrap
 import zipfile
 from copy import deepcopy
@@ -48,12 +51,15 @@ SEMANTIC_MILESTONE_WEIGHTS = {
     "execution.delivery": 2,
 }
 MATERIAL_CONTEXT_CALLS = 18
-ASSET_COUNT = 33
-MATERIAL_ASSET_COUNT = 17
+ASSET_COUNT = 51
+MATERIAL_ASSET_COUNT = 18
 MAX_PROMPT_WORDS = 220
 FIXED_XLSX_ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 CURRENT_CONTROL = "OPS-CONTROL-2026.03"
 RETIRED_CONTROL = "OPS-CONTROL-2025.11"
+SNAPSHOT_DAY = 420
+ACTIVE_ONCALL_DAY = 419
+EVIDENCE_WINDOW_START = SNAPSHOT_DAY - 90
 SERVICE_NAMES = (
     "analytics-worker",
     "api-gateway",
@@ -80,6 +86,11 @@ SERVICE_ALIASES = {
     "payments": "payments",
     "search": "search",
     "storefront": "storefront-web",
+}
+TASK_SERVICE_HINTS = {
+    "tsk_auth_v1_to_v2": "api-gateway",
+    "tsk_impl_ratelimit": "api-gateway",
+    "tsk_retire_debug_endpoint": "api-gateway",
 }
 SERVICE_CONTEXT = {
     "analytics-worker": "Its business boundary is reporting freshness, warehouse replica access, scheduled rollups, and downstream decision data.",
@@ -112,13 +123,42 @@ TOPIC_CONTEXT = {
     "secret": "The security boundary is credential material, repository history, rotation evidence, and leak containment.",
 }
 
-OBSERVABILITY_CATEGORIES = {
+# The four code exercises and the filesystem repair deliberately expose their
+# behavioral contract through the sandbox rather than the employee prompt.
+# Their public rubric still needs to say what "correct" means; a filename or a
+# green hidden-test counter is not a business outcome a reviewer can inspect.
+AUTHORED_BEHAVIOR_OUTCOMES = {
+    "tsk_impl_backoff": (
+        "the payments retry delay must start at base_ms on attempt 1, double on each "
+        "later attempt, cap at max_ms, and reject attempts below 1"
+    ),
+    "tsk_impl_cachekey": (
+        "the search cache key must be stable across dictionary insertion order, distinguish "
+        "different parameters, and distinguish an explicit null from a missing parameter"
+    ),
+    "tsk_impl_chunk": (
+        "settlement inputs must be split into consecutive order-preserving groups no larger "
+        "than size, support one-pass iterables, return no groups for empty input, and reject "
+        "sizes below 1"
+    ),
+    "tsk_impl_ratelimit": (
+        "the per-client bucket must start full, consume one token only for an allowed request, "
+        "refill continuously without exceeding capacity, preserve fractional elapsed time, "
+        "and handle a backward clock step without granting tokens or stalling future refill"
+    ),
+    "tsk_ws_ledger_missing_account": (
+        "ledger.py must return a zero balance for an account with no postings while preserving "
+        "integer per-account accumulation and the existing double-entry balance semantics"
+    ),
+}
+
+READ_ONLY_CATEGORIES = {
     "aiops_analysis",
     "aiops_detection",
     "aiops_localization",
     "attribution",
     "judgement",
-    "security_incident",
+    "reconciliation",
 }
 DELIVERY_CATEGORIES = {
     "api_migration",
@@ -128,6 +168,7 @@ DELIVERY_CATEGORIES = {
     "human_gated",
     "latency_optimization",
     "multi_service_rollout",
+    "security_incident",
 }
 ENGINEERING_CATEGORIES = {
     "code_implementation",
@@ -147,8 +188,6 @@ PROVIDER_MAPPINGS = {
     "post_message": "Slack message creation",
     "read_owner_spreadsheet": "Microsoft Graph workbook",
     "pd_list_change_events": "PagerDuty change events",
-    "linear_list_issues": "Linear capacity register",
-    "list_status_page_posts": "public status page",
 }
 
 
@@ -156,12 +195,64 @@ def _slug(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", value.casefold()).strip("_")
 
 
+def _diagnosis_causal_pattern(task: dict[str, Any] | None) -> str:
+    """Return an identifier-neutral causal shape grounded in the gold state."""
+
+    if not task:
+        return ""
+    diagnosis = next(
+        (
+            call.get("args") or {}
+            for call in task.get("expected_calls", [])
+            if call.get("tool") == "submit_diagnosis"
+        ),
+        {},
+    )
+    fault_type = _slug(str(diagnosis.get("fault_type", "")))
+    offending_key = _slug(str(diagnosis.get("offending_key", "")))
+    if fault_type == "bad_release" or re.fullmatch(r"v?\d+(?:_\d+)+", offending_key):
+        return "release_regression"
+    if "cdn" in fault_type or "cdn" in offending_key:
+        return "origin_delivery_bypass"
+    if "timeout" in fault_type or "timeout" in offending_key:
+        return "downstream_timeout_chain"
+    return ""
+
+
+def business_reasoning_primitive(
+    row: dict[str, Any], contract: dict[str, Any], task: dict[str, Any] | None = None
+) -> str:
+    """Describe the employee decision without IDs or service-name permutations."""
+
+    tokens = _slug(str(row["task_id"])).split("_")
+    identity_tokens = {"tsk"}
+    for value in (
+        contract.get("service"),
+        contract.get("secondary_service"),
+        *SERVICE_ALIASES,
+    ):
+        identity_tokens.update(_slug(str(value or "")).split("_"))
+    meaningful = [
+        token
+        for token in tokens
+        if token
+        and token not in identity_tokens
+        and not re.fullmatch(r"(?:w\d+|\d+)", token)
+    ]
+    primitive = "_".join(meaningful) or _slug(str(row["category"]))
+    causal_pattern = _diagnosis_causal_pattern(task)
+    if causal_pattern and causal_pattern not in primitive:
+        primitive = f"{primitive}_{causal_pattern}"
+    return primitive
+
+
 def _task_id_services(task_id: str) -> list[str]:
+    normalized = f"_{_slug(task_id)}_"
     matches = sorted(
         (
-            (task_id.find(alias), alias, service)
+            (normalized.find(f"_{_slug(alias)}_"), alias, service)
             for alias, service in SERVICE_ALIASES.items()
-            if alias in task_id
+            if f"_{_slug(alias)}_" in normalized
         ),
         key=lambda item: (item[0], -len(item[1])),
     )
@@ -172,9 +263,55 @@ def _task_id_services(task_id: str) -> list[str]:
     return ordered
 
 
+def _mentioned_services(task: dict[str, Any]) -> list[str]:
+    """Resolve service identities from task IDs and structured argument values.
+
+    Tool verbs such as ``search_docs`` are not service mentions.  Treating a
+    serialized call graph as prose previously turned those verbs into fake
+    multi-service workflows.
+    """
+
+    ordered = _task_id_services(str(task.get("task_id", "")))
+    hinted = TASK_SERVICE_HINTS.get(str(task.get("task_id", "")))
+    if hinted and hinted not in ordered:
+        ordered.append(hinted)
+
+    service_fields = {
+        "service",
+        "from_service",
+        "producer_service",
+        "consumer_service",
+        "depends_on",
+    }
+
+    def visit(value: Any, field: str = "") -> None:
+        if isinstance(value, dict):
+            for key, item in value.items():
+                visit(item, key)
+        elif isinstance(value, list):
+            for item in value:
+                visit(item, field)
+        elif isinstance(value, str):
+            candidates: list[str] = []
+            if field in service_fields:
+                candidates.extend(_task_id_services(value))
+            elif field == "path":
+                # Repository paths encode ownership in their directory, not
+                # in arbitrary filename tokens (``notify_client.py`` is still
+                # payments code, not a second notifications service).
+                components = value.replace("\\", "/").split("/")[:-1]
+                for component in components:
+                    candidates.extend(_task_id_services(component))
+            for service in candidates:
+                if service not in ordered:
+                    ordered.append(service)
+
+    visit(task.get("expected_calls", []))
+    return ordered
+
+
 def primary_service(task: dict[str, Any], index: int) -> str:
-    task_id = task.get("task_id", "").casefold()
-    services = _task_id_services(task_id)
+    services = _mentioned_services(task)
     if services:
         return services[-1]
     blob = json.dumps(
@@ -192,7 +329,57 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
     index = int(row["index"])
     case_id = f"DOB-{index:03d}"
     service = primary_service(task, index)
-    task_id_services = _task_id_services(task.get("task_id", "").casefold())
+    task_id_services = _mentioned_services(task)
+    explicit_service = bool(task_id_services)
+    business_scope = service
+    business_context = SERVICE_CONTEXT[service]
+    mentioned_services = task_id_services
+    if len(mentioned_services) > 1 and row["category"] == "attribution":
+        service_list = (
+            f"{mentioned_services[0]} and {mentioned_services[1]}"
+            if len(mentioned_services) == 2
+            else ", ".join(mentioned_services[:-1]) + f", and {mentioned_services[-1]}"
+        )
+        business_scope = service_list + " incident set"
+        business_context = (
+            "Its business boundary is temporal correlation versus shared causation, the distinct "
+            "runtime and deployment evidence for each affected service, and whether one or several "
+            "incident owners are required."
+        )
+    elif len(mentioned_services) > 1:
+        business_scope = " → ".join(mentioned_services) + " capability chain"
+        business_context = (
+            "Its business boundary is the upstream-to-downstream dependency direction, the "
+            "contract at each service boundary, ownership, recoverability, and end-to-end health."
+            if row["category"] != "multi_service_rollout"
+            else "Its business boundary is producer-consumer dependency direction, schema readiness, "
+            "service ownership, guarded rollout order, rollback safety, and end-to-end health."
+        )
+    elif not explicit_service:
+        if row["category"] == "cross_system":
+            business_scope = "engineering work portfolio"
+            business_context = (
+                "Its business boundary is tracker identity, status, ownership, duplicate control, "
+                "and communication to the teams acting on the resulting population."
+            )
+        elif row["category"] == "reconciliation":
+            business_scope = "operational reporting portfolio"
+            business_context = (
+                "Its business boundary is the governing definition, source precedence, reporting "
+                "window, duplicate treatment, and the decision made from the reconciled result."
+            )
+        elif row["category"] == "workspace":
+            business_scope = "finance export workspace"
+            business_context = (
+                "Its business boundary is the account population, zero-balance behavior, executable "
+                "export check, and the integrity of unrelated ledger files."
+            )
+        elif row["category"] == "handover":
+            business_scope = "shared on-call operating model"
+            business_context = (
+                "Its business boundary is symptom triage, escalation ownership, safe diagnostic "
+                "commands, and guidance the next engineer can reproduce during an incident."
+            )
     secondary_service = next(
         (candidate for candidate in reversed(task_id_services[:-1]) if candidate != service),
         None,
@@ -206,6 +393,9 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
     return {
         "case_id": case_id,
         "service": service,
+        "service_is_explicit": explicit_service,
+        "business_scope": business_scope,
+        "business_context": business_context,
         "secondary_service": secondary_service,
         "topic_context": topic_context,
         "repo": f"novacart/{service}",
@@ -230,33 +420,19 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-DECISION_REQUESTS = (
-    "Before you hand off, settle the capacity plan for the {cutover} cutover: what the readiness standard "
-    "requires, what stays usable once {reservation} is honoured, the shortfall, {vend}'s delivery dates, each "
-    "plan's completion, cost and approval, and your recommendation, persisted as the case decision and stated "
-    "in a handoff you reopen.",
-    "Work out which capacity plan carries {service} to its {cutover} cutover: the pool net of {reservation}, "
-    "the confirmed {vend} dates, the change calendar, what each option costs, whether {chg} covers it and "
-    "whether it lands on time; record that decision, then reopen the case-room note stating it.",
-    "Fold cutover readiness into your handoff: net required against usable replicas, bound the uncovered "
-    "remainder, map the {vend} deliveries onto published windows, weigh all three paths on timing, spend and "
-    "authority, and file the chosen one with its {cutover} variance before reopening the note.",
-    "Management wants the {cutover} question answered too: replicas the standard demands, how many truly "
-    "remain after {reservation}, when {vend} closes the gap, the candidate plans priced with their sign-off "
-    "state under {chg}, and an honest on-time-or-late call, captured as the {case} decision and echoed in the "
-    "reopened handoff.",
-    "Close out the capacity side of {case}: reconcile the readiness requirement against the genuinely free "
-    "pool, quantify the missing replicas, price every plan off {vendor}'s committed dates and the calendar, "
-    "mark which {chg} authorises, pick one, and leave the persisted decision plus a reopened handoff naming "
-    "its timing.",
-    "Finish by planning the {cutover} cutover for {service}: demand per the standard, supply net of "
-    "{reservation}, the deficit {vend} fills, window-bounded completions with costs and approvals for all "
-    "three plans, one recommendation with a signed schedule variance, persisted for the case and restated in "
-    "the handoff you verify.",
-    "The cutover of {cutover} still needs its plan: derive the required and the usable replica counts, the "
-    "gap, {vendor}'s standard versus expedited arrival, each option's window-gated finish, price and "
-    "authority under {chg}, choose one honestly against that date, save the decision for {case}, and reopen "
-    "the note that reports it.",
+CAPACITY_DECISION_CLOSES = (
+    "Before handoff, also settle whether {service} can meet its {cutover} cutover: derive the healthy-replica requirement, subtract reserved capacity from the usable pool, quantify the gap, compare {vendor}'s standard and expedited arrivals against the change windows, cost and approval state of all three options, and persist one recommendation with its signed schedule variance and honest on-time-or-late status.",
+    "The release review also needs a defensible {service} capacity plan for {cutover}. Reconcile required versus genuinely free replicas, the uncovered gap, {vendor}'s confirmed delivery dates, window-bounded completion, incremental cost, and approval scope for each alternative; record the supported choice and restate its timing in the handoff you reopen.",
+    "Include the {cutover} readiness decision in the final handoff. Work from the replica standard, current capacity net of the reservation, the remaining deficit, {vendor}'s two delivery commitments, and the published change calendar; price and authority-label all three paths, then save one recommendation with the exact variance and timing status.",
+    "Management also needs to know whether {service} is realistically ready for {cutover}. Calculate demand, usable supply after reserved capacity, and the shortfall; map standard delivery, paid expedite, and releasing the reservation onto real change windows, costs, and approval limits; persist the chosen plan and verify the handoff that reports it.",
+    "Close the capacity side of this request too: establish the replicas the readiness rule demands, what remains usable after the reservation, the gap {vendor} must cover, and every option's windowed finish, spend, authority, and consequence. Choose one against {cutover}, save the decision, and reopen the note containing its schedule variance.",
+    "For the {service} cutover on {cutover}, reconcile the readiness requirement with the actually available pool, calculate the missing replicas, compare {vendor}'s standard and expedited dates with the release calendar, and evaluate all three costed plans under the recorded approval. Persist the recommendation and verify its on-time-or-late handoff.",
+    "Treat the {cutover} cutover as a real planning decision, not a date copied from a ticket: derive required and usable replicas, the capacity gap, vendor arrival and next eligible window for each path, incremental cost, approval status, and consequence. Record one supported option with exact timing and reopen the handoff that states it.",
+    "The incoming owner also needs the {service} capacity answer for {cutover}. Join the readiness rule, live pool, reservation, vendor order, approval record, and change calendar; show the required, usable, and missing replicas, all three costed completion options, the selected path, its schedule variance, and whether it is honestly on time or late.",
+    "Before closing, resolve the cutover capacity question for {service}. Net the reserved replicas out of current supply, compare the resulting gap with {vendor}'s delivery commitments, place each option into the next valid change window, and make cost and approval tradeoffs explicit. Persist the recommendation and read back the handoff containing the result.",
+    "Add a source-backed capacity plan for the {cutover} milestone: required healthy replicas, usable replicas after the existing reservation, deficit, standard and expedited supply dates, window-constrained completions, costs, approval coverage, and consequences for three alternatives. Save one choice with its variance and timing status, then verify the shared note.",
+    "The final record must also answer whether {service} can carry the {cutover} cutover. Derive demand and free supply, identify the vendor-bound gap, compare three calendar-aware options by completion, cost, authority, and operational consequence, and persist the supported recommendation with an exact on-time-or-late calculation that the reopened handoff repeats.",
+    "Finish with the practical cutover choice: how many healthy replicas {service} needs, how many remain after reserved capacity, what is missing, when {vendor} can supply it, which change window each of three plans can use, what each costs and who may approve it. Record the chosen plan, variance, and timing status and reopen its handoff.",
 )
 
 
@@ -267,61 +443,105 @@ def release_prompt(
 ) -> str:
     """Wrap the authored outcome in a natural workplace request, not a recipe."""
 
-    contexts = (
-        "Customer support escalated a morning reliability review after two dashboards disagreed.",
-        "The overnight on-call handover left an unresolved production judgement for the incoming engineer.",
-        "A release-train checkpoint is waiting on a defensible service-state conclusion.",
-        "The incident commander needs the underlying facts separated from a plausible first hypothesis.",
-        "A change-window reviewer found that the ticket and operating records no longer line up.",
-        "The weekly reliability council needs a reproducible answer before it closes the action item.",
-        "A regional operations lead flagged conflicting ownership, rollout, and telemetry records.",
-        "The security-response handoff needs the real scope established before anyone broadens remediation.",
-        "A vendor integration review exposed a gap between recorded and actually deployed state.",
-        "An after-hours escalation needs a safe answer that the next shift can independently verify.",
-        "The service owner is reconciling an audit exception against today's production evidence.",
-        "A customer-impact retrospective has one open question whose sources currently disagree.",
+    investigation_closes = (
+        "Explain which conclusion survives cross-checking and leave the live evidence that lets the incoming engineer reproduce it; production should remain unchanged.",
+        "Resolve the disagreement far enough for the incident lead to act, but keep the investigation read-only and preserve any uncertainty the records cannot settle.",
+        "Give the next shift a defensible finding and make clear which current observations rule out the most tempting alternative explanations.",
+        "Establish the operative cause instead of restating the alert, then document why the present system state supports that conclusion without intervening.",
+        "Separate upstream cause from downstream symptoms and leave a concise, evidence-linked handoff that another engineer can independently challenge.",
+        "Determine what the operating evidence supports today and explain why stale records or plausible shortcuts do not change the answer.",
+        "Trace the inconsistency to its authoritative source and record the supported finding while leaving every production control untouched.",
+        "Reconcile the affected boundary, identify the decisive signal, and deliver a read-only conclusion the service owner can use safely.",
+        "Work through the conflicting records, preserve genuine uncertainty, and state the supported operational conclusion in ordinary language.",
+        "Find the narrowest explanation that fits every material signal and leave the incident record ready for independent verification.",
+        "Test the apparent explanation against the live state, distinguish correlation from cause, and hand back a sourced answer without making a change.",
+        "Use the current evidence to settle what can be settled, flag what remains ambiguous, and make the reasoning auditable for the next review.",
     )
-    index = int(row["index"])
-    context = contexts[(index - 1) % len(contexts)]
-    service_context = SERVICE_CONTEXT[contract["service"]]
-    secondary_context = (
-        f"A separate signal crosses {contract['secondary_service']}: "
-        f"{SERVICE_CONTEXT[contract['secondary_service']]}"
-        if contract.get("secondary_service")
-        else contract.get("topic_context", "")
+    delivery_closes = (
+        "Decide the safest supported path, respect the current approval boundary, and verify the customer-visible result before handing it back.",
+        "Carry the remediation through only where live conditions permit it, then reopen the affected state to prove the intended outcome actually holds.",
+        "Distinguish urgent containment from durable repair, account for rollback safety, and leave an auditable completion record for the next owner.",
+        "Reconcile the proposed change with current policy and runtime evidence, make the scoped transition, and confirm that dependent behavior remains healthy.",
+        "Protect unrelated production state, handle the material dependency or migration constraint, and verify the result rather than trusting the change record.",
+        "Choose the supported rollout path from the evidence available today, stop if its control conditions are not met, and document what you observed afterward.",
+        "Resolve the customer-impacting condition with the smallest defensible intervention and prove both the recovery and the retained safety boundary.",
+        "Account for affected consumers and current authorization, carry the change through in a recoverable way, and leave enough evidence for independent review.",
+        "Treat conflicting records as part of the work: establish precedence, make only the justified change, and verify the authoritative state after writing it.",
+        "Complete the production outcome without broadening scope, confirm the relevant health signal, and communicate any exception that still needs ownership.",
+        "Use current operating constraints to select the viable option, execute its guarded transition, and demonstrate the post-change state at the service boundary.",
+        "Balance restoration speed with dependency and rollback risk, then leave a sourced handoff showing why the final production state is acceptable.",
     )
-    values = {
-        "case": contract["case_id"],
-        "service": contract["service"],
-        "cutover": contract["plan"]["cutover_date"],
-        "vendor": decision.VENDOR,
-        "vend": contract["vendor_ticket"],
-        "chg": contract["approval_ticket"],
-        "reservation": contract["reservation_issue"],
-    }
-    decision_request = DECISION_REQUESTS[index % len(DECISION_REQUESTS)].format(**values)
-    compact_request = (
-        f"Before the handoff, persist the {contract['case_id']} capacity decision the {contract['service']} "
-        f"readiness standard defines and state its recommendation, cost, {contract['approval_ticket']} approval "
-        f"scope and {contract['plan']['cutover_date']} timing in the note you reopen."
-    ).format(**values)
-    guard = "Reconcile current authority with live state and make only supported changes."
-    core = f"{employee_request.strip()} The work item is {contract['case_id']} for {contract['service']}."
-    # Optional framing is dropped, least important first, when the employee's
-    # own request already fills the word budget.
+    engineering_closes = (
+        "Use the repository's documented behavior to decide what is actually missing, make the smallest defensible edit, and prove the boundary cases another engineer would challenge.",
+        "Reproduce the failure, repair its underlying contract rather than its surface symptom, and leave the available validation trustworthy for the next contributor.",
+        "Resolve the implementation gap without coupling unrelated behavior, demonstrate the expected edge cases, and record the reasoning behind the change.",
+        "Treat the existing code and tests as evidence rather than a recipe, close the behavioral gap, and show that the repaired result remains stable under repetition.",
+        "Find the narrowest code-level cause, correct it within the documented interface, and leave a reproducible proof that the original failure no longer occurs.",
+        "Make the implementation match its consumer-facing contract, cover the non-obvious cases, and keep the handoff clear enough for independent review.",
+        "Separate a deterministic defect from incidental test noise, repair the real boundary, and demonstrate why rerunning the pipeline is no longer a workaround.",
+        "Trace the failing behavior through the repository, change only the responsible component, and leave both validation and operational context intact.",
+        "Implement the supported behavior with a minimal diff, verify its failure modes as well as its happy path, and document any remaining assumption.",
+        "Reconcile the written contract with the executable behavior, correct the discrepancy, and make the result straightforward for another engineer to reproduce.",
+        "Use the current workspace evidence to identify the missing invariant, restore it without masking adjacent failures, and prove the final behavior locally.",
+        "Close the engineering request at the behavior level, not merely the visible assertion, and leave a concise explanation of what changed and why.",
+    )
+    coordination_closes = (
+        "Use the current records to decide what genuinely belongs in scope, carry the request through, and leave a result that can be independently audited.",
+        "Resolve the cross-system disagreement before acting, protect unrelated work, and confirm the final record from its authoritative source.",
+        "Determine the supported answer or transition from the live evidence, then communicate it at the level the requesting team needs.",
+        "Treat duplicate, stale, and in-flight records carefully, make only the scoped update, and verify that the intended population changed.",
+        "Reconcile identity across the available systems, apply the business rule to the resulting set, and leave a clear account of exclusions.",
+        "Establish which source governs the decision, complete the requested coordination, and make any unresolved exception visible to its owner.",
+        "Work from the actual current population rather than a convenient snapshot, preserve out-of-scope records, and verify the delivered outcome.",
+        "Follow the evidence through its conflicting representations, resolve the employee's underlying question, and make the conclusion reproducible.",
+        "Use the governing definition and present state to make the decision, then leave the shared record consistent for the next workflow.",
+        "Separate records that only look equivalent from those that really refer to the same work, complete the scoped action, and confirm the result.",
+        "Account for precedence, status, and ownership before changing anything, and hand back a sourced outcome with no collateral mutations.",
+        "Turn the fragmented operating evidence into one defensible result, carry through any justified write, and reopen it to verify persistence.",
+    )
+    ordinal = int(row["index"]) - 1
+    # Shift the prose cadence between each block of twelve tasks so two jobs
+    # on the same service never become wording variants merely because their
+    # catalog positions share a remainder.
+    position = (ordinal % 12 + ordinal // 12) % 12
+    if row["category"] in READ_ONLY_CATEGORIES:
+        close = investigation_closes[position]
+    elif row["category"] in DELIVERY_CATEGORIES:
+        close = delivery_closes[position]
+    elif row["category"] == "handover":
+        close = coordination_closes[position]
+    elif row["category"] in ENGINEERING_CATEGORIES:
+        close = engineering_closes[position]
+    else:
+        close = coordination_closes[position]
+    service_context = contract.get(
+        "business_context", SERVICE_CONTEXT[contract["service"]]
+    ).replace(
+        "Its business boundary is",
+        f"For {contract.get('business_scope', contract['service'])}, the affected business boundary includes",
+    )
+    topic_context = contract.get("topic_context", "")
+    # Use a second coprime cadence for the planning paragraph.  It prevents
+    # two jobs from inheriting both the same operational close and the same
+    # capacity language merely because their catalog indices collide modulo
+    # twelve.
+    capacity_position = (ordinal * 5 + ordinal // 12) % 12
+    capacity_close = CAPACITY_DECISION_CLOSES[capacity_position].format(
+        service=contract["service"],
+        cutover=contract["plan"]["cutover_date"],
+        vendor=decision.VENDOR,
+    )
     attempts = (
-        [context, core, guard, service_context, secondary_context, decision_request],
-        [context, core, guard, service_context, "", decision_request],
-        [context, core, guard, "", "", decision_request],
-        ["", core, guard, "", "", decision_request],
-        ["", core, guard, "", "", compact_request],
-        ["", core, "", "", "", compact_request],
+        (employee_request.strip(), service_context, topic_context, close, capacity_close),
+        (employee_request.strip(), service_context, "", close, capacity_close),
+        (employee_request.strip(), service_context, "", "", capacity_close),
+        (employee_request.strip(), "", "", "", capacity_close),
     )
     for parts in attempts:
         prompt = re.sub(r"\s+", " ", " ".join(part for part in parts if part)).strip()
         if len(prompt.split()) <= MAX_PROMPT_WORDS:
             return prompt
-    return prompt
+    raise ValueError(f"{row['bench_id']} cannot fit its high-level request in {MAX_PROMPT_WORDS} words")
 
 
 def seed_case_evidence(
@@ -364,8 +584,8 @@ def seed_case_evidence(
             "High" if row["difficulty"] in {"hard", "expert"} else "Medium",
             contract["service"],
             "on-call",
-            94,
-            100,
+            SNAPSHOT_DAY - 6,
+            SNAPSHOT_DAY,
         ),
     )
     cx.execute(
@@ -376,7 +596,7 @@ def seed_case_evidence(
             f"Operational evidence for {contract['case_id']}",
             "open",
             f"{row['category']},needs-correlation",
-            95,
+            SNAPSHOT_DAY - 5,
         ),
     )
     cx.execute(
@@ -392,7 +612,7 @@ def seed_case_evidence(
                 "OPS",
                 f"{contract['case_id']} current operating control",
                 current_body,
-                100,
+                SNAPSHOT_DAY,
                 0,
             ),
             (
@@ -400,7 +620,7 @@ def seed_case_evidence(
                 "OPS",
                 f"{contract['case_id']} retired shortcut note",
                 retired_body,
-                72,
+                SNAPSHOT_DAY - 110,
                 1,
             ),
         ],
@@ -437,7 +657,7 @@ def seed_case_evidence(
             contract["service"],
             f"team-{contract['service']}",
             contract["channel"],
-            99,
+            SNAPSHOT_DAY - 1,
             "monday",
         ),
     )
@@ -446,7 +666,7 @@ def seed_case_evidence(
         (
             contract["pd_service_id"],
             f"{contract['case_id']} intake evidence for {contract['service']}; outcome not yet established",
-            99,
+            SNAPSHOT_DAY - 1,
         ),
     )
     cx.execute(
@@ -466,14 +686,14 @@ def employee_title(task: dict[str, Any]) -> str:
 
 
 def _route_calls(category: str, service: str) -> list[dict[str, Any]]:
-    if category in OBSERVABILITY_CATEGORIES:
+    if category in READ_ONLY_CATEGORIES:
         return [
             {"tool": "resolve_service_alias", "args": {"name": service}},
             {"tool": "pd_list_services", "args": {}},
-            {"tool": "pd_list_oncalls", "args": {"day": 100}},
-            {"tool": "list_status_page_posts", "args": {"since_day": 90}},
+            {"tool": "pd_list_oncalls", "args": {"day": ACTIVE_ONCALL_DAY}},
+            {"tool": "list_status_page_posts", "args": {"since_day": EVIDENCE_WINDOW_START}},
             {"tool": "list_alert_rules", "args": {}},
-            {"tool": "list_alert_firings", "args": {"since_day": 90}},
+            {"tool": "list_alert_firings", "args": {"since_day": EVIDENCE_WINDOW_START}},
             {"tool": "k8s_pods_list", "args": {"service": service}},
             {"tool": "k8s_events_list", "args": {}},
             {"tool": "get_runtime_stats", "args": {"service": service}},
@@ -506,8 +726,8 @@ def _route_calls(category: str, service: str) -> list[dict[str, Any]]:
         {"tool": "resolve_service_alias", "args": {"name": service}},
         {"tool": "list_service_aliases", "args": {}},
         {"tool": "linear_list_issues", "args": {}},
-        {"tool": "pd_list_incidents", "args": {"since_day": 90}},
-        {"tool": "list_status_page_posts", "args": {"since_day": 90}},
+        {"tool": "pd_list_incidents", "args": {"since_day": EVIDENCE_WINDOW_START}},
+        {"tool": "list_status_page_posts", "args": {"since_day": EVIDENCE_WINDOW_START}},
         {"tool": "list_tickets", "args": {"service": service}},
         {"tool": "list_pull_requests", "args": {"service": service}},
         {"tool": "list_deployments", "args": {"service": service}},
@@ -515,8 +735,675 @@ def _route_calls(category: str, service: str) -> list[dict[str, Any]]:
     ]
 
 
-def _material_route_calls(category: str, service: str) -> list[dict[str, Any]]:
+def _causal_live_state_calls(
+    row: dict[str, Any],
+    task: dict[str, Any] | None,
+    contract: dict[str, Any],
+    tools_by_name: dict[str, dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """Use different live systems for materially different causal questions."""
+
+    primitive = business_reasoning_primitive(row, contract, task)
+    diagnosis = next(
+        (
+            call.get("args") or {}
+            for call in (task or {}).get("expected_calls", [])
+            if call.get("tool") == "submit_diagnosis"
+        ),
+        {},
+    )
+    responsible_service = str(diagnosis.get("service") or contract["service"])
+    service = contract["service"]
+    dependency_source = str(contract.get("secondary_service") or service)
+    profiles: dict[str, list[dict[str, Any]]] = {
+        "rca_disk_pressure": [
+            {"tool": "k8s_nodes_list", "args": {}},
+            {"tool": "k8s_events_list", "args": {}},
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+        ],
+        "rca_node_deadlock": [
+            {"tool": "check_network_path", "args": {"from_service": service}},
+            {"tool": "k8s_pods_list", "args": {"service": service}},
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+        ],
+        "detect_errors": [
+            {"tool": "sentry_search_issues", "args": {"status": "unresolved"}},
+            {"tool": "query_metrics", "args": {"service": service}},
+            {"tool": "list_feature_flags", "args": {"service": service}},
+        ],
+        "detect": [
+            {"tool": "query_metrics", "args": {"service": service}},
+            {"tool": "list_alert_firings", "args": {"since_day": EVIDENCE_WINDOW_START}},
+            {"tool": "k8s_pods_list", "args": {"service": service}},
+        ],
+        "detect_healthy": [
+            {"tool": "get_status_page", "args": {"limit": 20}},
+            {"tool": "get_traffic_stats", "args": {"service": service}},
+            {"tool": "list_deployments", "args": {"service": service}},
+        ],
+        "localize_crashloop": [
+            {"tool": "k8s_events_list", "args": {}},
+            {"tool": "k8s_pods_list", "args": {"service": responsible_service}},
+            {"tool": "get_runtime_stats", "args": {"service": responsible_service}},
+        ],
+        "localize_errors": [
+            {"tool": "sentry_search_issues", "args": {"status": "unresolved"}},
+            {"tool": "search_logs", "args": {"service": responsible_service}},
+            {"tool": "query_metrics", "args": {"service": responsible_service}},
+        ],
+        "localize_latency_downstream_timeout_chain": [
+            {"tool": "check_network_path", "args": {"from_service": dependency_source}},
+            {"tool": "search_docs", "args": {"query": "retry timeout"}},
+            {"tool": "get_runtime_stats", "args": {"service": responsible_service}},
+            {"tool": "query_metrics", "args": {"service": responsible_service}},
+            {"tool": "list_deployments", "args": {"service": responsible_service}},
+        ],
+        "localize_latency_release_regression": [
+            {"tool": "list_deployments", "args": {"service": responsible_service}},
+            {"tool": "list_commits", "args": {"service": responsible_service}},
+            {"tool": "get_traffic_stats", "args": {"service": responsible_service}},
+        ],
+        "localize_latency_origin_delivery_bypass": [
+            {"tool": "get_traffic_stats", "args": {"service": responsible_service}},
+            {"tool": "get_runtime_stats", "args": {"service": responsible_service}},
+            {"tool": "list_deployments", "args": {"service": responsible_service}},
+            {"tool": "search_logs", "args": {"service": responsible_service}},
+        ],
+        "rca_retry": [
+            {"tool": "search_logs", "args": {"service": service}},
+            {"tool": "search_docs", "args": {"query": "retry policy"}},
+            {"tool": "list_commits", "args": {"service": service}},
+        ],
+        "rca_n_plus_one": [
+            {"tool": "search_logs", "args": {"service": service}},
+            {"tool": "get_traffic_stats", "args": {"service": service}},
+            {"tool": "list_commits", "args": {"service": service}},
+        ],
+        "rca_timeout_downstream_timeout_chain": [
+            {"tool": "search_logs", "args": {"service": service}},
+            {"tool": "search_docs", "args": {"query": "timeout standard"}},
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+            {"tool": "list_error_events", "args": {"service": service}},
+            {"tool": "list_commits", "args": {"service": service}},
+            {"tool": "check_network_path", "args": {"from_service": dependency_source}},
+        ],
+        "rca_pool": [
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+            {"tool": "get_traffic_stats", "args": {"service": service}},
+            {"tool": "search_logs", "args": {"service": service}},
+        ],
+        "impl_backoff": [
+            {"tool": "search_docs", "args": {"query": "retry"}},
+            {"tool": "list_commits", "args": {"service": service}},
+            {"tool": "list_tests", "args": {"service": service}},
+        ],
+        "impl_cachekey": [
+            {"tool": "list_api_endpoints", "args": {"service": service}},
+            {"tool": "get_traffic_stats", "args": {"service": service}},
+            {"tool": "list_files", "args": {"service": service}},
+        ],
+        "impl_chunk": [
+            {"tool": "list_packages", "args": {"service": service}},
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+            {"tool": "list_files", "args": {"service": service}},
+        ],
+        "impl_ratelimit": [
+            {"tool": "list_api_endpoints", "args": {"service": service}},
+            {"tool": "get_traffic_stats", "args": {"service": service}},
+            {"tool": "list_approval_policy", "args": {}},
+        ],
+        "port_count_inflight_work": [
+            {"tool": "list_tickets", "args": {}},
+            {"tool": "linear_list_issues", "args": {"state": "In Progress"}},
+            {"tool": "list_deployments", "args": {}},
+        ],
+        "port_count_unowned_work": [
+            {"tool": "list_tickets", "args": {}},
+            {"tool": "read_owner_spreadsheet", "args": {}},
+            {"tool": "pd_list_oncalls", "args": {"day": ACTIVE_ONCALL_DAY}},
+        ],
+        "port_high_priority_since": [
+            {"tool": "github_list_issues", "args": {"state": "open"}},
+            {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+            {"tool": "linear_list_issues", "args": {}},
+        ],
+        "port_collect_open_issues": [
+            {"tool": "github_list_issues", "args": {"state": "open"}},
+            {"tool": "jira_search", "args": {"project": "ENG"}},
+            {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+        ],
+        "port_report_customer_reports": [
+            {"tool": "github_list_issues", "args": {"state": "open"}},
+            {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+            {"tool": "get_status_page", "args": {"limit": 20}},
+        ],
+        "batch_size": [
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+            {"tool": "query_metrics", "args": {"service": service}},
+            {"tool": "k8s_pods_list", "args": {"service": service}},
+        ],
+        "cache_ttl": [
+            {"tool": "get_traffic_stats", "args": {"service": service}},
+            {"tool": "list_feature_flags", "args": {"service": service}},
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+        ],
+        "timeout": [
+            {"tool": "check_network_path", "args": {"from_service": dependency_source}},
+            {"tool": "search_docs", "args": {"query": "timeout standard"}},
+            {"tool": "get_runtime_stats", "args": {"service": "payments"}},
+        ],
+        "pool_reuse": [
+            {"tool": "get_traffic_stats", "args": {"service": service}},
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+            {"tool": "list_deployments", "args": {"service": service}},
+        ],
+        "flaky_rollup": [
+            {"tool": "list_ci_runs", "args": {"service": service}},
+            {"tool": "list_tests", "args": {"service": service}},
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+        ],
+        "flaky_rounding": [
+            {"tool": "list_ci_runs", "args": {"service": service}},
+            {"tool": "list_tests", "args": {"service": service}},
+            {"tool": "list_commits", "args": {"service": service}},
+        ],
+        "flaky_idempotency": [
+            {"tool": "list_tests", "args": {"service": service}},
+            {"tool": "list_ci_runs", "args": {"service": service}},
+            {"tool": "query_metrics", "args": {"service": service}},
+        ],
+        "flaky_timeout": [
+            {"tool": "list_ci_runs", "args": {"service": service}},
+            {"tool": "check_network_path", "args": {"from_service": service}},
+            {"tool": "list_tests", "args": {"service": service}},
+        ],
+        "flaky_index": [
+            {"tool": "list_tests", "args": {"service": service}},
+            {"tool": "list_deployments", "args": {"service": service}},
+            {"tool": "list_ci_runs", "args": {"service": service}},
+        ],
+        "cve_libpayproc": [
+            {"tool": "list_packages", "args": {"service": service}},
+            {"tool": "list_vulnerabilities", "args": {"service": service}},
+            {"tool": "search_docs", "args": {"query": "security"}},
+        ],
+        "cve_requests": [
+            {"tool": "list_packages", "args": {"service": service}},
+            {"tool": "list_commits", "args": {"service": service, "query": "requests"}},
+            {"tool": "list_deployments", "args": {"service": service}},
+        ],
+    }
+    # Families with similar source harnesses receive longer, causally distinct
+    # investigations.  These are business-specific evidence paths, not
+    # catalog-index permutations: removing task IDs and service names still
+    # leaves different systems and hypotheses to test.
+    profiles.update(
+        {
+            "batch_pricing": [
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_packages", "args": {"service": service}},
+            ],
+            "cdn": [
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "search_docs", "args": {"query": "cdn"}},
+            ],
+            "webp": [
+                {"tool": "list_files", "args": {"service": service}},
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "list_approval_policy", "args": {}},
+                {"tool": "search_docs", "args": {"query": "media delivery"}},
+            ],
+            "autocomplete": [
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "list_files", "args": {"service": service}},
+                {"tool": "list_feature_flags", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+            ],
+            "express": [
+                {"tool": "list_feature_flags", "args": {"service": service}},
+                {"tool": "list_api_endpoints", "args": {"service": "api-gateway"}},
+                {"tool": "list_tests", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "list_approval_policy", "args": {}},
+                {"tool": "query_metrics", "args": {"service": service}},
+            ],
+            "rca_unschedulable_replicas": [
+                {"tool": "k8s_deployments_list", "args": {"service": service}},
+                {"tool": "k8s_pods_list", "args": {"service": service}},
+                {"tool": "k8s_nodes_list", "args": {}},
+                {"tool": "k8s_events_list", "args": {}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_alerts", "args": {"service": service}},
+            ],
+            "rca_unscheduled_reindex": [
+                {"tool": "k8s_pods_list", "args": {"service": service}},
+                {"tool": "k8s_events_list", "args": {"reason": "FailedScheduling"}},
+                {"tool": "k8s_nodes_list", "args": {}},
+                {"tool": "k8s_deployments_list", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "search_logs", "args": {"service": service}},
+            ],
+            "rca_untolerated_taint": [
+                {"tool": "k8s_nodes_list", "args": {}},
+                {"tool": "k8s_pods_list", "args": {"service": service}},
+                {"tool": "k8s_events_list", "args": {}},
+                {"tool": "k8s_deployments_list", "args": {"service": service}},
+                {"tool": "list_files", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+            ],
+            "rca_migrator_security_context": [
+                {"tool": "k8s_events_list", "args": {}},
+                {"tool": "k8s_pods_list", "args": {"service": service}},
+                {"tool": "list_files", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "k8s_deployments_list", "args": {"service": service}},
+            ],
+            "rca_unbound_storage": [
+                {"tool": "k8s_deployments_list", "args": {"service": service}},
+                {"tool": "k8s_pods_list", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_infra", "args": {}},
+                {"tool": "k8s_nodes_list", "args": {}},
+                {"tool": "k8s_events_list", "args": {}},
+            ],
+            "rca_revoked_grant": [
+                {"tool": "list_db_grants", "args": {}},
+                {"tool": "list_infra", "args": {}},
+                {"tool": "check_network_path", "args": {"from_service": service}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+            ],
+            "rca_missing_role": [
+                {"tool": "list_db_grants", "args": {}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_files", "args": {"service": service}},
+                {"tool": "list_infra", "args": {}},
+            ],
+            "judge_flag": [
+                {"tool": "list_feature_flags", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "list_alerts", "args": {"service": service}},
+                {"tool": "list_messages", "args": {"channel": contract["channel"], "limit": 50}},
+                {"tool": "get_status_page", "args": {"limit": 20}},
+            ],
+            "judge_retry": [
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "search_docs", "args": {"query": "retry"}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_error_events", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+            ],
+            "prefetch": [
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "k8s_pods_list", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+            ],
+            "pool": [
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "k8s_pods_list", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+            ],
+            "retry": [
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "search_docs", "args": {"query": "retry"}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_error_events", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+            ],
+            "backorders": [
+                {"tool": "list_migrations", "args": {"service": "inventory"}},
+                {"tool": "get_service", "args": {"service": "inventory"}},
+                {"tool": "list_deployments", "args": {"service": "inventory"}},
+                {"tool": "list_approval_policy", "args": {}},
+                {"tool": "query_metrics", "args": {"service": "checkout"}},
+                {"tool": "list_deployments", "args": {"service": "storefront-web"}},
+            ],
+            "loyalty_points": [
+                {"tool": "list_migrations", "args": {"service": "catalog"}},
+                {"tool": "list_migrations", "args": {"service": "checkout"}},
+                {"tool": "get_service", "args": {"service": "catalog"}},
+                {"tool": "get_service", "args": {"service": "checkout"}},
+                {"tool": "list_deployments", "args": {"service": "checkout"}},
+                {"tool": "list_deployments", "args": {"service": "storefront-web"}},
+                {"tool": "list_approval_policy", "args": {}},
+            ],
+            "cve_pydantic": [
+                {"tool": "list_packages", "args": {"service": service}},
+                {"tool": "list_vulnerabilities", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_ci_runs", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "search_docs", "args": {"query": "security"}},
+            ],
+            "cve_stripe_sdk": [
+                {"tool": "list_packages", "args": {"service": service}},
+                {"tool": "list_vulnerabilities", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "search_docs", "args": {"query": "security"}},
+                {"tool": "list_approval_policy", "args": {}},
+            ],
+            "v2_layout_cleanup": [
+                {"tool": "list_feature_flags", "args": {"service": service}},
+                {"tool": "list_files", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_tests", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+            ],
+            "legacy_price_rounding_cleanup": [
+                {"tool": "list_feature_flags", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "list_files", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+            ],
+            "flaky_rollup": [
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_ci_runs", "args": {"service": service}},
+                {"tool": "list_tests", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+            ],
+            "flaky_idempotency": [
+                {"tool": "list_tests", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_files", "args": {"service": service}},
+                {"tool": "get_service", "args": {"service": service}},
+                {"tool": "list_ci_runs", "args": {"service": service}},
+            ],
+            "flaky_timeout": [
+                {"tool": "check_network_path", "args": {"from_service": service}},
+                {"tool": "list_ci_runs", "args": {"service": service}},
+                {"tool": "list_tests", "args": {"service": service}},
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+            ],
+            "flaky_index": [
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "list_tests", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "k8s_pods_list", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_ci_runs", "args": {"service": service}},
+            ],
+            "rca_retry": [
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "search_docs", "args": {"query": "retry"}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_error_events", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+            ],
+            "rca_n_plus_one": [
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "list_packages", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+            ],
+            "rca_traffic_flood": [
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "get_status_page", "args": {"limit": 20}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "get_service", "args": {"service": service}},
+            ],
+            "rca_recreate_strategy": [
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "k8s_pods_list", "args": {"service": service}},
+                {"tool": "k8s_events_list", "args": {}},
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+            ],
+            "impl_cachekey": [
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "list_files", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_tests", "args": {"service": service}},
+                {"tool": "search_docs", "args": {"query": "cache"}},
+            ],
+            "impl_ratelimit": [
+                {"tool": "list_api_endpoints", "args": {"service": service}},
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "list_approval_policy", "args": {}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "check_network_path", "args": {"from_service": service}},
+                {"tool": "list_tests", "args": {"service": service}},
+            ],
+            "rca_egress_blocked": [
+                {"tool": "check_network_path", "args": {"from_service": service}},
+                {"tool": "list_infra", "args": {}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "list_alerts", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+            ],
+            "rca_gc_thrash": [
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "get_traffic_stats", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+            ],
+            "port_close_backlog_issues": [
+                {"tool": "list_tickets", "args": {}},
+                {"tool": "linear_list_issues", "args": {"state": "Todo"}},
+                {"tool": "jira_search", "args": {"project": "ENG"}},
+                {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+                {"tool": "read_owner_spreadsheet", "args": {}},
+                {"tool": "github_list_issues", "args": {"state": "open"}},
+            ],
+            "port_count_open_priority": [
+                {"tool": "github_list_issues", "args": {"state": "open"}},
+                {"tool": "jira_search", "args": {"project": "ENG"}},
+                {"tool": "linear_list_issues", "args": {}},
+                {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+                {"tool": "read_owner_spreadsheet", "args": {}},
+                {"tool": "list_issue_links", "args": {}},
+            ],
+            "port_escalate_to_oncall": [
+                {"tool": "resolve_service_alias", "args": {"name": "api-gateway"}},
+                {"tool": "pd_list_services", "args": {}},
+                {"tool": "pd_list_oncalls", "args": {"day": ACTIVE_ONCALL_DAY}},
+                {"tool": "read_owner_spreadsheet", "args": {}},
+                {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+                {"tool": "get_status_page", "args": {"limit": 20}},
+            ],
+            "port_count_surface": [
+                {"tool": "list_api_endpoints", "args": {"service": "api-gateway"}},
+                {"tool": "get_service", "args": {"service": "api-gateway"}},
+                {"tool": "get_traffic_stats", "args": {"service": "api-gateway"}},
+                {"tool": "list_commits", "args": {"service": "api-gateway"}},
+                {"tool": "list_deployments", "args": {"service": "api-gateway"}},
+                {"tool": "search_docs", "args": {"query": "public"}},
+            ],
+            "port_dedupe_linked_issues": [
+                {"tool": "list_issue_links", "args": {}},
+                {"tool": "github_list_issues", "args": {"state": "open"}},
+                {"tool": "jira_search", "args": {"project": "ENG"}},
+                {"tool": "list_tickets", "args": {}},
+                {"tool": "linear_list_issues", "args": {}},
+                {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+            ],
+            "port_close_blocked_issues": [
+                {"tool": "jira_search", "args": {"project": "ENG"}},
+                {"tool": "list_tickets", "args": {}},
+                {"tool": "linear_list_issues", "args": {"state": "In Progress"}},
+                {"tool": "list_issue_links", "args": {}},
+                {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+                {"tool": "read_owner_spreadsheet", "args": {}},
+            ],
+            "port_copy_priority_issues": [
+                {"tool": "github_list_issues", "args": {"state": "open", "label": "priority"}},
+                {"tool": "jira_search", "args": {"project": "ENG"}},
+                {"tool": "list_tickets", "args": {}},
+                {"tool": "list_issue_links", "args": {}},
+                {"tool": "read_owner_spreadsheet", "args": {}},
+                {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+            ],
+            "copy": [
+                {"tool": "github_list_issues", "args": {"state": "open"}},
+                {"tool": "list_messages", "args": {"channel": "#eng", "limit": 50}},
+                {"tool": "jira_search", "args": {"project": "ENG"}},
+                {"tool": "linear_list_issues", "args": {}},
+                {"tool": "get_status_page", "args": {"limit": 20}},
+                {"tool": "list_issue_links", "args": {}},
+            ],
+            "hz_flag_kill": [
+                {"tool": "list_feature_flags", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "list_alerts", "args": {"service": service}},
+                {"tool": "get_status_page", "args": {"limit": 20}},
+                {"tool": "list_approval_policy", "args": {}},
+            ],
+            "hz_leak_rollback": [
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "search_logs", "args": {"service": service}},
+                {"tool": "list_error_events", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": service}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_approval_policy", "args": {}},
+            ],
+            "rcn_production_deploys": [
+                {"tool": "query_local_deploy_log", "args": {"service": service}},
+                {"tool": "resolve_service_alias", "args": {"name": service}},
+                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "pd_list_change_events", "args": {"since_day": EVIDENCE_WINDOW_START}},
+                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "get_status_page", "args": {"limit": 20}},
+            ],
+            "upsell": [
+                {"tool": "get_service", "args": {"service": "checkout"}},
+                {"tool": "list_api_endpoints", "args": {"service": "api-gateway"}},
+                {"tool": "list_packages", "args": {"service": "catalog"}},
+                {"tool": "get_traffic_stats", "args": {"service": "storefront-web"}},
+                {"tool": "list_deployments", "args": {"service": "checkout"}},
+                {"tool": "list_approval_policy", "args": {}},
+            ],
+            "pipeline": [
+                {"tool": "get_traffic_stats", "args": {"service": "media-service"}},
+                {"tool": "get_service", "args": {"service": "media-service"}},
+                {"tool": "list_packages", "args": {"service": "catalog"}},
+                {"tool": "list_deployments", "args": {"service": "storefront-web"}},
+                {"tool": "search_docs", "args": {"query": "media delivery"}},
+                {"tool": "list_approval_policy", "args": {}},
+            ],
+            "templates": [
+                {"tool": "get_service", "args": {"service": "notifications"}},
+                {"tool": "list_files", "args": {"service": "notifications"}},
+                {"tool": "list_api_endpoints", "args": {"service": "api-gateway"}},
+                {"tool": "list_deployments", "args": {"service": "payments"}},
+                {"tool": "search_docs", "args": {"query": "retry"}},
+                {"tool": "list_approval_policy", "args": {}},
+            ],
+            "relevance": [
+                {"tool": "get_traffic_stats", "args": {"service": "search"}},
+                {"tool": "list_migrations", "args": {"service": "catalog"}},
+                {"tool": "list_packages", "args": {"service": "catalog"}},
+                {"tool": "get_service", "args": {"service": "search"}},
+                {"tool": "query_metrics", "args": {"service": "search"}},
+                {"tool": "list_deployments", "args": {"service": "catalog"}},
+            ],
+            "ws_ledger_missing_account": [
+                {"tool": "ws_list", "args": {}},
+                {"tool": "ws_read", "args": {"path": "ledger.py"}},
+                {"tool": "ws_read", "args": {"path": "check.py"}},
+            ],
+        }
+    )
+    if primitive == "timeout":
+        if contract.get("secondary_service"):
+            upstream = str(contract["secondary_service"])
+            return [
+                {"tool": "check_network_path", "args": {"from_service": upstream}},
+                {"tool": "search_docs", "args": {"query": "timeout"}},
+                {"tool": "search_logs", "args": {"service": upstream}},
+                {"tool": "get_runtime_stats", "args": {"service": service}},
+                {"tool": "query_metrics", "args": {"service": upstream}},
+                {"tool": "list_deployments", "args": {"service": upstream}},
+            ]
+        return [
+            {"tool": "search_logs", "args": {"service": service}},
+            {"tool": "search_docs", "args": {"query": "timeout"}},
+            {"tool": "get_runtime_stats", "args": {"service": service}},
+            {"tool": "list_error_events", "args": {"service": service}},
+            {"tool": "list_commits", "args": {"service": service}},
+            {"tool": "list_deployments", "args": {"service": service}},
+        ]
+
+    explicit = profiles.get(primitive)
+    if explicit:
+        return deepcopy(explicit)
+
+    # The authored task already contains its domain-specific investigative
+    # reads.  For families without an explicit profile, prioritize the last
+    # four pre-mutation reads: operating policies and ticket intake generally
+    # come first, while the facts that settle the decision come immediately
+    # before the state transition.  Retain the earlier reads afterward so the
+    # full causal profile remains inspectable and distinct.
+    if task and tools_by_name:
+        authored = [
+            deepcopy(call)
+            for call in _leading_source_reads(task, tools_by_name)
+            if call["tool"] not in {"get_ticket", "jira_get_issue"}
+        ]
+        if authored:
+            pivot = max(0, len(authored) - 4)
+            return [*authored[pivot:], *authored[:pivot]]
+    return []
+
+
+def _material_route_calls(
+    row: dict[str, Any],
+    task: dict[str, Any] | None = None,
+    contract: dict[str, Any] | None = None,
+    tools_by_name: dict[str, dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
     """Select the live-system joins that actually control the task decision."""
+
+    category = row["category"]
+    service = str((contract or {}).get("service") or "")
+    candidates: list[dict[str, Any]] = []
+    if task and contract:
+        candidates.extend(
+            _causal_live_state_calls(row, task, contract, tools_by_name)
+        )
+        candidates.extend(_leading_source_reads(task, tools_by_name or {}))
 
     preferred = (
         (
@@ -525,7 +1412,7 @@ def _material_route_calls(category: str, service: str) -> list[dict[str, Any]]:
             "k8s_pods_list",
             "get_runtime_stats",
         )
-        if category in OBSERVABILITY_CATEGORIES
+        if category in READ_ONLY_CATEGORIES
         else (
             "get_service",
             "list_deployments",
@@ -548,7 +1435,17 @@ def _material_route_calls(category: str, service: str) -> list[dict[str, Any]]:
         )
     )
     by_name = {call["tool"]: call for call in _route_calls(category, service)}
-    selected = [deepcopy(by_name[name]) for name in preferred if name in by_name]
+    candidates.extend(deepcopy(by_name[name]) for name in preferred if name in by_name)
+    selected: list[dict[str, Any]] = []
+    seen_selectors: set[str] = set()
+    for call in candidates:
+        selector = json.dumps(call, sort_keys=True, separators=(",", ":"))
+        if selector in seen_selectors:
+            continue
+        selected.append(deepcopy(call))
+        seen_selectors.add(selector)
+        if len(selected) == 4:
+            break
     if len(selected) != 4:
         raise ValueError(
             f"expected four material live-state calls for {category}, got {len(selected)}"
@@ -556,8 +1453,130 @@ def _material_route_calls(category: str, service: str) -> list[dict[str, Any]]:
     return selected
 
 
-def material_context_calls(
+def _leading_source_reads(
+    task: dict[str, Any], tools_by_name: dict[str, dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Return the authored causal reads before the task's first state change."""
+
+    reads: list[dict[str, Any]] = []
+    for call in task.get("expected_calls", []):
+        tool = tools_by_name.get(str(call.get("tool")), {})
+        if tool.get("write_tables"):
+            break
+        reads.append(deepcopy(call))
+    return reads
+
+
+def _coordination_context_calls(
     row: dict[str, Any], contract: dict[str, Any]
+) -> list[dict[str, Any]]:
+    conversation = {
+        "tool": "list_messages",
+        "args": {"channel": contract["channel"], "limit": 50},
+    }
+    if row["category"] in {
+        "aiops_analysis",
+        "aiops_detection",
+        "aiops_localization",
+        "attribution",
+        "judgement",
+    }:
+        return [
+            conversation,
+            {
+                "tool": "pd_list_change_events",
+                "args": {
+                    "pd_service_id": contract["pd_service_id"],
+                    "since_day": EVIDENCE_WINDOW_START,
+                },
+            },
+            {"tool": "get_status_page", "args": {"limit": 20}},
+        ]
+    if row["category"] in DELIVERY_CATEGORIES:
+        return [
+            conversation,
+            {"tool": "list_approval_policy", "args": {}},
+            {
+                "tool": "pd_list_change_events",
+                "args": {
+                    "pd_service_id": contract["pd_service_id"],
+                    "since_day": EVIDENCE_WINDOW_START,
+                },
+            },
+        ]
+    if row["category"] == "handover":
+        return [
+            conversation,
+            {"tool": "get_status_page", "args": {"limit": 20}},
+            {
+                "tool": "pd_list_change_events",
+                "args": {
+                    "pd_service_id": contract["pd_service_id"],
+                    "since_day": EVIDENCE_WINDOW_START,
+                },
+            },
+        ]
+    if row["category"] == "workspace":
+        return [
+            conversation,
+            {"tool": "jira_search", "args": {"project": "ENG"}},
+            {"tool": "list_approval_policy", "args": {}},
+        ]
+    if row["category"] in ENGINEERING_CATEGORIES:
+        return [
+            conversation,
+            {"tool": "list_ci_runs", "args": {"service": contract["service"]}},
+            {"tool": "list_commits", "args": {"service": contract["service"]}},
+        ]
+    return [
+        conversation,
+        {"tool": "linear_list_issues", "args": {}},
+        {"tool": "jira_search", "args": {"project": "ENG"}},
+    ]
+
+
+def _supplemental_context_calls(
+    row: dict[str, Any], contract: dict[str, Any]
+) -> list[dict[str, Any]]:
+    service = contract["service"]
+    if row["category"] in READ_ONLY_CATEGORIES - {"reconciliation"}:
+        return [
+            {"tool": "list_alerts", "args": {"service": service}},
+            {"tool": "query_metrics", "args": {"service": service}},
+            {"tool": "k8s_deployments_list", "args": {"service": service}},
+            {"tool": "sentry_search_issues", "args": {"status": "unresolved"}},
+            {"tool": "list_deployments", "args": {"service": service}},
+        ]
+    if row["category"] in DELIVERY_CATEGORIES:
+        return [
+            {"tool": "list_pull_requests", "args": {"service": service}},
+            {"tool": "list_ci_runs", "args": {"service": service}},
+            {"tool": "list_deployments", "args": {"service": service}},
+            {"tool": "list_migrations", "args": {"service": service}},
+            {"tool": "get_slo_status", "args": {"service": service}},
+        ]
+    if row["category"] in ENGINEERING_CATEGORIES:
+        return [
+            {"tool": "list_files", "args": {"service": service}},
+            {"tool": "list_tests", "args": {"service": service}},
+            {"tool": "list_packages", "args": {"service": service}},
+            {"tool": "list_api_endpoints", "args": {"service": service}},
+            {"tool": "list_approval_policy", "args": {}},
+        ]
+    return [
+        {"tool": "github_list_issues", "args": {"state": "open"}},
+        {"tool": "linear_list_issues", "args": {}},
+        {"tool": "jira_search", "args": {"project": "ENG"}},
+        {"tool": "list_tickets", "args": {}},
+        {"tool": "read_owner_spreadsheet", "args": {}},
+    ]
+
+
+def material_context_calls(
+    row: dict[str, Any],
+    contract: dict[str, Any],
+    task: dict[str, Any] | None = None,
+    tools_by_name: dict[str, dict[str, Any]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, list[dict[str, Any]]]]:
     """Return the causal evidence subset within the larger reference investigation."""
 
@@ -584,81 +1603,98 @@ def material_context_calls(
                 "args": {"page_id": contract["retired_page"]},
             },
         ],
-        "ownership_and_conversation": [
-            {
-                "tool": "list_messages",
-                "args": {"channel": contract["channel"], "limit": 50},
-            },
-            {"tool": "read_owner_spreadsheet", "args": {}},
-            {
-                "tool": "pd_list_change_events",
-                "args": {
-                    "pd_service_id": contract["pd_service_id"],
-                    "since_day": 90,
-                },
-            },
-        ],
-        "live_state": _material_route_calls(row["category"], contract["service"]),
+        "ownership_and_conversation": _coordination_context_calls(row, contract),
+        "live_state": _material_route_calls(
+            row, task, contract, tools_by_name
+        ),
         "capacity_plan": decision.capacity_context_calls(contract),
     }
+    # A source can play two conceptual roles, but one identical query is still
+    # one fact.  Preserve all four decision-controlling live reads, remove any
+    # duplicate coordination selector, and replace it with another relevant
+    # authored/profile read instead of counting the same call twice.
+    ownership: dict[str, str] = {}
+    for group_name in (
+        "identity",
+        "authority",
+        "capacity_plan",
+        "live_state",
+        "ownership_and_conversation",
+    ):
+        for call in groups[group_name]:
+            signature = json.dumps(call, sort_keys=True, separators=(",", ":"))
+            ownership.setdefault(signature, group_name)
+    for group_name, values in list(groups.items()):
+        groups[group_name] = [
+            deepcopy(call)
+            for call in values
+            if ownership[
+                json.dumps(call, sort_keys=True, separators=(",", ":"))
+            ]
+            == group_name
+        ]
+
     calls = [deepcopy(call) for values in groups.values() for call in values]
+    missing = MATERIAL_CONTEXT_CALLS - len(calls)
+    if missing > 0:
+        candidates = [
+            *_causal_live_state_calls(row, task, contract, tools_by_name),
+            *_leading_source_reads(task or {}, tools_by_name or {}),
+            *_supplemental_context_calls(row, contract),
+            *_route_calls(row["category"], contract["service"]),
+        ]
+        seen = {
+            json.dumps(call, sort_keys=True, separators=(",", ":"))
+            for call in calls
+        }
+        corroborating: list[dict[str, Any]] = []
+        for call in candidates:
+            tool = (tools_by_name or {}).get(str(call.get("tool")), {})
+            if tool.get("write_tables"):
+                continue
+            signature = json.dumps(call, sort_keys=True, separators=(",", ":"))
+            if signature in seen:
+                continue
+            seen.add(signature)
+            corroborating.append(deepcopy(call))
+            if len(corroborating) == missing:
+                break
+        if len(corroborating) != missing:
+            raise ValueError(
+                f"{row['bench_id']} cannot replace {missing} duplicate material reads"
+            )
+        groups["corroborating_context"] = corroborating
+        calls.extend(corroborating)
     if len(calls) != MATERIAL_CONTEXT_CALLS:
         raise ValueError(
-            f"{row['bench_id']} has {len(calls)} material context calls, expected {MATERIAL_CONTEXT_CALLS}"
+            f"{row['bench_id']} has {len(calls)} material context calls, "
+            f"expected {MATERIAL_CONTEXT_CALLS}"
         )
+    signatures = {
+        json.dumps(call, sort_keys=True, separators=(",", ":")) for call in calls
+    }
+    if len(signatures) != MATERIAL_CONTEXT_CALLS:
+        raise ValueError(f"{row['bench_id']} still has duplicate material reads")
     return calls, groups
 
 
 def context_calls(
-    row: dict[str, Any], contract: dict[str, Any]
+    row: dict[str, Any],
+    contract: dict[str, Any],
+    task: dict[str, Any] | None = None,
+    tools_by_name: dict[str, dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
+    material, _material_groups = material_context_calls(
+        row, contract, task, tools_by_name
+    )
+    source_reads = _leading_source_reads(task or {}, tools_by_name or {})
     groups = [
-        [
-            {"tool": "jira_search", "args": {"project": "DOB"}},
-            {"tool": "jira_get_issue", "args": {"key": contract["case_id"]}},
-            {"tool": "list_issue_links", "args": {"source": contract["case_id"]}},
-        ],
-        [
-            {"tool": "github_list_issues", "args": {"repo": contract["repo"], "state": "open"}},
-        ],
-        [
-            {"tool": "confluence_search", "args": {"query": contract["case_id"], "space": "OPS"}},
-            {"tool": "confluence_get_page", "args": {"page_id": contract["current_page"]}},
-            {"tool": "confluence_get_page", "args": {"page_id": contract["retired_page"]}},
-        ],
-        [
-            {"tool": "list_messages", "args": {"channel": contract["channel"], "limit": 50}},
-            {"tool": "read_owner_spreadsheet", "args": {}},
-        ],
-        [
-            {"tool": "pd_list_change_events", "args": {"pd_service_id": contract["pd_service_id"], "since_day": 90}},
-        ],
-        _route_calls(row["category"], contract["service"]),
-        decision.capacity_context_calls(contract),
+        material,
+        [{"tool": "jira_search", "args": {"project": "DOB"}}],
+        _causal_live_state_calls(row, task, contract, tools_by_name) if task else [],
+        source_reads,
     ]
-    # The evidence sources do not have a prescribed internal order.  Use a
-    # one-to-one factoradic permutation for indices 1..100 so two tasks never
-    # inherit the same raw investigation prefix merely because their source
-    # workflows belong to the same family.
-    pool = list(groups)
-    ordered_groups: list[list[dict[str, Any]]] = []
-    permutation = int(row["index"]) - 1
-    while pool:
-        position = permutation % len(pool)
-        permutation //= len(pool)
-        ordered_groups.append(pool.pop(position))
-    calls = [call for group in ordered_groups for call in group]
-    optional = [
-        {"tool": "list_infra", "args": {}},
-        {"tool": "list_vulnerabilities", "args": {"service": contract["service"]}},
-        {"tool": "get_status_page", "args": {"limit": 20}},
-        {"tool": "list_approval_policy", "args": {}},
-        {"tool": "k8s_nodes_list", "args": {}},
-        {"tool": "check_network_path", "args": {"from_service": contract["service"]}},
-        {"tool": "sentry_list_projects", "args": {}},
-    ]
-    number = int(row["index"])
-    calls.extend(call for bit, call in enumerate(optional) if number & (1 << bit))
+    calls = [call for group in groups for call in group]
     deduped: list[dict[str, Any]] = []
     seen: set[str] = set()
     for call in calls:
@@ -666,7 +1702,7 @@ def context_calls(
         if key not in seen:
             seen.add(key)
             deduped.append(deepcopy(call))
-    if len(deduped) < 19:
+    if len(deduped) < MATERIAL_CONTEXT_CALLS:
         raise ValueError(f"{row['bench_id']} has only {len(deduped)} contextual reads")
     return deduped
 
@@ -674,7 +1710,7 @@ def context_calls(
 def _readback_for(
     tool: str, args: dict[str, Any], contract: dict[str, Any]
 ) -> dict[str, Any] | None:
-    """The documented provider read that reopens what one source write changed."""
+    """The provider read that proves one source write persisted."""
 
     service = args.get("service") or contract["service"]
     if tool in {"deploy_service", "promote_canary", "rollback_deployment"}:
@@ -698,7 +1734,10 @@ def _readback_for(
     if tool == "write_runbook":
         return {"tool": "list_authored_docs", "args": {}}
     if tool == "post_message" and args.get("channel"):
-        return {"tool": "list_messages", "args": {"channel": args["channel"], "limit": 50}}
+        return {
+            "tool": "list_messages",
+            "args": {"channel": args["channel"], "limit": 50},
+        }
     if tool == "create_ticket":
         return {"tool": "list_tickets", "args": {"service": service}}
     if tool == "shift_endpoint_traffic":
@@ -713,7 +1752,7 @@ def _readback_for(
 def postwrite_readback_pairs(
     task: dict[str, Any], contract: dict[str, Any]
 ) -> list[tuple[dict[str, Any], dict[str, Any]]]:
-    """(source write, provider readback) pairs, one readback per distinct read."""
+    """Return each source write with the read that reopens its provider state."""
 
     pairs: list[tuple[dict[str, Any], dict[str, Any]]] = []
     seen: set[str] = set()
@@ -741,36 +1780,42 @@ def postwrite_readback_calls(
 ) -> list[dict[str, Any]]:
     """Derive provider reads that reopen the task's persisted state after writes."""
 
-    return [deepcopy(readback) for _write, readback in postwrite_readback_pairs(task, contract)]
+    return [
+        deepcopy(readback)
+        for _write, readback in postwrite_readback_pairs(task, contract)
+    ]
 
 
 def post_write_verifications(
     task: dict[str, Any], contract: dict[str, Any]
 ) -> list[dict[str, Any]]:
-    """Public contract: every source mutation is read back from its provider."""
+    """Public contract: each source mutation is verified from provider state."""
 
-    rows = []
-    for number, (write, readback) in enumerate(postwrite_readback_pairs(task, contract), 1):
-        rows.append(
-            {
-                "id": f"readback_{number:02d}",
-                "milestone_id": "verification.outcome",
-                "check_id": "deployment.v4_state_readbacks_complete",
-                "after_tool": write["tool"],
-                "any_of": [{"tool": readback["tool"], "arguments": deepcopy(readback["args"])}],
-                "description": (
-                    f"Reopened the {readback['tool']} provider record after {write['tool']} for "
-                    f"{contract['case_id']} and confirmed the persisted state rather than the write acknowledgement."
-                ),
-            }
+    return [
+        {
+            "id": f"readback_{number:02d}",
+            "milestone_id": "verification.outcome",
+            "check_id": "deployment.v4_state_readbacks_complete",
+            "after_tool": write["tool"],
+            "any_of": [
+                {"tool": readback["tool"], "arguments": deepcopy(readback["args"])}
+            ],
+            "description": (
+                f"Reopened {readback['tool']} after {write['tool']} for "
+                f"{contract['case_id']} and confirmed persisted provider state, not "
+                "merely the write acknowledgement."
+            ),
+        }
+        for number, (write, readback) in enumerate(
+            postwrite_readback_pairs(task, contract), 1
         )
-    return rows
+    ]
 
 
 def allowed_write_tables(
     task: dict[str, Any], tools_by_name: dict[str, dict[str, Any]]
 ) -> list[str]:
-    """Tables the reference walk is allowed to change; everything else is frozen or fixed."""
+    """Tables the reference may change; all other state remains contained."""
 
     tables: set[str] = set()
     for call in task["expected_calls"]:
@@ -782,37 +1827,53 @@ def allowed_write_tables(
 
 INVESTIGATION_GROUPS = {
     "identity": ("investigation.scope", "correctness.v4_case_identity_resolved"),
-    "authority": ("investigation.authority", "correctness.v4_authority_reconciled"),
-    "ownership_and_conversation": ("analysis.causal_reasoning", "correctness.v4_material_evidence_complete"),
-    "live_state": ("investigation.live_state", "correctness.v4_live_state_correlated"),
-    "capacity_plan": ("analysis.capacity_plan", "correctness.v5_capacity_evidence_complete"),
+    "authority": (
+        "investigation.authority",
+        "correctness.v4_authority_reconciled",
+    ),
+    "ownership_and_conversation": (
+        "analysis.causal_reasoning",
+        "correctness.v4_material_evidence_complete",
+    ),
+    "live_state": (
+        "investigation.live_state",
+        "correctness.v4_live_state_correlated",
+    ),
+    "corroborating_context": (
+        "analysis.causal_reasoning",
+        "correctness.v4_material_evidence_complete",
+    ),
+    "capacity_plan": (
+        "analysis.capacity_plan",
+        "correctness.v5_capacity_evidence_complete",
+    ),
 }
 
 
 def required_investigations(
     row: dict[str, Any], contract: dict[str, Any], trace_contract: dict[str, Any]
 ) -> list[dict[str, Any]]:
-    """Public contract: the graded pre-mutation reads and what each one establishes."""
+    """Public contract for every graded pre-mutation evidence read."""
 
     plan = contract["plan"]
     service = contract["service"]
     descriptions = {
-        ("jira_get_issue", contract["case_id"]): f"Located {contract['case_id']} through its immutable Jira key instead of a title match.",
-        ("list_issue_links", None): f"Read the cross-tracker link registry to bind {contract['case_id']} to its GitHub record.",
-        ("github_list_issues", None): f"Enumerated the open {contract['repo']} GitHub issues and used their immutable numbers to find #{contract['github_issue']}.",
-        ("confluence_search", None): f"Searched Confluence for {contract['case_id']} to find the current control, the retired note and the readiness standard by page id.",
-        ("confluence_get_page", contract["current_page"]): f"Opened the current operating control {CURRENT_CONTROL} and read the {service} change calendar ({', '.join(plan['window_dates'])}) that bounds every plan's completion.",
-        ("confluence_get_page", contract["retired_page"]): f"Opened the retired {RETIRED_CONTROL} note and kept it as historical evidence, not authority.",
-        ("list_messages", None): f"Read the scoped case-room discussion and separated the customer-success cutover mention from formal approval.",
-        ("read_owner_spreadsheet", None): f"Read the service-owner workbook row for {service} to confirm ownership and the case channel.",
-        ("pd_list_change_events", None): f"Read the PagerDuty change history for {contract['pd_service_id']}, including the scale record that gives {plan['observed']} replicas across {plan['zones']} zones.",
-        ("confluence_get_page", contract["readiness_page"]): f"Opened the {contract['case_id']} change-readiness standard and established {plan['per_zone']} healthy replicas per zone plus the plan-selection rule.",
-        ("jira_get_issue", contract["vendor_ticket"]): f"Read the independently confirmed {decision.VENDOR} vendor order {contract['vendor_ticket']}: standard delivery {decision.iso(plan['standard_days'])}, expedited {decision.iso(plan['expedited_days'])} for USD {plan['expedite_fee']}.",
-        ("jira_get_issue", contract["approval_ticket"]): f"Read the signed change approval {contract['approval_ticket']} and applied it only to the authorised capacity plans within published windows.",
-        ("linear_list_issues", None): f"Read the Linear capacity register and excluded the {plan['reserved']} replicas reserved for the {plan['neighbor']} freeze.",
-        ("list_status_page_posts", None): f"Read the public status page and preserved the {plan['cutover_date']} customer cutover as the independent control date.",
+        ("jira_get_issue", contract["case_id"]): f"Located {contract['case_id']} by immutable Jira key rather than title similarity.",
+        ("list_issue_links", None): f"Bound {contract['case_id']} to its linked GitHub record through the cross-tracker registry.",
+        ("github_list_issues", None): f"Located GitHub issue #{contract['github_issue']} in {contract['repo']} by immutable number.",
+        ("confluence_search", None): f"Located current, retired, and readiness controls for {contract['case_id']} by page identity.",
+        ("confluence_get_page", contract["current_page"]): f"Applied {CURRENT_CONTROL} and its {service} change windows: {', '.join(plan['window_dates'])}.",
+        ("confluence_get_page", contract["retired_page"]): f"Recognized {RETIRED_CONTROL} as historical evidence, not current authority.",
+        ("confluence_get_page", contract["readiness_page"]): f"Established the requirement of {plan['per_zone']} healthy replicas in each production zone.",
+        ("jira_get_issue", contract["vendor_ticket"]): f"Read {decision.VENDOR} order {contract['vendor_ticket']}, including both confirmed delivery dates and expedite cost.",
+        ("jira_get_issue", contract["approval_ticket"]): f"Applied approval {contract['approval_ticket']} only to its documented capacity scope.",
+        ("linear_list_issues", None): f"Excluded {plan['reserved']} replicas reserved for the {plan['neighbor']} freeze.",
+        ("list_status_page_posts", None): f"Preserved {plan['cutover_date']} as the independent customer need date.",
+        ("list_messages", None): f"Separated the case-room business request from formal operational authority for {service}.",
+        ("read_owner_spreadsheet", None): f"Confirmed the accountable {service} owner and scoped case channel.",
+        ("pd_list_change_events", None): f"Read the live pool record: {plan['observed']} replicas across {plan['zones']} zones.",
     }
-    rows = []
+    investigations: list[dict[str, Any]] = []
     number = 0
     for group, calls in trace_contract["material_context_groups"].items():
         milestone_id, check_id = INVESTIGATION_GROUPS[group]
@@ -820,21 +1881,26 @@ def required_investigations(
             number += 1
             args = call.get("args") or {}
             key = (call["tool"], args.get("key") or args.get("page_id"))
-            description = descriptions.get(key) or descriptions.get((call["tool"], None)) or (
-                f"Correlated the live {service} {call['tool']} record that controls this {row['category']} decision."
+            description = descriptions.get(key) or descriptions.get(
+                (call["tool"], None)
+            ) or (
+                f"Correlated the live {service} {call['tool']} record that controls "
+                f"the {row['category']} decision."
             )
-            rows.append(
+            investigations.append(
                 {
                     "id": f"investigation_{number:02d}",
                     "milestone_id": milestone_id,
                     "check_id": check_id,
                     "group": group,
                     "before_primary_mutation": True,
-                    "any_of": [{"tool": call["tool"], "arguments": deepcopy(args)}],
+                    "any_of": [
+                        {"tool": call["tool"], "arguments": deepcopy(args)}
+                    ],
                     "description": description,
                 }
             )
-    return rows
+    return investigations
 
 
 def reference_calls(
@@ -843,8 +1909,10 @@ def reference_calls(
     contract: dict[str, Any],
     tools_by_name: dict[str, dict[str, Any]],
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    reads = context_calls(row, contract)
-    material_reads, material_groups = material_context_calls(row, contract)
+    reads = context_calls(row, contract, task, tools_by_name)
+    material_reads, material_groups = material_context_calls(
+        row, contract, task, tools_by_name
+    )
     read_signatures = {
         json.dumps(call, sort_keys=True, separators=(",", ":")) for call in reads
     }
@@ -859,7 +1927,9 @@ def reference_calls(
             f"{row['bench_id']} material evidence is absent from its reference: "
             f"{missing_material}"
         )
-    source = deepcopy(task["expected_calls"])
+    authored_source = deepcopy(task["expected_calls"])
+    leading_reads = _leading_source_reads(task, tools_by_name)
+    source = authored_source[len(leading_reads) :]
     postwrite_reads = postwrite_readback_calls(task, contract)
     decision_record = decision.decision_record_call(contract)
     handoff = {
@@ -892,19 +1962,39 @@ def reference_calls(
         for name, tool in tools_by_name.items()
         if (tool.get("write_tables") or [])
     )
-    workflow_slug = _slug(row["task_id"])
+    reasoning_primitive = business_reasoning_primitive(row, contract, task)
+    causal_profile = _causal_live_state_calls(
+        row, task, contract, tools_by_name
+    )
+    business_reasoning = [
+        f"employee_outcome:{row['category']}:{reasoning_primitive}",
+        "authority:current_control_over_retired_shortcut",
+        f"investigation:correlate_{reasoning_primitive}_across_live_sources",
+        f"alternatives:{reasoning_primitive}:supported_vs_hold_vs_broad_action",
+        (
+            "capacity:required_minus_reserved_usable_capacity_then_vendor_"
+            "delivery_to_change_window"
+        ),
+        f"capacity_options:{contract['plan']['recommended_option']}:date_cost_authority",
+        *[f"state:{_slug(tool)}" for tool in mutation_tools],
+        "verification:reopen_each_persisted_change",
+        "handoff:source_backed_operating_result",
+    ]
     graph = [
-        f"intake_{_slug(contract['case_id'])}",
-        f"resolve_{workflow_slug}_cross_tracker_identity",
-        f"select_{_slug(CURRENT_CONTROL)}_over_retired_authority",
-        f"correlate_{row['category']}_{_slug(contract['service'])}_signals",
-        f"test_{workflow_slug}_first_signal_hypothesis",
-        f"derive_{workflow_slug}_supported_branch",
-        *[f"execute_{workflow_slug}_{_slug(tool)}" for tool in mutation_tools],
-        f"plan_{_slug(contract['service'])}_cutover_capacity_{_slug(contract['plan']['recommended_option'])}",
-        f"reconcile_{workflow_slug}_post_change_state",
-        f"handoff_{_slug(contract['case_id'])}_to_on_call",
-        f"reopen_{_slug(contract['case_id'])}_conversation",
+        "intake_employee_outcome",
+        "resolve_cross_tracker_identity",
+        "select_effective_control_over_retired_authority",
+        f"correlate_{row['category']}_{reasoning_primitive}_signals",
+        f"test_{reasoning_primitive}_competing_hypotheses",
+        f"derive_{reasoning_primitive}_supported_branch",
+        *[f"execute_{_slug(tool)}" for tool in mutation_tools],
+        (
+            f"plan_{_slug(contract['service'])}_cutover_capacity_"
+            f"{_slug(contract['plan']['recommended_option'])}"
+        ),
+        f"reconcile_{reasoning_primitive}_post_change_state",
+        "handoff_source_backed_result_to_owner",
+        "reopen_persisted_state_and_conversation",
     ]
     trace_contract = {
         "required_context_calls": material_reads,
@@ -915,6 +2005,7 @@ def reference_calls(
         "context_call_count": len(reads),
         "source_mutation_tools": mutation_tools,
         "source_mutation_calls": source_mutation_calls,
+        "source_execution_calls": source,
         "all_mutation_tools": all_mutation_tools,
         "decision_record_call": decision_record,
         "decision_context_calls": decision.decision_context_calls(contract),
@@ -929,12 +2020,23 @@ def reference_calls(
             "graded_tokens": decision.handoff_tokens(contract),
         },
         "readback_call": readback,
+        "business_reasoning_primitives": business_reasoning,
         "semantic_action_graph": graph,
+        "causal_evidence_profile": causal_profile,
+        "identifier_or_group_permutation_used": False,
+        "business_scope": contract.get("business_scope", contract["service"]),
         "providers": sorted(
             {PROVIDER_MAPPINGS[call["tool"]] for call in reads if call["tool"] in PROVIDER_MAPPINGS}
         ),
     }
-    return [*reads, *source, decision_record, *postwrite_reads, handoff, readback], trace_contract
+    return [
+        *reads,
+        *source,
+        decision_record,
+        *postwrite_reads,
+        handoff,
+        readback,
+    ], trace_contract
 
 
 def _literal_mapping(vcode: str, name: str) -> dict[str, Any]:
@@ -985,7 +2087,7 @@ def augment_vcode(
     readback = trace_contract["readback_call"]
     block = f'''
 
-# DevOpsBench v3.1 semantic causal-evidence contract for {row["bench_id"]}.
+# DevOpsBench v3.2 causal-evidence and state-transition contract for {row["bench_id"]}.
 _V4_REQUIRED = {required!r}
 _V4_GROUPS = {groups!r}
 _V4_SOURCE_MUTATION_TOOLS = {mutation_tools!r}
@@ -1087,7 +2189,7 @@ _c("correctness", "v4_live_state_correlated",
    "correlate the task-specific {contract['service']} provider state instead of relying on files or tracker text alone")
 _c("correctness", "v4_material_evidence_complete",
    _v4_material_before_write,
-   "complete the 13 materially causal evidence joins inside the larger reference investigation before changing state")
+   "complete all {MATERIAL_CONTEXT_CALLS} materially causal evidence joins inside the larger reference investigation before changing state")
 _c("deployment", "v4_evidence_before_state_change",
    _v4_material_before_write and _v4_first_source_write > 0,
    "establish every material fact before the first successful task state transition")
@@ -1143,13 +2245,16 @@ def check_descriptions(vcode: str) -> dict[tuple[str, str], str]:
 
 
 def decision_options(
-    row: dict[str, Any], contract: dict[str, Any], mutation_tools: list[str]
+    task: dict[str, Any],
+    row: dict[str, Any],
+    contract: dict[str, Any],
+    trace_contract: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    """Three costed capacity plans; exactly one is authorised and recommended."""
-
     options = decision.decision_options(row, contract)
-    if len(options) != 3 or sum(option["selected"] for option in options) != 1:
-        raise ValueError(f"{row['bench_id']} must publish three options with one selected")
+    if len(options) != 3 or sum(bool(option["selected"]) for option in options) != 1:
+        raise ValueError(
+            f"{row['bench_id']} must publish three costed options with one recommendation"
+        )
     return options
 
 
@@ -1196,6 +2301,352 @@ def atomic_checks(vcode: str) -> list[dict[str, str]]:
             }
         )
     return checks
+
+
+EVIDENCE_SURFACE_LABELS = {
+    "jira_get_issue": "the authoritative Jira work item",
+    "jira_search": "the current Jira population",
+    "list_issue_links": "the cross-tracker link registry",
+    "github_list_issues": "the linked GitHub issue population",
+    "confluence_search": "the operating-control index",
+    "confluence_get_page": "the exact control revision",
+    "list_messages": "the case-room conversation",
+    "list_approval_policy": "the operative approval policy",
+    "pd_list_change_events": "the PagerDuty change-event history",
+    "get_ticket": "the employee work item",
+    "ws_list": "the workspace inventory",
+    "ws_read": "the current workspace file",
+    "resolve_service_alias": "the service-alias registry",
+    "pd_list_services": "the PagerDuty service catalog",
+    "pd_list_oncalls": "the active on-call schedule",
+    "list_status_page_posts": "customer-status history",
+    "list_alert_rules": "alert definitions",
+    "list_alert_firings": "actual alert firings",
+    "k8s_pods_list": "live Kubernetes pod state",
+    "k8s_events_list": "cluster event history",
+    "get_runtime_stats": "runtime resource and process state",
+    "get_service": "the authoritative service registry",
+    "list_pull_requests": "current code-review state",
+    "list_ci_runs": "continuous-integration history",
+    "list_deployments": "the deployment ledger",
+    "list_migrations": "production schema state",
+    "get_traffic_stats": "live traffic allocation",
+    "get_slo_status": "current service-objective measurements",
+    "list_feature_flags": "live feature exposure",
+    "list_approval_policy": "the operative approval policy",
+    "list_files": "the deployed repository surface",
+    "list_commits": "change history",
+    "list_tests": "the executable test contract",
+    "list_packages": "the resolved dependency inventory",
+    "list_api_endpoints": "the served API surface",
+    "linear_list_issues": "the linked planning tracker",
+    "pd_list_incidents": "incident history",
+    "list_tickets": "the current work-item population",
+    "search_docs": "the current operating standard",
+    "check_network_path": "the live dependency path",
+    "search_docs": "the current operating standard",
+    "search_logs": "current service logs",
+    "query_metrics": "current service measurements",
+    "get_status_page": "the current customer-status record",
+    "list_error_events": "the current error-event population",
+    "list_infra": "the infrastructure inventory",
+    "read_owner_spreadsheet": "the current owner register",
+    "list_authored_docs": "the shared knowledge-base page",
+    "get_document": "the exact operating document",
+    "k8s_deployments_list": "live Kubernetes deployment state",
+    "k8s_nodes_list": "live Kubernetes node health",
+    "list_alert_silences": "active alarm suppressions",
+    "list_alerts": "the current alarm state",
+    "list_db_grants": "the live database grants",
+    "list_incidents": "the current incident record",
+    "list_remediation_proposals": "the proposed remediation set",
+    "list_vulnerabilities": "the current vulnerability inventory",
+    "query_local_deploy_log": "the node-local deployment ledger",
+    "query_prometheus": "the raw time-series samples",
+    "read_exercise": "the repository's behavioral specification",
+    "read_file": "the current source file",
+    "search_code": "the relevant source-code paths",
+    "sentry_list_projects": "the error-tracker project registry",
+    "sentry_search_issues": "the current error groups",
+}
+
+PUBLIC_SOURCE_LABELS = {
+    "alert_firings": "raw alarm firings",
+    "alert_silences": "alarm silence and inhibition records",
+    "github_issues": "GitHub issues",
+    "jira_issues": "Jira issues",
+    "linear_issues": "Linear issues",
+    "local_deploy_log": "the node-local deployment ledger",
+    "owner_spreadsheet": "the owner register",
+    "pd_incidents": "PagerDuty incidents",
+    "pd_oncall": "the active PagerDuty schedule",
+    "pd_services": "the PagerDuty service registry",
+    "prom_series": "raw Prometheus time-series samples",
+    "remediation_proposals": "the remediation proposals",
+    "repo_state": "the current repository state",
+    "status_page_posts": "published customer-status posts",
+}
+
+
+def _call_business_label(call: dict[str, Any]) -> str:
+    label = EVIDENCE_SURFACE_LABELS.get(
+        str(call.get("tool")), str(call.get("tool", "record")).replace("_", " ")
+    )
+    args = call.get("args") or {}
+    qualifiers: list[str] = []
+    if args.get("service"):
+        qualifiers.append(str(args["service"]))
+    if args.get("from_service"):
+        qualifiers.append(f"from {args['from_service']}")
+    query = str(args.get("query") or "")
+    if query and not re.fullmatch(r"[A-Z][A-Z0-9_-]*-\d+", query):
+        qualifiers.append(f"for {query}")
+    if args.get("environment"):
+        qualifiers.append(str(args["environment"]))
+    if args.get("path"):
+        qualifiers.append(str(args["path"]))
+    return f"{label} ({', '.join(qualifiers)})" if qualifiers else label
+
+
+def _join_labels(labels: list[str]) -> str:
+    unique = list(dict.fromkeys(label for label in labels if label))
+    if not unique:
+        return "the authoritative records"
+    if len(unique) == 1:
+        return unique[0]
+    if len(unique) == 2:
+        return f"{unique[0]} and {unique[1]}"
+    return ", ".join(unique[:-1]) + f", and {unique[-1]}"
+
+
+def _evidence_story(trace_contract: dict[str, Any]) -> str:
+    calls = trace_contract["material_context_groups"]["live_state"]
+    return _join_labels([_call_business_label(call) for call in calls])
+
+
+def _causal_join_story(trace_contract: dict[str, Any]) -> str:
+    """Describe why each evidence group is needed, not merely its read count."""
+
+    groups = trace_contract["material_context_groups"]
+    identity = _join_labels([_call_business_label(call) for call in groups["identity"]])
+    authority = _join_labels([_call_business_label(call) for call in groups["authority"]])
+    ownership = _join_labels(
+        [_call_business_label(call) for call in groups["ownership_and_conversation"]]
+    )
+    live = _join_labels([_call_business_label(call) for call in groups["live_state"]])
+    return (
+        f"first resolve the same work across {identity}; then use {authority} to select the "
+        f"effective rule over the retired shortcut; reconcile ownership, approval, and reported "
+        f"context through {ownership}; finally test the competing explanation against {live}"
+    )
+
+
+def _readback_story(trace_contract: dict[str, Any]) -> str:
+    return _join_labels(
+        [
+            _call_business_label(call)
+            for call in trace_contract.get("postwrite_readback_calls", [])
+        ]
+    )
+
+
+def _transition_business_label(call: dict[str, Any]) -> str:
+    tool = str(call.get("tool"))
+    args = call.get("args") or {}
+    service = str(args.get("service") or "the affected service")
+    if tool == "submit_diagnosis":
+        if not args.get("fault_detected", True) or str(args.get("fault_type")) == "none":
+            scope = str(args.get("scope") or service)
+            return (
+                f"record the evidence-backed finding that {scope} is healthy, has no active "
+                "objective breach, and has no supported fault owner or offending setting"
+            )
+        fault_type = str(args.get("fault_type") or "supported cause").replace("_", " ")
+        if fault_type == "misconfig":
+            fault_type = "configuration error"
+        return (
+            f"record a {fault_type} diagnosis localizing responsibility "
+            f"to {args.get('service', 'the supported component')} and identifying "
+            f"{args.get('offending_key', 'the operative cause')} with cited evidence"
+        )
+    if tool == "submit_answer":
+        sources = _join_labels(
+            [
+                PUBLIC_SOURCE_LABELS.get(str(source), str(source).replace("_", " "))
+                for source in (args.get("sources") or [])
+            ]
+        )
+        return f"record the supported answer {args.get('answer')} from {sources}, with assumptions"
+    if tool == "update_ticket":
+        return f"move the employee work item to {args.get('status', 'its supported final status')}"
+    if tool == "open_pull_request":
+        return f"propose the scoped {service} change “{args.get('title', 'operational repair')}”"
+    if tool == "merge_pull_request":
+        return "merge only the validated, linked code change"
+    if tool == "run_ci":
+        return "complete the required code validation"
+    if tool == "deploy_service":
+        environment = args.get("environment", "the required environment")
+        exposure = (
+            f" at {args['canary_percent']}% canary exposure"
+            if args.get("canary_percent") is not None
+            else ""
+        )
+        return f"deploy {service} to {environment}{exposure}"
+    if tool == "assess_canary":
+        return f"assess the {service} canary against live health"
+    if tool == "promote_canary":
+        return f"promote the healthy {service} canary"
+    if tool == "apply_migration":
+        migration = args.get("migration_id") or args.get("migration") or "required migration"
+        return f"apply {migration} for {service} in {args.get('environment', 'production')}"
+    if tool == "set_feature_flag":
+        flag = args.get("flag") or args.get("name") or "the scoped flag"
+        value = args.get("percentage", args.get("percent", args.get("enabled", "the supported exposure")))
+        return f"set {flag} for {service} to {value}"
+    if tool == "acknowledge_alert":
+        return "acknowledge the scoped firing alert"
+    if tool == "resolve_alert":
+        return "resolve the recovered alert only after verification"
+    if tool == "update_incident":
+        return f"move the incident to {args.get('status', 'its supported state')}"
+    if tool == "publish_status_update":
+        return "publish the verified customer-status update"
+    if tool == "rollback_deployment":
+        return f"roll back {service} to the supported production version"
+    if tool == "shift_endpoint_traffic":
+        endpoint = args.get("path") or args.get("endpoint") or "the scoped endpoint"
+        return f"move {endpoint} traffic to the supported contract without dropping requests"
+    if tool == "create_ticket":
+        return "create each business-rule-matched tracker record and no others"
+    if tool == "post_message":
+        return f"publish the scoped result to {args.get('channel', 'the requesting team')}"
+    if tool == "jira_transition_issue":
+        return f"transition the matched Jira record to {args.get('status', 'its supported state')}"
+    if tool == "write_runbook":
+        return f"publish the evidence-backed runbook “{args.get('title', 'on-call guidance')}”"
+    if tool == "write_implementation":
+        return f"implement the documented behavior in {args.get('path', 'the scoped component')}"
+    if tool == "run_exercise_tests":
+        return "prove the implementation against its executable contract"
+    if tool == "request_approval":
+        return "obtain the required human approval before the irreversible transition"
+    if tool == "resolve_error_event":
+        return "resolve the error event after the production cause is removed"
+    if tool in {"ws_write", "ws_python"}:
+        return "repair and validate the scoped workspace artifact"
+    return str(tool).replace("_", " ")
+
+
+def _transition_story(trace_contract: dict[str, Any]) -> str:
+    labels: list[str] = []
+    for call in trace_contract["source_mutation_calls"]:
+        label = _transition_business_label(call)
+        if label not in labels:
+            labels.append(label)
+    if len(labels) > 5:
+        return "; ".join(labels[:5]) + f"; and {len(labels) - 5} dependent guarded transitions"
+    return "; ".join(labels)
+
+
+def _check_requirement(check: dict[str, str]) -> str:
+    replacements = {
+        "no_new_hardcoded_secrets": "introduce no hardcoded credentials",
+        "no_unproductive_ci_loops": "avoid repeated validation runs that make no progress",
+        "scoped_change_no_fabricated_data": "fabricate no records or evidence",
+        "world_invariants_intact": "preserve every frozen out-of-scope record",
+    }
+    description = replacements.get(check["name"], check["description"].rstrip("."))
+    public_terms = {
+        "run_ci": "complete validation",
+        "update_ticket": "update the work item",
+        "deploy_service": "deploy the service",
+        "open_pull_request": "open the linked code review",
+        "merge_pull_request": "merge the validated code review",
+        "submit_diagnosis": "record the diagnosis",
+        "assess_canary": "assess the canary",
+        "promote_canary": "promote the healthy canary",
+        "create_ticket": "create the matched work item",
+        "submit_answer": "record the supported answer",
+        "acknowledge_alert": "acknowledge the alert",
+        "post_message": "publish the scoped message",
+        "jira_transition_issue": "transition the linked Jira issue",
+        "resolve_alert": "resolve the recovered alert",
+        "apply_migration": "apply the required schema migration",
+        "set_feature_flag": "set the approved feature exposure",
+        "write_implementation": "write the scoped implementation",
+        "run_exercise_tests": "run the executable contract checks",
+        "shift_endpoint_traffic": "shift the scoped endpoint traffic",
+        "update_incident": "update the incident",
+        "publish_status_update": "publish the customer-status update",
+        "rollback_deployment": "roll back the affected deployment",
+        "write_runbook": "publish the on-call runbook",
+        "ws_python": "run the scoped workspace validation",
+        "request_approval": "obtain the required human approval",
+        "resolve_error_event": "resolve the recovered error event",
+        "ws_write": "write the scoped workspace repair",
+    }
+    for internal, public in public_terms.items():
+        description = re.sub(rf"\b{re.escape(internal)}\b", public, description)
+    description = description.replace("(merged AND deployed)", "(merged and deployed)")
+    description = re.sub(
+        r"submit a detection result for scope '([^']+)'",
+        lambda match: (
+            f"record whether {match.group(1)} has an active objective breach"
+        ),
+        description,
+    )
+    description = re.sub(
+        r"submit a localization result for scope '([^']+)'",
+        lambda match: (
+            f"record the component and mechanism responsible for alarm {match.group(1)}"
+        ),
+        description,
+    )
+    description = re.sub(
+        r"submit a root-cause result for scope '([^']+)'",
+        lambda match: (
+            "record the evidence-backed root cause for "
+            + match.group(1).replace("-", " ")
+        ),
+        description,
+    )
+    description = re.sub(
+        r"submit an answer for question_id '[^']+'",
+        "record the supported answer to the employee's question",
+        description,
+    )
+    description = re.sub(
+        r"submit a proposal_id for '[^']+'",
+        "record the supported remediation proposal and its rationale",
+        description,
+    )
+    description = description.replace(
+        "fault_detected must be true", "the final finding must record an active fault"
+    ).replace(
+        "fault_detected must be false", "the final finding must record no active fault"
+    ).replace(
+        "a firing alarm means the final finding must record an active fault",
+        "a currently firing alarm must be treated as an active fault",
+    )
+    for internal, public in PUBLIC_SOURCE_LABELS.items():
+        description = re.sub(rf"\b{re.escape(internal)}\b", public, description)
+    return description
+
+
+def _check_story(
+    checks: list[dict[str, str]], *, exclude_v4: bool = True, limit: int = 4
+) -> str:
+    selected = [
+        _check_requirement(check)
+        for check in checks
+        if not (exclude_v4 and check["name"].startswith("v4_"))
+    ]
+    if not selected:
+        return ""
+    if len(selected) > limit:
+        return "; ".join(selected[:limit]) + f"; plus {len(selected) - limit} related invariants"
+    return "; ".join(selected)
 
 
 def semantic_milestones(
@@ -1320,33 +2771,132 @@ def semantic_milestones(
     if len(assigned) != len(set(assigned)) or sorted(assigned) != sorted(expected):
         raise ValueError(f"{row['bench_id']} semantic check assignment is not one-to-one")
 
-    # The release prompt deliberately starts with a rotating workplace-context
-    # sentence.  Rubric language must name the employee's actual request, not
-    # that wrapper, or unrelated tasks appear to share the same decision.
-    title = employee_title(
-        {"instruction": task.get("source_instruction", task.get("instruction", ""))}
-    )
+    # Public rubric language is reconstructed from the employee-visible
+    # outcome, material evidence, exact business-state assertions, and guarded
+    # transitions.  Internal case IDs and raw tool names never establish task
+    # specificity.
+    outcome = employee_title({"instruction": task.get("instruction", "")})
     material = trace_contract["material_context_call_count"]
     reference = trace_contract["reference_context_call_count"]
-    mutation_tools = ", ".join(trace_contract["source_mutation_tools"])
+    evidence_story = _evidence_story(trace_contract)
+    transition_story = _transition_story(trace_contract)
+    analysis_story = _check_story(grouped["analysis.causal_reasoning"], limit=20)
+    primary_story = _check_story(grouped["state.primary"], limit=20)
+    coordination_story = _check_story(grouped["state.coordination"], limit=20)
+    verification_story = _check_story(grouped["verification.outcome"], limit=20)
+    sequence_story = _check_story(grouped["execution.sequence"], limit=20)
+    containment_story = _check_story(grouped["containment.scope"], limit=20)
+    answer_story = _check_story(grouped["answer.insights"], limit=20)
+    efficiency_story = _check_story(grouped["execution.efficiency"], limit=20)
+    delivery_story = _check_story(grouped["execution.delivery"], limit=20)
+    behavior_story = AUTHORED_BEHAVIOR_OUTCOMES.get(str(row.get("task_id")), "")
     plan = contract["plan"]
+
+    def combine_stories(*stories: str) -> str:
+        return "; ".join(dict.fromkeys(story for story in stories if story))
+
+    # A business state is more than the outer record that contains it.  Fold
+    # in answer checks only when they literally define the persisted artifact;
+    # decision rationale and employee reporting remain in their own milestone.
+    state_extension_checks = [
+        check
+        for check in grouped["answer.insights"]
+        if check["name"].startswith("states_")
+        or check["name"]
+        in {
+            "root_cause_written_down",
+            "outcome_recorded",
+            "every_match_reported",
+        }
+    ]
+    state_extension_story = _check_story(state_extension_checks, limit=20)
+    state_story = combine_stories(
+        primary_story or transition_story,
+        behavior_story,
+        state_extension_story,
+    )
+    causal_story = _causal_join_story(trace_contract)
+    readback_story = _readback_story(trace_contract)
+    observable_story = combine_stories(
+        verification_story,
+        f"reopen {readback_story} and confirm the persisted result",
+    )
     descriptions = {
-        "investigation.scope": f"Resolve {contract['case_id']} for {contract['service']} through immutable Jira and GitHub identities and keep neighboring NovaCart work outside the case.",
-        "investigation.authority": f"Establish {CURRENT_CONTROL} as current for {contract['case_id']} and reject the conflicting {RETIRED_CONTROL} shortcut as historical evidence.",
-        "investigation.live_state": f"Interrogate the live {contract['service']} provider surfaces that control this {row['category']} decision; files and tracker prose alone are insufficient.",
-        "analysis.causal_reasoning": f"Join the {material} materially causal lookups inside the {reference}-read reference investigation and explain which evidence supports or blocks the requested outcome.",
-        "analysis.capacity_plan": f"Derive the {contract['service']} cutover capacity plan from its scattered sources: {plan['per_zone']} replicas per zone x {plan['zones']} zones = {plan['required']} required, {plan['observed']} observed less {plan['reserved']} reserved = {plan['usable']} usable, a {plan['gap']}-replica gap, {decision.VENDOR}'s {decision.iso(plan['standard_days'])}/{decision.iso(plan['expedited_days'])} delivery dates, the {decision.iso(plan['window_days'][0])} change window and the {plan['cutover_date']} cutover.",
-        "decision.supported_path": f"For “{title}”, choose the evidence-supported path after comparing the stale-note and broad-workaround alternatives, then execute only that bounded path.",
-        "decision.options": f"Weigh {decision.OPTION_STANDARD} ({decision.iso(plan['standard_completion'])}, USD 0), {decision.OPTION_EXPEDITE} ({decision.iso(plan['expedited_completion'])}, USD {plan['expedite_fee']}) and {decision.OPTION_RELEASE} ({decision.iso(plan['release_completion'])}, USD {plan['release_fee']}, approval beyond {contract['approval_ticket']}); recommend {plan['recommended_option']} with its {decision.iso(plan['recommended_completion'])} outcome, {plan['variance']:+d}-day variance and honest {plan['status']} status, and record it as the {contract['capacity_question']} decision.",
-        "state.primary": f"Produce the task-specific source-of-truth transition with the required {mutation_tools} capabilities and satisfy every authored final-state invariant.",
-        "state.coordination": f"Bring the linked tracker, pull-request, incident, status, approval, or follow-up records required by {contract['case_id']} to their supported coordinated state.",
-        "verification.outcome": f"Confirm the changed {contract['service']} outcome through its tests, CI, metrics, alarms, or provider records rather than inferring success from a write acknowledgement.",
-        "verification.readback": f"After the final operational mutation, reopen every task-specific provider record and finally reopen {contract['channel']} after its completion handoff.",
-        "execution.sequence": f"Respect the task's evidence, approval, staging, canary, mitigation, and closure ordering, record the capacity plan after its evidence and before the handoff, while allowing independent evidence sources to be investigated in any valid order.",
-        "containment.scope": f"Preserve frozen services, unrelated records, seeded audit history, and credentials outside {contract['case_id']}; no fabricated or broad workaround state is accepted.",
-        "answer.insights": f"Leave a {contract['case_id']} handoff that states the supported result, the recommended {plan['recommended_option']} plan, its {decision.iso(plan['recommended_completion'])} outcome, the {contract['approval_ticket']} approval scope, the binding {decision.VENDOR} constraint and the {plan['status']} timing status without overstating what changed.",
-        "execution.efficiency": "Recover from exploratory read mistakes, but complete without a rejected mutation, a CI loop, or repeated unproductive investigation.",
-        "execution.delivery": f"Finish the source work, verify persisted state, post exactly one scoped handoff, reopen it, and only then close the employee work item.",
+        "investigation.scope": (
+            f"Treat “{outcome}” as one immutable cross-system work item: correlate its Jira record "
+            "to the linked GitHub evidence and exclude neighboring work that merely shares a name."
+        ),
+        "investigation.authority": (
+            f"Use {CURRENT_CONTROL} as the operative control and treat {RETIRED_CONTROL} as a "
+            f"conflicting historical shortcut before deciding “{outcome}”."
+        ),
+        "investigation.live_state": (
+            f"For “{outcome}”, interrogate {evidence_story}; tracker prose and seeded files alone "
+            "cannot establish the current answer."
+        ),
+        "analysis.causal_reasoning": (
+            f"Build the causal case for “{outcome}”: {causal_story}. "
+            f"All {material} exact causal facts must be present inside the {reference}-read "
+            f"investigation before they support this outcome: {state_story}."
+            + (f" Preserve this additional control: {analysis_story}." if analysis_story else "")
+        ),
+        "analysis.capacity_plan": (
+            f"For “{outcome}”, derive the separate cutover-readiness answer from scattered "
+            f"records: {plan['per_zone']} healthy replicas per zone across {plan['zones']} "
+            f"zones means {plan['required']} required; {plan['observed']} observed less "
+            f"{plan['reserved']} reserved for {plan['neighbor']} leaves {plan['usable']} usable "
+            f"and a {plan['gap']}-replica gap. Reconcile that gap with {decision.VENDOR}'s "
+            f"{decision.iso(plan['standard_days'])} standard and "
+            f"{decision.iso(plan['expedited_days'])} expedited deliveries, the published "
+            f"change windows, and the independent {plan['cutover_date']} customer date."
+        ),
+        "decision.supported_path": (
+            f"Choose the branch for “{outcome}” that can legitimately produce this business state: "
+            f"{state_story}. Reject a stale-record shortcut, an unsupported hold, and any broader workaround."
+        ),
+        "decision.options": (
+            f"Compare three concrete readiness options for “{outcome}”: standard capacity "
+            f"finishes {decision.iso(plan['standard_completion'])} at USD 0; expedited "
+            f"capacity finishes {decision.iso(plan['expedited_completion'])} at USD "
+            f"{plan['expedite_fee']}; releasing reserved capacity finishes "
+            f"{decision.iso(plan['release_completion'])} at USD {plan['release_fee']} but "
+            f"requires approval beyond {contract['approval_ticket']}. Recommend "
+            f"{plan['recommended_option']}, record its {decision.iso(plan['recommended_completion'])} "
+            f"outcome and {plan['variance']:+d}-day variance, and report {plan['status']} honestly."
+        ),
+        "state.primary": f"Establish the exact business state for “{outcome}”: {state_story}.",
+        "state.coordination": (
+            f"Coordinate the linked records for “{outcome}”: "
+            f"{coordination_story or 'leave the work item and its supporting operational records in one consistent final state'}."
+        ),
+        "verification.outcome": (
+            f"Prove the observable result for “{outcome}” after the transition: "
+            f"{observable_story}."
+        ),
+        "verification.readback": (
+            f"After the last guarded transition for “{outcome}”, reopen {readback_story}, then "
+            "reopen the completion conversation so persistence and communication are both proven."
+        ),
+        "execution.sequence": (
+            f"Respect the causal order for “{outcome}”: "
+            f"{sequence_story or 'establish the material evidence before changing state and verify each persisted result before handoff'}."
+        ),
+        "containment.scope": (
+            f"Keep “{outcome}” contained to its supported records and service boundary: "
+            f"{containment_story or 'preserve frozen history, unrelated work, and credentials'}."
+        ),
+        "answer.insights": (
+            f"Leave the employee-facing conclusion for “{outcome}” with the exact supported insight: "
+            f"{answer_story or state_story}."
+        ),
+        "execution.efficiency": (
+            f"Complete “{outcome}” without unsafe retries or unproductive loops: "
+            f"{efficiency_story or 'recover from exploratory read mistakes, but allow no rejected mutation'}."
+        ),
+        "execution.delivery": (
+            f"Close “{outcome}” only after the business state and readbacks are complete: "
+            f"{delivery_story or 'post one scoped handoff, reopen it, and only then close the employee work item'}."
+        ),
     }
     milestones = [
         {
@@ -1407,7 +2957,9 @@ def _pdf(text: str) -> bytes:
         wrapped
         for line in text.splitlines()
         if line.strip()
-        for wrapped in textwrap.wrap(line, width=100, break_long_words=False, break_on_hyphens=False)
+        for wrapped in textwrap.wrap(
+            line, width=100, break_long_words=False, break_on_hyphens=False
+        )
     ][:45]
     commands = ["BT", "/F1 9 Tf", "54 750 Td", "11 TL"]
     for index, line in enumerate(lines):
@@ -1476,66 +3028,134 @@ def _eml(subject: str, body: str, case_id: str, index: int) -> str:
     )
 
 
+def _has_substantive_evidence(value: Any) -> bool:
+    """True when a read returned an inspectable fact rather than an empty ack."""
+
+    if value is None:
+        return False
+    if isinstance(value, (str, bytes, list, tuple, set)):
+        return len(value) > 0
+    if isinstance(value, dict):
+        if value.get("ok") is False or value.get("error"):
+            return False
+        substantive = [
+            item
+            for key, item in value.items()
+            if key not in {"ok", "case_id", "service", "status"}
+        ]
+        return bool(substantive) and any(
+            _has_substantive_evidence(item) for item in substantive
+        )
+    # Explicit scalar values, including zero and false, are inspectable facts.
+    return True
+
+
+def _execute_evidence_calls(
+    database: Path,
+    calls: list[dict[str, Any]],
+    *,
+    bench_id: str,
+) -> dict[str, Any]:
+    """Execute read contracts on a disposable database and reject silent gaps."""
+
+    module_path = database.parent / "tools_combined.py"
+    spec = importlib.util.spec_from_file_location(
+        f"_devopsbench_evidence_{_slug(bench_id)}", module_path
+    )
+    if spec is None or spec.loader is None:
+        raise ValueError(f"cannot load sandbox tools for {bench_id}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    unique: dict[str, dict[str, Any]] = {}
+    for call in calls:
+        signature = json.dumps(call, sort_keys=True, separators=(",", ":"))
+        unique.setdefault(signature, call)
+
+    results: dict[str, Any] = {}
+    with tempfile.TemporaryDirectory(prefix="devopsbench-evidence-") as temp_dir:
+        disposable = Path(temp_dir) / "environment.db"
+        shutil.copy2(database, disposable)
+        for signature, call in unique.items():
+            tool_name = str(call["tool"])
+            function = getattr(module, tool_name, None)
+            if function is None:
+                raise ValueError(f"{bench_id} has no sandbox read named {tool_name}")
+            arguments = deepcopy(call.get("args") or {})
+            arguments["db_path"] = str(disposable)
+            try:
+                result = function(**arguments)
+            except Exception as error:
+                raise ValueError(
+                    f"{bench_id} evidence read {tool_name} failed: {error}"
+                ) from error
+            if not _has_substantive_evidence(result):
+                raise ValueError(
+                    f"{bench_id} evidence read {tool_name} returned no inspectable facts"
+                )
+            results[signature] = result
+    return results
+
+
+def _material_export(
+    call: dict[str, Any], result: Any, contract: dict[str, Any]
+) -> str:
+    tool_name = str(call["tool"])
+    source = EVIDENCE_SURFACE_LABELS.get(
+        tool_name,
+        PROVIDER_MAPPINGS.get(tool_name, tool_name.replace("_", " ")),
+    )
+    return json.dumps(
+        {
+            "as_of_world_day": SNAPSHOT_DAY,
+            "case_scope": contract["case_id"],
+            "source": source,
+            "query_scope": call.get("args") or {},
+            "records": result,
+            "note": (
+                "Raw isolated-sandbox export. It contains evidence, not a "
+                "precomputed conclusion or execution recipe."
+            ),
+        },
+        indent=2,
+        default=str,
+        ensure_ascii=False,
+        sort_keys=True,
+    ) + "\n"
+
+
 def write_asset_views(
     root: Path,
     database: Path,
     prompt: str,
     row: dict[str, Any],
     contract: dict[str, Any],
+    trace_contract: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    """Write 28 human-shaped, native evidence files without gold or recipes."""
+    """Write 32 contextual files, 18 executed causal exports, and a manifest."""
 
     root.mkdir(parents=True, exist_ok=True)
     cx = sqlite3.connect(database)
     cx.row_factory = sqlite3.Row
     assets: list[dict[str, Any]] = []
-    material_live_assets = (
-        {
-            "14-service-catalog.csv",
-            "16-metrics-export.csv",
-            "18-sentry-issues.json",
-            "19-kubernetes-pods.yaml",
-        }
-        if row["category"] in OBSERVABILITY_CATEGORIES
-        else {
-            "14-service-catalog.csv",
-            "21-deployment-history.json",
-            "22-ci-runs.csv",
-            "23-pull-request-context.json",
-        }
-        if row["category"] in DELIVERY_CATEGORIES
-        else {
-            "14-service-catalog.csv",
-            "22-ci-runs.csv",
-            "23-pull-request-context.json",
-            "24-migration-state.sql",
-        }
-        if row["category"] in ENGINEERING_CATEGORIES
-        else {
-            "14-service-catalog.csv",
-            "15-slo-export.csv",
-            "21-deployment-history.json",
-            "23-pull-request-context.json",
-        }
+    required_calls = trace_contract["required_context_calls"]
+    profile_calls = trace_contract["causal_evidence_profile"]
+    evidence_results = _execute_evidence_calls(
+        database,
+        [*required_calls, *profile_calls],
+        bench_id=row["bench_id"],
     )
-    material_assets = {
-        "02-jira-work-item.csv",
-        "03-cross-tracker-links.json",
-        "04-github-issue.json",
-        "05-current-operating-control.pdf",
-        "06-retired-shortcut-note.pdf",
-        "07-case-room-thread.json",
-        "08-pagerduty-change-events.csv",
-        "09-service-owner-register.xlsx",
-        "28-change-readiness-standard.pdf",
-        "29-vendor-capacity-order.csv",
-        "30-change-approval-record.csv",
-        "31-capacity-reservation-register.json",
-        "32-customer-cutover-notice.json",
-        *material_live_assets,
-    }
 
-    def add(name: str, source: str, content: str | bytes, role: str) -> None:
+    def add(
+        name: str,
+        source: str,
+        content: str | bytes,
+        role: str,
+        *,
+        material: bool = False,
+        material_reason: str = "",
+        query_scope: dict[str, Any] | None = None,
+    ) -> None:
         target = root / name
         target.parent.mkdir(parents=True, exist_ok=True)
         if isinstance(content, bytes):
@@ -1548,7 +3168,11 @@ def write_asset_views(
                 "source": source,
                 "kind": target.suffix.lstrip("."),
                 "evidence_role": role,
-                "material": name in material_assets,
+                "material": material,
+                "bytes": target.stat().st_size,
+                "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+                **({"material_reason": material_reason} if material_reason else {}),
+                **({"query_scope": deepcopy(query_scope)} if query_scope is not None else {}),
             }
         )
 
@@ -1559,11 +3183,36 @@ def write_asset_views(
     messages = [dict(r) for r in cx.execute("SELECT * FROM messages WHERE channel=? ORDER BY message_id", (contract["channel"],))]
     owner = [dict(r) for r in cx.execute("SELECT * FROM owner_spreadsheet WHERE row_id=?", (contract["owner_row"],))]
     changes = [dict(r) for r in cx.execute("SELECT * FROM pd_change_events WHERE pd_service_id=?", (contract["pd_service_id"],))]
-    readiness = dict(cx.execute("SELECT * FROM confluence_pages WHERE page_id=?", (contract["readiness_page"],)).fetchone())
-    vendor_order = dict(cx.execute("SELECT * FROM jira_issues WHERE key=?", (contract["vendor_ticket"],)).fetchone())
-    approval = dict(cx.execute("SELECT * FROM jira_issues WHERE key=?", (contract["approval_ticket"],)).fetchone())
-    reservation = [dict(r) for r in cx.execute("SELECT * FROM linear_issues WHERE identifier=?", (contract["reservation_issue"],))]
-    cutover_post = [dict(r) for r in cx.execute("SELECT * FROM status_page_posts WHERE post_id=?", (contract["status_post"],))]
+    readiness = dict(
+        cx.execute(
+            "SELECT * FROM confluence_pages WHERE page_id=?",
+            (contract["readiness_page"],),
+        ).fetchone()
+    )
+    vendor_order = dict(
+        cx.execute(
+            "SELECT * FROM jira_issues WHERE key=?", (contract["vendor_ticket"],)
+        ).fetchone()
+    )
+    approval = dict(
+        cx.execute(
+            "SELECT * FROM jira_issues WHERE key=?", (contract["approval_ticket"],)
+        ).fetchone()
+    )
+    reservation = [
+        dict(r)
+        for r in cx.execute(
+            "SELECT * FROM linear_issues WHERE identifier=?",
+            (contract["reservation_issue"],),
+        )
+    ]
+    cutover_post = [
+        dict(r)
+        for r in cx.execute(
+            "SELECT * FROM status_page_posts WHERE post_id=?",
+            (contract["status_post"],),
+        )
+    ]
     windows = contract["plan"]["window_dates"]
     index = int(row["index"])
 
@@ -1601,18 +3250,71 @@ def write_asset_views(
     add("25-security-scanner-report.pdf", "security scanner", _pdf(f"Case {contract['case_id']} security observations\n" + "\n".join(json.dumps(r, sort_keys=True, default=str) for r in vulnerabilities) + "\nNo task conclusion is precomputed here."), "security")
     add("26-approval-policy.md", "change governance", f"# Approval context for {contract['case_id']}\n\n{CURRENT_CONTROL} is operative. Irreversible actions require the approval recorded in the live policy system. Difficulty is not a reason to seek approval, and approval is not evidence that a proposed outcome is correct.\n", "governance")
     add("27-current-versus-stale-notes.txt", "evidence custodian", f"{contract['case_id']} has a current control ({CURRENT_CONTROL}) and a retained retired note ({RETIRED_CONTROL}). Resolve effective status and corroborate the underlying facts; filenames and display names are not authority.\n", "lineage")
-    add("28-change-readiness-standard.pdf", "Confluence current export", _pdf(readiness["title"] + "\n" + readiness["body"]), "requirement")
-    add("29-vendor-capacity-order.csv", "Atlassian Jira (vendor project)", _csv_text([vendor_order]), "external-constraint")
-    add("30-change-approval-record.csv", "Atlassian Jira (change advisory)", _csv_text([approval]), "approval")
-    add("31-capacity-reservation-register.json", "Linear", json.dumps({"case_id": contract["case_id"], "issues": reservation}, indent=2, sort_keys=True) + "\n", "exclusion")
-    add("32-customer-cutover-notice.json", "public status page", json.dumps({"case_id": contract["case_id"], "posts": cutover_post}, indent=2, sort_keys=True) + "\n", "business-need")
-    manifest = [{"filename": Path(asset["path"]).name, "source": asset["source"], "evidence_role": asset["evidence_role"]} for asset in assets]
-    add("33-agent-visible-asset-manifest.json", "release builder", json.dumps({"case_id": contract["case_id"], "gold_included": False, "oracle_sequence_included": False, "assets": manifest}, indent=2, sort_keys=True) + "\n", "manifest")
+    add("28-change-readiness-standard.pdf", "Confluence current export", _pdf(readiness["title"] + "\n" + readiness["body"]), "capacity requirement")
+    add("29-vendor-capacity-order.csv", "Atlassian Jira vendor project", _csv_text([vendor_order]), "vendor lead time and cost")
+    add("30-change-approval-record.csv", "Atlassian Jira change advisory", _csv_text([approval]), "approval scope")
+    add("31-capacity-reservation-register.json", "Linear", json.dumps({"case_id": contract["case_id"], "issues": reservation}, indent=2, sort_keys=True) + "\n", "capacity exclusion")
+    add("32-customer-cutover-notice.json", "public status page", json.dumps({"case_id": contract["case_id"], "posts": cutover_post}, indent=2, sort_keys=True) + "\n", "independent business need")
+    if len(profile_calls) < 3:
+        raise ValueError(
+            f"{row['bench_id']} has only {len(profile_calls)} causal profile reads"
+        )
+    for ordinal, call in enumerate(required_calls, 1):
+        signature = json.dumps(call, sort_keys=True, separators=(",", ":"))
+        tool_name = str(call["tool"])
+        source = EVIDENCE_SURFACE_LABELS.get(
+            tool_name,
+            PROVIDER_MAPPINGS.get(tool_name, tool_name.replace("_", " ")),
+        )
+        safe_source = _slug(source).replace("_", "-") or "source-record"
+        add(
+            f"material/{ordinal:02d}-{safe_source}.json",
+            source,
+            _material_export(call, evidence_results[signature], contract),
+            "decision-controlling sandbox export",
+            material=True,
+            material_reason=_call_business_label(call),
+            query_scope=call.get("args") or {},
+        )
+    manifest = [
+        {
+            **asset,
+            "path": str(
+                Path("material") / Path(asset["path"]).name
+                if asset["material"]
+                else Path(asset["path"]).name
+            ),
+        }
+        for asset in assets
+    ]
+    add(
+        "51-agent-visible-asset-manifest.json",
+        "release builder",
+        json.dumps(
+            {
+                "case_id": contract["case_id"],
+                "gold_included": False,
+                "oracle_sequence_included": False,
+                "ordering_semantics": False,
+                "listed_assets": len(manifest),
+                "total_assets_including_this_manifest": len(manifest) + 1,
+                "assets": manifest,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        "manifest",
+    )
     cx.close()
     if len(assets) != ASSET_COUNT:
-        raise ValueError(f"expected {ASSET_COUNT} assets for {row['bench_id']}, wrote {len(assets)}")
+        raise ValueError(
+            f"expected {ASSET_COUNT} assets for {row['bench_id']}, wrote {len(assets)}"
+        )
     if sum(bool(asset["material"]) for asset in assets) != MATERIAL_ASSET_COUNT:
-        raise ValueError(f"expected {MATERIAL_ASSET_COUNT} material assets for {row['bench_id']}")
+        raise ValueError(
+            f"expected {MATERIAL_ASSET_COUNT} material assets for {row['bench_id']}"
+        )
     return assets
 
 
