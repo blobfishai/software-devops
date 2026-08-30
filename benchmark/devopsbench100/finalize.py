@@ -16,7 +16,7 @@ import json
 import pathlib
 import shutil
 
-RELEASE_VERSION = "3.2.1"
+RELEASE_VERSION = "3.2.2"
 NEGATIVE_CONTROLS = 12
 EXPECTED_EXECUTIONS = 100 * (2 + NEGATIVE_CONTROLS)
 

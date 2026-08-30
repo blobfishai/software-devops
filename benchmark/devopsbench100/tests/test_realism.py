@@ -122,6 +122,22 @@ class DevOpsRealismTests(unittest.TestCase):
             )
             self.assertEqual([], named, row["bench_id"])
 
+    def test_stateful_closeout_never_conflicts_with_a_read_only_request(self) -> None:
+        forbidden = re.compile(
+            r"\bread[- ]only\b|\bwithout intervening\b|"
+            r"\bwithout making (?:a |any )?changes?\b",
+            re.IGNORECASE,
+        )
+        state_authority = re.compile(
+            r"\b(?:persist|record|save|make|update|carry|complete|implement|"
+            r"execute|repair|change|apply|leave)\b",
+            re.IGNORECASE,
+        )
+        for row, _source, _contract, prompt, _calls, _trace in self.contracts:
+            with self.subTest(task=row["bench_id"]):
+                self.assertIsNone(forbidden.search(prompt), prompt)
+                self.assertIsNotNone(state_authority.search(prompt), prompt)
+
     def test_human_job_recuration_is_idempotent(self) -> None:
         catalog = {
             "tasks": deepcopy(self.catalog),

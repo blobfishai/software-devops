@@ -1,4 +1,4 @@
-"""Causal-evidence release layer for DevOpsBench-100 v3.2.1.
+"""Causal-evidence release layer for DevOpsBench-100 v3.2.2.
 
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
@@ -31,7 +31,7 @@ from xml.sax.saxutils import escape
 from benchmark.devopsbench100 import decision
 
 
-RELEASE_VERSION = "3.2.1"
+RELEASE_VERSION = "3.2.2"
 SEMANTIC_MILESTONE_WEIGHTS = {
     "investigation.scope": 5,
     "investigation.authority": 5,
@@ -445,17 +445,17 @@ def release_prompt(
     """Wrap the authored outcome in a natural workplace request, not a recipe."""
 
     investigation_closes = (
-        "Explain which conclusion survives cross-checking and leave the live evidence that lets the incoming engineer reproduce it; production should remain unchanged.",
-        "Resolve the disagreement far enough for the incident lead to act, but keep the investigation read-only and preserve any uncertainty the records cannot settle.",
+        "Explain which conclusion survives cross-checking, record it in the existing incident work item, and leave the live evidence that lets the incoming engineer reproduce it; production controls should remain unchanged.",
+        "Resolve the disagreement far enough for the incident lead to act, keep production unchanged, and record both the supported conclusion and any uncertainty the evidence cannot settle.",
         "Give the next shift a defensible finding and make clear which current observations rule out the most tempting alternative explanations.",
-        "Establish the operative cause instead of restating the alert, then document why the present system state supports that conclusion without intervening.",
+        "Establish the operative cause instead of restating the alert, keep production unchanged, and record why the present system state supports that conclusion in the existing incident work item.",
         "Separate upstream cause from downstream symptoms and leave a concise, evidence-linked handoff that another engineer can independently challenge.",
         "Determine what the operating evidence supports today and explain why stale records or plausible shortcuts do not change the answer.",
         "Trace the inconsistency to its authoritative source and record the supported finding while leaving every production control untouched.",
-        "Reconcile the affected boundary, identify the decisive signal, and deliver a read-only conclusion the service owner can use safely.",
+        "Reconcile the affected boundary, identify the decisive signal, and record a production-safe conclusion the service owner can use in the existing incident work item.",
         "Work through the conflicting records, preserve genuine uncertainty, and state the supported operational conclusion in ordinary language.",
         "Find the narrowest explanation that fits every material signal and leave the incident record ready for independent verification.",
-        "Test the apparent explanation against the live state, distinguish correlation from cause, and hand back a sourced answer without making a change.",
+        "Test the apparent explanation against the live state, distinguish correlation from cause, keep production unchanged, and record the sourced finding in the existing incident work item.",
         "Use the current evidence to settle what can be settled, flag what remains ambiguous, and make the reasoning auditable for the next review.",
     )
     delivery_closes = (
