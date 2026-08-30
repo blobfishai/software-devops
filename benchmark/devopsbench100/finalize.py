@@ -16,6 +16,10 @@ import json
 import pathlib
 import shutil
 
+RELEASE_VERSION = "3.2.0"
+NEGATIVE_CONTROLS = 12
+EXPECTED_EXECUTIONS = 100 * (2 + NEGATIVE_CONTROLS)
+
 
 def sha256_file(path: pathlib.Path) -> str:
     digest = hashlib.sha256()
@@ -45,19 +49,21 @@ def seal(release: pathlib.Path) -> dict:
         raise ValueError("refusing to seal: qualification.json is not green")
     controls = qualification.get("negative_controls") or {}
     if (
-        qualification.get("version") != "3.1.0"
-        or qualification.get("executions") != 1200
-        or qualification.get("expected_executions") != 1200
+        qualification.get("version") != RELEASE_VERSION
+        or qualification.get("executions") != EXPECTED_EXECUTIONS
+        or qualification.get("expected_executions") != EXPECTED_EXECUTIONS
         or qualification.get("oracle", {}).get("passes") != 100
         or qualification.get("determinism", {}).get("exact_report_matches") != 100
-        or len(controls) != 10
+        or len(controls) != NEGATIVE_CONTROLS
         or any(
             row.get("applicable_executions") != 100
             or row.get("false_accepts") != 0
             for row in controls.values()
         )
     ):
-        raise ValueError("refusing to seal: v3.1 1,200-execution contract is incomplete")
+        raise ValueError(
+            f"refusing to seal: v{RELEASE_VERSION} {EXPECTED_EXECUTIONS:,}-execution contract is incomplete"
+        )
 
     for cache in release.rglob("__pycache__"):
         if cache.is_dir():
@@ -72,7 +78,7 @@ def seal(release: pathlib.Path) -> dict:
     manifest = {
         "schema_version": "3.0",
         "benchmark": "DevOpsBench-100",
-        "version": "3.1.0",
+        "version": RELEASE_VERSION,
         "qualification": {
             "release_passed": qualification["release_passed"],
             "executions": qualification["executions"],

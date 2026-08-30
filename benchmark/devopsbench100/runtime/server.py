@@ -213,7 +213,7 @@ def rpc_response(world: DevOpsWorld, request):
 
 class Handler(BaseHTTPRequestHandler):
     world: DevOpsWorld = None  # injected
-    server_version = "DevOpsBenchWorld/3.1"
+    server_version = "DevOpsBenchWorld/3.2"
 
     def log_message(self, fmt, *args):
         return

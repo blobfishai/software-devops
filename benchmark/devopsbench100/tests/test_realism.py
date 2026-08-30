@@ -10,9 +10,13 @@ import tempfile
 import unittest
 import zipfile
 
-from benchmark.devopsbench100 import builder
+from benchmark.devopsbench100 import builder, decision
 from benchmark.devopsbench100.realism import (
+    ASSET_COUNT,
     FIXED_XLSX_ZIP_TIMESTAMP,
+    MATERIAL_ASSET_COUNT,
+    MATERIAL_CONTEXT_CALLS,
+    SEMANTIC_MILESTONE_WEIGHTS,
     augment_vcode,
     atomic_checks,
     case_contract,
@@ -113,7 +117,7 @@ class DevOpsRealismTests(unittest.TestCase):
     def test_material_evidence_is_a_causal_subset_of_the_reference_room(self) -> None:
         for row, _source, contract, _prompt, calls, trace in self.contracts:
             material, groups = material_context_calls(row, contract)
-            self.assertEqual(13, len(material), row["bench_id"])
+            self.assertEqual(MATERIAL_CONTEXT_CALLS, len(material), row["bench_id"])
             self.assertEqual(material, trace["required_context_calls"])
             self.assertEqual(groups, trace["material_context_groups"])
             self.assertGreaterEqual(trace["reference_context_call_count"], 19)
@@ -139,7 +143,7 @@ class DevOpsRealismTests(unittest.TestCase):
                 "vcode": augment_vcode(source["vcode"], row, contract, trace),
             }
             milestones = semantic_milestones(task, row, contract, trace)
-            self.assertEqual(14, len(milestones), row["bench_id"])
+            self.assertEqual(len(SEMANTIC_MILESTONE_WEIGHTS), len(milestones), row["bench_id"])
             self.assertEqual(100, sum(item["weight"] for item in milestones))
             self.assertTrue(all(item["atomic_checks"] for item in milestones))
             assigned = [
@@ -191,6 +195,7 @@ class DevOpsRealismTests(unittest.TestCase):
             minimal_calls = [
                 *trace["required_context_calls"],
                 *source["expected_calls"],
+                trace["decision_record_call"],
                 *trace["postwrite_readback_calls"],
                 trace["handoff_call"],
                 trace["readback_call"],
@@ -235,18 +240,65 @@ class DevOpsRealismTests(unittest.TestCase):
             }
             self.assertIn("execution.efficiency", failed)
 
-    def test_ten_negative_controls_apply_to_every_task(self) -> None:
+            reference_controls = negative_plans(reference)
+            for name in ("wrong_answer", "unapproved_option"):
+                tampered, _ = execute(
+                    pack, reference_controls[name]["calls"], source["task_id"]
+                )
+                self.assertFalse(tampered["passed"], name)
+                tampered_failures = {
+                    assertion["name"]
+                    for assertion in tampered["assertions"]
+                    if not assertion["passed"]
+                }
+                self.assertTrue(
+                    any(check.startswith("v5_answer_") for check in tampered_failures),
+                    (name, sorted(tampered_failures)),
+                )
+            self.assertIn(
+                "v5_approval_applied_to_selected_scope",
+                {
+                    assertion["name"]
+                    for assertion in tampered["assertions"]
+                    if not assertion["passed"]
+                },
+            )
+
+    def test_twelve_negative_controls_apply_to_every_task(self) -> None:
         for row, source, contract, _prompt, calls, trace in self.contracts:
             reference = {
                 "expected_calls": calls,
                 "source_expected_calls": source["expected_calls"],
                 "trace_contract": trace,
+                "case_contract": contract,
             }
             controls = negative_plans(reference)
             self.assertEqual(CONTROL_NAMES, tuple(controls), row["bench_id"])
-            self.assertEqual(10, len(controls), row["bench_id"])
+            self.assertEqual(12, len(controls), row["bench_id"])
             self.assertFalse(controls["noop"]["calls"])
             self.assertTrue(controls["unauthorized_write"]["tamper_frozen_state"])
+            wrong_answer = json.loads(
+                next(
+                    call
+                    for call in controls["wrong_answer"]["calls"]
+                    if call["tool"] == "submit_answer"
+                    and call["args"].get("question_id") == contract["capacity_question"]
+                )["args"]["answer"]
+            )
+            self.assertNotEqual(
+                wrong_answer["usable_replicas"],
+                contract["plan"]["answer"]["usable_replicas"],
+                row["bench_id"],
+            )
+            unapproved = json.loads(
+                next(
+                    call
+                    for call in controls["unapproved_option"]["calls"]
+                    if call["tool"] == "submit_answer"
+                    and call["args"].get("question_id") == contract["capacity_question"]
+                )["args"]["answer"]
+            )
+            self.assertEqual(decision.OPTION_RELEASE, unapproved["recommended_option"])
 
             incomplete = controls["incomplete_read"]["calls"]
             self.assertTrue(
@@ -290,14 +342,72 @@ class DevOpsRealismTests(unittest.TestCase):
             seed_case_evidence(database, row, source, prompt, contract)
             asset_root = temporary_root / "task_files" / row["bench_id"]
             assets = write_asset_views(asset_root, database, prompt, row, contract)
-            self.assertEqual(28, len(assets))
-            self.assertEqual(12, sum(bool(asset["material"]) for asset in assets))
+            self.assertEqual(ASSET_COUNT, len(assets))
+            self.assertEqual(MATERIAL_ASSET_COUNT, sum(bool(asset["material"]) for asset in assets))
             suffixes = {asset_root.joinpath(Path(a["path"]).name).suffix[1:] for a in assets}
             self.assertTrue(
                 {"csv", "eml", "json", "log", "md", "pdf", "sql", "txt", "xlsx", "yaml"}
                 <= suffixes
             )
             self.assertTrue(all(validate_native_asset(path) for path in asset_root.iterdir()))
+
+    def test_capacity_plan_is_graded_and_grounded_in_seeded_sources(self) -> None:
+        statuses = set()
+        recommended = set()
+        for row, _source, contract, _prompt, calls, trace in self.contracts:
+            plan = contract["plan"]
+            answer = plan["answer"]
+            self.assertGreaterEqual(len(answer), 12, row["bench_id"])
+            self.assertEqual(plan["per_zone"] * plan["zones"], answer["required_replicas"])
+            self.assertEqual(plan["observed"] - plan["reserved"], answer["usable_replicas"])
+            self.assertEqual(answer["required_replicas"] - answer["usable_replicas"], answer["replica_gap"])
+            self.assertGreaterEqual(answer["usable_replicas"], 1, row["bench_id"])
+            self.assertGreaterEqual(plan["reserved"], plan["gap"], row["bench_id"])
+            statuses.add(answer["decision_timing_status"])
+            recommended.add(answer["recommended_option"])
+
+            options = decision.decision_options(row, contract)
+            self.assertEqual(3, len(options))
+            answer_values = {str(value) for value in answer.values()}
+            for option in options:
+                self.assertTrue(option["completion"])
+                self.assertIsInstance(option["incremental_cost"], int)
+                self.assertTrue(option["approval"])
+                self.assertTrue(option["control_status"])
+                self.assertIn(str(option["completion"]), answer_values, row["bench_id"])
+            self.assertEqual(1, sum(option["recommended"] for option in options))
+            self.assertEqual(
+                1,
+                sum(option["approval"] == "ADDITIONAL_APPROVAL_REQUIRED" for option in options),
+            )
+            self.assertEqual(
+                1,
+                sum(option["approval"] == "AVAILABLE_NOT_RECOMMENDED" for option in options),
+            )
+
+            model = decision.decision_model(row, contract, "OPS-CONTROL-2026.03")
+            calc_fields = {calculation["field"] for calculation in model["calculations"]}
+            self.assertEqual(set(answer), calc_fields, row["bench_id"])
+            self.assertEqual(answer["recommended_option"], model["selected_option"])
+
+            # Every graded value is readable from the seeded evidence room.
+            readiness = decision.readiness_standard_body(contract)
+            self.assertIn(f"{plan['per_zone']} healthy serving replicas", readiness)
+            self.assertIn(contract["capacity_question"], readiness)
+            windows = decision.change_window_sentence(contract)
+            self.assertIn(answer["next_change_window"], windows)
+            record = decision.decision_record_call(contract)
+            self.assertEqual(json.loads(record["args"]["answer"]), answer)
+            handoff_body = trace["handoff_call"]["args"]["body"]
+            for token in trace["handoff_contract"]["graded_text_contains"]:
+                self.assertIn(token, handoff_body, row["bench_id"])
+            self.assertEqual(
+                calls[trace["reference_context_call_count"] + len(_source["expected_calls"])],
+                trace["decision_record_call"],
+                row["bench_id"],
+            )
+        self.assertEqual({"ON_TIME", "LATE"}, statuses)
+        self.assertGreaterEqual(len(recommended), 2)
 
     def test_native_xlsx_assets_are_byte_reproducible_and_timestamp_pinned(self) -> None:
         row, source, contract, prompt, _calls, _trace = self.contracts[0]

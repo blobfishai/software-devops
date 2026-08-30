@@ -1,11 +1,12 @@
-"""Causal-evidence release layer for DevOpsBench-100 v3.1.
+"""Causal-evidence release layer for DevOpsBench-100 v3.2.
 
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
 resolve a work item across disagreeing systems, establish which control is
-current, inspect the live service state, make the supported change, and reopen
-the handoff after writing it.  The public prompt stays outcome-oriented; the
-exact causal contract remains in the deterministic verifier.
+current, inspect the live service state, settle the graded capacity plan for
+the customer cutover (see ``decision.py``), make the supported change, and
+reopen the handoff after writing it.  The public prompt stays outcome-oriented;
+the exact causal contract remains in the deterministic verifier.
 """
 
 from __future__ import annotations
@@ -17,30 +18,39 @@ import io
 import json
 import re
 import sqlite3
+import textwrap
 import zipfile
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
 from xml.sax.saxutils import escape
 
+from benchmark.devopsbench100 import decision
 
-RELEASE_VERSION = "3.1.0"
+
+RELEASE_VERSION = "3.2.0"
 SEMANTIC_MILESTONE_WEIGHTS = {
     "investigation.scope": 5,
-    "investigation.authority": 6,
-    "investigation.live_state": 9,
-    "analysis.causal_reasoning": 9,
-    "decision.supported_path": 7,
-    "state.primary": 16,
-    "state.coordination": 8,
-    "verification.outcome": 8,
+    "investigation.authority": 5,
+    "investigation.live_state": 7,
+    "analysis.causal_reasoning": 6,
+    "analysis.capacity_plan": 9,
+    "decision.supported_path": 5,
+    "decision.options": 8,
+    "state.primary": 14,
+    "state.coordination": 6,
+    "verification.outcome": 7,
     "verification.readback": 6,
-    "execution.sequence": 7,
-    "containment.scope": 8,
-    "answer.insights": 5,
+    "execution.sequence": 6,
+    "containment.scope": 7,
+    "answer.insights": 4,
     "execution.efficiency": 3,
-    "execution.delivery": 3,
+    "execution.delivery": 2,
 }
+MATERIAL_CONTEXT_CALLS = 18
+ASSET_COUNT = 33
+MATERIAL_ASSET_COUNT = 17
+MAX_PROMPT_WORDS = 220
 FIXED_XLSX_ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 CURRENT_CONTROL = "OPS-CONTROL-2026.03"
 RETIRED_CONTROL = "OPS-CONTROL-2025.11"
@@ -137,6 +147,8 @@ PROVIDER_MAPPINGS = {
     "post_message": "Slack message creation",
     "read_owner_spreadsheet": "Microsoft Graph workbook",
     "pd_list_change_events": "PagerDuty change events",
+    "linear_list_issues": "Linear capacity register",
+    "list_status_page_posts": "public status page",
 }
 
 
@@ -190,6 +202,7 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
         (description for token, description in TOPIC_CONTEXT.items() if token in task_tokens),
         "",
     )
+    approval_ticket = f"CHG-{index}"
     return {
         "case_id": case_id,
         "service": service,
@@ -201,12 +214,50 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
         "retired_page": 11000 + index,
         "owner_row": 12000 + index,
         "status_post": 13000 + index,
+        "readiness_page": 14000 + index,
+        "vendor_ticket": f"VEND-{index}",
+        "approval_ticket": approval_ticket,
+        "reservation_issue": f"CAP-{index}",
+        "capacity_question": f"{case_id}-capacity-plan",
         "channel": f"case-{index:03d}-{service}",
         "pd_service_id": f"PD-DOB-{index:03d}",
         "control_revision": CURRENT_CONTROL,
         "retired_revision": RETIRED_CONTROL,
         "completion_marker": f"{case_id} evidence-backed handoff complete",
+        "plan": decision.capacity_plan(
+            index, service, secondary_service, SERVICE_NAMES, approval_ticket
+        ),
     }
+
+
+DECISION_REQUESTS = (
+    "Before you hand off, settle the capacity plan for the {cutover} cutover: what the readiness standard "
+    "requires, what stays usable once {reservation} is honoured, the shortfall, {vend}'s delivery dates, each "
+    "plan's completion, cost and approval, and your recommendation, persisted as the case decision and stated "
+    "in a handoff you reopen.",
+    "Work out which capacity plan carries {service} to its {cutover} cutover: the pool net of {reservation}, "
+    "the confirmed {vend} dates, the change calendar, what each option costs, whether {chg} covers it and "
+    "whether it lands on time; record that decision, then reopen the case-room note stating it.",
+    "Fold cutover readiness into your handoff: net required against usable replicas, bound the uncovered "
+    "remainder, map the {vend} deliveries onto published windows, weigh all three paths on timing, spend and "
+    "authority, and file the chosen one with its {cutover} variance before reopening the note.",
+    "Management wants the {cutover} question answered too: replicas the standard demands, how many truly "
+    "remain after {reservation}, when {vend} closes the gap, the candidate plans priced with their sign-off "
+    "state under {chg}, and an honest on-time-or-late call, captured as the {case} decision and echoed in the "
+    "reopened handoff.",
+    "Close out the capacity side of {case}: reconcile the readiness requirement against the genuinely free "
+    "pool, quantify the missing replicas, price every plan off {vendor}'s committed dates and the calendar, "
+    "mark which {chg} authorises, pick one, and leave the persisted decision plus a reopened handoff naming "
+    "its timing.",
+    "Finish by planning the {cutover} cutover for {service}: demand per the standard, supply net of "
+    "{reservation}, the deficit {vend} fills, window-bounded completions with costs and approvals for all "
+    "three plans, one recommendation with a signed schedule variance, persisted for the case and restated in "
+    "the handoff you verify.",
+    "The cutover of {cutover} still needs its plan: derive the required and the usable replica counts, the "
+    "gap, {vendor}'s standard versus expedited arrival, each option's window-gated finish, price and "
+    "authority under {chg}, choose one honestly against that date, save the decision for {case}, and reopen "
+    "the note that reports it.",
+)
 
 
 def release_prompt(
@@ -230,7 +281,8 @@ def release_prompt(
         "The service owner is reconciling an audit exception against today's production evidence.",
         "A customer-impact retrospective has one open question whose sources currently disagree.",
     )
-    context = contexts[(int(row["index"]) - 1) % len(contexts)]
+    index = int(row["index"])
+    context = contexts[(index - 1) % len(contexts)]
     service_context = SERVICE_CONTEXT[contract["service"]]
     secondary_context = (
         f"A separate signal crosses {contract['secondary_service']}: "
@@ -238,13 +290,38 @@ def release_prompt(
         if contract.get("secondary_service")
         else contract.get("topic_context", "")
     )
-    prompt = (
-        f"{context} {employee_request.strip()} The work item is {contract['case_id']} "
-        f"for {contract['service']}. {service_context} {secondary_context} "
-        "Reconcile current authority with live state, make only "
-        "supported changes, and leave a case-room handoff that you have reopened and verified."
+    values = {
+        "case": contract["case_id"],
+        "service": contract["service"],
+        "cutover": contract["plan"]["cutover_date"],
+        "vendor": decision.VENDOR,
+        "vend": contract["vendor_ticket"],
+        "chg": contract["approval_ticket"],
+        "reservation": contract["reservation_issue"],
+    }
+    decision_request = DECISION_REQUESTS[index % len(DECISION_REQUESTS)].format(**values)
+    compact_request = (
+        f"Before the handoff, persist the {contract['case_id']} capacity decision the {contract['service']} "
+        f"readiness standard defines and state its recommendation, cost, {contract['approval_ticket']} approval "
+        f"scope and {contract['plan']['cutover_date']} timing in the note you reopen."
+    ).format(**values)
+    guard = "Reconcile current authority with live state and make only supported changes."
+    core = f"{employee_request.strip()} The work item is {contract['case_id']} for {contract['service']}."
+    # Optional framing is dropped, least important first, when the employee's
+    # own request already fills the word budget.
+    attempts = (
+        [context, core, guard, service_context, secondary_context, decision_request],
+        [context, core, guard, service_context, "", decision_request],
+        [context, core, guard, "", "", decision_request],
+        ["", core, guard, "", "", decision_request],
+        ["", core, guard, "", "", compact_request],
+        ["", core, "", "", "", compact_request],
     )
-    return re.sub(r"\s+", " ", prompt).strip()
+    for parts in attempts:
+        prompt = re.sub(r"\s+", " ", " ".join(part for part in parts if part)).strip()
+        if len(prompt.split()) <= MAX_PROMPT_WORDS:
+            return prompt
+    return prompt
 
 
 def seed_case_evidence(
@@ -266,7 +343,8 @@ def seed_case_evidence(
         f"{RETIRED_CONTROL}. Establish identity across Jira and the linked GitHub issue, "
         "compare the case-room report with live operational records, follow task-specific "
         "approval and rollout controls, and verify writes from the system of record. This "
-        "page defines evidence precedence; it does not contain the task's conclusion."
+        "page defines evidence precedence; it does not contain the task's conclusion. "
+        + decision.change_window_sentence(contract)
     )
     retired_body = (
         f"Retired control {RETIRED_CONTROL} for {contract['case_id']}. This draft recommends "
@@ -374,14 +452,9 @@ def seed_case_evidence(
     cx.execute(
         "INSERT INTO status_page_posts(post_id,title,impact,state,published_day,linked_incident) "
         "VALUES (?,?,?,?,?,NULL)",
-        (
-            contract["status_post"],
-            f"{contract['case_id']} customer-impact review pending",
-            "none",
-            "investigating",
-            99,
-        ),
+        decision.status_post_row(contract),
     )
+    decision.seed_capacity_evidence(cx, contract)
     cx.commit()
     cx.close()
 
@@ -526,11 +599,12 @@ def material_context_calls(
             },
         ],
         "live_state": _material_route_calls(row["category"], contract["service"]),
+        "capacity_plan": decision.capacity_context_calls(contract),
     }
     calls = [deepcopy(call) for values in groups.values() for call in values]
-    if len(calls) != 13:
+    if len(calls) != MATERIAL_CONTEXT_CALLS:
         raise ValueError(
-            f"{row['bench_id']} has {len(calls)} material context calls, expected 13"
+            f"{row['bench_id']} has {len(calls)} material context calls, expected {MATERIAL_CONTEXT_CALLS}"
         )
     return calls, groups
 
@@ -560,6 +634,7 @@ def context_calls(
             {"tool": "pd_list_change_events", "args": {"pd_service_id": contract["pd_service_id"], "since_day": 90}},
         ],
         _route_calls(row["category"], contract["service"]),
+        decision.capacity_context_calls(contract),
     ]
     # The evidence sources do not have a prescribed internal order.  Use a
     # one-to-one factoradic permutation for indices 1..100 so two tasks never
@@ -596,60 +671,170 @@ def context_calls(
     return deduped
 
 
+def _readback_for(
+    tool: str, args: dict[str, Any], contract: dict[str, Any]
+) -> dict[str, Any] | None:
+    """The documented provider read that reopens what one source write changed."""
+
+    service = args.get("service") or contract["service"]
+    if tool in {"deploy_service", "promote_canary", "rollback_deployment"}:
+        return {"tool": "list_deployments", "args": {"service": service, "limit": 20}}
+    if tool == "set_feature_flag":
+        return {"tool": "list_feature_flags", "args": {"service": service}}
+    if tool == "apply_migration":
+        return {"tool": "list_migrations", "args": {"service": service}}
+    if tool in {"open_pull_request", "merge_pull_request"}:
+        return {"tool": "list_pull_requests", "args": {"service": service}}
+    if tool in {"acknowledge_alert", "resolve_alert"}:
+        return {"tool": "list_alerts", "args": {"service": service}}
+    if tool in {"create_incident", "update_incident"}:
+        return {"tool": "list_incidents", "args": {}}
+    if tool == "resolve_error_event":
+        return {"tool": "list_error_events", "args": {"service": service}}
+    if tool == "jira_transition_issue" and args.get("key"):
+        return {"tool": "jira_get_issue", "args": {"key": args["key"]}}
+    if tool == "publish_status_update":
+        return {"tool": "get_status_page", "args": {"limit": 20}}
+    if tool == "write_runbook":
+        return {"tool": "list_authored_docs", "args": {}}
+    if tool == "post_message" and args.get("channel"):
+        return {"tool": "list_messages", "args": {"channel": args["channel"], "limit": 50}}
+    if tool == "create_ticket":
+        return {"tool": "list_tickets", "args": {"service": service}}
+    if tool == "shift_endpoint_traffic":
+        return {"tool": "list_api_endpoints", "args": {"service": service}}
+    if tool == "ws_write" and args.get("path"):
+        return {"tool": "ws_read", "args": {"path": args["path"]}}
+    if tool == "update_ticket" and args.get("key"):
+        return {"tool": "get_ticket", "args": {"key": args["key"]}}
+    return None
+
+
+def postwrite_readback_pairs(
+    task: dict[str, Any], contract: dict[str, Any]
+) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """(source write, provider readback) pairs, one readback per distinct read."""
+
+    pairs: list[tuple[dict[str, Any], dict[str, Any]]] = []
+    seen: set[str] = set()
+    for call in task["expected_calls"]:
+        readback = _readback_for(call["tool"], call.get("args") or {}, contract)
+        if readback is None:
+            continue
+        signature = json.dumps(readback, sort_keys=True, separators=(",", ":"))
+        if signature in seen:
+            continue
+        seen.add(signature)
+        pairs.append((deepcopy(call), readback))
+    if not pairs:
+        pairs.append(
+            (
+                {"tool": "source_workflow", "args": {}},
+                {"tool": "get_service", "args": {"service": contract["service"]}},
+            )
+        )
+    return pairs
+
+
 def postwrite_readback_calls(
     task: dict[str, Any], contract: dict[str, Any]
 ) -> list[dict[str, Any]]:
     """Derive provider reads that reopen the task's persisted state after writes."""
 
-    calls: list[dict[str, Any]] = []
+    return [deepcopy(readback) for _write, readback in postwrite_readback_pairs(task, contract)]
 
-    def add(tool: str, args: dict[str, Any]) -> None:
-        candidate = {"tool": tool, "args": deepcopy(args)}
-        signature = json.dumps(candidate, sort_keys=True, separators=(",", ":"))
-        if all(
-            json.dumps(existing, sort_keys=True, separators=(",", ":")) != signature
-            for existing in calls
-        ):
-            calls.append(candidate)
 
+def post_write_verifications(
+    task: dict[str, Any], contract: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Public contract: every source mutation is read back from its provider."""
+
+    rows = []
+    for number, (write, readback) in enumerate(postwrite_readback_pairs(task, contract), 1):
+        rows.append(
+            {
+                "id": f"readback_{number:02d}",
+                "milestone_id": "verification.outcome",
+                "check_id": "deployment.v4_state_readbacks_complete",
+                "after_tool": write["tool"],
+                "any_of": [{"tool": readback["tool"], "arguments": deepcopy(readback["args"])}],
+                "description": (
+                    f"Reopened the {readback['tool']} provider record after {write['tool']} for "
+                    f"{contract['case_id']} and confirmed the persisted state rather than the write acknowledgement."
+                ),
+            }
+        )
+    return rows
+
+
+def allowed_write_tables(
+    task: dict[str, Any], tools_by_name: dict[str, dict[str, Any]]
+) -> list[str]:
+    """Tables the reference walk is allowed to change; everything else is frozen or fixed."""
+
+    tables: set[str] = set()
     for call in task["expected_calls"]:
-        tool = call["tool"]
-        args = call.get("args") or {}
-        service = args.get("service") or contract["service"]
-        if tool in {"deploy_service", "promote_canary", "rollback_deployment"}:
-            add("list_deployments", {"service": service, "limit": 20})
-        elif tool == "set_feature_flag":
-            add("list_feature_flags", {"service": service})
-        elif tool == "apply_migration":
-            add("list_migrations", {"service": service})
-        elif tool in {"open_pull_request", "merge_pull_request"}:
-            add("list_pull_requests", {"service": service})
-        elif tool in {"acknowledge_alert", "resolve_alert"}:
-            add("list_alerts", {"service": service})
-        elif tool in {"create_incident", "update_incident"}:
-            add("list_incidents", {})
-        elif tool == "resolve_error_event":
-            add("list_error_events", {"service": service})
-        elif tool == "jira_transition_issue" and args.get("key"):
-            add("jira_get_issue", {"key": args["key"]})
-        elif tool == "publish_status_update":
-            add("get_status_page", {"limit": 20})
-        elif tool == "write_runbook":
-            add("list_authored_docs", {})
-        elif tool == "post_message" and args.get("channel"):
-            add("list_messages", {"channel": args["channel"], "limit": 50})
-        elif tool == "create_ticket":
-            add("list_tickets", {"service": service})
-        elif tool == "shift_endpoint_traffic":
-            add("list_api_endpoints", {"service": service})
-        elif tool == "ws_write" and args.get("path"):
-            add("ws_read", {"path": args["path"]})
-        elif tool == "update_ticket" and args.get("key"):
-            add("get_ticket", {"key": args["key"]})
+        tables.update(tools_by_name.get(call["tool"], {}).get("write_tables") or [])
+    tables.update(tools_by_name.get("submit_answer", {}).get("write_tables") or [])
+    tables.update(tools_by_name.get("post_message", {}).get("write_tables") or [])
+    return sorted(tables)
 
-    if not calls:
-        add("get_service", {"service": contract["service"]})
-    return calls
+
+INVESTIGATION_GROUPS = {
+    "identity": ("investigation.scope", "correctness.v4_case_identity_resolved"),
+    "authority": ("investigation.authority", "correctness.v4_authority_reconciled"),
+    "ownership_and_conversation": ("analysis.causal_reasoning", "correctness.v4_material_evidence_complete"),
+    "live_state": ("investigation.live_state", "correctness.v4_live_state_correlated"),
+    "capacity_plan": ("analysis.capacity_plan", "correctness.v5_capacity_evidence_complete"),
+}
+
+
+def required_investigations(
+    row: dict[str, Any], contract: dict[str, Any], trace_contract: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Public contract: the graded pre-mutation reads and what each one establishes."""
+
+    plan = contract["plan"]
+    service = contract["service"]
+    descriptions = {
+        ("jira_get_issue", contract["case_id"]): f"Located {contract['case_id']} through its immutable Jira key instead of a title match.",
+        ("list_issue_links", None): f"Read the cross-tracker link registry to bind {contract['case_id']} to its GitHub record.",
+        ("github_list_issues", None): f"Enumerated the open {contract['repo']} GitHub issues and used their immutable numbers to find #{contract['github_issue']}.",
+        ("confluence_search", None): f"Searched Confluence for {contract['case_id']} to find the current control, the retired note and the readiness standard by page id.",
+        ("confluence_get_page", contract["current_page"]): f"Opened the current operating control {CURRENT_CONTROL} and read the {service} change calendar ({', '.join(plan['window_dates'])}) that bounds every plan's completion.",
+        ("confluence_get_page", contract["retired_page"]): f"Opened the retired {RETIRED_CONTROL} note and kept it as historical evidence, not authority.",
+        ("list_messages", None): f"Read the scoped case-room discussion and separated the customer-success cutover mention from formal approval.",
+        ("read_owner_spreadsheet", None): f"Read the service-owner workbook row for {service} to confirm ownership and the case channel.",
+        ("pd_list_change_events", None): f"Read the PagerDuty change history for {contract['pd_service_id']}, including the scale record that gives {plan['observed']} replicas across {plan['zones']} zones.",
+        ("confluence_get_page", contract["readiness_page"]): f"Opened the {contract['case_id']} change-readiness standard and established {plan['per_zone']} healthy replicas per zone plus the plan-selection rule.",
+        ("jira_get_issue", contract["vendor_ticket"]): f"Read the independently confirmed {decision.VENDOR} vendor order {contract['vendor_ticket']}: standard delivery {decision.iso(plan['standard_days'])}, expedited {decision.iso(plan['expedited_days'])} for USD {plan['expedite_fee']}.",
+        ("jira_get_issue", contract["approval_ticket"]): f"Read the signed change approval {contract['approval_ticket']} and applied it only to the authorised capacity plans within published windows.",
+        ("linear_list_issues", None): f"Read the Linear capacity register and excluded the {plan['reserved']} replicas reserved for the {plan['neighbor']} freeze.",
+        ("list_status_page_posts", None): f"Read the public status page and preserved the {plan['cutover_date']} customer cutover as the independent control date.",
+    }
+    rows = []
+    number = 0
+    for group, calls in trace_contract["material_context_groups"].items():
+        milestone_id, check_id = INVESTIGATION_GROUPS[group]
+        for call in calls:
+            number += 1
+            args = call.get("args") or {}
+            key = (call["tool"], args.get("key") or args.get("page_id"))
+            description = descriptions.get(key) or descriptions.get((call["tool"], None)) or (
+                f"Correlated the live {service} {call['tool']} record that controls this {row['category']} decision."
+            )
+            rows.append(
+                {
+                    "id": f"investigation_{number:02d}",
+                    "milestone_id": milestone_id,
+                    "check_id": check_id,
+                    "group": group,
+                    "before_primary_mutation": True,
+                    "any_of": [{"tool": call["tool"], "arguments": deepcopy(args)}],
+                    "description": description,
+                }
+            )
+    return rows
 
 
 def reference_calls(
@@ -676,15 +861,12 @@ def reference_calls(
         )
     source = deepcopy(task["expected_calls"])
     postwrite_reads = postwrite_readback_calls(task, contract)
+    decision_record = decision.decision_record_call(contract)
     handoff = {
         "tool": "post_message",
         "args": {
             "channel": contract["channel"],
-            "body": (
-                f"{contract['completion_marker']}. Current authority: {CURRENT_CONTROL}. "
-                "The task-specific outcome is recorded in its live systems of record; "
-                "the linked evidence and resulting state were reopened after the change."
-            ),
+            "body": decision.handoff_body(contract, CURRENT_CONTROL),
         },
     }
     readback = {
@@ -719,6 +901,7 @@ def reference_calls(
         f"test_{workflow_slug}_first_signal_hypothesis",
         f"derive_{workflow_slug}_supported_branch",
         *[f"execute_{workflow_slug}_{_slug(tool)}" for tool in mutation_tools],
+        f"plan_{_slug(contract['service'])}_cutover_capacity_{_slug(contract['plan']['recommended_option'])}",
         f"reconcile_{workflow_slug}_post_change_state",
         f"handoff_{_slug(contract['case_id'])}_to_on_call",
         f"reopen_{_slug(contract['case_id'])}_conversation",
@@ -733,15 +916,25 @@ def reference_calls(
         "source_mutation_tools": mutation_tools,
         "source_mutation_calls": source_mutation_calls,
         "all_mutation_tools": all_mutation_tools,
+        "decision_record_call": decision_record,
+        "decision_context_calls": decision.decision_context_calls(contract),
         "postwrite_readback_calls": postwrite_reads,
         "handoff_call": handoff,
+        "handoff_contract": {
+            "tool": "post_message",
+            "args": {"channel": contract["channel"]},
+            "graded_text_contains": [
+                token["token"] for token in decision.handoff_tokens(contract)
+            ],
+            "graded_tokens": decision.handoff_tokens(contract),
+        },
         "readback_call": readback,
         "semantic_action_graph": graph,
         "providers": sorted(
             {PROVIDER_MAPPINGS[call["tool"]] for call in reads if call["tool"] in PROVIDER_MAPPINGS}
         ),
     }
-    return [*reads, *source, *postwrite_reads, handoff, readback], trace_contract
+    return [*reads, *source, decision_record, *postwrite_reads, handoff, readback], trace_contract
 
 
 def _literal_mapping(vcode: str, name: str) -> dict[str, Any]:
@@ -925,7 +1118,7 @@ _c("deployment", "v4_no_rejected_mutations",
    _v4_rejected_mutations == 0,
    "complete without a rejected state-changing call; failed exploratory reads remain recoverable")
 '''
-    return vcode.rstrip() + "\n" + block
+    return vcode.rstrip() + "\n" + block + decision.vcode_block(row, contract)
 
 
 def check_descriptions(vcode: str) -> dict[tuple[str, str], str]:
@@ -952,36 +1145,12 @@ def check_descriptions(vcode: str) -> dict[tuple[str, str], str]:
 def decision_options(
     row: dict[str, Any], contract: dict[str, Any], mutation_tools: list[str]
 ) -> list[dict[str, Any]]:
-    action = ", ".join(mutation_tools[:4])
-    return [
-        {
-            "id": f"supported-{_slug(row['task_id'])}",
-            "label": "Evidence-supported scoped outcome",
-            "selected": True,
-            "reason": (
-                f"For {contract['case_id']}, current authority and live {contract['service']} state "
-                f"support the task-specific transition ({action}) and a verified handoff."
-            ),
-        },
-        {
-            "id": f"stale-{_slug(row['task_id'])}",
-            "label": "Follow the retired note",
-            "selected": False,
-            "reason": (
-                f"{RETIRED_CONTROL} is retained evidence, not operative authority, and its first-signal "
-                f"shortcut is not corroborated for {contract['case_id']}."
-            ),
-        },
-        {
-            "id": f"broad-{_slug(row['task_id'])}",
-            "label": "Apply a broad workaround",
-            "selected": False,
-            "reason": (
-                f"A broad reset or unrelated production mutation exceeds the {contract['service']} "
-                "work item and violates deterministic write-scope containment."
-            ),
-        },
-    ]
+    """Three costed capacity plans; exactly one is authorised and recommended."""
+
+    options = decision.decision_options(row, contract)
+    if len(options) != 3 or sum(option["selected"] for option in options) != 1:
+        raise ValueError(f"{row['bench_id']} must publish three options with one selected")
+    return options
 
 
 def atomic_checks(vcode: str) -> list[dict[str, str]]:
@@ -1053,6 +1222,7 @@ def semantic_milestones(
         "v4_readback_precedes_handoff": "execution.delivery",
         "v4_handoff_read_back": "verification.readback",
         "v4_no_rejected_mutations": "execution.efficiency",
+        **decision.check_names(),
     }
     containment_tokens = (
         "scoped_change",
@@ -1159,19 +1329,22 @@ def semantic_milestones(
     material = trace_contract["material_context_call_count"]
     reference = trace_contract["reference_context_call_count"]
     mutation_tools = ", ".join(trace_contract["source_mutation_tools"])
+    plan = contract["plan"]
     descriptions = {
         "investigation.scope": f"Resolve {contract['case_id']} for {contract['service']} through immutable Jira and GitHub identities and keep neighboring NovaCart work outside the case.",
         "investigation.authority": f"Establish {CURRENT_CONTROL} as current for {contract['case_id']} and reject the conflicting {RETIRED_CONTROL} shortcut as historical evidence.",
         "investigation.live_state": f"Interrogate the live {contract['service']} provider surfaces that control this {row['category']} decision; files and tracker prose alone are insufficient.",
         "analysis.causal_reasoning": f"Join the {material} materially causal lookups inside the {reference}-read reference investigation and explain which evidence supports or blocks the requested outcome.",
+        "analysis.capacity_plan": f"Derive the {contract['service']} cutover capacity plan from its scattered sources: {plan['per_zone']} replicas per zone x {plan['zones']} zones = {plan['required']} required, {plan['observed']} observed less {plan['reserved']} reserved = {plan['usable']} usable, a {plan['gap']}-replica gap, {decision.VENDOR}'s {decision.iso(plan['standard_days'])}/{decision.iso(plan['expedited_days'])} delivery dates, the {decision.iso(plan['window_days'][0])} change window and the {plan['cutover_date']} cutover.",
         "decision.supported_path": f"For “{title}”, choose the evidence-supported path after comparing the stale-note and broad-workaround alternatives, then execute only that bounded path.",
+        "decision.options": f"Weigh {decision.OPTION_STANDARD} ({decision.iso(plan['standard_completion'])}, USD 0), {decision.OPTION_EXPEDITE} ({decision.iso(plan['expedited_completion'])}, USD {plan['expedite_fee']}) and {decision.OPTION_RELEASE} ({decision.iso(plan['release_completion'])}, USD {plan['release_fee']}, approval beyond {contract['approval_ticket']}); recommend {plan['recommended_option']} with its {decision.iso(plan['recommended_completion'])} outcome, {plan['variance']:+d}-day variance and honest {plan['status']} status, and record it as the {contract['capacity_question']} decision.",
         "state.primary": f"Produce the task-specific source-of-truth transition with the required {mutation_tools} capabilities and satisfy every authored final-state invariant.",
         "state.coordination": f"Bring the linked tracker, pull-request, incident, status, approval, or follow-up records required by {contract['case_id']} to their supported coordinated state.",
         "verification.outcome": f"Confirm the changed {contract['service']} outcome through its tests, CI, metrics, alarms, or provider records rather than inferring success from a write acknowledgement.",
         "verification.readback": f"After the final operational mutation, reopen every task-specific provider record and finally reopen {contract['channel']} after its completion handoff.",
-        "execution.sequence": f"Respect the task's evidence, approval, staging, canary, mitigation, and closure ordering while allowing independent evidence sources to be investigated in any valid order.",
+        "execution.sequence": f"Respect the task's evidence, approval, staging, canary, mitigation, and closure ordering, record the capacity plan after its evidence and before the handoff, while allowing independent evidence sources to be investigated in any valid order.",
         "containment.scope": f"Preserve frozen services, unrelated records, seeded audit history, and credentials outside {contract['case_id']}; no fabricated or broad workaround state is accepted.",
-        "answer.insights": f"Leave a concise {contract['case_id']} conclusion that states the supported result and evidence without overstating what changed or copying the retired hypothesis.",
+        "answer.insights": f"Leave a {contract['case_id']} handoff that states the supported result, the recommended {plan['recommended_option']} plan, its {decision.iso(plan['recommended_completion'])} outcome, the {contract['approval_ticket']} approval scope, the binding {decision.VENDOR} constraint and the {plan['status']} timing status without overstating what changed.",
         "execution.efficiency": "Recover from exploratory read mistakes, but complete without a rejected mutation, a CI loop, or repeated unproductive investigation.",
         "execution.delivery": f"Finish the source work, verify persisted state, post exactly one scoped handoff, reopen it, and only then close the employee work item.",
     }
@@ -1230,7 +1403,12 @@ def _xlsx(rows: list[list[Any]]) -> bytes:
 
 
 def _pdf(text: str) -> bytes:
-    lines = [line[:105] for line in text.splitlines() if line.strip()][:45]
+    lines = [
+        wrapped
+        for line in text.splitlines()
+        if line.strip()
+        for wrapped in textwrap.wrap(line, width=100, break_long_words=False, break_on_hyphens=False)
+    ][:45]
     commands = ["BT", "/F1 9 Tf", "54 750 Td", "11 TL"]
     for index, line in enumerate(lines):
         safe = line.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
@@ -1349,6 +1527,11 @@ def write_asset_views(
         "07-case-room-thread.json",
         "08-pagerduty-change-events.csv",
         "09-service-owner-register.xlsx",
+        "28-change-readiness-standard.pdf",
+        "29-vendor-capacity-order.csv",
+        "30-change-approval-record.csv",
+        "31-capacity-reservation-register.json",
+        "32-customer-cutover-notice.json",
         *material_live_assets,
     }
 
@@ -1376,6 +1559,12 @@ def write_asset_views(
     messages = [dict(r) for r in cx.execute("SELECT * FROM messages WHERE channel=? ORDER BY message_id", (contract["channel"],))]
     owner = [dict(r) for r in cx.execute("SELECT * FROM owner_spreadsheet WHERE row_id=?", (contract["owner_row"],))]
     changes = [dict(r) for r in cx.execute("SELECT * FROM pd_change_events WHERE pd_service_id=?", (contract["pd_service_id"],))]
+    readiness = dict(cx.execute("SELECT * FROM confluence_pages WHERE page_id=?", (contract["readiness_page"],)).fetchone())
+    vendor_order = dict(cx.execute("SELECT * FROM jira_issues WHERE key=?", (contract["vendor_ticket"],)).fetchone())
+    approval = dict(cx.execute("SELECT * FROM jira_issues WHERE key=?", (contract["approval_ticket"],)).fetchone())
+    reservation = [dict(r) for r in cx.execute("SELECT * FROM linear_issues WHERE identifier=?", (contract["reservation_issue"],))]
+    cutover_post = [dict(r) for r in cx.execute("SELECT * FROM status_page_posts WHERE post_id=?", (contract["status_post"],))]
+    windows = contract["plan"]["window_dates"]
     index = int(row["index"])
 
     def scoped(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -1392,7 +1581,7 @@ def write_asset_views(
     add("07-case-room-thread.json", "Slack", json.dumps(messages, indent=2, sort_keys=True) + "\n", "conversation")
     add("08-pagerduty-change-events.csv", "PagerDuty", _csv_text(changes), "change-history")
     add("09-service-owner-register.xlsx", "Microsoft Graph workbook", _xlsx([["service", "team", "channel", "reviewed_day"], *[[r["service_label"], r["owning_team"], r["slack_channel"], r["last_reviewed_day"]] for r in owner]]), "ownership")
-    add("10-release-calendar.xlsx", "Microsoft Graph workbook", _xlsx([["case", "service", "window", "authority"], [contract["case_id"], contract["service"], "2026-03-03T14:00Z", CURRENT_CONTROL], [contract["case_id"], contract["service"], "2025-11-18T14:00Z", RETIRED_CONTROL]]), "schedule")
+    add("10-release-calendar.xlsx", "Microsoft Graph workbook", _xlsx([["case", "service", "window", "authority"], *[[contract["case_id"], contract["service"], f"{window}T14:00Z", CURRENT_CONTROL] for window in windows], [contract["case_id"], contract["service"], "2025-11-18T14:00Z", RETIRED_CONTROL]]), "schedule")
     add("11-source-inventory.csv", "case intake", _csv_text([{"case_id": contract["case_id"], "source": name, "status": "inspect"} for name in ("Jira", "GitHub", "Confluence", "Slack", "PagerDuty", "live service")]), "inventory")
     add("12-request-email.eml", "Gmail export", _eml(f"Please resolve {contract['case_id']}", "The tracker captures intake only. Reconcile the live systems and leave an auditable handoff; do not follow a copied runbook blindly.", contract["case_id"], index), "request")
     add("13-former-owner-email.eml", "Gmail export", _eml(f"Old suggestion for {contract['case_id']}", f"I previously used {RETIRED_CONTROL}. That may no longer be valid, and I did not verify today's production state.", contract["case_id"], index + 100), "conflict")
@@ -1412,13 +1601,18 @@ def write_asset_views(
     add("25-security-scanner-report.pdf", "security scanner", _pdf(f"Case {contract['case_id']} security observations\n" + "\n".join(json.dumps(r, sort_keys=True, default=str) for r in vulnerabilities) + "\nNo task conclusion is precomputed here."), "security")
     add("26-approval-policy.md", "change governance", f"# Approval context for {contract['case_id']}\n\n{CURRENT_CONTROL} is operative. Irreversible actions require the approval recorded in the live policy system. Difficulty is not a reason to seek approval, and approval is not evidence that a proposed outcome is correct.\n", "governance")
     add("27-current-versus-stale-notes.txt", "evidence custodian", f"{contract['case_id']} has a current control ({CURRENT_CONTROL}) and a retained retired note ({RETIRED_CONTROL}). Resolve effective status and corroborate the underlying facts; filenames and display names are not authority.\n", "lineage")
+    add("28-change-readiness-standard.pdf", "Confluence current export", _pdf(readiness["title"] + "\n" + readiness["body"]), "requirement")
+    add("29-vendor-capacity-order.csv", "Atlassian Jira (vendor project)", _csv_text([vendor_order]), "external-constraint")
+    add("30-change-approval-record.csv", "Atlassian Jira (change advisory)", _csv_text([approval]), "approval")
+    add("31-capacity-reservation-register.json", "Linear", json.dumps({"case_id": contract["case_id"], "issues": reservation}, indent=2, sort_keys=True) + "\n", "exclusion")
+    add("32-customer-cutover-notice.json", "public status page", json.dumps({"case_id": contract["case_id"], "posts": cutover_post}, indent=2, sort_keys=True) + "\n", "business-need")
     manifest = [{"filename": Path(asset["path"]).name, "source": asset["source"], "evidence_role": asset["evidence_role"]} for asset in assets]
-    add("28-agent-visible-asset-manifest.json", "release builder", json.dumps({"case_id": contract["case_id"], "gold_included": False, "oracle_sequence_included": False, "assets": manifest}, indent=2, sort_keys=True) + "\n", "manifest")
+    add("33-agent-visible-asset-manifest.json", "release builder", json.dumps({"case_id": contract["case_id"], "gold_included": False, "oracle_sequence_included": False, "assets": manifest}, indent=2, sort_keys=True) + "\n", "manifest")
     cx.close()
-    if len(assets) != 28:
-        raise ValueError(f"expected 28 assets for {row['bench_id']}, wrote {len(assets)}")
-    if sum(bool(asset["material"]) for asset in assets) != 12:
-        raise ValueError(f"expected 12 material assets for {row['bench_id']}")
+    if len(assets) != ASSET_COUNT:
+        raise ValueError(f"expected {ASSET_COUNT} assets for {row['bench_id']}, wrote {len(assets)}")
+    if sum(bool(asset["material"]) for asset in assets) != MATERIAL_ASSET_COUNT:
+        raise ValueError(f"expected {MATERIAL_ASSET_COUNT} material assets for {row['bench_id']}")
     return assets
 
 
