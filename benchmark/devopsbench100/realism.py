@@ -1,4 +1,4 @@
-"""Causal-evidence release layer for DevOpsBench-100 v3.2.4.
+"""Causal-evidence release layer for DevOpsBench-100 v3.2.5.
 
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
@@ -31,7 +31,7 @@ from xml.sax.saxutils import escape
 from benchmark.devopsbench100 import decision
 
 
-RELEASE_VERSION = "3.2.4"
+RELEASE_VERSION = "3.2.5"
 SEMANTIC_MILESTONE_WEIGHTS = {
     "investigation.scope": 5,
     "investigation.authority": 5,
@@ -90,6 +90,8 @@ SERVICE_ALIASES = {
 }
 TASK_SERVICE_HINTS = {
     "tsk_auth_v1_to_v2": "api-gateway",
+    "tsk_cve_libpayproc": "payments",
+    "tsk_cve_requests": "payments",
     "tsk_impl_backoff": "payments",
     "tsk_impl_cachekey": "search",
     "tsk_impl_chunk": "payments",
@@ -332,6 +334,14 @@ def _mentioned_services(
 
 
 def primary_service(task: dict[str, Any], index: int, category: str = "") -> str:
+    # A task-level service hint identifies the accountable system when the
+    # investigation deliberately crosses a dependency boundary.  Without this
+    # precedence, whichever corroborating service happened to appear last in
+    # the call graph was mislabeled as the owner (for example notifications in
+    # a payments dependency incident).
+    hinted = TASK_SERVICE_HINTS.get(str(task.get("task_id", "")))
+    if hinted:
+        return hinted
     services = _mentioned_services(task)
     if services:
         return services[-1]

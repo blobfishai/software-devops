@@ -234,7 +234,7 @@
       "task_id": "tsk_cve_libpayproc",
       "accepted": true,
       "category": "security_incident",
-      "oracle_steps": 16,
+      "oracle_steps": 27,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -252,7 +252,7 @@
       "task_id": "tsk_cve_pydantic",
       "accepted": true,
       "category": "security_incident",
-      "oracle_steps": 15,
+      "oracle_steps": 25,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -261,7 +261,7 @@
       "task_id": "tsk_cve_requests",
       "accepted": true,
       "category": "security_incident",
-      "oracle_steps": 16,
+      "oracle_steps": 26,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true
@@ -486,7 +486,7 @@
       "task_id": "tsk_detect_inventory",
       "accepted": true,
       "category": "aiops_detection",
-      "oracle_steps": 6,
+      "oracle_steps": 14,
       "oracle_score": 1.0,
       "discriminating_vcode": true,
       "oracle_replay_passed": true

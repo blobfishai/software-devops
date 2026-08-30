@@ -1,5 +1,5 @@
 {
-  "world_id": "env_software_devops_0ec42f0f",
+  "world_id": "env_software_devops_5a8aaf25",
   "blobfish_version": "external-0.2.0",
   "vertical": "software_devops",
   "tenant": "",
@@ -9,7 +9,7 @@
   "engine": "curated",
   "seed": 42,
   "created_at": 1786000000.0,
-  "world_digest": "0ec42f0ffd8a0c32f8827ab4745d11bbf9de50a8e88267f51a7c85b8e026e334",
+  "world_digest": "5a8aaf2521af71f147016512073cfcebd28653cfaed10fb409de89ce92dcacb0",
   "entities": [
     "alert_firings",
     "alert_rules",
@@ -96,10 +96,10 @@
     "documents": 30
   },
   "difficulty": {
-    "hard": 57,
+    "hard": 58,
     "medium": 68,
     "expert": 50,
-    "easy": 12
+    "easy": 11
   },
   "categories": {
     "error_rate_reduction": 8,

@@ -46,9 +46,8 @@
     "ON_TIME"
   ],
   "difficulties": {
-    "easy": 1,
     "expert": 36,
-    "hard": 33,
+    "hard": 34,
     "medium": 30
   },
   "exact_duplicate_prompts": 0,
@@ -90,7 +89,7 @@
   "prompt_tool_hits": [],
   "prompt_words": {
     "max": 172,
-    "median": 130,
+    "median": 131,
     "min": 104
   },
   "quality_gates": {
@@ -115,6 +114,7 @@
     "no_harness_or_grading_leakage_in_prompts": true,
     "no_reference_tool_names_in_prompts": true,
     "no_repeated_leading_prompt_phrase": true,
+    "no_structural_template_clones": true,
     "one_hundred_tasks": true,
     "reference_tool_sequence_similarity": true,
     "repeated_source_harnesses_have_distinct_causal_profiles": true,
@@ -134,20 +134,20 @@
     "standard_capacity_plan"
   ],
   "reference_evidence_reads_per_task": {
-    "max": 30,
+    "max": 34,
     "median": 26,
     "min": 26
   },
   "reference_sequence_max_pair": [
-    "dob100-095-cve-pydantic",
-    "dob100-097-cve-stripe-sdk"
+    "dob100-079-port-collect-open-issues",
+    "dob100-080-port-report-customer-reports"
   ],
-  "reference_sequence_max_pairwise_similarity": 0.94382,
+  "reference_sequence_max_pairwise_similarity": 0.939394,
   "reference_tool_calls": {
     "max": 67,
     "median": 35,
     "min": 32,
-    "total": 3862
+    "total": 3894
   },
   "release_passed": true,
   "repeated_source_profiles_distinct": true,
@@ -158,6 +158,12 @@
   ],
   "semantic_graph_max_pairwise_jaccard": 0.666667,
   "semantic_identity_inputs_ignored": true,
+  "structural_clone_gate": {
+    "identifier_neutral_semantic_threshold": 0.7,
+    "pair_count": 0,
+    "pairs": [],
+    "raw_sequence_threshold": 0.9
+  },
   "task_count": 100,
   "unique_agent_visible_assets": 5300,
   "unique_causal_profile_tool_sequences": 100,
@@ -170,7 +176,7 @@
     "random_calls": 0,
     "wall_clock_reads": 0
   },
-  "version": "3.2.4",
+  "version": "3.2.5",
   "world_commits": 417,
   "world_documents": 30,
   "world_seeded_rows": 1451,

@@ -148,13 +148,13 @@
     {
       "bench_id": "dob100-008-detect-inventory",
       "category": "aiops_detection",
-      "difficulty": "easy",
-      "expected_calls": 6,
+      "difficulty": "hard",
+      "expected_calls": 14,
       "index": 8,
       "rationale": [
         "aiops_detection",
         "easy",
-        "6-call-oracle",
+        "14-call-oracle",
         "curated",
         "hardest-of-category-quota",
         "controls-rejected:pristine"
@@ -1508,12 +1508,12 @@
       "bench_id": "dob100-094-cve-libpayproc",
       "category": "security_incident",
       "difficulty": "hard",
-      "expected_calls": 16,
+      "expected_calls": 27,
       "index": 94,
       "rationale": [
         "security_incident",
         "hard",
-        "16-call-oracle",
+        "27-call-oracle",
         "curated",
         "category-shipped-whole",
         "controls-rejected:naive,pristine"
@@ -1524,12 +1524,12 @@
       "bench_id": "dob100-095-cve-pydantic",
       "category": "security_incident",
       "difficulty": "medium",
-      "expected_calls": 15,
+      "expected_calls": 25,
       "index": 95,
       "rationale": [
         "security_incident",
         "medium",
-        "15-call-oracle",
+        "25-call-oracle",
         "curated",
         "category-shipped-whole",
         "controls-rejected:naive,pristine"
@@ -1540,12 +1540,12 @@
       "bench_id": "dob100-096-cve-requests",
       "category": "security_incident",
       "difficulty": "medium",
-      "expected_calls": 16,
+      "expected_calls": 26,
       "index": 96,
       "rationale": [
         "security_incident",
         "medium",
-        "16-call-oracle",
+        "26-call-oracle",
         "curated",
         "category-shipped-whole",
         "controls-rejected:naive,pristine"

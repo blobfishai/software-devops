@@ -199,6 +199,22 @@ _add("feature_flag", "flag_cleanup", id="checkout_v2_layout_cleanup", flag="chec
 # ==========================================================================
 _add("security_incident", "security_cve", id="cve_libpayproc", service="payments",
      package="libpayproc", fixed="2.4.0", cve="CVE-2026-31337", vuln_id=9801, difficulty="hard",
+     investigation_outcome="Reconcile the payment dependency inventory, live request path, approval control, and recent production evidence before choosing the rollout.",
+     investigation_reads=[
+         {"tool": "get_service", "args": {"service": "payments"}},
+         {"tool": "get_service", "args": {"service": "checkout"}},
+         {"tool": "list_packages", "args": {"service": "payments"}},
+         {"tool": "get_traffic_stats", "args": {}},
+         {"tool": "query_metrics", "args": {"service": "payments"}},
+         {"tool": "search_logs", "args": {"service": "payments"}},
+         {"tool": "read_file", "args": {"path": "src/payments/settlement.py"}},
+         {"tool": "list_commits", "args": {"service": "payments", "limit": 5}},
+         {"tool": "list_approval_policy", "args": {}},
+     ],
+     post_patch_reads=[
+         {"tool": "list_packages", "args": {"service": "payments"}},
+         {"tool": "query_local_deploy_log", "args": {"service": "payments", "environment": "production", "include_rollbacks": True}},
+     ],
      ticket=("SEC-901", "critical", "Patch CVE-2026-31337 in libpayproc (payments)"))
 
 _add("security_incident", "security_cve", id="cve_stripe_sdk", service="checkout",
@@ -207,10 +223,40 @@ _add("security_incident", "security_cve", id="cve_stripe_sdk", service="checkout
 
 _add("security_incident", "security_cve", id="cve_pydantic", service="catalog",
      package="pydantic", fixed="2.11.0", cve="CVE-2026-22190", vuln_id=9803, difficulty="medium",
+     investigation_outcome="Tie the scanner finding to the catalog package inventory, tier-specific deployment policy, CI history, and the version actually running in production.",
+     investigation_reads=[
+         {"tool": "list_packages", "args": {"service": "catalog"}},
+         {"tool": "get_service", "args": {"service": "catalog"}},
+         {"tool": "get_slo_status", "args": {"service": "catalog"}},
+         {"tool": "query_metrics", "args": {"service": "catalog"}},
+         {"tool": "list_deployments", "args": {"service": "catalog", "environment": "production"}},
+         {"tool": "list_ci_runs", "args": {"service": "catalog", "limit": 10}},
+         {"tool": "list_commits", "args": {"service": "catalog", "limit": 5}},
+     ],
+     post_patch_reads=[
+         {"tool": "list_packages", "args": {"service": "catalog"}},
+         {"tool": "list_deployments", "args": {"service": "catalog", "environment": "production"}},
+         {"tool": "list_vulnerabilities", "args": {}},
+     ],
      ticket=("SEC-903", "medium", "Patch CVE-2026-22190 in pydantic (catalog)"))
 
 _add("security_incident", "security_cve", id="cve_requests", service="payments",
      package="requests", fixed="2.33.0", cve="CVE-2026-51002", vuln_id=9804, difficulty="medium",
+     investigation_outcome="Trace the vulnerable HTTP client through the payments-to-notifications path, confirm the owning source and deployment lineage, and prove the live transitive exposure is removed.",
+     investigation_reads=[
+         {"tool": "get_service", "args": {"service": "payments"}},
+         {"tool": "get_service", "args": {"service": "notifications"}},
+         {"tool": "list_packages", "args": {"service": "payments"}},
+         {"tool": "search_code", "args": {"query": "requests", "service": "payments"}},
+         {"tool": "read_file", "args": {"path": "src/payments/notify_client.py"}},
+         {"tool": "check_network_path", "args": {"from_service": "payments", "blocked_only": False}},
+         {"tool": "list_error_events", "args": {"service": "payments"}},
+         {"tool": "query_local_deploy_log", "args": {"service": "payments", "environment": "production", "include_rollbacks": True}},
+     ],
+     post_patch_reads=[
+         {"tool": "list_packages", "args": {"service": "payments"}},
+         {"tool": "check_network_path", "args": {"from_service": "payments", "blocked_only": False}},
+     ],
      ticket=("SEC-904", "high", "Patch CVE-2026-51002 in requests (payments)"))
 
 _add("security_incident", "security_endpoint", id="retire_debug_endpoint", service="api-gateway",
@@ -352,9 +398,21 @@ _add("aiops_detection", "detection", id="detect_payments", scope="payments",
 
 _add("aiops_detection", "detection", id="detect_inventory", scope="inventory",
      service="inventory", fault_detected=True, fault_type="resource_exhaustion",
-     offending_key="db_pool_size", difficulty="easy", budget=8,
-     evidence="inventory error_rate_pct is 4.7 against a 1.0 SLO; alarm 9606 is firing",
-     ticket=("OPS-102", "high", "Detection: is inventory violating its SLOs?"))
+     offending_key="db_pool_size", difficulty="hard", budget=16,
+     causal_diagnosis=True,
+     symptom="Warehouse reservations are timing out during the morning order wave. The alert names inventory, but Operations needs to know whether this is a real capacity failure, where the bottleneck sits, and which setting controls it before changing the production plan.",
+     evidence="inventory error_rate_pct is 4.7 against a 1.0 SLO; the 5-connection pool is exhausted by 128 reservation requests per second across 12 pods",
+     extra_reads=[
+         {"tool": "get_service", "args": {"service": "checkout"}},
+         {"tool": "get_service", "args": {"service": "inventory"}},
+         {"tool": "list_infra", "args": {}},
+         {"tool": "get_traffic_stats", "args": {}},
+         {"tool": "search_logs", "args": {"service": "inventory"}},
+         {"tool": "list_error_events", "args": {"service": "inventory"}},
+         {"tool": "read_file", "args": {"path": "src/main/java/com/novacart/inventory/StockRepository.java"}},
+         {"tool": "list_commits", "args": {"service": "inventory", "limit": 5}},
+     ],
+     ticket=("OPS-102", "high", "Determine whether reservation failures are a capacity incident"))
 
 _add("aiops_detection", "detection", id="detect_storefront_healthy", scope="storefront-web",
      service="storefront-web", fault_detected=False, fault_type="none", difficulty="medium",

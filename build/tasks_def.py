@@ -213,6 +213,9 @@ def _submission(_path):
 
 def _called(_tool):
     return (_one('SELECT COUNT(*) FROM tool_calls WHERE tool=?', _tool) or 0) > 0
+def _call_seq(_tool, _agg='min'):
+    _fn = 'MAX' if _agg == 'max' else 'MIN'
+    return _one('SELECT ' + _fn + '(call_seq) FROM tool_calls WHERE tool=?', _tool) or 0
 def _used(_qid, _system):
     # Derived from the call trace, not from the sources the agent declared:
     # a self-report is not evidence that a system was actually consulted.
@@ -658,12 +661,14 @@ def gen_flag_cleanup(spec):
 def gen_security_cve(spec):
     svc, pkg, fixed = spec["service"], spec["package"], spec["fixed"]
     cve, vid, tkt = spec["cve"], spec["vuln_id"], spec["ticket"][0]
+    investigation_outcome = spec.get("investigation_outcome", "")
     instruction = (
         "%s — %s\n\nThe security scanner reports %s in %s as vulnerable to %s.\n\n"
         "Remediate it in production and leave the audit trail our security policy requires. "
+        "%s "
         "NovaCart's engineering and security policies are documented in the knowledge base and "
         "are not optional.\n\nDone when: the scanner shows %s remediated and %s is closed."
-        % (tkt, spec["ticket"][2], pkg, svc, cve, cve, tkt))
+        % (tkt, spec["ticket"][2], pkg, svc, cve, investigation_outcome, cve, tkt))
     pr_expr = "_merged_pr(%s, %s, 'dependency', '$.package', %s) is not None" % (q(svc), q(tkt), q(pkg))
     checks = [
         ("correctness", "dependency_deployed",
@@ -682,9 +687,28 @@ def gen_security_cve(spec):
     checks.append(("quality", "security_audit_note",
                    "_msg_count('#security', %s) >= 1" % q(cve),
                    "post an audit summary to #security referencing %s" % cve))
+    investigation_reads = list(spec.get("investigation_reads", []))
+    post_patch_reads = list(spec.get("post_patch_reads", []))
+    for index, call in enumerate(investigation_reads, 1):
+        checks.append((
+            "correctness",
+            "source_investigation_%02d_%s" % (index, call["tool"]),
+            "0 < _call_seq(%s) < _call_seq('open_pull_request')" % q(call["tool"]),
+            "the source investigation must use %s before the patch decision" % call["tool"],
+        ))
+    for index, call in enumerate(post_patch_reads, 1):
+        checks.append((
+            "correctness",
+            "post_patch_proof_%02d_%s" % (index, call["tool"]),
+            "_call_seq(%s, 'max') > max(_call_seq('deploy_service', 'max'), _call_seq('promote_canary', 'max'))"
+            % q(call["tool"]),
+            "post-deployment proof must reopen %s" % call["tool"],
+        ))
     common_quality(checks, svc, tkt, pr_expr)
     pr = 9203
-    calls = [{"tool": "get_ticket", "args": {"key": tkt}},
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}}]
+    calls += investigation_reads
+    calls += [
              {"tool": "list_vulnerabilities", "args": {"status": "open"}},
              {"tool": "get_document", "args": {"title": "Security response"}},
              {"tool": "open_pull_request", "args": {
@@ -695,6 +719,7 @@ def gen_security_cve(spec):
     calls += ci_calls(svc, pr)
     calls.append({"tool": "merge_pull_request", "args": {"pr_number": pr}})
     calls += deploy_calls(svc)
+    calls += post_patch_reads
     calls.append({"tool": "list_vulnerabilities", "args": {}})
     calls.append({"tool": "post_message", "args": {
         "channel": "#security",
@@ -1479,14 +1504,20 @@ def gen_detection(spec):
         # status page for customer impact" is an enumerated trap - it lags
         # internal state and can be independently wrong
         # (research/notes/domain/F_chaos_scenarios.md, CS-18).
+        causal_request = (
+            " If it is real, identify the mechanism and exact controlling setting; "
+            "do not stop at restating the alert."
+            if spec.get("causal_diagnosis")
+            else ""
+        )
         instruction = (
             AIOPS_INTRO +
             "%s — %s\n\n%s\n\nWork out which service this is about, determine whether it is "
             "currently violating any of its service level objectives, and submit the result "
             "under scope '%s' — naming the service in the `service` field — with the evidence "
             "you relied on. Report honestly either way: a clean bill of health is a valid "
-            "finding, and so is contradicting a system that says everything is fine."
-            % (tkt, spec["ticket"][2], spec["symptom"], scope))
+            "finding, and so is contradicting a system that says everything is fine.%s"
+            % (tkt, spec["ticket"][2], spec["symptom"], scope, causal_request))
     else:
         instruction = (
             AIOPS_INTRO +
@@ -1509,6 +1540,31 @@ def gen_detection(spec):
                        "(_diagnosis(%s) or {}).get('service') == %s"
                        % (q(scope), q(spec["service"])),
                        "the service behind the symptom is %s" % spec["service"]))
+    if spec.get("causal_diagnosis"):
+        checks.extend([
+            (
+                "correctness",
+                "fault_type_identified",
+                "(_diagnosis(%s) or {}).get('fault_type') == %s"
+                % (q(scope), q(spec["fault_type"])),
+                "identify the supported fault mechanism as %s" % spec["fault_type"],
+            ),
+            (
+                "correctness",
+                "controlling_setting_identified",
+                "(_diagnosis(%s) or {}).get('offending_key') == %s"
+                % (q(scope), q(spec["offending_key"])),
+                "identify %s as the controlling setting" % spec["offending_key"],
+            ),
+        ])
+        for index, call in enumerate(spec.get("extra_reads", []), 1):
+            checks.append((
+                "correctness",
+                "causal_read_%02d_%s" % (index, call["tool"]),
+                "0 < _call_seq(%s) < _call_seq('submit_diagnosis')" % q(call["tool"]),
+                "the causal investigation must use %s before submitting the diagnosis"
+                % call["tool"],
+            ))
     _aiops_common(checks, scope, spec.get("budget", 8))
     checks.append(("quality", "ticket_closed",
                    "_ticket_status(%s) == 'done'" % q(tkt),
@@ -1516,8 +1572,9 @@ def gen_detection(spec):
     checks.append(("quality", "closed_after_the_work",
                    "_closed_after_work(%s)" % q(tkt),
                    "close %s only once the finding is submitted, not before" % tkt))
-    calls = list(spec.get("extra_reads", [])) + [
-             {"tool": "get_ticket", "args": {"key": tkt}},
+    calls = [{"tool": "get_ticket", "args": {"key": tkt}}]
+    calls += list(spec.get("extra_reads", []))
+    calls += [
              {"tool": "get_slo_status", "args": {"service": spec["service"]}},
              {"tool": "query_metrics", "args": {"service": spec["service"]}},
              {"tool": "list_alerts", "args": {"service": spec["service"]}},
