@@ -53,6 +53,7 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
     decision_options as v3_decision_options,
     employee_title as v3_employee_title,
     post_write_verifications as v32_post_write_verifications,
+    prompt_has_coherent_readiness as v32_prompt_has_coherent_readiness,
     rebase_vcode_invariants as v3_rebase_vcode_invariants,
     reference_calls as v3_reference_calls,
     release_prompt as v3_release_prompt,
@@ -65,7 +66,7 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "3.2.3"
+RELEASE_VERSION = "3.2.4"
 MILESTONE_COUNT = len(SEMANTIC_MILESTONE_WEIGHTS)
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
@@ -1291,6 +1292,7 @@ def build(output: pathlib.Path) -> dict:
     prompts = set()
     prompt_values: list[str] = []
     prompt_words: list[int] = []
+    prompt_coherence: list[bool] = []
     prompt_tool_hits: list[dict[str, Any]] = []
     reference_sequences: list[tuple[str, ...]] = []
     source_sequences: list[tuple[str, ...]] = []
@@ -1420,6 +1422,9 @@ def build(output: pathlib.Path) -> dict:
         prompts.add(prompt)
         prompt_values.append(prompt)
         prompt_words.append(len(prompt.split()))
+        prompt_coherence.append(
+            v32_prompt_has_coherent_readiness(row, contract, prompt)
+        )
         named_tools = sorted(
             name
             for name in tools_by_name
@@ -1799,6 +1804,7 @@ def build(output: pathlib.Path) -> dict:
         "no_repeated_leading_prompt_phrase": not any(
             has_repeated_leading_phrase(prompt) for prompt in prompt_values
         ),
+        "single_coherent_operational_objective": all(prompt_coherence),
         "no_harness_or_grading_leakage_in_prompts": all(
             PROMPT_LEAKAGE_PATTERN.search(prompt) is None for prompt in prompts
         ),

@@ -28,6 +28,7 @@ from benchmark.devopsbench100.realism import (
     case_contract,
     employee_title,
     material_context_calls,
+    prompt_has_coherent_readiness,
     reference_calls,
     release_prompt,
     seed_case_evidence,
@@ -137,6 +138,49 @@ class DevOpsRealismTests(unittest.TestCase):
             with self.subTest(task=row["bench_id"]):
                 self.assertIsNone(forbidden.search(prompt), prompt)
                 self.assertIsNotNone(state_authority.search(prompt), prompt)
+
+    def test_readiness_is_part_of_the_primary_operational_outcome(self) -> None:
+        forbidden_appendage = re.compile(
+            r"\b(?:also settle|also needs|also answer|capacity side of this request|"
+            r"add a source-backed capacity plan|finish with the practical cutover choice)\b",
+            re.IGNORECASE,
+        )
+        by_id = {item[0]["bench_id"]: item for item in self.contracts}
+        for row, _source, contract, prompt, _calls, _trace in self.contracts:
+            with self.subTest(task=row["bench_id"]):
+                self.assertTrue(
+                    prompt_has_coherent_readiness(row, contract, prompt), prompt
+                )
+                self.assertIn(contract["planning_subject"].casefold(), prompt.casefold())
+                self.assertIsNone(forbidden_appendage.search(prompt), prompt)
+
+        _row, _source, contract, prompt, _calls, _trace = by_id[
+            "dob100-100-ws-ledger-missing-account"
+        ]
+        self.assertEqual("analytics-worker", contract["service"])
+        self.assertEqual("finance-export worker", contract["planning_subject"])
+        self.assertIn("finance export", prompt.casefold())
+        self.assertNotIn("storefront-web", prompt)
+
+        _row, _source, contract, prompt, _calls, _trace = by_id[
+            "dob100-035-port-close-backlog-issues"
+        ]
+        self.assertEqual("api-gateway", contract["service"])
+        self.assertEqual("engineering-portfolio automation", contract["planning_subject"])
+        self.assertIn("engineering-portfolio automation", prompt)
+
+        _row, _source, contract, prompt, _calls, _trace = by_id[
+            "dob100-091-rcn-production-deploys"
+        ]
+        self.assertEqual("analytics-worker", contract["service"])
+        self.assertEqual("operational-reporting job", contract["planning_subject"])
+        self.assertNotIn("incident lead", prompt.casefold())
+        self.assertNotIn("incident owner", prompt.casefold())
+
+        _row, _source, contract, _prompt, _calls, _trace = by_id[
+            "dob100-033-impl-chunk"
+        ]
+        self.assertEqual("payments", contract["service"])
 
     def test_human_job_recuration_is_idempotent(self) -> None:
         catalog = {

@@ -1,13 +1,15 @@
-# DevOpsBench-100 v3.2 release evidence
+# DevOpsBench-100 v3.2.4 release evidence
 
-DevOpsBench-100 v3.2 is a 100-task benchmark of realistic software engineering,
+DevOpsBench-100 v3.2.4 is a 100-task benchmark of realistic software engineering,
 SRE, incident, delivery, security, and cross-system work in the isolated
 NovaCart sandbox. The employee prompts describe business outcomes and
 conflicting context; they do not prescribe a tool sequence. Agents must resolve
 task identity, distinguish current from retired authority, reconcile live
-systems, derive a graded capacity-plan decision from evidence scattered across
-providers, choose among costed alternatives, make bounded changes, leave a
-content-graded handoff, and reopen the persisted result.
+systems, determine whether the same incident/change/code outcome is operationally
+deliverable, choose among costed alternatives, make bounded changes, leave a
+content-graded handoff, and reopen the persisted result. The readiness question
+is explicitly tied to the primary employee outcome; the release rejects the old
+pattern of appending a generic second assignment for synthetic depth.
 
 This document reports local release evidence only. The v3.2 Harbor and Hugging
 Face trees are prepared but are not described as published until registry
@@ -16,21 +18,21 @@ real agent finishes all 100 exact-release tasks with inspectable trajectories.
 
 ## Release shape
 
-- 100 tasks across 19 operational families; 38 expert, 31 hard, 29 medium,
-  and 2 easy.
+- 100 tasks across 19 operational families; 36 expert, 33 hard, 30 medium,
+  and 1 easy.
 - 97 typed MCP tools over 72 SQLite tables and 1,451 seeded world rows.
 - 100 distinct raw reference tool-name sequences; maximum pair similarity
-  `0.956522`.
-- 100 distinct semantic action graphs; maximum pairwise Jaccard `0.142857`.
-- 24–30 task-specific contextual reads before task work; 18 are materially
+  `0.943820`.
+- 100 distinct semantic action graphs; maximum pairwise Jaccard `0.666667`.
+- 26–30 task-specific contextual reads before task work; 20 are materially
   causal and individually contracted.
-- 34–73 calls per reference trajectory (median 46; 4,563 total).
-- 33 agent-visible evidence files per task: 3,300 globally unique files in
+- 32–67 calls per reference trajectory (median 35; 3,862 total).
+- 53 agent-visible evidence files per task: 5,300 globally unique files in
   CSV, EML, JSON, LOG, Markdown, PDF, SQL, TXT, XLSX, and YAML.
 - 16 public semantic milestones per task totaling exactly 100 points, and
   three explicit costed options with exactly one evidence-supported branch.
-- High-level prompts are 135–219 words, have no exact duplicates, and have a
-  maximum pairwise token Jaccard of `0.606195`.
+- High-level prompts are 104–172 words, have no exact duplicates, and have a
+  maximum pairwise token Jaccard of `0.681416`.
 
 The asset room contains current and retired controls, tracker identities,
 GitHub records, Slack conversations, PagerDuty change history, ownership and
@@ -40,10 +42,18 @@ the vendor capacity order, the change approval record, the Linear reservation
 register, and the customer cutover notice. Oracle state, reference plans, and
 verifier code are not part of the agent-visible asset room.
 
-## Graded capacity-plan decision model (new in v3.2)
+## Graded, outcome-linked readiness decision model
 
-Every task carries a task-specific, fully graded decision chain in the domain's
-own terms:
+Every task carries a task-specific, fully graded decision chain tied to the
+employee's primary objective. An incident conclusion gates that service's
+recovery, a production repair and its cutover are one release decision, a code
+repair is the candidate for its controlled deployment, and a reconciled result
+gates the reporting workflow that publishes it. Stable service hints prevent
+tool verbs or catalog position from inventing an unrelated owner; for example,
+the finance-export repair is deployed through the analytics worker rather than
+an arbitrary storefront service.
+
+The linked readiness chain contains:
 
 - **Requirement** — healthy replicas per zone (Confluence change-readiness
   standard) x production zones (PagerDuty scale record).
@@ -80,7 +90,7 @@ own terms:
 The published task JSON carries the machine-readable contract: a
 `decision_model` (facts, per-field calculations, and the option table),
 `expected.answer` + `expected.answer_checks`, an `answer_schema`,
-`required_investigations` (18 contracted pre-mutation reads with the milestone
+`required_investigations` (20 contracted pre-mutation reads with the milestone
 and verifier check that grade each), `post_write_verifications` (the
 per-mutation provider readbacks exported from the sealed trace contract), and
 `allowed_write_tables`.
@@ -112,7 +122,7 @@ a per-task capability token whose plaintext is not stored in the world image.
 
 ## Executed qualification
 
-`python3 benchmark/devopsbench100/run_suite.py` executed 1,400 pristine-world
+`python3 benchmark/devopsbench100/run_suite.py` executed 1,600 pristine-world
 episodes from the built task packs:
 
 | Gate | Result |
@@ -132,13 +142,17 @@ episodes from the built task packs:
 | `wrong_evidence` rejected | 100 / 100 |
 | `wrong_answer` rejected | 100 / 100 |
 | `unapproved_option` rejected | 100 / 100 |
+| `wrong_target` rejected | 100 / 100 |
+| `keyword_stuffing` rejected | 100 / 100 |
 
 Every negative control applies to every task. There were zero false accepts.
-The two v3.2 controls attack the decision model directly: `wrong_answer`
+The decision controls attack the model directly: `wrong_answer`
 replays a perfect operational episode whose decision record ignores the
 reservation (wrong usable pool and gap), and `unapproved_option` replays a
 perfect episode whose record and handoff select the plan that needs approval
-beyond the recorded change approval. All 100 verifiers reject both.
+beyond the recorded change approval. `wrong_target` proves containment and
+`keyword_stuffing` proves that plausible prose cannot substitute for the exact
+business state. All 100 verifiers reject every control.
 
 Measured reports are committed under `benchmark/devopsbench100/reports/`. The
 sealed release file inventory and manifest SHA-256 are recorded in

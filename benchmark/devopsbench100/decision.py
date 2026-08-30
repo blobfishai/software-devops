@@ -87,6 +87,10 @@ def iso(days: int) -> str:
     return (TODAY + datetime.timedelta(days=days)).isoformat()
 
 
+def planning_subject(contract: dict[str, Any]) -> str:
+    return str(contract.get("planning_subject") or contract["service"])
+
+
 def capacity_plan(
     index: int,
     service: str,
@@ -262,9 +266,10 @@ def capacity_plan(
 def readiness_standard_body(contract: dict[str, Any]) -> str:
     plan = contract["plan"]
     fields = ", ".join(ANSWER_FIELDS)
+    subject = planning_subject(contract)
     return (
-        f"Change-readiness standard for {contract['case_id']} ({contract['service']}), effective under "
-        f"{contract['control_revision']}. Before the {contract['service']} customer cutover is declared ready, the "
+        f"Change-readiness standard for {contract['case_id']} ({subject}), effective under "
+        f"{contract['control_revision']}. Before the {subject} cutover is declared ready, the "
         f"production pool must hold {plan['per_zone']} healthy serving replicas in every production zone. The zone "
         f"count and the current pool size are the PagerDuty scale record for {contract['pd_service_id']}; replicas "
         f"reserved for another team's freeze in the Linear capacity register ({contract['reservation_issue']}) are not "
@@ -283,8 +288,9 @@ def readiness_standard_body(contract: dict[str, Any]) -> str:
 
 def change_window_sentence(contract: dict[str, Any]) -> str:
     plan = contract["plan"]
+    subject = planning_subject(contract)
     return (
-        f"Change windows for {contract['service']}: {', '.join(plan['window_dates'])} at 14:00Z; work outside these "
+        f"Change windows for {subject}: {', '.join(plan['window_dates'])} at 14:00Z; work outside these "
         f"windows requires incident-commander approval. Vendor capacity order {contract['vendor_ticket']} and change "
         f"approval {contract['approval_ticket']} are the authoritative records for the cutover capacity plan."
     )
@@ -295,12 +301,13 @@ def seed_capacity_evidence(cx: Any, contract: dict[str, Any]) -> None:
 
     plan = contract["plan"]
     service = contract["service"]
+    subject = planning_subject(contract)
     cx.execute(
         "INSERT INTO confluence_pages(page_id,space,title,body,last_updated_day,stale) VALUES (?,?,?,?,?,?)",
         (
             contract["readiness_page"],
             "OPS",
-            f"{contract['case_id']} change-readiness standard for {service}",
+            f"{contract['case_id']} change-readiness standard for {subject}",
             readiness_standard_body(contract),
             TODAY_DAY,
             0,
@@ -310,7 +317,7 @@ def seed_capacity_evidence(cx: Any, contract: dict[str, Any]) -> None:
         "INSERT INTO pd_change_events(pd_service_id,summary,day) VALUES (?,?,?)",
         (
             contract["pd_service_id"],
-            f"Scaled {service} production pool to {plan['observed']} replicas across {plan['zones']} zones "
+            f"Scaled the {subject} production pool to {plan['observed']} replicas across {plan['zones']} zones "
             f"({contract['case_id']} capacity baseline)",
             TODAY_DAY - 2,
         ),
@@ -320,7 +327,7 @@ def seed_capacity_evidence(cx: Any, contract: dict[str, Any]) -> None:
         (
             contract["reservation_issue"],
             f"team-{service}",
-            f"{plan['reserved']} {service} replicas reserved for the {plan['neighbor']} freeze until "
+            f"{plan['reserved']} {subject} replicas reserved for the {plan['neighbor']} freeze until "
             f"{plan['freeze_end_date']}; early release needs incident-commander approval and a USD "
             f"{plan['release_fee']} re-provisioning charge ({contract['case_id']})",
             "In Progress",
@@ -336,7 +343,7 @@ def seed_capacity_evidence(cx: Any, contract: dict[str, Any]) -> None:
             (
                 contract["vendor_ticket"],
                 "VEND",
-                f"{VENDOR} capacity order for {contract['case_id']}: {plan['gap']} {service} replicas, standard "
+                f"{VENDOR} capacity order for {contract['case_id']}: {plan['gap']} {subject} replicas, standard "
                 f"delivery {iso(plan['standard_days'])}, expedited delivery {iso(plan['expedited_days'])} for USD "
                 f"{plan['expedite_fee']}",
                 "Vendor Order",
@@ -352,7 +359,7 @@ def seed_capacity_evidence(cx: Any, contract: dict[str, Any]) -> None:
                 contract["approval_ticket"],
                 "CHG",
                 f"Change approval {contract['approval_ticket']} for {contract['case_id']}: the standard and expedited "
-                f"{VENDOR} capacity plans for {service} are approved within the published change windows; releasing "
+                f"{VENDOR} capacity plans for {subject} are approved within the published change windows; releasing "
                 f"reserved capacity or executing outside a window is not approved",
                 "Change",
                 "Done",
@@ -370,7 +377,7 @@ def seed_capacity_evidence(cx: Any, contract: dict[str, Any]) -> None:
         (
             contract["channel"],
             "customer-success",
-            f"The {service} cutover is committed to the customer for {plan['cutover_date']}; please state in the "
+            f"The {subject} cutover is committed for {plan['cutover_date']}; please state in the "
             f"handoff whether the capacity plan lands on time and what it costs.",
         ),
     )
@@ -380,7 +387,7 @@ def status_post_row(contract: dict[str, Any]) -> tuple[Any, ...]:
     plan = contract["plan"]
     return (
         contract["status_post"],
-        f"{contract['case_id']}: {contract['service']} customer cutover scheduled for {plan['cutover_date']}",
+        f"{contract['case_id']}: {planning_subject(contract)} cutover scheduled for {plan['cutover_date']}",
         "none",
         "scheduled",
         TODAY_DAY - 1,
@@ -458,7 +465,7 @@ def handoff_body(contract: dict[str, Any], current_control: str) -> str:
     plan = contract["plan"]
     return (
         f"{contract['case_id']}: evidence-backed handoff complete. Current authority: {current_control}. Capacity plan "
-        f"{plan['recommended_option']}: {contract['service']} reaches {plan['required']} healthy replicas on "
+        f"{plan['recommended_option']}: {planning_subject(contract)} reaches {plan['required']} healthy replicas on "
         f"{iso(plan['recommended_completion'])} ({plan['status']}, {plan['variance']:+d} day(s) versus the "
         f"{plan['cutover_date']} cutover) for USD {plan['recommended_cost']} under change approval "
         f"{contract['approval_ticket']}; binding constraint: {VENDOR} {plan['binding_kind']} capacity on "
@@ -473,7 +480,7 @@ def handoff_body(contract: dict[str, Any], current_control: str) -> str:
 def _calculation_rows(contract: dict[str, Any]) -> list[dict[str, Any]]:
     plan = contract["plan"]
     answer = plan["answer"]
-    service = contract["service"]
+    service = planning_subject(contract)
     rows = [
         ("identify_business_date", "business_need_date", 1.0, f"Preserved {answer['business_need_date']} from the published status-page cutover notice as the control date; did not infer urgency from the ticket title."),
         ("read_replicas_per_zone", "replicas_per_zone", 1.0, f"Read {plan['per_zone']} healthy replicas per production zone from the {contract['case_id']} change-readiness standard."),
@@ -514,7 +521,7 @@ def _calculation_rows(contract: dict[str, Any]) -> list[dict[str, Any]]:
 
 def decision_model(row: dict[str, Any], contract: dict[str, Any], current_control: str) -> dict[str, Any]:
     plan = contract["plan"]
-    service = contract["service"]
+    service = planning_subject(contract)
     facts = [
         {
             "id": "authoritative_identity",
@@ -828,6 +835,6 @@ def unapproved_handoff_body(contract: dict[str, Any], current_control: str) -> s
     plan = contract["plan"]
     return (
         f"{contract['case_id']}: evidence-backed handoff complete. Current authority: {current_control}. Capacity plan {OPTION_RELEASE}: "
-        f"{contract['service']} reaches {plan['required']} healthy replicas on {iso(plan['release_completion'])} "
+        f"{planning_subject(contract)} reaches {plan['required']} healthy replicas on {iso(plan['release_completion'])} "
         f"(ON_TIME) by releasing the reserved capacity under {contract['approval_ticket']}."
     )

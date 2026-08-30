@@ -1,4 +1,4 @@
-"""Causal-evidence release layer for DevOpsBench-100 v3.2.3.
+"""Causal-evidence release layer for DevOpsBench-100 v3.2.4.
 
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
@@ -31,7 +31,7 @@ from xml.sax.saxutils import escape
 from benchmark.devopsbench100 import decision
 
 
-RELEASE_VERSION = "3.2.3"
+RELEASE_VERSION = "3.2.4"
 SEMANTIC_MILESTONE_WEIGHTS = {
     "investigation.scope": 5,
     "investigation.authority": 5,
@@ -90,8 +90,25 @@ SERVICE_ALIASES = {
 }
 TASK_SERVICE_HINTS = {
     "tsk_auth_v1_to_v2": "api-gateway",
+    "tsk_impl_backoff": "payments",
+    "tsk_impl_cachekey": "search",
+    "tsk_impl_chunk": "payments",
     "tsk_impl_ratelimit": "api-gateway",
     "tsk_retire_debug_endpoint": "api-gateway",
+    "tsk_ws_ledger_missing_account": "analytics-worker",
+}
+TASK_PLANNING_SUBJECTS = {
+    "tsk_impl_backoff": "payments retry worker",
+    "tsk_impl_cachekey": "search-cache worker",
+    "tsk_impl_chunk": "payments settlement worker",
+    "tsk_impl_ratelimit": "API rate-limit service",
+    "tsk_ws_ledger_missing_account": "finance-export worker",
+}
+CATEGORY_SERVICE_DEFAULTS = {
+    "cross_system": "api-gateway",
+    "handover": "api-gateway",
+    "reconciliation": "analytics-worker",
+    "workspace": "analytics-worker",
 }
 SERVICE_CONTEXT = {
     "analytics-worker": "Its business boundary is reporting freshness, warehouse replica access, scheduled rollups, and downstream decision data.",
@@ -264,7 +281,9 @@ def _task_id_services(task_id: str) -> list[str]:
     return ordered
 
 
-def _mentioned_services(task: dict[str, Any]) -> list[str]:
+def _mentioned_services(
+    task: dict[str, Any], *, include_hint: bool = True
+) -> list[str]:
     """Resolve service identities from task IDs and structured argument values.
 
     Tool verbs such as ``search_docs`` are not service mentions.  Treating a
@@ -273,9 +292,10 @@ def _mentioned_services(task: dict[str, Any]) -> list[str]:
     """
 
     ordered = _task_id_services(str(task.get("task_id", "")))
-    hinted = TASK_SERVICE_HINTS.get(str(task.get("task_id", "")))
-    if hinted and hinted not in ordered:
-        ordered.append(hinted)
+    if include_hint:
+        hinted = TASK_SERVICE_HINTS.get(str(task.get("task_id", "")))
+        if hinted and hinted not in ordered:
+            ordered.append(hinted)
 
     service_fields = {
         "service",
@@ -311,10 +331,15 @@ def _mentioned_services(task: dict[str, Any]) -> list[str]:
     return ordered
 
 
-def primary_service(task: dict[str, Any], index: int) -> str:
+def primary_service(task: dict[str, Any], index: int, category: str = "") -> str:
     services = _mentioned_services(task)
     if services:
         return services[-1]
+    # Portfolio, reporting, handover, and workspace tasks have a deliberate
+    # execution context.  Resolve it before scanning prose so tool verbs such
+    # as ``jira_search`` cannot accidentally become a Search-service owner.
+    if category in CATEGORY_SERVICE_DEFAULTS:
+        return CATEGORY_SERVICE_DEFAULTS[category]
     blob = json.dumps(
         [task.get("instruction", ""), task.get("expected_calls", [])],
         ensure_ascii=False,
@@ -329,9 +354,9 @@ def primary_service(task: dict[str, Any], index: int) -> str:
 def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
     index = int(row["index"])
     case_id = f"DOB-{index:03d}"
-    service = primary_service(task, index)
+    service = primary_service(task, index, row["category"])
     task_id_services = _mentioned_services(task)
-    explicit_service = bool(task_id_services)
+    explicit_service = bool(_mentioned_services(task, include_hint=False))
     business_scope = service
     business_context = SERVICE_CONTEXT[service]
     mentioned_services = task_id_services
@@ -381,6 +406,14 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
                 "Its business boundary is symptom triage, escalation ownership, safe diagnostic "
                 "commands, and guidance the next engineer can reproduce during an incident."
             )
+    planning_subject = TASK_PLANNING_SUBJECTS.get(str(task.get("task_id")), service)
+    if not explicit_service and str(task.get("task_id")) not in TASK_PLANNING_SUBJECTS:
+        planning_subject = {
+            "cross_system": "engineering-portfolio automation",
+            "handover": "shared on-call platform",
+            "reconciliation": "operational-reporting job",
+            "workspace": "finance-export worker",
+        }.get(row["category"], service)
     secondary_service = next(
         (candidate for candidate in reversed(task_id_services[:-1]) if candidate != service),
         None,
@@ -397,6 +430,7 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
         "service_is_explicit": explicit_service,
         "business_scope": business_scope,
         "business_context": business_context,
+        "planning_subject": planning_subject,
         "secondary_service": secondary_service,
         "topic_context": topic_context,
         "repo": f"novacart/{service}",
@@ -420,20 +454,82 @@ def case_contract(row: dict[str, Any], task: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-CAPACITY_DECISION_CLOSES = (
-    "Before handoff, also settle whether {service} can meet its {cutover} cutover: derive the healthy-replica requirement, subtract reserved capacity from the usable pool, quantify the gap, compare {vendor}'s standard and expedited arrivals against the change windows, cost and approval state of all three options, and persist one recommendation with its signed schedule variance and honest on-time-or-late status.",
-    "The release review also needs a defensible {service} capacity plan for {cutover}. Reconcile required versus genuinely free replicas, the uncovered gap, {vendor}'s confirmed delivery dates, window-bounded completion, incremental cost, and approval scope for each alternative; record the supported choice and restate its timing in the handoff you reopen.",
-    "Include the {cutover} readiness decision in the final handoff. Work from the replica standard, current capacity net of the reservation, the remaining deficit, {vendor}'s two delivery commitments, and the published change calendar; price and authority-label all three paths, then save one recommendation with the exact variance and timing status.",
-    "Management also needs to know whether {service} is realistically ready for {cutover}. Calculate demand, usable supply after reserved capacity, and the shortfall; map standard delivery, paid expedite, and releasing the reservation onto real change windows, costs, and approval limits; persist the chosen plan and verify the handoff that reports it.",
-    "Close the capacity side of this request too: establish the replicas the readiness rule demands, what remains usable after the reservation, the gap {vendor} must cover, and every option's windowed finish, spend, authority, and consequence. Choose one against {cutover}, save the decision, and reopen the note containing its schedule variance.",
-    "For the {service} cutover on {cutover}, reconcile the readiness requirement with the actually available pool, calculate the missing replicas, compare {vendor}'s standard and expedited dates with the release calendar, and evaluate all three costed plans under the recorded approval. Persist the recommendation and verify its on-time-or-late handoff.",
-    "Treat the {cutover} cutover as a real planning decision, not a date copied from a ticket: derive required and usable replicas, the capacity gap, vendor arrival and next eligible window for each path, incremental cost, approval status, and consequence. Record one supported option with exact timing and reopen the handoff that states it.",
-    "The incoming owner also needs the {service} capacity answer for {cutover}. Join the readiness rule, live pool, reservation, vendor order, approval record, and change calendar; show the required, usable, and missing replicas, all three costed completion options, the selected path, its schedule variance, and whether it is honestly on time or late.",
-    "Before closing, resolve the cutover capacity question for {service}. Net the reserved replicas out of current supply, compare the resulting gap with {vendor}'s delivery commitments, place each option into the next valid change window, and make cost and approval tradeoffs explicit. Persist the recommendation and read back the handoff containing the result.",
-    "Add a source-backed capacity plan for the {cutover} milestone: required healthy replicas, usable replicas after the existing reservation, deficit, standard and expedited supply dates, window-constrained completions, costs, approval coverage, and consequences for three alternatives. Save one choice with its variance and timing status, then verify the shared note.",
-    "The final record must also answer whether {service} can carry the {cutover} cutover. Derive demand and free supply, identify the vendor-bound gap, compare three calendar-aware options by completion, cost, authority, and operational consequence, and persist the supported recommendation with an exact on-time-or-late calculation that the reopened handoff repeats.",
-    "Finish with the practical cutover choice: how many healthy replicas {service} needs, how many remain after reserved capacity, what is missing, when {vendor} can supply it, which change window each of three plans can use, what each costs and who may approve it. Record the chosen plan, variance, and timing status and reopen its handoff.",
+READINESS_LINKS = {
+    "investigation": (
+        "That finding is the release gate for the {cutover} recovery of {subject}, so the diagnosis and the readiness decision must describe the same operating reality.",
+        "The incident owner will use this conclusion for the {cutover} release of {subject}; a diagnosis that cannot support that decision is not finished.",
+        "The supported cause controls whether {subject} can enter the recovery window on {cutover}, making this one incident decision rather than a separate planning exercise.",
+    ),
+    "delivery": (
+        "This production change and the {cutover} cutover for {subject} are one release decision.",
+        "The proposed remediation is meant to carry {subject} through the release on {cutover}, so feasibility belongs in the same go-or-no-go call.",
+        "The customer outcome depends on both the scoped change and whether {subject} can safely make the window on {cutover}.",
+    ),
+    "engineering": (
+        "This repaired behavior is the release candidate for the controlled deployment of {subject} on {cutover}.",
+        "The implementation is only useful if {subject} can carry it through the release window on {cutover}.",
+        "Treat the code result as the candidate for the {cutover} deployment of {subject}, with readiness decided before the ticket is closed.",
+    ),
+    "reporting": (
+        "The reconciled result controls the {cutover} operating review for {subject}; delivering the number and establishing that its supporting workflow is ready are one reporting commitment.",
+        "The team will publish this answer for {subject} on {cutover}, so data correctness and delivery readiness must agree.",
+        "This answer gates the reporting window on {cutover} for {subject}; a correct number that cannot be delivered is not a complete operating result.",
+    ),
+    "coordination": (
+        "The requested operating change runs through {subject} and must finish inside the {cutover} business window.",
+        "The cross-system outcome is scheduled through {subject} for {cutover}, so scope and execution readiness belong in one decision.",
+        "The requesting team needs the scoped result from {subject} by {cutover}, not a tracker update that cannot be executed safely.",
+    ),
+}
+
+READINESS_QUESTIONS = (
+    "Can it make that date without taking capacity protected for another team, and is standard supply, paid expedite, or an exception the defensible tradeoff? Leave the dated, costed recommendation where the incoming owner can verify it.",
+    "Which of the available capacity paths is actually supportable once protected load, delivery commitments, change windows, cost, and approval authority are taken seriously? Record the realistic date and any shortfall.",
+    "Give the owner an honest on-time-or-late answer and the best authorised option, including the cost and operational consequence of the alternatives.",
+    "Decide whether the current pool, an expedited addition, or a separately approved exception can support the date without displacing protected work. Preserve the evidence behind the chosen completion.",
+    "What completion can the team responsibly promise, what constraint controls it, and would expediting or seeking broader authority materially improve the result? Record the supported choice in the durable handoff.",
+    "Settle the release promise from the real capacity and calendar, not the target date alone. Compare the feasible paths on timing, spend, authority, and consequence, then leave one verifiable recommendation.",
+    "Is the date achievable under current approval, and if not, what is the earliest defensible outcome? Make the tradeoff between waiting, expediting, and requesting an exception explicit for the next owner.",
+    "Choose the lowest-risk supported path that respects protected capacity and the governed release windows. The final handoff should state its date, cost, approval basis, and schedule variance.",
+    "Resolve whether the committed window can be met and what would have to change to improve it. Distinguish an approved acceleration from an attractive but unauthorised shortcut.",
+    "Give management a decision, not a copied milestone: the supported completion, the binding constraint, the price of acceleration, and the consequence of the option that needs more authority.",
+    "Can the authorised choices deliver on time, and which one offers the best timing-cost tradeoff without borrowing another team's reservation? Save the answer and make it independently checkable.",
+    "State the earliest credible completion and whether it meets the business window. Include the best approved path and the faster or cheaper alternatives that the evidence or authority rules out.",
 )
+
+
+def readiness_family(category: str) -> str:
+    if category == "reconciliation":
+        return "reporting"
+    if category in READ_ONLY_CATEGORIES:
+        return "investigation"
+    if category in DELIVERY_CATEGORIES:
+        return "delivery"
+    if category in ENGINEERING_CATEGORIES:
+        return "engineering"
+    return "coordination"
+
+
+SYNTHETIC_APPENDAGE_PATTERN = re.compile(
+    r"\b(?:also settle|also needs|also answer|capacity side of this request|"
+    r"add a source-backed capacity plan|finish with the practical cutover choice)\b",
+    re.IGNORECASE,
+)
+
+
+def prompt_has_coherent_readiness(
+    row: dict[str, Any], contract: dict[str, Any], prompt: str
+) -> bool:
+    subject = str(contract["planning_subject"])
+    return (
+        subject.casefold() in prompt.casefold()
+        and str(contract["plan"]["cutover_date"]) in prompt
+        and SYNTHETIC_APPENDAGE_PATTERN.search(prompt) is None
+        and any(
+            link.split("{", 1)[0].casefold() in prompt.casefold()
+            for link in READINESS_LINKS[readiness_family(row["category"])]
+        )
+    )
 
 
 def release_prompt(
@@ -504,7 +600,9 @@ def release_prompt(
     # on the same service never become wording variants merely because their
     # catalog positions share a remainder.
     position = (ordinal % 12 + ordinal // 12) % 12
-    if row["category"] in READ_ONLY_CATEGORIES:
+    if row["category"] == "reconciliation":
+        close = coordination_closes[position]
+    elif row["category"] in READ_ONLY_CATEGORIES:
         close = investigation_closes[position]
     elif row["category"] in DELIVERY_CATEGORIES:
         close = delivery_closes[position]
@@ -521,25 +619,30 @@ def release_prompt(
         f"For {contract.get('business_scope', contract['service'])}, the affected business boundary includes",
     )
     topic_context = contract.get("topic_context", "")
-    # Use a second coprime cadence for the planning paragraph.  It prevents
-    # two jobs from inheriting both the same operational close and the same
-    # capacity language merely because their catalog indices collide modulo
-    # twelve.
-    capacity_position = (ordinal * 5 + ordinal // 12) % 12
-    capacity_close = CAPACITY_DECISION_CLOSES[capacity_position].format(
-        service=contract["service"],
+    # The readiness decision is a consequence of the primary employee outcome,
+    # never a second generic assignment appended for benchmark depth.
+    family = readiness_family(row["category"])
+    links = READINESS_LINKS[family]
+    link = links[(ordinal * 2 + ordinal // 12) % len(links)].format(
+        subject=contract["planning_subject"],
         cutover=contract["plan"]["cutover_date"],
-        vendor=decision.VENDOR,
     )
+    readiness_question = READINESS_QUESTIONS[
+        (ordinal * 5 + ordinal // 12) % len(READINESS_QUESTIONS)
+    ]
+    readiness_close = f"{link} {readiness_question}"
     attempts = (
-        (employee_request.strip(), service_context, topic_context, close, capacity_close),
-        (employee_request.strip(), service_context, "", close, capacity_close),
-        (employee_request.strip(), service_context, "", "", capacity_close),
-        (employee_request.strip(), "", "", "", capacity_close),
+        (employee_request.strip(), service_context, topic_context, close, readiness_close),
+        (employee_request.strip(), service_context, "", close, readiness_close),
+        (employee_request.strip(), service_context, "", "", readiness_close),
+        (employee_request.strip(), "", "", "", readiness_close),
     )
     for parts in attempts:
         prompt = re.sub(r"\s+", " ", " ".join(part for part in parts if part)).strip()
-        if len(prompt.split()) <= MAX_PROMPT_WORDS:
+        if (
+            len(prompt.split()) <= MAX_PROMPT_WORDS
+            and prompt_has_coherent_readiness(row, contract, prompt)
+        ):
             return prompt
     raise ValueError(f"{row['bench_id']} cannot fit its high-level request in {MAX_PROMPT_WORDS} words")
 
@@ -1308,11 +1411,18 @@ def _causal_live_state_calls(
                 {"tool": "list_approval_policy", "args": {}},
             ],
             "rcn_production_deploys": [
-                {"tool": "query_local_deploy_log", "args": {"service": service}},
-                {"tool": "resolve_service_alias", "args": {"name": service}},
-                {"tool": "list_deployments", "args": {"service": service}},
+                {"tool": "query_local_deploy_log", "args": {"since_day": 414}},
+                {
+                    "tool": "query_local_deploy_log",
+                    "args": {
+                        "environment": "production",
+                        "since_day": 414,
+                        "include_rollbacks": False,
+                    },
+                },
+                {"tool": "list_deployments", "args": {}},
                 {"tool": "pd_list_change_events", "args": {"since_day": EVIDENCE_WINDOW_START}},
-                {"tool": "list_commits", "args": {"service": service}},
+                {"tool": "list_commits", "args": {}},
                 {"tool": "get_status_page", "args": {"limit": 20}},
             ],
             "upsell": [
@@ -1892,6 +2002,7 @@ def required_investigations(
 
     plan = contract["plan"]
     service = contract["service"]
+    planning_subject = decision.planning_subject(contract)
     descriptions = {
         ("jira_get_issue", contract["case_id"]): f"Located {contract['case_id']} by immutable Jira key rather than title similarity.",
         ("list_issue_links", None): f"Bound {contract['case_id']} to its linked GitHub record through the cross-tracker registry.",
@@ -1899,14 +2010,14 @@ def required_investigations(
         ("confluence_search", None): f"Located current, retired, and readiness controls for {contract['case_id']} by page identity.",
         ("confluence_get_page", contract["current_page"]): f"Applied {CURRENT_CONTROL} and its {service} change windows: {', '.join(plan['window_dates'])}.",
         ("confluence_get_page", contract["retired_page"]): f"Recognized {RETIRED_CONTROL} as historical evidence, not current authority.",
-        ("confluence_get_page", contract["readiness_page"]): f"Established the requirement of {plan['per_zone']} healthy replicas in each production zone.",
+        ("confluence_get_page", contract["readiness_page"]): f"Established the {planning_subject} requirement of {plan['per_zone']} healthy replicas in each production zone.",
         ("jira_get_issue", contract["vendor_ticket"]): f"Read {decision.VENDOR} order {contract['vendor_ticket']}, including both confirmed delivery dates and expedite cost.",
         ("jira_get_issue", contract["approval_ticket"]): f"Applied approval {contract['approval_ticket']} only to its documented capacity scope.",
         ("linear_list_issues", None): f"Excluded {plan['reserved']} replicas reserved for the {plan['neighbor']} freeze.",
         ("list_status_page_posts", None): f"Preserved {plan['cutover_date']} as the independent customer need date.",
         ("list_messages", None): f"Separated the case-room business request from formal operational authority for {service}.",
         ("read_owner_spreadsheet", None): f"Confirmed the accountable {service} owner and scoped case channel.",
-        ("pd_list_change_events", None): f"Read the live pool record: {plan['observed']} replicas across {plan['zones']} zones.",
+        ("pd_list_change_events", None): f"Read the live {planning_subject} pool record: {plan['observed']} replicas across {plan['zones']} zones.",
     }
     investigations: list[dict[str, Any]] = []
     number = 0
@@ -2829,6 +2940,7 @@ def semantic_milestones(
     delivery_story = _check_story(grouped["execution.delivery"], limit=20)
     behavior_story = AUTHORED_BEHAVIOR_OUTCOMES.get(str(row.get("task_id")), "")
     plan = contract["plan"]
+    planning_subject = decision.planning_subject(contract)
 
     def combine_stories(*stories: str) -> str:
         return "; ".join(dict.fromkeys(story for story in stories if story))
@@ -2879,7 +2991,7 @@ def semantic_milestones(
             + (f" Preserve this additional control: {analysis_story}." if analysis_story else "")
         ),
         "analysis.capacity_plan": (
-            f"For “{outcome}”, derive the separate cutover-readiness answer from scattered "
+            f"Prove that the same outcome for “{outcome}” is deliverable through {planning_subject}, using scattered "
             f"records: {plan['per_zone']} healthy replicas per zone across {plan['zones']} "
             f"zones means {plan['required']} required; {plan['observed']} observed less "
             f"{plan['reserved']} reserved for {plan['neighbor']} leaves {plan['usable']} usable "
@@ -2893,7 +3005,7 @@ def semantic_milestones(
             f"{state_story}. Reject a stale-record shortcut, an unsupported hold, and any broader workaround."
         ),
         "decision.options": (
-            f"Compare three concrete readiness options for “{outcome}”: standard capacity "
+            f"Compare three concrete, linked readiness options for “{outcome}” through {planning_subject}: standard capacity "
             f"finishes {decision.iso(plan['standard_completion'])} at USD 0; expedited "
             f"capacity finishes {decision.iso(plan['expedited_completion'])} at USD "
             f"{plan['expedite_fee']}; releasing reserved capacity finishes "

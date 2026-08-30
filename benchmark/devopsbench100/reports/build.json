@@ -85,13 +85,13 @@
     "median": 2,
     "min": 1
   },
-  "prompt_max_pairwise_jaccard": 0.691729,
+  "prompt_max_pairwise_jaccard": 0.681416,
   "prompt_repeated_leading_phrases": 0,
   "prompt_tool_hits": [],
   "prompt_words": {
-    "max": 177,
-    "median": 132,
-    "min": 108
+    "max": 172,
+    "median": 130,
+    "min": 104
   },
   "quality_gates": {
     "all_agent_visible_assets_unique": true,
@@ -123,6 +123,7 @@
     "semantic_milestone_weights": true,
     "semantic_public_milestones": true,
     "sequence_diversity_is_not_identifier_permutation": true,
+    "single_coherent_operational_objective": true,
     "three_options_one_selected": true,
     "unique_causal_evidence_profiles": true,
     "unique_reference_tool_sequences": true,
@@ -169,7 +170,7 @@
     "random_calls": 0,
     "wall_clock_reads": 0
   },
-  "version": "3.2.1",
+  "version": "3.2.4",
   "world_commits": 417,
   "world_documents": 30,
   "world_seeded_rows": 1451,
