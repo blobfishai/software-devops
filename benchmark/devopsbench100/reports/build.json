@@ -1,10 +1,10 @@
 {
-  "agent_visible_asset_count": 5100,
+  "agent_visible_asset_count": 5300,
   "asset_leakage_hits": [],
   "assets_per_task": {
-    "max": 51,
-    "median": 51,
-    "min": 51
+    "max": 53,
+    "median": 53,
+    "min": 53
   },
   "benchmark": "DevOpsBench-100",
   "categories": {
@@ -58,15 +58,15 @@
   },
   "identifier_or_group_permutation_used": false,
   "material_assets_per_task": {
-    "max": 18,
-    "median": 18,
-    "min": 18
+    "max": 20,
+    "median": 20,
+    "min": 20
   },
   "material_evidence_outputs_nonempty": true,
   "material_evidence_reads_per_task": {
-    "max": 18,
-    "median": 18,
-    "min": 18
+    "max": 20,
+    "median": 20,
+    "min": 20
   },
   "native_asset_formats": [
     "csv",
@@ -133,20 +133,20 @@
     "standard_capacity_plan"
   ],
   "reference_evidence_reads_per_task": {
-    "max": 28,
-    "median": 23,
-    "min": 19
+    "max": 30,
+    "median": 26,
+    "min": 26
   },
   "reference_sequence_max_pair": [
-    "dob100-074-catalog-cache-ttl",
-    "dob100-076-gateway-pool-reuse"
+    "dob100-095-cve-pydantic",
+    "dob100-097-cve-stripe-sdk"
   ],
-  "reference_sequence_max_pairwise_similarity": 0.948718,
+  "reference_sequence_max_pairwise_similarity": 0.94382,
   "reference_tool_calls": {
-    "max": 65,
-    "median": 32,
-    "min": 26,
-    "total": 3506
+    "max": 67,
+    "median": 35,
+    "min": 32,
+    "total": 3862
   },
   "release_passed": true,
   "repeated_source_profiles_distinct": true,
@@ -158,7 +158,7 @@
   "semantic_graph_max_pairwise_jaccard": 0.666667,
   "semantic_identity_inputs_ignored": true,
   "task_count": 100,
-  "unique_agent_visible_assets": 5100,
+  "unique_agent_visible_assets": 5300,
   "unique_causal_profile_tool_sequences": 100,
   "unique_reference_tool_name_sequences": 100,
   "unique_semantic_action_graphs": 100,
@@ -169,7 +169,7 @@
     "random_calls": 0,
     "wall_clock_reads": 0
   },
-  "version": "3.2.0",
+  "version": "3.2.1",
   "world_commits": 417,
   "world_documents": 30,
   "world_seeded_rows": 1451,

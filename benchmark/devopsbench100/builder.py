@@ -44,6 +44,7 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
     CURRENT_CONTROL,
     MATERIAL_ASSET_COUNT,
     MATERIAL_CONTEXT_CALLS,
+    MINIMUM_REFERENCE_CONTEXT_CALLS,
     MAX_PROMPT_WORDS,
     SEMANTIC_MILESTONE_WEIGHTS,
     allowed_write_tables as v32_allowed_write_tables,
@@ -64,7 +65,7 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "3.2.0"
+RELEASE_VERSION = "3.2.1"
 MILESTONE_COUNT = len(SEMANTIC_MILESTONE_WEIGHTS)
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
@@ -1828,7 +1829,9 @@ def build(output: pathlib.Path) -> dict:
             min(material_context_counts) == MATERIAL_CONTEXT_CALLS
             and max(material_context_counts) == MATERIAL_CONTEXT_CALLS
         ),
-        "deep_reference_investigation": min(context_counts) >= MATERIAL_CONTEXT_CALLS,
+        "deep_reference_investigation": (
+            min(context_counts) >= MINIMUM_REFERENCE_CONTEXT_CALLS
+        ),
         "explicit_postwrite_readback": min(postwrite_readback_counts) >= 1,
         "long_horizon_reference": min(call_counts) >= 25,
         "deep_task_assets": (

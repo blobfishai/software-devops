@@ -289,11 +289,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "c19426cc09af0ec6efe56d2e47a13fbef77c3a606a24dbcc0c9796d55ec33177",
+      "oracle_report_sha256": "c6531c0a6ebcca3debc9c4b34f967c6a3f417a6b98b0c6fb26ff8e8a4fc581f7",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "c19426cc09af0ec6efe56d2e47a13fbef77c3a606a24dbcc0c9796d55ec33177",
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "c6531c0a6ebcca3debc9c4b34f967c6a3f417a6b98b0c6fb26ff8e8a4fc581f7",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -600,11 +600,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "a32474faa54d8ea09ad43c1e2876d3ca943046427bdddfecb49f1189e5f6ea5f",
+      "oracle_report_sha256": "593000857f7cdc294b2ca123d9714dfc25261c7a33e8d90f8e32f467d3bc3b97",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "a32474faa54d8ea09ad43c1e2876d3ca943046427bdddfecb49f1189e5f6ea5f",
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "593000857f7cdc294b2ca123d9714dfc25261c7a33e8d90f8e32f467d3bc3b97",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -913,11 +913,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "9ab8c39040f52cee933e1d5b26272a1099e931f2ef7f036c033786ac537c32a5",
+      "oracle_report_sha256": "e2971de5c90c0c5755d6809d800c9e8291e1a5a04f5bfb9a05eba261d246260e",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 33,
-      "second_oracle_report_sha256": "9ab8c39040f52cee933e1d5b26272a1099e931f2ef7f036c033786ac537c32a5",
+      "oracle_successful_tool_calls": 35,
+      "second_oracle_report_sha256": "e2971de5c90c0c5755d6809d800c9e8291e1a5a04f5bfb9a05eba261d246260e",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -1224,11 +1224,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "8472fe852fd0c4ecad5e58f5072962b3f9b85af1df8135f704a31a903ec3e3d5",
+      "oracle_report_sha256": "2a688cafe5d6e68fd28f1f7435e6b837c6fd7f14ee2f4cc4f678d1e4d1a2407f",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "8472fe852fd0c4ecad5e58f5072962b3f9b85af1df8135f704a31a903ec3e3d5",
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "2a688cafe5d6e68fd28f1f7435e6b837c6fd7f14ee2f4cc4f678d1e4d1a2407f",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -1535,11 +1535,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "15431bb6451d5ab5e9ae41667d86a23b91bce417d9244d30ba913f04e7f6c3d5",
+      "oracle_report_sha256": "7a66c54d24f82aa612ac2a817b0268e057463d6b5cf84bfdfdf507f44a43cf79",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 31,
-      "second_oracle_report_sha256": "15431bb6451d5ab5e9ae41667d86a23b91bce417d9244d30ba913f04e7f6c3d5",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "7a66c54d24f82aa612ac2a817b0268e057463d6b5cf84bfdfdf507f44a43cf79",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -1846,11 +1846,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "0744d24184db97347bde8bd81879fab5413e83c2835e1b25413c85dea258f0f8",
+      "oracle_report_sha256": "410ba90687272c25e4651633c45f9bc70aec5d9e3f58248819d43d76a27327a7",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 30,
-      "second_oracle_report_sha256": "0744d24184db97347bde8bd81879fab5413e83c2835e1b25413c85dea258f0f8",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "410ba90687272c25e4651633c45f9bc70aec5d9e3f58248819d43d76a27327a7",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -2153,11 +2153,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "9d4cafbd484d5f4ce3069b0e81a7e1f582c84c5dae633ca863f6778f991c5b2c",
+      "oracle_report_sha256": "9a2cbfd3ad2d1959931c2864a19513c58917063d1782ae6e42ef7cad96b505a7",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "9d4cafbd484d5f4ce3069b0e81a7e1f582c84c5dae633ca863f6778f991c5b2c",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "9a2cbfd3ad2d1959931c2864a19513c58917063d1782ae6e42ef7cad96b505a7",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -2460,11 +2460,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "0847ed271695142039a09828c346335bbde0bd4d9b4970ce8fb8bddc8401947a",
+      "oracle_report_sha256": "c0ba5e6a02645c4f5b7c3f4cd8e5509dc5a321b1d0980d5ca843b21667b95020",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "0847ed271695142039a09828c346335bbde0bd4d9b4970ce8fb8bddc8401947a",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "c0ba5e6a02645c4f5b7c3f4cd8e5509dc5a321b1d0980d5ca843b21667b95020",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -2690,11 +2690,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "9f6aa3fe832e585f7ce76eed66e187b1b57c6a5079bfb9db0cba2e3f14c69c2c",
+      "oracle_report_sha256": "f04ae94a65842554ca3845eab5f10ea686c600ec7f0c56f84bc3ac853f10e4a1",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 28,
-      "second_oracle_report_sha256": "9f6aa3fe832e585f7ce76eed66e187b1b57c6a5079bfb9db0cba2e3f14c69c2c",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "f04ae94a65842554ca3845eab5f10ea686c600ec7f0c56f84bc3ac853f10e4a1",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -2999,11 +2999,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "f90184adf43cb91de6ee0b8a373da3c4a28241af47c87cfe0a979f2715875387",
+      "oracle_report_sha256": "ae4dd86c0eaaa5cd95bd95abd4bdedc96470ab2d350c12ab6e21e7dca6c4326b",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "f90184adf43cb91de6ee0b8a373da3c4a28241af47c87cfe0a979f2715875387",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "ae4dd86c0eaaa5cd95bd95abd4bdedc96470ab2d350c12ab6e21e7dca6c4326b",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -3306,11 +3306,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "8149b29eec70b3be7057f4c90998d66540b5a5054a447921d548caf05f14a13a",
+      "oracle_report_sha256": "fe3c9bf73e160735e2bbaf7dfc35cdace0f0b0558218984ea79d5b471e9bbc7f",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "8149b29eec70b3be7057f4c90998d66540b5a5054a447921d548caf05f14a13a",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "fe3c9bf73e160735e2bbaf7dfc35cdace0f0b0558218984ea79d5b471e9bbc7f",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -3615,11 +3615,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "6fe12a41015ffb482e7fac2954027490bdde0bd0724e03e5c04f9a44445168cc",
+      "oracle_report_sha256": "4a1602d67247de68bce028f6250ba759169b502a22257c639feab8c9c6a35a9f",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 29,
-      "second_oracle_report_sha256": "6fe12a41015ffb482e7fac2954027490bdde0bd0724e03e5c04f9a44445168cc",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "4a1602d67247de68bce028f6250ba759169b502a22257c639feab8c9c6a35a9f",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -3924,11 +3924,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "4514057c8f0328cbff71ad622d314b71514a0b87b20f31869a63f4ef2f03e93a",
+      "oracle_report_sha256": "1c23692b43c3a0f66d2ca2961f5a715a6ac11ee175f80c4f4ac00da2cb49e4bc",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 28,
-      "second_oracle_report_sha256": "4514057c8f0328cbff71ad622d314b71514a0b87b20f31869a63f4ef2f03e93a",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "1c23692b43c3a0f66d2ca2961f5a715a6ac11ee175f80c4f4ac00da2cb49e4bc",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -4233,11 +4233,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "3147ce6959fa8324efa33bed0b2040a765ea2d619376564466841d5f32475aae",
+      "oracle_report_sha256": "ddbac109a4aecf38cbf1a222e467fbe41039225c797dca3beb8b4167520039ac",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 31,
-      "second_oracle_report_sha256": "3147ce6959fa8324efa33bed0b2040a765ea2d619376564466841d5f32475aae",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "ddbac109a4aecf38cbf1a222e467fbe41039225c797dca3beb8b4167520039ac",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -4542,11 +4542,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "e85bdb404d2bb93f560710d18f13b346cf8fc09d033e3f61d00463027bfdf66a",
+      "oracle_report_sha256": "ca6842a9a4e1dbb67bd1655c1f7b6ba73ea5e47b00d831c1e85344c583b555de",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 29,
-      "second_oracle_report_sha256": "e85bdb404d2bb93f560710d18f13b346cf8fc09d033e3f61d00463027bfdf66a",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "ca6842a9a4e1dbb67bd1655c1f7b6ba73ea5e47b00d831c1e85344c583b555de",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -4851,11 +4851,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "5a59692150b58486337b52a18a7d454720935f727930956f8ea8321792886399",
+      "oracle_report_sha256": "77f93b2a7bdd30f1a21a95543b8bc7fe9a23504c9713b20ea0dad6e307816a77",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 29,
-      "second_oracle_report_sha256": "5a59692150b58486337b52a18a7d454720935f727930956f8ea8321792886399",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "77f93b2a7bdd30f1a21a95543b8bc7fe9a23504c9713b20ea0dad6e307816a77",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -5174,11 +5174,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "ca616ce00c3ac822988d516a17f6aaeaed2e1033268b5e027d427d7fe6c76a5f",
+      "oracle_report_sha256": "026c80bcde1e280e27a75f0b1cd5829d73e23b194100af1c0c0956540325097e",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 58,
-      "second_oracle_report_sha256": "ca616ce00c3ac822988d516a17f6aaeaed2e1033268b5e027d427d7fe6c76a5f",
+      "oracle_successful_tool_calls": 63,
+      "second_oracle_report_sha256": "026c80bcde1e280e27a75f0b1cd5829d73e23b194100af1c0c0956540325097e",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -5485,11 +5485,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "313d3d736d3d6837fe4596ce0a61a686ef9fcdddd2fc852115e3a858af77fe99",
+      "oracle_report_sha256": "283d7f842acf54d7ccc86f5d78c1877935ad145672659f7a4f33743344f410e2",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 31,
-      "second_oracle_report_sha256": "313d3d736d3d6837fe4596ce0a61a686ef9fcdddd2fc852115e3a858af77fe99",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "283d7f842acf54d7ccc86f5d78c1877935ad145672659f7a4f33743344f410e2",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -5796,11 +5796,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "bd5bb146f18046c2eaac1f197f8a803b389e52a9ad5eee3d378a20135ab6087f",
+      "oracle_report_sha256": "1cd2f28876fa3373246a364dd960999979fde12cf7aa4f7efdef87e82ee67dd0",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "bd5bb146f18046c2eaac1f197f8a803b389e52a9ad5eee3d378a20135ab6087f",
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "1cd2f28876fa3373246a364dd960999979fde12cf7aa4f7efdef87e82ee67dd0",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -6107,11 +6107,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "bef63e213d932163dad5bb845b935228a94cc482fefc3b83c230aa74988984b3",
+      "oracle_report_sha256": "f17cf826fead43cd8619ca38311497c9db08f81eeac8ec68f1ac7641162bd2a2",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "bef63e213d932163dad5bb845b935228a94cc482fefc3b83c230aa74988984b3",
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "f17cf826fead43cd8619ca38311497c9db08f81eeac8ec68f1ac7641162bd2a2",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -6418,11 +6418,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "677abc8e1431236e2e7e9269a786c03eaf971f049a912726fafeb64605bd0d54",
+      "oracle_report_sha256": "8a8b8acb7e9c0e2082435b9f4351072eb54ca7cf7dc787eedb9fe142eb26a07b",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 30,
-      "second_oracle_report_sha256": "677abc8e1431236e2e7e9269a786c03eaf971f049a912726fafeb64605bd0d54",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "8a8b8acb7e9c0e2082435b9f4351072eb54ca7cf7dc787eedb9fe142eb26a07b",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -6729,11 +6729,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "752552ff2ca3cf6146dc7d404ca76b425c5aaa6f6c09cfb7041103906e75f5d0",
+      "oracle_report_sha256": "66a8e30021f04bc95f560cffa02b2dc4f8f882fa6c94f6c47518a77919575428",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 33,
-      "second_oracle_report_sha256": "752552ff2ca3cf6146dc7d404ca76b425c5aaa6f6c09cfb7041103906e75f5d0",
+      "oracle_successful_tool_calls": 35,
+      "second_oracle_report_sha256": "66a8e30021f04bc95f560cffa02b2dc4f8f882fa6c94f6c47518a77919575428",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -7040,11 +7040,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "9799a29ba4ba25d96b1083dcd99cfb0a42b523d7de502f08ab2a0ecaff5ee902",
+      "oracle_report_sha256": "a9743969c9572b91a6ad5ed9f1ae41d700d560b63f5d309d5e8c30fa9b663b6c",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "9799a29ba4ba25d96b1083dcd99cfb0a42b523d7de502f08ab2a0ecaff5ee902",
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "a9743969c9572b91a6ad5ed9f1ae41d700d560b63f5d309d5e8c30fa9b663b6c",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -7355,11 +7355,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "8127ca9fd0c9a986b721a445b9bb00b8d7af98ed29ca838ffc174678190552c6",
+      "oracle_report_sha256": "eddf94b841037af970cdc901693c1fe302a2203a1c5dde15d867468eddee2548",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "8127ca9fd0c9a986b721a445b9bb00b8d7af98ed29ca838ffc174678190552c6",
+      "oracle_successful_tool_calls": 38,
+      "second_oracle_report_sha256": "eddf94b841037af970cdc901693c1fe302a2203a1c5dde15d867468eddee2548",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -7666,11 +7666,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "91a00ff37e7e4ac907819225861447f5b2086709537e03178900db23ede1c469",
+      "oracle_report_sha256": "053b13ce215fdb776c9ab6442711168edde5ecfe2c90fdc30ae7c8d194ba8237",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 30,
-      "second_oracle_report_sha256": "91a00ff37e7e4ac907819225861447f5b2086709537e03178900db23ede1c469",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "053b13ce215fdb776c9ab6442711168edde5ecfe2c90fdc30ae7c8d194ba8237",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -7977,11 +7977,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "998c3f2614fd9368830bd482d2aaa473a847feacc03a5e2b039cde4478dbeae9",
+      "oracle_report_sha256": "4b3f2e08fc157163497d7080dc56d6178471158d948365e15c59c396f4bfa383",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 31,
-      "second_oracle_report_sha256": "998c3f2614fd9368830bd482d2aaa473a847feacc03a5e2b039cde4478dbeae9",
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "4b3f2e08fc157163497d7080dc56d6178471158d948365e15c59c396f4bfa383",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -8288,11 +8288,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "80d6d1d73d2e8dde001f06a23bbfc4314fbbd665ffb6e3f1c8aedffd0824fdfa",
+      "oracle_report_sha256": "b00c859f6c33295ed82a39ab98d719823d7723678cbb09aba86166832cc18a50",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "80d6d1d73d2e8dde001f06a23bbfc4314fbbd665ffb6e3f1c8aedffd0824fdfa",
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "b00c859f6c33295ed82a39ab98d719823d7723678cbb09aba86166832cc18a50",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -8599,11 +8599,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "9bb6388aebbdb7f7ce038af46153ed7562acad33893351bdd9812fbfe007fde0",
+      "oracle_report_sha256": "96a7acc306dda2b10663b7998523be933c4dd00bcf3f1e4a431d1f2f0747d2f3",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 34,
-      "second_oracle_report_sha256": "9bb6388aebbdb7f7ce038af46153ed7562acad33893351bdd9812fbfe007fde0",
+      "oracle_successful_tool_calls": 36,
+      "second_oracle_report_sha256": "96a7acc306dda2b10663b7998523be933c4dd00bcf3f1e4a431d1f2f0747d2f3",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -8910,11 +8910,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "61ab9dba28a8b50928daac2272b1f50c61e761bf4fe2f9f5a1c99f7fa67beba7",
+      "oracle_report_sha256": "eed8414537235cfcb50f0bc86fda0617e0ba0ef9b8d80d09953f3e39dfa093d1",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "61ab9dba28a8b50928daac2272b1f50c61e761bf4fe2f9f5a1c99f7fa67beba7",
+      "oracle_successful_tool_calls": 34,
+      "second_oracle_report_sha256": "eed8414537235cfcb50f0bc86fda0617e0ba0ef9b8d80d09953f3e39dfa093d1",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -9152,11 +9152,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "c7d8396a307b72adbb1a641283de61dd99789af3927aea6fe4d21b5c9d8aec8c",
+      "oracle_report_sha256": "d8a6521499ac36522b00b0432e6057efb6e3df537be12490fe0816d78503c193",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "c7d8396a307b72adbb1a641283de61dd99789af3927aea6fe4d21b5c9d8aec8c",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "d8a6521499ac36522b00b0432e6057efb6e3df537be12490fe0816d78503c193",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -9461,11 +9461,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "7ac25b954a48a9a108ca29c97618e18ea920a78ba6f3ec4c4dd80dd8fa89f862",
+      "oracle_report_sha256": "98c33f7c010517b781cbf33ad95a677a0da452ef08819e69c1b0ba1a0e35db5e",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "7ac25b954a48a9a108ca29c97618e18ea920a78ba6f3ec4c4dd80dd8fa89f862",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "98c33f7c010517b781cbf33ad95a677a0da452ef08819e69c1b0ba1a0e35db5e",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -9768,11 +9768,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "4e1f8a9a92b7ccdd8d886b99233ed8208c6c3459a4099442b80ff92c1c320582",
+      "oracle_report_sha256": "74156b37029e064227de8dc7921d776372c988cb1ccc5d99b2445b1aed256cbb",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 29,
-      "second_oracle_report_sha256": "4e1f8a9a92b7ccdd8d886b99233ed8208c6c3459a4099442b80ff92c1c320582",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "74156b37029e064227de8dc7921d776372c988cb1ccc5d99b2445b1aed256cbb",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -10077,11 +10077,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "2b2d4199800a0539d0850f6fc81d9a68a5ec2c326aeb0a534c588bd02f7e957f",
+      "oracle_report_sha256": "9054184071c0034dd7841ebfd44064b9cf99edf681f4e9db6880161fb0c7d748",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "2b2d4199800a0539d0850f6fc81d9a68a5ec2c326aeb0a534c588bd02f7e957f",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "9054184071c0034dd7841ebfd44064b9cf99edf681f4e9db6880161fb0c7d748",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -10384,11 +10384,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "9a3096420a205ed340fbe43420e78c443a8e1a5d8e30c8f4a5fe24af04538c42",
+      "oracle_report_sha256": "04862496ef2d2118a3fd123ce976ffb6fda2268b8ecebb59ca9ab888423a7472",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 30,
-      "second_oracle_report_sha256": "9a3096420a205ed340fbe43420e78c443a8e1a5d8e30c8f4a5fe24af04538c42",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "04862496ef2d2118a3fd123ce976ffb6fda2268b8ecebb59ca9ab888423a7472",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -10611,11 +10611,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "857da136798fbb5fd8782d3094a8805378df42e37b3a748878f16725b09931c0",
+      "oracle_report_sha256": "f30254dd1dc482f1c00398bee631bdd46301aa063263d0846a15e1d5c50fb140",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 32,
-      "second_oracle_report_sha256": "857da136798fbb5fd8782d3094a8805378df42e37b3a748878f16725b09931c0",
+      "oracle_successful_tool_calls": 35,
+      "second_oracle_report_sha256": "f30254dd1dc482f1c00398bee631bdd46301aa063263d0846a15e1d5c50fb140",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -10838,11 +10838,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "5f353f9fef6bed1dbfb16f90c2649e64b269f37eda1bc640c4e36c70883036eb",
+      "oracle_report_sha256": "bf16d3e79b74ac1a33046759f8a34ba18d831201a13ac42a8e0d7146a2cdd2e6",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 30,
-      "second_oracle_report_sha256": "5f353f9fef6bed1dbfb16f90c2649e64b269f37eda1bc640c4e36c70883036eb",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "bf16d3e79b74ac1a33046759f8a34ba18d831201a13ac42a8e0d7146a2cdd2e6",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -11065,11 +11065,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "067110f1eae3bab87fc23c2b363bc746a617bbe995a05d29f2e50986af37b80d",
+      "oracle_report_sha256": "3bf01640e928c40f367794585dca1e40f6d340bf1ed017531a7d7804d1325c2a",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 37,
-      "second_oracle_report_sha256": "067110f1eae3bab87fc23c2b363bc746a617bbe995a05d29f2e50986af37b80d",
+      "oracle_successful_tool_calls": 40,
+      "second_oracle_report_sha256": "3bf01640e928c40f367794585dca1e40f6d340bf1ed017531a7d7804d1325c2a",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -11290,11 +11290,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "6497431717b05d8832850b046cdfa8dfd75b3ea603e59feb45980ad6695a6c5e",
+      "oracle_report_sha256": "64c0423d35f677dc78177416aeede5f47e52d2a5256fc62ff5b193e64dfe8502",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 26,
-      "second_oracle_report_sha256": "6497431717b05d8832850b046cdfa8dfd75b3ea603e59feb45980ad6695a6c5e",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "64c0423d35f677dc78177416aeede5f47e52d2a5256fc62ff5b193e64dfe8502",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -11515,11 +11515,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "69613e442c01743641193ebfed591ef16c8d1feee79b3eee12bf8b78514066c0",
+      "oracle_report_sha256": "d75fc7cfc9491f087920b7d84fe7a9153e2d810ad8548c9e89a01a9cc31b35de",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 26,
-      "second_oracle_report_sha256": "69613e442c01743641193ebfed591ef16c8d1feee79b3eee12bf8b78514066c0",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "d75fc7cfc9491f087920b7d84fe7a9153e2d810ad8548c9e89a01a9cc31b35de",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -11742,11 +11742,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "d2a88a1dd9a5beda22a813c568adc5a573c97290fc83d62e61f48217eadcf2a7",
+      "oracle_report_sha256": "f72787d14bac2a30286e8b14ced75c3aab682d8fe8abf5832a94d75f7bbe8767",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 30,
-      "second_oracle_report_sha256": "d2a88a1dd9a5beda22a813c568adc5a573c97290fc83d62e61f48217eadcf2a7",
+      "oracle_successful_tool_calls": 35,
+      "second_oracle_report_sha256": "f72787d14bac2a30286e8b14ced75c3aab682d8fe8abf5832a94d75f7bbe8767",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -11967,11 +11967,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "0152f2025c132b45f87c80357446b81c7bdb1b9155f6b5b18c0daeab1518f9b7",
+      "oracle_report_sha256": "6301b1437450ebc4f72798f92e117af3b6534ff6c7fd01d61ef7b1befb4e914a",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 29,
-      "second_oracle_report_sha256": "0152f2025c132b45f87c80357446b81c7bdb1b9155f6b5b18c0daeab1518f9b7",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "6301b1437450ebc4f72798f92e117af3b6534ff6c7fd01d61ef7b1befb4e914a",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -12192,11 +12192,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "94954f4ddaffd12025cde53611545c727258b790999779a6d2be8fab493f43d4",
+      "oracle_report_sha256": "01786b2c4341b854917e8ce931884ae089963a356a469472e25acaf38e9714ac",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 26,
-      "second_oracle_report_sha256": "94954f4ddaffd12025cde53611545c727258b790999779a6d2be8fab493f43d4",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "01786b2c4341b854917e8ce931884ae089963a356a469472e25acaf38e9714ac",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -12499,11 +12499,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "da63a1daf3f2ed019c15b3963870fa71f4a9e4d5396d5d9c2f1e85bd8e1c5065",
+      "oracle_report_sha256": "27c37db2ac88e178676dda95d15cfb8de6a64ed424e7b3bb4dae95ae592f25ed",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 38,
-      "second_oracle_report_sha256": "da63a1daf3f2ed019c15b3963870fa71f4a9e4d5396d5d9c2f1e85bd8e1c5065",
+      "oracle_successful_tool_calls": 40,
+      "second_oracle_report_sha256": "27c37db2ac88e178676dda95d15cfb8de6a64ed424e7b3bb4dae95ae592f25ed",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -12814,11 +12814,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "29ec67bce2943978cb6c59b74b3a1ef2b440d1bd39dc07b92ee3ea09e229e8cf",
+      "oracle_report_sha256": "7b78449435d3f4d61d763b2ad1fda17e4c45c9385cf68aea2e611e048a90e96f",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 46,
-      "second_oracle_report_sha256": "29ec67bce2943978cb6c59b74b3a1ef2b440d1bd39dc07b92ee3ea09e229e8cf",
+      "oracle_successful_tool_calls": 48,
+      "second_oracle_report_sha256": "7b78449435d3f4d61d763b2ad1fda17e4c45c9385cf68aea2e611e048a90e96f",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -13123,11 +13123,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "126d59b4184004f16f5aceca8cd116929857e21f64a5e5b97f6f2ffb9f63fe2c",
+      "oracle_report_sha256": "1c3ba338335fecb43ed8a763db175aa44ab2dc4ddbfc4d700ab63be5b271a12b",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 43,
-      "second_oracle_report_sha256": "126d59b4184004f16f5aceca8cd116929857e21f64a5e5b97f6f2ffb9f63fe2c",
+      "oracle_successful_tool_calls": 45,
+      "second_oracle_report_sha256": "1c3ba338335fecb43ed8a763db175aa44ab2dc4ddbfc4d700ab63be5b271a12b",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -13440,11 +13440,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "05b86f21041e4fe87710a7b2bd4f87ee696a2e078bb1aa36f1abead1e8f29036",
+      "oracle_report_sha256": "7a4ff4be3aa712139b3f6d0000b5a86dcf12ab926d811737631b27e6ae7e1244",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 48,
-      "second_oracle_report_sha256": "05b86f21041e4fe87710a7b2bd4f87ee696a2e078bb1aa36f1abead1e8f29036",
+      "oracle_successful_tool_calls": 50,
+      "second_oracle_report_sha256": "7a4ff4be3aa712139b3f6d0000b5a86dcf12ab926d811737631b27e6ae7e1244",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -13755,11 +13755,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "82fdabc6e5edfc9bd5c83f65a544fe8024a78f69fb104c030ce12fb4653924d5",
+      "oracle_report_sha256": "931d123f1bcc7cf7342cb4ea7c300499484937fe74a6ab1f65f6c55b963286ff",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 45,
-      "second_oracle_report_sha256": "82fdabc6e5edfc9bd5c83f65a544fe8024a78f69fb104c030ce12fb4653924d5",
+      "oracle_successful_tool_calls": 47,
+      "second_oracle_report_sha256": "931d123f1bcc7cf7342cb4ea7c300499484937fe74a6ab1f65f6c55b963286ff",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -13980,11 +13980,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "16060cf301799bd83e6f91337a3e1377982c8693bcb3d00abfa6ec43db61d3f1",
+      "oracle_report_sha256": "ae8d3481518a534a874d1f16dd4fb66c5676dd81da6d96803a5fcdb84d98ace0",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "16060cf301799bd83e6f91337a3e1377982c8693bcb3d00abfa6ec43db61d3f1",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "ae8d3481518a534a874d1f16dd4fb66c5676dd81da6d96803a5fcdb84d98ace0",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -14297,11 +14297,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "1dfa0867e5a2f56fee5e880ee2cc8ba113f4aae75111e5ea3222ab9dab57b3c9",
+      "oracle_report_sha256": "20ce9ef32afbe0cfd8c91a90d7aff1022ec949dba791a821d13fd6422fec9c31",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 46,
-      "second_oracle_report_sha256": "1dfa0867e5a2f56fee5e880ee2cc8ba113f4aae75111e5ea3222ab9dab57b3c9",
+      "oracle_successful_tool_calls": 48,
+      "second_oracle_report_sha256": "20ce9ef32afbe0cfd8c91a90d7aff1022ec949dba791a821d13fd6422fec9c31",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -14614,11 +14614,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "94c277f1f3ea2d8ad50f905c2285b6f9fd048bf9f39941d593682be4b914b7be",
+      "oracle_report_sha256": "1482991753dc0c4965129f646e76cd4ecc988f0cf05cf201579df2965a4592a2",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 42,
-      "second_oracle_report_sha256": "94c277f1f3ea2d8ad50f905c2285b6f9fd048bf9f39941d593682be4b914b7be",
+      "oracle_successful_tool_calls": 46,
+      "second_oracle_report_sha256": "1482991753dc0c4965129f646e76cd4ecc988f0cf05cf201579df2965a4592a2",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -14925,11 +14925,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "8388ff6a314474e56c574eeb4d4fecac7c017aed9148ecee066f5de89f52eb6a",
+      "oracle_report_sha256": "48d75d66375d940623a5ef551252f486bc082acedc012c8f9fb626be4355fcbf",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 41,
-      "second_oracle_report_sha256": "8388ff6a314474e56c574eeb4d4fecac7c017aed9148ecee066f5de89f52eb6a",
+      "oracle_successful_tool_calls": 43,
+      "second_oracle_report_sha256": "48d75d66375d940623a5ef551252f486bc082acedc012c8f9fb626be4355fcbf",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -15240,11 +15240,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "cf65aed8a2bdf19ac700cbf2cdb6fd5e7babebfa36ad1009c4e73afeddac8497",
+      "oracle_report_sha256": "c1292a9e9e0c925cd65b0520595bc51be08ba1e673ec344705a6077bc6a27335",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 42,
-      "second_oracle_report_sha256": "cf65aed8a2bdf19ac700cbf2cdb6fd5e7babebfa36ad1009c4e73afeddac8497",
+      "oracle_successful_tool_calls": 44,
+      "second_oracle_report_sha256": "c1292a9e9e0c925cd65b0520595bc51be08ba1e673ec344705a6077bc6a27335",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -15553,11 +15553,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "6534e38b967781e5ca17fb9de3dae09d1e660b705cdad6bbba0393426bcf74a1",
+      "oracle_report_sha256": "5cf1303e4eb8ba1e3484a3db842a4ed128516b9e219cce83d700a87e5fce6485",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 36,
-      "second_oracle_report_sha256": "6534e38b967781e5ca17fb9de3dae09d1e660b705cdad6bbba0393426bcf74a1",
+      "oracle_successful_tool_calls": 43,
+      "second_oracle_report_sha256": "5cf1303e4eb8ba1e3484a3db842a4ed128516b9e219cce83d700a87e5fce6485",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -15862,11 +15862,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "cf4b346f29cb6a4835d543ba2dcc8b471883b77b9c73c37365e33b2bbe1a0a36",
+      "oracle_report_sha256": "e61e030e0128e644298b0c5ee594ce62f5dc64c8541ad7e91f994dadbb4c7444",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 39,
-      "second_oracle_report_sha256": "cf4b346f29cb6a4835d543ba2dcc8b471883b77b9c73c37365e33b2bbe1a0a36",
+      "oracle_successful_tool_calls": 41,
+      "second_oracle_report_sha256": "e61e030e0128e644298b0c5ee594ce62f5dc64c8541ad7e91f994dadbb4c7444",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -16175,11 +16175,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "90152f76b7a9032e514fd23b83059c7f963b71d0c23e87d6613ebf38c3e0a3f2",
+      "oracle_report_sha256": "f6b3a1664bdf005cdf027b59c7a64e82b0ac85609273ae09c61d7a401d21055f",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 39,
-      "second_oracle_report_sha256": "90152f76b7a9032e514fd23b83059c7f963b71d0c23e87d6613ebf38c3e0a3f2",
+      "oracle_successful_tool_calls": 41,
+      "second_oracle_report_sha256": "f6b3a1664bdf005cdf027b59c7a64e82b0ac85609273ae09c61d7a401d21055f",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -16494,11 +16494,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "0d620d8fa1d51a62bf015bdf34acbb13556b29377de38003f6747677b9bcc9b8",
+      "oracle_report_sha256": "1cf92d0002a2b66e78c0a699706a2a4f409f7c7f8352e2b151919bdf9c8a5721",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 43,
-      "second_oracle_report_sha256": "0d620d8fa1d51a62bf015bdf34acbb13556b29377de38003f6747677b9bcc9b8",
+      "oracle_successful_tool_calls": 46,
+      "second_oracle_report_sha256": "1cf92d0002a2b66e78c0a699706a2a4f409f7c7f8352e2b151919bdf9c8a5721",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -16807,11 +16807,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "45c43111ed3a45d562e5923011dd2fa197072ab1ff6183cec062c11ca74d77d0",
+      "oracle_report_sha256": "a0515889da7ae771df27c516f366538ee527a4bfabe173e91993f60f24f80cd3",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 41,
-      "second_oracle_report_sha256": "45c43111ed3a45d562e5923011dd2fa197072ab1ff6183cec062c11ca74d77d0",
+      "oracle_successful_tool_calls": 43,
+      "second_oracle_report_sha256": "a0515889da7ae771df27c516f366538ee527a4bfabe173e91993f60f24f80cd3",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -17116,11 +17116,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "c92bcde905cd7e72506c392371726b18194c06c38b552ff1b67a90b90cc10eeb",
+      "oracle_report_sha256": "bde0175fe9110d9446b2b4b200a9652964902114c13c1732599f8829a3e84c91",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 37,
-      "second_oracle_report_sha256": "c92bcde905cd7e72506c392371726b18194c06c38b552ff1b67a90b90cc10eeb",
+      "oracle_successful_tool_calls": 40,
+      "second_oracle_report_sha256": "bde0175fe9110d9446b2b4b200a9652964902114c13c1732599f8829a3e84c91",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -17425,11 +17425,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "92b49c2e489b150dc8b52cbaae1d6db46ca92c7466a9c3f41b3fd57591598cc4",
+      "oracle_report_sha256": "b16031a61523cf75dd5687793e938a924aa314240c563970bb878f6e680c61da",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 34,
-      "second_oracle_report_sha256": "92b49c2e489b150dc8b52cbaae1d6db46ca92c7466a9c3f41b3fd57591598cc4",
+      "oracle_successful_tool_calls": 40,
+      "second_oracle_report_sha256": "b16031a61523cf75dd5687793e938a924aa314240c563970bb878f6e680c61da",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -17733,11 +17733,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "7a2b6b852185522d7890b04ef7d8b931e34b3d5cb8480051f129892cf6349e69",
+      "oracle_report_sha256": "695b0e716083a851352921438f6ae696367d01812833e06e3dea7cbf99e4ca20",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 37,
-      "second_oracle_report_sha256": "7a2b6b852185522d7890b04ef7d8b931e34b3d5cb8480051f129892cf6349e69",
+      "oracle_successful_tool_calls": 40,
+      "second_oracle_report_sha256": "695b0e716083a851352921438f6ae696367d01812833e06e3dea7cbf99e4ca20",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -18044,11 +18044,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "2098e406819c275e1ed074e68721764c1354bd449c2f6bb0f36c7eb93625c4e8",
+      "oracle_report_sha256": "fbd9e1d1e8e2d893bd78c5e1ede2c3d58d133493eb7eae70367fee1d10a20300",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 37,
-      "second_oracle_report_sha256": "2098e406819c275e1ed074e68721764c1354bd449c2f6bb0f36c7eb93625c4e8",
+      "oracle_successful_tool_calls": 40,
+      "second_oracle_report_sha256": "fbd9e1d1e8e2d893bd78c5e1ede2c3d58d133493eb7eae70367fee1d10a20300",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -18271,11 +18271,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "18d028bde4a5b7637d96e9305606528945dced8d6fd737d66ea52f53281d6aea",
+      "oracle_report_sha256": "e041b5ff6ea2b6ad811451dc9decda2a9fd2ec81a7fa39208d0baa447548c202",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 43,
-      "second_oracle_report_sha256": "18d028bde4a5b7637d96e9305606528945dced8d6fd737d66ea52f53281d6aea",
+      "oracle_successful_tool_calls": 48,
+      "second_oracle_report_sha256": "e041b5ff6ea2b6ad811451dc9decda2a9fd2ec81a7fa39208d0baa447548c202",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -18582,11 +18582,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "526ed231e2da11fd946483084fb2a167766ee517b1e70aa5b1eb4bd4be7b8257",
+      "oracle_report_sha256": "e9154b0165fac44c53d2f8ae876fee58158f82f88c4d1cfef38a8c844558da5b",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 37,
-      "second_oracle_report_sha256": "526ed231e2da11fd946483084fb2a167766ee517b1e70aa5b1eb4bd4be7b8257",
+      "oracle_successful_tool_calls": 40,
+      "second_oracle_report_sha256": "e9154b0165fac44c53d2f8ae876fee58158f82f88c4d1cfef38a8c844558da5b",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -18891,11 +18891,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "796e4b953b8fb3cbe2f5ac4fe87bacf352c541175fc44cdf2485c363dfa490b4",
+      "oracle_report_sha256": "1910f495933482932801b78a08ba88de1ba1967e67ee30ee0b11495000d24a9c",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 26,
-      "second_oracle_report_sha256": "796e4b953b8fb3cbe2f5ac4fe87bacf352c541175fc44cdf2485c363dfa490b4",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "1910f495933482932801b78a08ba88de1ba1967e67ee30ee0b11495000d24a9c",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -19200,11 +19200,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "c1d57bb2f07b15d06a2e1773b65cdb8f19f07373c85778b0e3555a13ecc9432f",
+      "oracle_report_sha256": "e2efd621e611f666aaa15f4900b25e27ed22188e99cd4224cfb097d26ce9f772",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "c1d57bb2f07b15d06a2e1773b65cdb8f19f07373c85778b0e3555a13ecc9432f",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "e2efd621e611f666aaa15f4900b25e27ed22188e99cd4224cfb097d26ce9f772",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -19509,11 +19509,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "e4027be2ede204e2e73d7b14f9b8df145bcee8b483b7ddfc16abcd4b6368339c",
+      "oracle_report_sha256": "eec6ba2a31fef9447561d14bbf6b1a00a865da4c84790695c072d89f061f072b",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 33,
-      "second_oracle_report_sha256": "e4027be2ede204e2e73d7b14f9b8df145bcee8b483b7ddfc16abcd4b6368339c",
+      "oracle_successful_tool_calls": 37,
+      "second_oracle_report_sha256": "eec6ba2a31fef9447561d14bbf6b1a00a865da4c84790695c072d89f061f072b",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -19818,11 +19818,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "d71221c6b9631144242468891e774589f252c84ce412fa9f61c1b3d80a77dd62",
+      "oracle_report_sha256": "74847b007ffec20ebd57a698c594a0f9853e3ef97cfdb918183108be01a829ee",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 33,
-      "second_oracle_report_sha256": "d71221c6b9631144242468891e774589f252c84ce412fa9f61c1b3d80a77dd62",
+      "oracle_successful_tool_calls": 37,
+      "second_oracle_report_sha256": "74847b007ffec20ebd57a698c594a0f9853e3ef97cfdb918183108be01a829ee",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -20129,11 +20129,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "8dda2c7e0b704c9a3d127bb9f15527b0b87c66e5164b2f2b5bdbf1968ceb7593",
+      "oracle_report_sha256": "b0a38be87ac983dc309af3a521768f5a051aa7609c1923a036c29ca0ffa47de5",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 35,
-      "second_oracle_report_sha256": "8dda2c7e0b704c9a3d127bb9f15527b0b87c66e5164b2f2b5bdbf1968ceb7593",
+      "oracle_successful_tool_calls": 42,
+      "second_oracle_report_sha256": "b0a38be87ac983dc309af3a521768f5a051aa7609c1923a036c29ca0ffa47de5",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -20358,11 +20358,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "d0bc836b8ab22c601432f2e8dbf66fc7354189a9bd0a5d5f439f7b31c0def55f",
+      "oracle_report_sha256": "c9c62b34d336ecb37aa7a00996240681ee6a63e23ddfc46eb8d67f4b0638f8de",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "d0bc836b8ab22c601432f2e8dbf66fc7354189a9bd0a5d5f439f7b31c0def55f",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "c9c62b34d336ecb37aa7a00996240681ee6a63e23ddfc46eb8d67f4b0638f8de",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -20587,11 +20587,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "f0a24426f466e80d4790aded8d5adaf0059a67b5ecc169cf64089fb27a40ab6c",
+      "oracle_report_sha256": "2c814155df751b3561901e43f1357a4f454469858619b2587a96a800ede7b71b",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 30,
-      "second_oracle_report_sha256": "f0a24426f466e80d4790aded8d5adaf0059a67b5ecc169cf64089fb27a40ab6c",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "2c814155df751b3561901e43f1357a4f454469858619b2587a96a800ede7b71b",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -20816,11 +20816,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "e5159c1f5366aecffac1ff4d940909841e29f4d0842ed6fb463de4a4dbd45e9f",
+      "oracle_report_sha256": "27f85bcefb63aa2c1ca8d9c432d72b7cdbc4cb03b24ac75f34634f8cb2accf08",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 26,
-      "second_oracle_report_sha256": "e5159c1f5366aecffac1ff4d940909841e29f4d0842ed6fb463de4a4dbd45e9f",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "27f85bcefb63aa2c1ca8d9c432d72b7cdbc4cb03b24ac75f34634f8cb2accf08",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -21045,11 +21045,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "505965b0b438506c5a30704221a549171c9cc8cc0a4e050bfa2662e8c351c1d4",
+      "oracle_report_sha256": "01bfb5519681298b441cc70c8c61b0f0d0285dd76ae42486d9e3fddf6cd5cd9c",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 30,
-      "second_oracle_report_sha256": "505965b0b438506c5a30704221a549171c9cc8cc0a4e050bfa2662e8c351c1d4",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "01bfb5519681298b441cc70c8c61b0f0d0285dd76ae42486d9e3fddf6cd5cd9c",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -21360,11 +21360,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "567b80e4d5623179f99ffd9919d48e114e9449bf577fcc125afef25e8550f425",
+      "oracle_report_sha256": "e8f2db171cc9e8bb294776806b1476588afa886db6fd643b110b94907ad3f838",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 47,
-      "second_oracle_report_sha256": "567b80e4d5623179f99ffd9919d48e114e9449bf577fcc125afef25e8550f425",
+      "oracle_successful_tool_calls": 49,
+      "second_oracle_report_sha256": "e8f2db171cc9e8bb294776806b1476588afa886db6fd643b110b94907ad3f838",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -21667,11 +21667,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "a20f4db56a40cc1641cf775693f84769457e5f33aa40335063e0ca290e6a3a02",
+      "oracle_report_sha256": "59346ceadadeace18806956d5d31fe53a3be1760e163e5bdc00f1c61d71c4d8d",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 38,
-      "second_oracle_report_sha256": "a20f4db56a40cc1641cf775693f84769457e5f33aa40335063e0ca290e6a3a02",
+      "oracle_successful_tool_calls": 42,
+      "second_oracle_report_sha256": "59346ceadadeace18806956d5d31fe53a3be1760e163e5bdc00f1c61d71c4d8d",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -21980,11 +21980,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "714665b6a0d3f716760c547c19636ca52db841acf4a46b8a581a0bd63874dfd2",
+      "oracle_report_sha256": "8cac6970a8d43257a5f1b0a3bc80ab2c28cc666e33185b63e3109d3fc4d25df4",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 40,
-      "second_oracle_report_sha256": "714665b6a0d3f716760c547c19636ca52db841acf4a46b8a581a0bd63874dfd2",
+      "oracle_successful_tool_calls": 43,
+      "second_oracle_report_sha256": "8cac6970a8d43257a5f1b0a3bc80ab2c28cc666e33185b63e3109d3fc4d25df4",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -22289,11 +22289,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "6f9fc86d463ed0e1a7942b06e280dfd0319bcd2a197af67c18f4838643612c2f",
+      "oracle_report_sha256": "a8daabc7d79f18b78428591f4901d876cda5008db4c99af25496f81ec3ccf789",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 40,
-      "second_oracle_report_sha256": "6f9fc86d463ed0e1a7942b06e280dfd0319bcd2a197af67c18f4838643612c2f",
+      "oracle_successful_tool_calls": 45,
+      "second_oracle_report_sha256": "a8daabc7d79f18b78428591f4901d876cda5008db4c99af25496f81ec3ccf789",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -22608,11 +22608,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "59ec256795959e322b98415e7ebaa2615ae31238a447b72ffd7d2510f4ac014d",
+      "oracle_report_sha256": "256b8153cca562ffed17a7a027854e824084f506ba3469e0007dff650e095d5a",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 40,
-      "second_oracle_report_sha256": "59ec256795959e322b98415e7ebaa2615ae31238a447b72ffd7d2510f4ac014d",
+      "oracle_successful_tool_calls": 45,
+      "second_oracle_report_sha256": "256b8153cca562ffed17a7a027854e824084f506ba3469e0007dff650e095d5a",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -22923,11 +22923,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "6ef473d97c77c706b5b32b232ab3a7376f6b9fe521abd5aa1cd1eb5822b17af3",
+      "oracle_report_sha256": "8a756388ae97aa1308d749c91c1e746cf81ece7be5e428f08e567ab29600c15e",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 45,
-      "second_oracle_report_sha256": "6ef473d97c77c706b5b32b232ab3a7376f6b9fe521abd5aa1cd1eb5822b17af3",
+      "oracle_successful_tool_calls": 47,
+      "second_oracle_report_sha256": "8a756388ae97aa1308d749c91c1e746cf81ece7be5e428f08e567ab29600c15e",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -23148,11 +23148,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "3a0375c167b845cbc437e7c156ac97e49d450ebd62c12678425a8d122ffe6387",
+      "oracle_report_sha256": "6916a3f4af944e1efd5acbb85de3c95c9afb1523f68d5b852ef24e5bc415286c",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "3a0375c167b845cbc437e7c156ac97e49d450ebd62c12678425a8d122ffe6387",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "6916a3f4af944e1efd5acbb85de3c95c9afb1523f68d5b852ef24e5bc415286c",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -23373,11 +23373,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "594539bb8ff3e282cbf188d51df3ca81782843a8305d9a4bc686e4abc05f12db",
+      "oracle_report_sha256": "4dc3db918c40a6f380668ac3b3ff7b4d9d5c18a3dfeb58e3187b4e1e69adedf5",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 27,
-      "second_oracle_report_sha256": "594539bb8ff3e282cbf188d51df3ca81782843a8305d9a4bc686e4abc05f12db",
+      "oracle_successful_tool_calls": 33,
+      "second_oracle_report_sha256": "4dc3db918c40a6f380668ac3b3ff7b4d9d5c18a3dfeb58e3187b4e1e69adedf5",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -23698,11 +23698,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "0d911681646bcc4c1eae5202e6b2607baeae352a6a3b4c9452dc5b8a8e478a20",
+      "oracle_report_sha256": "431773c539005aa1249e6815caafe5bee90eb885509f0ff0c37c162cb042a3ed",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 61,
-      "second_oracle_report_sha256": "0d911681646bcc4c1eae5202e6b2607baeae352a6a3b4c9452dc5b8a8e478a20",
+      "oracle_successful_tool_calls": 64,
+      "second_oracle_report_sha256": "431773c539005aa1249e6815caafe5bee90eb885509f0ff0c37c162cb042a3ed",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -24021,11 +24021,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "435027a0a8dc88cd0ad2b5edcce0d63cf7bd7e96dc88e114553ed3b42ef19fca",
+      "oracle_report_sha256": "9c78f6794e00d1c831b28ebe63652c16715ed82067fc19699b93306dc9e3237b",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 56,
-      "second_oracle_report_sha256": "435027a0a8dc88cd0ad2b5edcce0d63cf7bd7e96dc88e114553ed3b42ef19fca",
+      "oracle_successful_tool_calls": 58,
+      "second_oracle_report_sha256": "9c78f6794e00d1c831b28ebe63652c16715ed82067fc19699b93306dc9e3237b",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -24348,11 +24348,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "cfd15e6bb2883a631efac9061a7614c05acea0194351f7627b78d88b21872c3c",
+      "oracle_report_sha256": "98f8f5f6869c757eba34a85af2113ec81c4aab4cb425249ee9eceaea79457dbf",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 65,
-      "second_oracle_report_sha256": "cfd15e6bb2883a631efac9061a7614c05acea0194351f7627b78d88b21872c3c",
+      "oracle_successful_tool_calls": 67,
+      "second_oracle_report_sha256": "98f8f5f6869c757eba34a85af2113ec81c4aab4cb425249ee9eceaea79457dbf",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -24669,11 +24669,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "83d312bcb994fcdeff2d54a09bd76eb04a5478202a59a9407ed54fa16e56041b",
+      "oracle_report_sha256": "488973e249282736c775979935985dfa62f7edd17569c0f5df66c8bc5e5a2b6c",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 53,
-      "second_oracle_report_sha256": "83d312bcb994fcdeff2d54a09bd76eb04a5478202a59a9407ed54fa16e56041b",
+      "oracle_successful_tool_calls": 55,
+      "second_oracle_report_sha256": "488973e249282736c775979935985dfa62f7edd17569c0f5df66c8bc5e5a2b6c",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -24984,11 +24984,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "5b4301556128043dba2c0e4589a9c26f763d51abdbfd24ba581e9939931e2037",
+      "oracle_report_sha256": "bb5ca9a44d4e6c60bdcf768fa99ed5d924eab87dd11ed7abc35b6c00c8dabc2c",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 45,
-      "second_oracle_report_sha256": "5b4301556128043dba2c0e4589a9c26f763d51abdbfd24ba581e9939931e2037",
+      "oracle_successful_tool_calls": 47,
+      "second_oracle_report_sha256": "bb5ca9a44d4e6c60bdcf768fa99ed5d924eab87dd11ed7abc35b6c00c8dabc2c",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -25297,11 +25297,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "9eda8b7514804cb00ac54361d691d82700e190d34389ef62de69f3b1335f1727",
+      "oracle_report_sha256": "d412d74210c5e193871ec198d126f42ba18a0bb5664a5e71177197a70becee45",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 46,
-      "second_oracle_report_sha256": "9eda8b7514804cb00ac54361d691d82700e190d34389ef62de69f3b1335f1727",
+      "oracle_successful_tool_calls": 48,
+      "second_oracle_report_sha256": "d412d74210c5e193871ec198d126f42ba18a0bb5664a5e71177197a70becee45",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -25616,11 +25616,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "491006a5b24d8cc4420e2726acdc4832c4e4de33bdce6b3093f60b2f8010fda6",
+      "oracle_report_sha256": "0b91c188f6cc7e29998a5972a591aa89e5ac3de32e37417e3d196f4d5e279e07",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 49,
-      "second_oracle_report_sha256": "491006a5b24d8cc4420e2726acdc4832c4e4de33bdce6b3093f60b2f8010fda6",
+      "oracle_successful_tool_calls": 53,
+      "second_oracle_report_sha256": "0b91c188f6cc7e29998a5972a591aa89e5ac3de32e37417e3d196f4d5e279e07",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -25850,11 +25850,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "4e548120af90355d231cce59fd2463e6a7b193268867824ccebe9b9f1ff8d2b0",
+      "oracle_report_sha256": "5f14444ae6364701b6c7cee1f299211ffd228e105726998b49e02c3a119dbdcb",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 26,
-      "second_oracle_report_sha256": "4e548120af90355d231cce59fd2463e6a7b193268867824ccebe9b9f1ff8d2b0",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "5f14444ae6364701b6c7cee1f299211ffd228e105726998b49e02c3a119dbdcb",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -26084,11 +26084,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "3de7b3de87ecb3178cd93d110d511d45a4366d0f66ff1603a8e80b0109268f28",
+      "oracle_report_sha256": "1b8a33798f1239b10dfad5f746a4bb0512d6bb7d37a9ad2b7d79c3e41a7d6092",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 26,
-      "second_oracle_report_sha256": "3de7b3de87ecb3178cd93d110d511d45a4366d0f66ff1603a8e80b0109268f28",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "1b8a33798f1239b10dfad5f746a4bb0512d6bb7d37a9ad2b7d79c3e41a7d6092",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -26322,11 +26322,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "a547e79a640d53f71909601ea4f51242613783a59f96d1ce1409f698e260b150",
+      "oracle_report_sha256": "979198eb17c7b80a18b175abd9038530c81ada44273ab42241e5d0a1ebafcf58",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 28,
-      "second_oracle_report_sha256": "a547e79a640d53f71909601ea4f51242613783a59f96d1ce1409f698e260b150",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "979198eb17c7b80a18b175abd9038530c81ada44273ab42241e5d0a1ebafcf58",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -26554,11 +26554,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "5049d461a5769f1784957fed38a897105d66d48e33cee81cf8499605507f9656",
+      "oracle_report_sha256": "7b9c7ff10d71aa47a51cb41c79ed5bc5f5dfbc7b3ab5fa2fe4febc9b325732a8",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 30,
-      "second_oracle_report_sha256": "5049d461a5769f1784957fed38a897105d66d48e33cee81cf8499605507f9656",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "7b9c7ff10d71aa47a51cb41c79ed5bc5f5dfbc7b3ab5fa2fe4febc9b325732a8",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -26788,11 +26788,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "baee6e60bb9b9d90043aa26d9e67b0783b0c1d2235acae59cf4736925061dc5d",
+      "oracle_report_sha256": "07d4e59ffd4c1f610abcf1f0ecba377b4e9448668418b7d3250da9375face678",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 26,
-      "second_oracle_report_sha256": "baee6e60bb9b9d90043aa26d9e67b0783b0c1d2235acae59cf4736925061dc5d",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "07d4e59ffd4c1f610abcf1f0ecba377b4e9448668418b7d3250da9375face678",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -27103,11 +27103,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "ba104ecfd778776ef456b7d7f9fa5671696639ce19ab58a2efda8ef703201a92",
+      "oracle_report_sha256": "17a77802c2bccb0c960f9bc7234012a661b00e63a479f2e71cdfc2c7d26ead65",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 39,
-      "second_oracle_report_sha256": "ba104ecfd778776ef456b7d7f9fa5671696639ce19ab58a2efda8ef703201a92",
+      "oracle_successful_tool_calls": 43,
+      "second_oracle_report_sha256": "17a77802c2bccb0c960f9bc7234012a661b00e63a479f2e71cdfc2c7d26ead65",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -27416,11 +27416,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "097fb1e0fb8da7befecc90d814846268186598bb7e5a1dda80bde7aaeb8735ec",
+      "oracle_report_sha256": "5d7092b213e28bcbcbf88a146e9c115ad183f4338ea448bae468ac49c527862a",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 40,
-      "second_oracle_report_sha256": "097fb1e0fb8da7befecc90d814846268186598bb7e5a1dda80bde7aaeb8735ec",
+      "oracle_successful_tool_calls": 43,
+      "second_oracle_report_sha256": "5d7092b213e28bcbcbf88a146e9c115ad183f4338ea448bae468ac49c527862a",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -27724,11 +27724,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "2f60d1672ae5a928e0c95beca7b24f9df872cdbb3999d2823f1c41c811a2b839",
+      "oracle_report_sha256": "3e6b5f14e5551f07434c04ee129c420793c28ed81f1adeac353956055d9feb8b",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 42,
-      "second_oracle_report_sha256": "2f60d1672ae5a928e0c95beca7b24f9df872cdbb3999d2823f1c41c811a2b839",
+      "oracle_successful_tool_calls": 44,
+      "second_oracle_report_sha256": "3e6b5f14e5551f07434c04ee129c420793c28ed81f1adeac353956055d9feb8b",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -28037,11 +28037,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "688ba657a08f74c435c1d67df059ed2b7d93cc39db5bd96060921186971b874e",
+      "oracle_report_sha256": "0e85f72bb8ab319a763e6a152803482a0950c96b8b376c6f086ff2d4b9662312",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 41,
-      "second_oracle_report_sha256": "688ba657a08f74c435c1d67df059ed2b7d93cc39db5bd96060921186971b874e",
+      "oracle_successful_tool_calls": 43,
+      "second_oracle_report_sha256": "0e85f72bb8ab319a763e6a152803482a0950c96b8b376c6f086ff2d4b9662312",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -28350,11 +28350,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "9ed884f32c49997f57a08c54590912e573b91a29347c6bdcdd4f2fb9edaa641e",
+      "oracle_report_sha256": "605d2260a4a51a6bd761c46c88271834a7b7f566707b5fa5e5cb89446cd5ec2b",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 43,
-      "second_oracle_report_sha256": "9ed884f32c49997f57a08c54590912e573b91a29347c6bdcdd4f2fb9edaa641e",
+      "oracle_successful_tool_calls": 45,
+      "second_oracle_report_sha256": "605d2260a4a51a6bd761c46c88271834a7b7f566707b5fa5e5cb89446cd5ec2b",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -28659,11 +28659,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "cf115a2232e8cc2b8aa56657a814d93f7ebca0212ca2aa6fe94e18bc4359d008",
+      "oracle_report_sha256": "f6d537c9f746f30f3f2216f68bc540b3475f64d485a1148caedf2378d6042750",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 34,
-      "second_oracle_report_sha256": "cf115a2232e8cc2b8aa56657a814d93f7ebca0212ca2aa6fe94e18bc4359d008",
+      "oracle_successful_tool_calls": 41,
+      "second_oracle_report_sha256": "f6d537c9f746f30f3f2216f68bc540b3475f64d485a1148caedf2378d6042750",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -28884,11 +28884,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "9e3f93b11cfc9919108a0ffecd85c5df440716346db2924836d4623e72948dba",
+      "oracle_report_sha256": "a74b72be70e563db0c8d346f513a3007ff20b1cc00a28bcc31a5a659e1c9a867",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 29,
-      "second_oracle_report_sha256": "9e3f93b11cfc9919108a0ffecd85c5df440716346db2924836d4623e72948dba",
+      "oracle_successful_tool_calls": 32,
+      "second_oracle_report_sha256": "a74b72be70e563db0c8d346f513a3007ff20b1cc00a28bcc31a5a659e1c9a867",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -29189,11 +29189,11 @@
       },
       "oracle_passed": true,
       "oracle_points": 100.0,
-      "oracle_report_sha256": "e490f594eec973e358466db6ac16c5b710aa96adf446ce9bdcc14fedbe92109a",
+      "oracle_report_sha256": "703e048bea18d3ca6e575d44fc5d1b13d6eb74a99e94b2ef887f225f31b94b01",
       "oracle_reward": 1.0,
       "oracle_score": 1.0,
-      "oracle_successful_tool_calls": 28,
-      "second_oracle_report_sha256": "e490f594eec973e358466db6ac16c5b710aa96adf446ce9bdcc14fedbe92109a",
+      "oracle_successful_tool_calls": 35,
+      "second_oracle_report_sha256": "703e048bea18d3ca6e575d44fc5d1b13d6eb74a99e94b2ef887f225f31b94b01",
       "semantic_milestones": {
         "analysis.capacity_plan": {
           "passed": true,
@@ -29302,5 +29302,5 @@
     "failures": 0,
     "wrong_token_rejections": 100
   },
-  "version": "3.2.0"
+  "version": "3.2.1"
 }
