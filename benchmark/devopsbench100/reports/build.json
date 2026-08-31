@@ -89,11 +89,12 @@
   "prompt_tool_hits": [],
   "prompt_words": {
     "max": 171,
-    "median": 119,
-    "min": 96
+    "median": 118,
+    "min": 92
   },
   "quality_gates": {
     "all_agent_visible_assets_unique": true,
+    "all_task_scoped_state_changes_authorized": true,
     "causal_profile_outputs_nonempty": true,
     "complete_causal_evidence_profiles": true,
     "decision_options_fully_qualified": true,
@@ -165,6 +166,7 @@
     "raw_sequence_threshold": 0.9
   },
   "task_count": 100,
+  "task_scoped_execution_authority": 100,
   "unique_agent_visible_assets": 5300,
   "unique_causal_profile_tool_sequences": 100,
   "unique_reference_tool_name_sequences": 100,
@@ -176,7 +178,7 @@
     "random_calls": 0,
     "wall_clock_reads": 0
   },
-  "version": "3.2.6",
+  "version": "3.2.7",
   "world_commits": 417,
   "world_documents": 30,
   "world_seeded_rows": 1451,

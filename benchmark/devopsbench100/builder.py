@@ -60,13 +60,14 @@ from benchmark.devopsbench100.realism import (  # noqa: E402
     required_investigations as v32_required_investigations,
     semantic_milestones as v31_semantic_milestones,
     seed_case_evidence as v3_seed_case_evidence,
+    task_scoped_execution_authority as v32_task_scoped_execution_authority,
     validate_native_asset as v3_validate_native_asset,
     write_asset_views as v3_write_asset_views,
 )
 
 RELEASE_NAME = "DevOpsBench-100"
 RELEASE_SLUG = "devopsbench-100"
-RELEASE_VERSION = "3.2.6"
+RELEASE_VERSION = "3.2.7"
 MILESTONE_COUNT = len(SEMANTIC_MILESTONE_WEIGHTS)
 HARBOR_ORG = "blobfishai"
 DATA_LICENSE = "CC-BY-4.0"
@@ -1464,6 +1465,7 @@ def build(output: pathlib.Path) -> dict:
     prompt_values: list[str] = []
     prompt_words: list[int] = []
     prompt_coherence: list[bool] = []
+    prompt_execution_authority: list[bool] = []
     prompt_tool_hits: list[dict[str, Any]] = []
     reference_sequences: list[tuple[str, ...]] = []
     source_sequences: list[tuple[str, ...]] = []
@@ -1595,6 +1597,9 @@ def build(output: pathlib.Path) -> dict:
         prompt_words.append(len(prompt.split()))
         prompt_coherence.append(
             v32_prompt_has_coherent_readiness(row, contract, prompt)
+        )
+        prompt_execution_authority.append(
+            bool(v32_task_scoped_execution_authority(prompt)["authorized"])
         )
         named_tools = sorted(
             name
@@ -1929,6 +1934,7 @@ def build(output: pathlib.Path) -> dict:
         "prompt_repeated_leading_phrases": sum(
             has_repeated_leading_phrase(prompt) for prompt in prompt_values
         ),
+        "task_scoped_execution_authority": sum(prompt_execution_authority),
         "material_evidence_reads_per_task": {
             "min": min(material_context_counts),
             "median": sorted(material_context_counts)[len(material_context_counts) // 2],
@@ -1985,6 +1991,7 @@ def build(output: pathlib.Path) -> dict:
             has_repeated_leading_phrase(prompt) for prompt in prompt_values
         ),
         "single_coherent_operational_objective": all(prompt_coherence),
+        "all_task_scoped_state_changes_authorized": all(prompt_execution_authority),
         "no_harness_or_grading_leakage_in_prompts": all(
             PROMPT_LEAKAGE_PATTERN.search(prompt) is None for prompt in prompts
         ),
