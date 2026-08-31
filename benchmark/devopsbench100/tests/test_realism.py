@@ -33,6 +33,7 @@ from benchmark.devopsbench100.realism import (
     release_prompt,
     seed_case_evidence,
     semantic_milestones,
+    task_scoped_execution_authority,
     validate_native_asset,
     write_asset_views,
 )
@@ -159,15 +160,11 @@ class DevOpsRealismTests(unittest.TestCase):
             r"\bwithout making (?:a |any )?changes?\b",
             re.IGNORECASE,
         )
-        state_authority = re.compile(
-            r"\b(?:persist|record|save|make|update|carry|complete|implement|"
-            r"execute|repair|change|apply|leave)\b",
-            re.IGNORECASE,
-        )
         for row, _source, _contract, prompt, _calls, _trace in self.contracts:
             with self.subTest(task=row["bench_id"]):
                 self.assertIsNone(forbidden.search(prompt), prompt)
-                self.assertIsNotNone(state_authority.search(prompt), prompt)
+                authority = task_scoped_execution_authority(prompt)
+                self.assertTrue(authority["authorized"], (prompt, authority))
 
     def test_readiness_is_part_of_the_primary_operational_outcome(self) -> None:
         forbidden_appendage = re.compile(

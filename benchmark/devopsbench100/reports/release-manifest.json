@@ -4,7 +4,7 @@
     {
       "bytes": 15066,
       "path": "harbor/dataset/dataset.toml",
-      "sha256": "e6f49f39bcfe5b09eb4a861698c78eb98ade95bc4500be621cc555ea956c588c"
+      "sha256": "63c06aee991aaeb296823f6f2b7abdc5aee5d761b2db02c1af5ac46141e021e6"
     },
     {
       "bytes": 204,
@@ -29,7 +29,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-001-rca-analytics-egress-blocked/environment/world/environment.db",
-      "sha256": "e50df27fd780ddc676d0e8cc019eb404aeda5822464ff7c0b39d43674bab4e99"
+      "sha256": "174db08a676aeff901839d7ba9686465ab3cd53e5b38ec9f363d3c2ed9c559da"
     },
     {
       "bytes": 12612,
@@ -39,7 +39,7 @@
     {
       "bytes": 25380,
       "path": "harbor/tasks/dob100-001-rca-analytics-egress-blocked/environment/world/spec.json",
-      "sha256": "2db2514b2b306aec4295d110eee979fa04f15c4992ab2b73548c34fc31366c64"
+      "sha256": "88e4c28829fc4910da7d25583d4295b899ec20272a0fac21bdd4599a303bbc1b"
     },
     {
       "bytes": 94315,
@@ -79,7 +79,7 @@
     {
       "bytes": 1303,
       "path": "harbor/tasks/dob100-001-rca-analytics-egress-blocked/task.toml",
-      "sha256": "fe0371fee6bed42a331bb93f179d8cd670ae5c5a8849d118faa0db872992a203"
+      "sha256": "99bef8893c92d8b312635308c0b6362c70fddab89cda1c29ee2478629747927f"
     },
     {
       "bytes": 1443,
@@ -109,7 +109,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-002-rca-analytics-revoked-grant/environment/world/environment.db",
-      "sha256": "977fdf6d8b9b7b0523687b39edc05f9870d54233b167013b126fcca0f1fa3127"
+      "sha256": "ec28ea1ea899120e5761f46d30e3f0e353c1f02a9d57137a4a45ac19daf85692"
     },
     {
       "bytes": 12612,
@@ -119,7 +119,7 @@
     {
       "bytes": 25496,
       "path": "harbor/tasks/dob100-002-rca-analytics-revoked-grant/environment/world/spec.json",
-      "sha256": "49d5caaafdd43b3d4d705c093b8dfd1b5d760bf296861f82ed7c7cebd1f49483"
+      "sha256": "353720f22866ed345741d7bbb5257f2ac22a008681cdbd66d2dac0940d181d78"
     },
     {
       "bytes": 94315,
@@ -159,7 +159,7 @@
     {
       "bytes": 1309,
       "path": "harbor/tasks/dob100-002-rca-analytics-revoked-grant/task.toml",
-      "sha256": "bd222584c6118aa7a2fa6a8632a63487d981c30ed495b6a2edd6b7d980c6ddda"
+      "sha256": "9049df77a4da315d3e6038cde9ff8d3af1d0793c6198ea87552bb3e1c525b088"
     },
     {
       "bytes": 1443,
@@ -189,7 +189,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-003-rca-checkout-unschedulable-replicas/environment/world/environment.db",
-      "sha256": "a701de36542878acae62382f0803a0f657248903da16709e219fa66cf61e8f65"
+      "sha256": "321949f91b3420ebda4ed78100102e694783d43dea2f77bc5cd87b5b8a290123"
     },
     {
       "bytes": 12612,
@@ -199,7 +199,7 @@
     {
       "bytes": 25322,
       "path": "harbor/tasks/dob100-003-rca-checkout-unschedulable-replicas/environment/world/spec.json",
-      "sha256": "195fd2798fe50ee91e231c13f349f439df41085a36c8e5c9b589bdc447fb7a0f"
+      "sha256": "afc8f52c239154ae342d8c3c165a61086e8cdea3a672cb59f16451a15213c36a"
     },
     {
       "bytes": 94315,
@@ -239,7 +239,7 @@
     {
       "bytes": 1326,
       "path": "harbor/tasks/dob100-003-rca-checkout-unschedulable-replicas/task.toml",
-      "sha256": "90bee478edcdc6a3db18aa7ebf4ba673cf9186654e7e5e7ba08d9e44bb8561ee"
+      "sha256": "fe229808a746223a083c9f098322dd7f1c062794c9c9e5017c94fa155d372595"
     },
     {
       "bytes": 1443,
@@ -269,7 +269,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-004-rca-media-disk-pressure/environment/world/environment.db",
-      "sha256": "5c946117fd91fb6ca4248512f06f8759b1e92fca6c0c57052a5849d8a1de0fd8"
+      "sha256": "b94866907fbf9fadb1b1ee13bb84fbc2aa5eb607dde7f7ea65239822c64a4074"
     },
     {
       "bytes": 12612,
@@ -279,7 +279,7 @@
     {
       "bytes": 24877,
       "path": "harbor/tasks/dob100-004-rca-media-disk-pressure/environment/world/spec.json",
-      "sha256": "d165d1bd5e01c49df68bfe2464cc6463aa78b6a643aed8db1f96d55fa8a6812c"
+      "sha256": "b9a290ac5de1b1ede9eef63a43b98004d0849343d84911cbefd358b69dd33217"
     },
     {
       "bytes": 94315,
@@ -319,7 +319,7 @@
     {
       "bytes": 1267,
       "path": "harbor/tasks/dob100-004-rca-media-disk-pressure/task.toml",
-      "sha256": "a60c8556d384ee28e0c3e6c6a317a558fabefbbe647da7d19ef47ef9bedab823"
+      "sha256": "e8d6c2fe706992283e39bf611303b2d2a6127b83352728ceb17f2b3c15935b5c"
     },
     {
       "bytes": 1443,
@@ -349,7 +349,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-005-rca-notifications-node-deadlock/environment/world/environment.db",
-      "sha256": "d0bbf2800ecdfbc0461d5e44f7a59167fcdd6806960ac12259fd59b2c8b30a74"
+      "sha256": "0ec852198c8bcf43f9928b282bbff4b23b1a22d76583524a1d77207fe5281cfd"
     },
     {
       "bytes": 12612,
@@ -359,7 +359,7 @@
     {
       "bytes": 25224,
       "path": "harbor/tasks/dob100-005-rca-notifications-node-deadlock/environment/world/spec.json",
-      "sha256": "3bd8074dd432bd0e97a065bfea04c3186761c1b9cc7b36c91807c55ea57b9454"
+      "sha256": "dacd5fb94f03b0a82ab0978353180dccf7ed673c741eee755ddf70a0d828e4b2"
     },
     {
       "bytes": 94315,
@@ -399,7 +399,7 @@
     {
       "bytes": 1306,
       "path": "harbor/tasks/dob100-005-rca-notifications-node-deadlock/task.toml",
-      "sha256": "737307d12f24405f0559b28d2cefe7aa0c9657d0293728a2eed235137b70b1b5"
+      "sha256": "322b0256f9c821a0321935a75b6909ac21835b25194f0e1bebb6d44e2d7a196a"
     },
     {
       "bytes": 1443,
@@ -429,7 +429,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-006-rca-search-unscheduled-reindex/environment/world/environment.db",
-      "sha256": "8734d656acbbab08003d79c431b7fa56ef72a8267e3cae68a05625107516e959"
+      "sha256": "5ded075fdf0557976ea4262d47456805dfb9347ecd5a74fc501aa5b5437c9292"
     },
     {
       "bytes": 12612,
@@ -439,7 +439,7 @@
     {
       "bytes": 24925,
       "path": "harbor/tasks/dob100-006-rca-search-unscheduled-reindex/environment/world/spec.json",
-      "sha256": "4f91feea0c40ce1f1fc37959ef5c6c31ac609f051516482266e9575561c433fb"
+      "sha256": "75f5351e3a00cbc65fc422fec96787046134866ba20ee5e7411099e0f185bc62"
     },
     {
       "bytes": 94315,
@@ -479,7 +479,7 @@
     {
       "bytes": 1292,
       "path": "harbor/tasks/dob100-006-rca-search-unscheduled-reindex/task.toml",
-      "sha256": "332d517c8693b7ccae3bc6dbb7224afba4742bbae2b2672355a16a24cf5fb683"
+      "sha256": "ce37d821c16cab6b206dab8e72802ffcfd54825528ae662a8a39944914cd7747"
     },
     {
       "bytes": 1443,
@@ -509,7 +509,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-007-detect-checkout-errors/environment/world/environment.db",
-      "sha256": "916d1a6456113e2753c08fbac76fa7f3e73cad168fd556e43b129ef422ae691f"
+      "sha256": "3eba4380c88624010dfaeba188f7cfcb003c6e4b1b6f896cea4ba3ce3e15417b"
     },
     {
       "bytes": 12612,
@@ -519,7 +519,7 @@
     {
       "bytes": 24555,
       "path": "harbor/tasks/dob100-007-detect-checkout-errors/environment/world/spec.json",
-      "sha256": "f44e6c80a655dfe595e2c74cc048301004fdf71aa124ded447270c4b6fd3a4c4"
+      "sha256": "36c76ed27a6fccce4c0c52d51e366ad2b1231cfc0d24ee34cedc6001e49fa497"
     },
     {
       "bytes": 94315,
@@ -559,7 +559,7 @@
     {
       "bytes": 1264,
       "path": "harbor/tasks/dob100-007-detect-checkout-errors/task.toml",
-      "sha256": "f63c778eb20091a73c2e2c1e358c497661305ec78986dcc34b7e15b084b8c291"
+      "sha256": "ed25d1baf301fdc4fe88fe6a0b4e4a40f2ca4e020decdae6a0ca33a18adcd50d"
     },
     {
       "bytes": 1443,
@@ -589,7 +589,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-008-detect-inventory/environment/world/environment.db",
-      "sha256": "3217929302c5cc3c8272552645b772a4464eabb82da164545a19a92873242772"
+      "sha256": "77bdcea28d51b2a0821396b4079b80f58b449a5163f537c98da12d59aae7a8b1"
     },
     {
       "bytes": 12612,
@@ -599,7 +599,7 @@
     {
       "bytes": 29709,
       "path": "harbor/tasks/dob100-008-detect-inventory/environment/world/spec.json",
-      "sha256": "be5c3103e4895ab12105395aa36fb01538dce4809fd914d51d90cedf3c022380"
+      "sha256": "6f5af0cd594ed9d10a9de9d65e918e6f8a64cdd6c0227cd0210ea3658fbde4fb"
     },
     {
       "bytes": 94315,
@@ -639,7 +639,7 @@
     {
       "bytes": 1276,
       "path": "harbor/tasks/dob100-008-detect-inventory/task.toml",
-      "sha256": "fc69f8c5957611f5aa87c627263524a5d56197fc4c5722dfa40865689f175c53"
+      "sha256": "8c7c8e0586584c30b76028cb44af1f57cecc3ff4336cd64a49f980a70995c602"
     },
     {
       "bytes": 1443,
@@ -669,7 +669,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-009-rcn-checkout-error-rate/environment/world/environment.db",
-      "sha256": "468f1150b893eaa68355e4a583ff336ac11e6ee5a3031118ad5d42e100d5db9e"
+      "sha256": "dbcdd55a57377f6eea57287a7192d8286eeb9c7ea6c3190ad3016294e3c69912"
     },
     {
       "bytes": 12612,
@@ -679,7 +679,7 @@
     {
       "bytes": 24820,
       "path": "harbor/tasks/dob100-009-rcn-checkout-error-rate/environment/world/spec.json",
-      "sha256": "ba06b1de900f9482694268d98b218a1fbeb4cd0adad1d4f8ff1f36d1233ec7c9"
+      "sha256": "b522452895fef71e2c7cb9a0f660cf9ecebfd326bc93549a663e1d21d3182785"
     },
     {
       "bytes": 94315,
@@ -719,7 +719,7 @@
     {
       "bytes": 1287,
       "path": "harbor/tasks/dob100-009-rcn-checkout-error-rate/task.toml",
-      "sha256": "d16321f91dfbaf486740928ed68ba87edbcdc0e28ff71a61199ffa61e05f87d1"
+      "sha256": "cbca5d88c77d2cee8216f6ef9c144b4b913af731824c596d614e6a2c026e8ac0"
     },
     {
       "bytes": 1443,
@@ -749,7 +749,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-010-detect-status-page-recurrence/environment/world/environment.db",
-      "sha256": "41e07a663591d282394cbb7b8001c8e72790f19af99e7e40fc1e0bab949ead84"
+      "sha256": "654e103a62b3087edb47ddb11d7bfc615633561c881c36918a9dc5d5b60d6c15"
     },
     {
       "bytes": 12612,
@@ -759,7 +759,7 @@
     {
       "bytes": 25186,
       "path": "harbor/tasks/dob100-010-detect-status-page-recurrence/environment/world/spec.json",
-      "sha256": "8d8887c0de3fcd490d7a469ceb2749e64fc0560f90913c9f78b2478bf91b8aa5"
+      "sha256": "b2b50d3f8db4749ddb92d499eb01fcc07a9b17c19e58b3197c6c57ccfbb92fc5"
     },
     {
       "bytes": 94315,
@@ -799,7 +799,7 @@
     {
       "bytes": 1327,
       "path": "harbor/tasks/dob100-010-detect-status-page-recurrence/task.toml",
-      "sha256": "20b3bb94d04f00b6a619926de01ee629fbd50811d38153b106631bc8580d6a24"
+      "sha256": "c1707ed1b706acbedc0a6e73ffdb40e80642cfd07c1f75cdc151aefcc871f234"
     },
     {
       "bytes": 1443,
@@ -829,7 +829,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-011-detect-storefront-healthy/environment/world/environment.db",
-      "sha256": "26246dad8fb3755f87a18fbf49fc25c9faf676e0b54df390d58f86f4be7d39e0"
+      "sha256": "74ac2d58a350bdecccdf162b436c94f845a4cefad26e7c91cdfffafe0a44615b"
     },
     {
       "bytes": 12612,
@@ -839,7 +839,7 @@
     {
       "bytes": 24751,
       "path": "harbor/tasks/dob100-011-detect-storefront-healthy/environment/world/spec.json",
-      "sha256": "a8a28e0517b98709c4396f900861728ea3e5f091e6438e8f4d795e92a2fc6cc6"
+      "sha256": "d4f15b8cea16cdfa42290dd2154ca36726392bf213fa4c98da7aaacfd8e56b31"
     },
     {
       "bytes": 94315,
@@ -879,7 +879,7 @@
     {
       "bytes": 1279,
       "path": "harbor/tasks/dob100-011-detect-storefront-healthy/task.toml",
-      "sha256": "8dfaade1d7d03d898d2e437a40c9fe9dee6f27b7a0c8e54c4b45e61d5868e062"
+      "sha256": "645962d57cdc901caa4e9f118f536dddbe9033050c236699766809c80d94aa59"
     },
     {
       "bytes": 1443,
@@ -909,7 +909,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-012-localize-analytics-crashloop/environment/world/environment.db",
-      "sha256": "b8ce9061c45e6ad9cd4ae5fb7e93d048478a122c4bcddcaebccf14edde4c5851"
+      "sha256": "29e53b747dbd8ac692e962ff5915ddb15c0536a4001d43512f3561f26490127c"
     },
     {
       "bytes": 12612,
@@ -917,9 +917,9 @@
       "sha256": "158171d29ad2c5084b1bbf89fcebcc7c33ec04dc714bcae219ae955580ff1ac1"
     },
     {
-      "bytes": 25178,
+      "bytes": 26506,
       "path": "harbor/tasks/dob100-012-localize-analytics-crashloop/environment/world/spec.json",
-      "sha256": "7f92b6ddfd09511807f423fdc6b63bd6bd251fe850a3390c4e3f16380e924644"
+      "sha256": "7074fa914309e5d5bb8f8b3ea3d6562559fe360f15c49455b0433f6bbd5cf269"
     },
     {
       "bytes": 94315,
@@ -932,14 +932,14 @@
       "sha256": "a23259280428bc7a7cd7c735879bd26ef503e3ebbcf57c92a536eb7709b00639"
     },
     {
-      "bytes": 70114,
+      "bytes": 71442,
       "path": "harbor/tasks/dob100-012-localize-analytics-crashloop/environment/world/verify_task.py",
-      "sha256": "dd6928f82d7e8b41823a33ea42cd6bc22f797f5c55813d192d848b20557f9f59"
+      "sha256": "535e9a48516c898511ccaf757a9a0e05eb1811eba8c9a17772dbfb481c390d16"
     },
     {
-      "bytes": 839,
+      "bytes": 633,
       "path": "harbor/tasks/dob100-012-localize-analytics-crashloop/instruction.md",
-      "sha256": "c74fd7a7636456d52e36db134a24f66073d51736f95c626fd604fe0f55677cbe"
+      "sha256": "de50af67b61bdece62973480047a5f7a8059ca466dd8000529e098856c2527c0"
     },
     {
       "bytes": 61648,
@@ -957,9 +957,9 @@
       "sha256": "1075ee8c6c5583e145b8709772502e5adcf13084cdc1250292138d322900a8ed"
     },
     {
-      "bytes": 1307,
+      "bytes": 1390,
       "path": "harbor/tasks/dob100-012-localize-analytics-crashloop/task.toml",
-      "sha256": "f9a226e250fced545c5b61f83343d4e929cb8a038cb5233fcf420d74d9827998"
+      "sha256": "f7b851bb99bc1267f4675f78bffd543399cb815b64cd6ab3a65a00512588e37e"
     },
     {
       "bytes": 1443,
@@ -989,7 +989,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-013-localize-analytics-errors/environment/world/environment.db",
-      "sha256": "b40365056b8528205cb3a766bea90f2869c119d4366b83e1d2c0b906b31399a3"
+      "sha256": "cdad7dfa964b0213f94ccd88ef4d8182bab725116f77b1df93ec24cfb1960810"
     },
     {
       "bytes": 12612,
@@ -999,7 +999,7 @@
     {
       "bytes": 24993,
       "path": "harbor/tasks/dob100-013-localize-analytics-errors/environment/world/spec.json",
-      "sha256": "796a183026108b38e473b63e1f7c0ef2a809ed20bb9dc13eefbe9227dd60f41c"
+      "sha256": "fb5c371c2cc245fd42bf9a4027e20ebdfbb83991f34a2a8f7d2f37fd4b5682ab"
     },
     {
       "bytes": 94315,
@@ -1039,7 +1039,7 @@
     {
       "bytes": 1288,
       "path": "harbor/tasks/dob100-013-localize-analytics-errors/task.toml",
-      "sha256": "1e4b52c9abe9912fdce00862205fff051a41890ed8566feeaf025d9451a05b00"
+      "sha256": "ec8c6744018b91fc2c8b76b7f80ebaa0ae4a8608f7a968b77c0b8fe37f43bf41"
     },
     {
       "bytes": 1443,
@@ -1069,7 +1069,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-014-localize-checkout-latency/environment/world/environment.db",
-      "sha256": "2fca2efaf7ad666dfc45588e55b34eaff61a03f615f4a58a7363ffbafe37af25"
+      "sha256": "2426942c2e1e1a9ab0e7e516ad198781b7de68c86328129c1b2db881620cd103"
     },
     {
       "bytes": 12612,
@@ -1079,7 +1079,7 @@
     {
       "bytes": 24894,
       "path": "harbor/tasks/dob100-014-localize-checkout-latency/environment/world/spec.json",
-      "sha256": "e9deb7cda5186bbef08d59c5ea9f19172ab273bc0acebdae58c4d049b43d1f52"
+      "sha256": "cf36a113cac2e8724878dd6df8b5ab5ce7f3463ab36621cf44eb9198304215a8"
     },
     {
       "bytes": 94315,
@@ -1119,7 +1119,7 @@
     {
       "bytes": 1279,
       "path": "harbor/tasks/dob100-014-localize-checkout-latency/task.toml",
-      "sha256": "31cb028bcc837af89053f5b7ae159f36d8c4708ae97b2061357c915b6ab6c073"
+      "sha256": "bb711bf38515007fb971c42be575a115474380523b69721f987cc43a76d550e2"
     },
     {
       "bytes": 1443,
@@ -1149,7 +1149,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-015-localize-gateway-latency/environment/world/environment.db",
-      "sha256": "bad637a6149c9c1fc754506ff52c27b12f9e4763f63dc9ab67af8df6cd422c08"
+      "sha256": "8f5c2c484b9fd8e1c4eb5dbcdaf6e1c9e089f3d16414c81641e81df47dd3029b"
     },
     {
       "bytes": 12612,
@@ -1159,7 +1159,7 @@
     {
       "bytes": 24818,
       "path": "harbor/tasks/dob100-015-localize-gateway-latency/environment/world/spec.json",
-      "sha256": "38d40c0d81163ae4ee432cafbc5bafb5e06d57a5d1e15c34a656b110a290d414"
+      "sha256": "204a46e515dd5f98401eb06c87a107c8c28e20dc4194d71585664677943f45ae"
     },
     {
       "bytes": 94315,
@@ -1199,7 +1199,7 @@
     {
       "bytes": 1283,
       "path": "harbor/tasks/dob100-015-localize-gateway-latency/task.toml",
-      "sha256": "f7920d0521793a0f1762ab1c8550db84d443d6059bbeae59874cf79b2d41d977"
+      "sha256": "4d0ca7a116a39a6be0ba4781ec1a34ac45a41a9c403499b6f6ae1c5703ef18f7"
     },
     {
       "bytes": 1443,
@@ -1229,7 +1229,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-016-localize-media-latency/environment/world/environment.db",
-      "sha256": "4bf8758590f20ae2d93de2c93cb098569720bcab8f7482c000a03d177163bc28"
+      "sha256": "90659eb33b4a63e3180722ff132c16fba1c581360f0fad9ebd1830bfb3354e21"
     },
     {
       "bytes": 12612,
@@ -1239,7 +1239,7 @@
     {
       "bytes": 24985,
       "path": "harbor/tasks/dob100-016-localize-media-latency/environment/world/spec.json",
-      "sha256": "bc4a66507c741514c6f38873ce882c4b9e406aab9fcb707acb5f5df61dcfcd85"
+      "sha256": "da1f3bcba70f28bb087a8bd5dbb2651a14166509d4964dbe7a09583b55f93625"
     },
     {
       "bytes": 94315,
@@ -1279,7 +1279,7 @@
     {
       "bytes": 1277,
       "path": "harbor/tasks/dob100-016-localize-media-latency/task.toml",
-      "sha256": "347a6510c5265f82b477070227827dc8f9cd1300d56e0db242e72525dc6e75d1"
+      "sha256": "79af0f6d489553b1e59b03d7ee258e8715a9e2517a6db5b1dce1988fac96192a"
     },
     {
       "bytes": 1443,
@@ -1309,7 +1309,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-017-auth-v1-to-v2/environment/world/environment.db",
-      "sha256": "7cd78d916dfd1d2517c8b040c335f78de6d3bdce86db58e7c2419532d9532de0"
+      "sha256": "ab1f578b2d11ae7d534b00c17c6e9b85742b21f1f192bc410d1de1df985a34d9"
     },
     {
       "bytes": 12612,
@@ -1319,7 +1319,7 @@
     {
       "bytes": 28811,
       "path": "harbor/tasks/dob100-017-auth-v1-to-v2/environment/world/spec.json",
-      "sha256": "13160f554383041a2248675dde262c0b86f131733a88dd8c54e99ae64685af4f"
+      "sha256": "e5845447f9b726420aa1fdde39162d56b94f50927de3e312c1dd265a636d2369"
     },
     {
       "bytes": 94315,
@@ -1359,7 +1359,7 @@
     {
       "bytes": 1251,
       "path": "harbor/tasks/dob100-017-auth-v1-to-v2/task.toml",
-      "sha256": "60d26a9e9b9a077a2f65b928182704aaf02b1cb24718ccbf9ed6db4c1bde552a"
+      "sha256": "cd756a5d876669fa657442b91af027ee9d4ba34d26b195b79e418d65f3fa660e"
     },
     {
       "bytes": 1443,
@@ -1389,7 +1389,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-018-rca-payments-retry/environment/world/environment.db",
-      "sha256": "b1cb420ca051e666c7c3e2aba7a85e20e4936669cf7d348acb9fd8748a20983a"
+      "sha256": "d95453305f460f54336b12a682a67a5de749463bf0316f28e156d3a55f0dc340"
     },
     {
       "bytes": 12612,
@@ -1399,7 +1399,7 @@
     {
       "bytes": 24975,
       "path": "harbor/tasks/dob100-018-rca-payments-retry/environment/world/spec.json",
-      "sha256": "f0539b1752ac384537c4f9e99df18438945a0ccff4f7a7d62ad8f74266d81df8"
+      "sha256": "a7495daf73bb6f7743f7bf95a933979eb79dfb4b66a35ca0f741779a56a866d0"
     },
     {
       "bytes": 94315,
@@ -1439,7 +1439,7 @@
     {
       "bytes": 1247,
       "path": "harbor/tasks/dob100-018-rca-payments-retry/task.toml",
-      "sha256": "32e00686579d5d257efdf99d47c2b9e5c29b10c12520656005510dbd9a082a52"
+      "sha256": "79447839e188ea1329876c6aa16f7e533f761524b5c7dda74fa776ea3844d162"
     },
     {
       "bytes": 1443,
@@ -1469,7 +1469,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-019-rca-catalog-n-plus-one/environment/world/environment.db",
-      "sha256": "24a9ee0101a142838e892c1f9466f2c8247215716f1decec27a4c6f3f9a3faba"
+      "sha256": "8b51a61ee871d7219bd34e1f71a33209373ad910b6b5d52216e65d4030049c1c"
     },
     {
       "bytes": 12612,
@@ -1479,7 +1479,7 @@
     {
       "bytes": 24945,
       "path": "harbor/tasks/dob100-019-rca-catalog-n-plus-one/environment/world/spec.json",
-      "sha256": "58fa75151e91c6154fa55631fee74fe62b900f536eaed8387bd11e760af3dfdf"
+      "sha256": "23866509121ed1ba0bd9e847a44701efc3fb600d0007d167d3304a70a51c7bf6"
     },
     {
       "bytes": 94315,
@@ -1519,7 +1519,7 @@
     {
       "bytes": 1263,
       "path": "harbor/tasks/dob100-019-rca-catalog-n-plus-one/task.toml",
-      "sha256": "7ce4754442a638b90cfa294b5d25010ebbc57feb7229d3e1922d8c7240b61d61"
+      "sha256": "bf4e76e3b65b64be60f3fdd939a59981706f75348f005cecabc3f6aa9daf9102"
     },
     {
       "bytes": 1443,
@@ -1549,7 +1549,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-020-rca-notifications-timeout/environment/world/environment.db",
-      "sha256": "a7846c092b368d9b7dad3694e4320f0a65a893d8b33ff924698a2476c5d63626"
+      "sha256": "38c2329ef8ec8478e78cb3dc87a8bcca88bc36949b6dfbde2b4e9eb1d7065013"
     },
     {
       "bytes": 12612,
@@ -1559,7 +1559,7 @@
     {
       "bytes": 25238,
       "path": "harbor/tasks/dob100-020-rca-notifications-timeout/environment/world/spec.json",
-      "sha256": "041b6f423f6d101fc33f567b71dac3cdb591a4fbdab40db0a27b6f05e35ee7e4"
+      "sha256": "aaa6543fc9d98b9719cfb64ef359a187df1de6f13714b50a5bd111efb8f57686"
     },
     {
       "bytes": 94315,
@@ -1599,7 +1599,7 @@
     {
       "bytes": 1279,
       "path": "harbor/tasks/dob100-020-rca-notifications-timeout/task.toml",
-      "sha256": "429d46b30784cecf6f0b290339902048152d8248c56a6be707577a372565b0a5"
+      "sha256": "db3acbb58c6d2ca7ef8a1e0061874423992c3767b1fa0f053babb3be308d59dc"
     },
     {
       "bytes": 1443,
@@ -1629,7 +1629,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-021-rca-inventory-pool/environment/world/environment.db",
-      "sha256": "44515d40c9b56554e9a7aa0e9198a6720d2444e28c101fa82b9ae59cd36284e3"
+      "sha256": "304873903d619b878ddf1b8db382c71a4a912f35902b4912a1e10756a18125e7"
     },
     {
       "bytes": 12612,
@@ -1639,7 +1639,7 @@
     {
       "bytes": 25073,
       "path": "harbor/tasks/dob100-021-rca-inventory-pool/environment/world/spec.json",
-      "sha256": "d6006aec59166e453ebdf0872e06aae01b5e69da86efc1e30ad0b151bbadc065"
+      "sha256": "aceb1102c5c49e1d8b49bb45585b07dbe46a6526b5521ae0bf2ce7a95b2c07b1"
     },
     {
       "bytes": 94315,
@@ -1679,7 +1679,7 @@
     {
       "bytes": 1258,
       "path": "harbor/tasks/dob100-021-rca-inventory-pool/task.toml",
-      "sha256": "6f063a8ccf47b6b731374caab1bd447125c9eec6635aff358e45e9f1f44ba3b7"
+      "sha256": "dd58d7fb5b617ca93a383d72747933f8794cef73204bac83c7ec876232fa5e26"
     },
     {
       "bytes": 1443,
@@ -1709,7 +1709,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-022-rca-inventory-migrator-security-context/environment/world/environment.db",
-      "sha256": "b815225b45b299198d1d8df24934f1c1d4233591ee3d424e4af793c7423b1d34"
+      "sha256": "1f526780d23fedeb033b7da117fa7ec33274fb727202abfe70d55092d2265cff"
     },
     {
       "bytes": 12612,
@@ -1719,7 +1719,7 @@
     {
       "bytes": 25301,
       "path": "harbor/tasks/dob100-022-rca-inventory-migrator-security-context/environment/world/spec.json",
-      "sha256": "cfcc4fc5872fca02de6b1c4369e2e44a58704f0729bae85df269d8d6d8d12a40"
+      "sha256": "0dd155f27259df3809f7f5f29c4cee5174d09a94989a1d2746c7a9bd4e8c289b"
     },
     {
       "bytes": 94315,
@@ -1759,7 +1759,7 @@
     {
       "bytes": 1336,
       "path": "harbor/tasks/dob100-022-rca-inventory-migrator-security-context/task.toml",
-      "sha256": "4254b1d0b3e2504607540c33ca76dc62780a34eb22dad3909329207025e10ca0"
+      "sha256": "72a6e9f4d44de815a66e930d8ae511b273d0a41d56e1864354e95b10d47d57b6"
     },
     {
       "bytes": 1443,
@@ -1789,7 +1789,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-023-rca-inventory-missing-role/environment/world/environment.db",
-      "sha256": "78393a87956bae7177d00fdbf41a9c7f1b5e294ba0357751c56299b4730d3ce8"
+      "sha256": "b732779e919e2d0745066b7af0c8d6f20594d2e2466c9666ee332e7e32504ac3"
     },
     {
       "bytes": 12612,
@@ -1797,9 +1797,9 @@
       "sha256": "158171d29ad2c5084b1bbf89fcebcc7c33ec04dc714bcae219ae955580ff1ac1"
     },
     {
-      "bytes": 25340,
+      "bytes": 27228,
       "path": "harbor/tasks/dob100-023-rca-inventory-missing-role/environment/world/spec.json",
-      "sha256": "b15ab4a246007fcfcb245bcf25eaee0d35b9f29fe24ee711a386e32c05ba9757"
+      "sha256": "a903327d248d430380d132283d522e6a1e6ac39cecb93187e21a25871491b498"
     },
     {
       "bytes": 94315,
@@ -1812,14 +1812,14 @@
       "sha256": "a23259280428bc7a7cd7c735879bd26ef503e3ebbcf57c92a536eb7709b00639"
     },
     {
-      "bytes": 70385,
+      "bytes": 72273,
       "path": "harbor/tasks/dob100-023-rca-inventory-missing-role/environment/world/verify_task.py",
-      "sha256": "fd548bb5cb317f67baec53bdb40d08cfcd6c569022e5c3c54f1eb839e64cefa9"
+      "sha256": "aa32ec09f29a6bddae37bae75dd437401fd436ce4922658ba2965d749650df95"
     },
     {
-      "bytes": 718,
+      "bytes": 644,
       "path": "harbor/tasks/dob100-023-rca-inventory-missing-role/instruction.md",
-      "sha256": "f37bddb26788a20dc4be4b9d75735d50d17e898a04f7cc3940e7f61b56b90eac"
+      "sha256": "869749236cc8fda7cb970e90776c581230f924748f08c57cc33df04a16033e9f"
     },
     {
       "bytes": 61794,
@@ -1837,9 +1837,9 @@
       "sha256": "1075ee8c6c5583e145b8709772502e5adcf13084cdc1250292138d322900a8ed"
     },
     {
-      "bytes": 1302,
+      "bytes": 1420,
       "path": "harbor/tasks/dob100-023-rca-inventory-missing-role/task.toml",
-      "sha256": "d9b8e68fb29feb1ebedca49087ed45ed5834747da4baea9ea4ffec41c3fd2f1e"
+      "sha256": "514aff5567657a0f4810bb68a23043868b5c251a0769651877267dd8c7692d35"
     },
     {
       "bytes": 1443,
@@ -1869,7 +1869,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-024-attr-three-at-once/environment/world/environment.db",
-      "sha256": "255f02a7d3519b15833101d948b32bd3744e11f89fff3dd5e5d154a25e2ae4fd"
+      "sha256": "b2d1723ecb792c805e944a6ababfd22ff1ccb81ed1f248d367228717bf9c3623"
     },
     {
       "bytes": 12612,
@@ -1879,7 +1879,7 @@
     {
       "bytes": 27160,
       "path": "harbor/tasks/dob100-024-attr-three-at-once/environment/world/spec.json",
-      "sha256": "9bac708bd6db8c05080e8b8a5356ca1c4fbfebc0ea94366b2a43a3fee107a55e"
+      "sha256": "5490affc4e0a26f733d768e50609530ea09a42facca3dab685a85174c13ab3a5"
     },
     {
       "bytes": 94315,
@@ -1919,7 +1919,7 @@
     {
       "bytes": 1279,
       "path": "harbor/tasks/dob100-024-attr-three-at-once/task.toml",
-      "sha256": "ebb4d8197862ccc6172988f620701b95ebb8d425a15e7ac8848546f27039d47b"
+      "sha256": "e6f0b1d42318a28e140f099c32812ebeb2cac134e736c2662c04663de2d1b4d8"
     },
     {
       "bytes": 1443,
@@ -1949,7 +1949,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-025-rca-catalog-gc-thrash/environment/world/environment.db",
-      "sha256": "0b072c1f3b81a2efcc00ca4412dae6dd15576e7ec955651100855d150fe36f8c"
+      "sha256": "10010e323ef37125e95964ce085fc0d0f211017ee00b95da29fa1d0141fb4a30"
     },
     {
       "bytes": 12612,
@@ -1959,7 +1959,7 @@
     {
       "bytes": 25096,
       "path": "harbor/tasks/dob100-025-rca-catalog-gc-thrash/environment/world/spec.json",
-      "sha256": "37ef52a4799b6bf63da0a3458c2c32b89c525f7bb3c4cf25860baca4bf2a5f1a"
+      "sha256": "3c6dd45dc2f9cf0c955406e618eb4c3087be6aa587999ac12208b6f635eab32a"
     },
     {
       "bytes": 94315,
@@ -1999,7 +1999,7 @@
     {
       "bytes": 1271,
       "path": "harbor/tasks/dob100-025-rca-catalog-gc-thrash/task.toml",
-      "sha256": "3c1c1e49297c224bfb5dc2d697311751c17ff36327ac4c1e9fb9d8a1c0272672"
+      "sha256": "de0a1b31732422641023c07ec553ea65a7c09631eeef969715c69b58cee297f6"
     },
     {
       "bytes": 1443,
@@ -2029,7 +2029,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-026-rca-storefront-traffic-flood/environment/world/environment.db",
-      "sha256": "a28b1a7736225a77893f55c91314ff2e41e891a5db1de59993e4cf7bcaeeffc7"
+      "sha256": "4756be615a6aa7754d749761265f17080b11d430380b82003cbb735f5bc7de97"
     },
     {
       "bytes": 12612,
@@ -2039,7 +2039,7 @@
     {
       "bytes": 25257,
       "path": "harbor/tasks/dob100-026-rca-storefront-traffic-flood/environment/world/spec.json",
-      "sha256": "2e548bf25c7f84a92de667c19bdea32279f43e320e5933a04bad585d51ccf08d"
+      "sha256": "c30afeae61ce0d983a516bcc6a7884ffffd97e7158c7b1aa009faa1c8f8f5f73"
     },
     {
       "bytes": 94315,
@@ -2079,7 +2079,7 @@
     {
       "bytes": 1293,
       "path": "harbor/tasks/dob100-026-rca-storefront-traffic-flood/task.toml",
-      "sha256": "280ed4c757a28fe3cf8ad1e4c3f5006418adf4807d0a4918bfcf90a7dc1f32f4"
+      "sha256": "3cd07d926fcf49c2812a6ee060c2ecc3ba2056f1f13bc97139fc70d10f8f423e"
     },
     {
       "bytes": 1443,
@@ -2109,7 +2109,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-027-rca-analytics-untolerated-taint/environment/world/environment.db",
-      "sha256": "2d8b02fe628752f7a7f5c2ed88513ec2d3a5d370bbcc13d2d47a3d2160b1991e"
+      "sha256": "ccc0cd49cd3591d47b4b3d352ab83d401de55e9a15625877ec109fd7f3b8c67a"
     },
     {
       "bytes": 12612,
@@ -2119,7 +2119,7 @@
     {
       "bytes": 25376,
       "path": "harbor/tasks/dob100-027-rca-analytics-untolerated-taint/environment/world/spec.json",
-      "sha256": "4fb93702cf1066014f06b91dfae72e747ed276b355680b6ec754b1ecb688a668"
+      "sha256": "3efda7051c72ddec027a8fc98d8d259e45c9dad46339c215d294b4411848ae06"
     },
     {
       "bytes": 94315,
@@ -2159,7 +2159,7 @@
     {
       "bytes": 1306,
       "path": "harbor/tasks/dob100-027-rca-analytics-untolerated-taint/task.toml",
-      "sha256": "1294bfca7294b953d73161ccad4fa5ae2a0dc6a3bdb613027ccdb29558a2ab15"
+      "sha256": "0e701c3dc645f000d403a1051d17f81f154fe2a06981cc1dc958dd811503b3d5"
     },
     {
       "bytes": 1443,
@@ -2189,7 +2189,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-028-rca-media-recreate-strategy/environment/world/environment.db",
-      "sha256": "f9c4e52acc90b70400ec71aad35ed9685bf3e65c38a5ff7dcf5f2581ee6e8ad8"
+      "sha256": "293a4b70ad6d3cb76efc3eda30fe84aa721cec74999a38be0c02055192c6423e"
     },
     {
       "bytes": 12612,
@@ -2199,7 +2199,7 @@
     {
       "bytes": 25479,
       "path": "harbor/tasks/dob100-028-rca-media-recreate-strategy/environment/world/spec.json",
-      "sha256": "9d6c352e7245aeeb034a7ceb499c7aa8c3dc4fe5a62dd9fc2e51166ad2d9a36d"
+      "sha256": "cb84896b2fb51e8121f9350486e1e3a7f3dd66350d4896dae916501d273c6ccc"
     },
     {
       "bytes": 94315,
@@ -2239,7 +2239,7 @@
     {
       "bytes": 1310,
       "path": "harbor/tasks/dob100-028-rca-media-recreate-strategy/task.toml",
-      "sha256": "67b145189c7aee945c2348a351245f0285825f1da322492be745da38426ccf31"
+      "sha256": "7c9f73f63b8d51669ffc00833844f278ba7798369ba1f6d8e0419a1c7d96573e"
     },
     {
       "bytes": 1443,
@@ -2269,7 +2269,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-029-rca-inventory-unbound-storage/environment/world/environment.db",
-      "sha256": "91c4cedc8c5347b631eaf551114282732dfd9f1ceeff3a2d81e93013d672afbb"
+      "sha256": "392b480ff8f5037ff8248a0b5e540487721073a1409db3a8da0e24eeb2d56533"
     },
     {
       "bytes": 12612,
@@ -2279,7 +2279,7 @@
     {
       "bytes": 25123,
       "path": "harbor/tasks/dob100-029-rca-inventory-unbound-storage/environment/world/spec.json",
-      "sha256": "21d4be178e6e2c32087cbc2e2824ed92aa51bf0724b597e4343dddb5704b4765"
+      "sha256": "80c67c701fd5e7ad2b5a237ea1bca4f12662f3373a229e11df715f9d756285a4"
     },
     {
       "bytes": 94315,
@@ -2319,7 +2319,7 @@
     {
       "bytes": 1293,
       "path": "harbor/tasks/dob100-029-rca-inventory-unbound-storage/task.toml",
-      "sha256": "e5e410736d44b23acb03d65a19486880adaaae62e8d3c960114328fbafd53eec"
+      "sha256": "e48418a47dde6083abd36796f2c94daeee236a7b8d986167abfe32824574a1a9"
     },
     {
       "bytes": 1443,
@@ -2349,7 +2349,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-030-rcn-distinct-checkout-bugs/environment/world/environment.db",
-      "sha256": "8b0913198f975abce807436e98b169384d1ccd7339dda9cab9fff544f0322d9f"
+      "sha256": "9f574383184bf7d71c8ce549e96aeade79b0245097bc3391770be1cb2fe99aad"
     },
     {
       "bytes": 12612,
@@ -2359,7 +2359,7 @@
     {
       "bytes": 25816,
       "path": "harbor/tasks/dob100-030-rcn-distinct-checkout-bugs/environment/world/spec.json",
-      "sha256": "4e556445ddd9a725359094d90f48d1b19506d28a927128b6f653362229973c74"
+      "sha256": "0a3962973d089619f5d36afedf84d281678b2c560d7cb67d62307bc2e0cede1d"
     },
     {
       "bytes": 94315,
@@ -2399,7 +2399,7 @@
     {
       "bytes": 1303,
       "path": "harbor/tasks/dob100-030-rcn-distinct-checkout-bugs/task.toml",
-      "sha256": "5c9cfb22c54d6865d3000cb1a9721859dee4cdf375bc7085cfbfaf22424e5137"
+      "sha256": "97a2a17092ebcac898a8f7788e99ca978a0fc6feb9850addf801e14014fff61f"
     },
     {
       "bytes": 1443,
@@ -2429,7 +2429,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-031-impl-backoff/environment/world/environment.db",
-      "sha256": "6287e8e9481f99bcc3238701d0104b0cc9b4b00ce7c372b4f05d9778e8de9023"
+      "sha256": "ac78fe003b1c40ad02257981822272c901f9fbdbdf4f3e912784ce5ca0484c14"
     },
     {
       "bytes": 12612,
@@ -2439,7 +2439,7 @@
     {
       "bytes": 24611,
       "path": "harbor/tasks/dob100-031-impl-backoff/environment/world/spec.json",
-      "sha256": "b53df92dc2bb5d040dbf4fbb90a514631ff2c374dd41b4a92ca5458a8507b585"
+      "sha256": "d763d87a3c229e46252839de40cdc5292842438c044ecca4f2e35c971ca01b9c"
     },
     {
       "bytes": 94315,
@@ -2479,7 +2479,7 @@
     {
       "bytes": 1259,
       "path": "harbor/tasks/dob100-031-impl-backoff/task.toml",
-      "sha256": "1bf11db5a5a2a9340cc0c805aee163b3f19968cbee8067c1d9d591daf6e86b9c"
+      "sha256": "7649564a1377ba2631ef0b9c6470d3609674f4c911e97809a3e608a5bd6abe6a"
     },
     {
       "bytes": 1443,
@@ -2509,7 +2509,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-032-impl-cachekey/environment/world/environment.db",
-      "sha256": "baa1723327327d1bb5afd04843c47b6186e97529fa6e91894831696fd7b52603"
+      "sha256": "d987d0124ee540c2d68ee58c7c96e42a4d599721b33bbc8c7f1d4f0ad1d0b08c"
     },
     {
       "bytes": 12612,
@@ -2519,7 +2519,7 @@
     {
       "bytes": 24479,
       "path": "harbor/tasks/dob100-032-impl-cachekey/environment/world/spec.json",
-      "sha256": "d43998192e723a36e4ca16b405682c07f71d1cf72ad4ceb31dea951ecd665846"
+      "sha256": "70d87e2498e4f9a45a17f5942ea6ef663ccfd217926cd90bec308435000c0483"
     },
     {
       "bytes": 94315,
@@ -2559,7 +2559,7 @@
     {
       "bytes": 1247,
       "path": "harbor/tasks/dob100-032-impl-cachekey/task.toml",
-      "sha256": "6678394f46d994401f77e15078c73e454aa5a62918456ed00868970c47e2ca9d"
+      "sha256": "c76c1bf3d57932daf929b440712f7e3c67f4b011250c2fedf1a6decd1c035643"
     },
     {
       "bytes": 1443,
@@ -2589,7 +2589,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-033-impl-chunk/environment/world/environment.db",
-      "sha256": "add7cb56a1b2a77bd342cdf12eea3d61eec4a2505c08af2f778e1c913de665db"
+      "sha256": "936c09b08ea7840dc233a5e732db6dadcf8f88fbc45eacaa4a237cdd64951055"
     },
     {
       "bytes": 12612,
@@ -2599,7 +2599,7 @@
     {
       "bytes": 24709,
       "path": "harbor/tasks/dob100-033-impl-chunk/environment/world/spec.json",
-      "sha256": "4dafd027243f7fbad991a5a58c2255249f983621fe75f1157d2f3d6982219a96"
+      "sha256": "9d072e2a1c122e65ddc1296891bf736286a19ba326ab85834e10afd24c38d29d"
     },
     {
       "bytes": 94315,
@@ -2639,7 +2639,7 @@
     {
       "bytes": 1245,
       "path": "harbor/tasks/dob100-033-impl-chunk/task.toml",
-      "sha256": "f89f6f180d09616b63ea3ce5156426e13222af108caa20e66963ae16d7785181"
+      "sha256": "4770f0aa66eb736793455e9d0daff57024d33adc16b32dbfb7c3680e333d309a"
     },
     {
       "bytes": 1443,
@@ -2669,7 +2669,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-034-impl-ratelimit/environment/world/environment.db",
-      "sha256": "96ce62892147a741e1064b5926f43dc96f8200873d88c64fa0d6329552324eb0"
+      "sha256": "5405c6588b7b50e3a3bc0ff0fc05abc0041d5cde0febd09f62b7c039ed70c7a2"
     },
     {
       "bytes": 12612,
@@ -2679,7 +2679,7 @@
     {
       "bytes": 25060,
       "path": "harbor/tasks/dob100-034-impl-ratelimit/environment/world/spec.json",
-      "sha256": "bff862bd58c30548ca765826d9bbd5f97e75fe2b203a75459fb5d543b63bad4e"
+      "sha256": "a2576ef7f8bd40307b0b5caea3b0e2027c376175f4c01649b4f91734fb3a066e"
     },
     {
       "bytes": 94315,
@@ -2719,7 +2719,7 @@
     {
       "bytes": 1270,
       "path": "harbor/tasks/dob100-034-impl-ratelimit/task.toml",
-      "sha256": "05f41d80f82d192ec08061a75ca495acc85a251aece86ac4f5d11e3e05584bed"
+      "sha256": "a7509c7c04dde7669df685b0f4228138cba9dcedf0a16f4ff4172d8281cdaf86"
     },
     {
       "bytes": 1443,
@@ -2749,7 +2749,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-035-port-close-backlog-issues/environment/world/environment.db",
-      "sha256": "ee59082acfccf7b75877e566c8b38821c1cf633850cdd99da27757f509a80e45"
+      "sha256": "8ae16180c684c8fc3a1fec54af60442c494e42059f040edba5933692b7e8d9b2"
     },
     {
       "bytes": 12612,
@@ -2759,7 +2759,7 @@
     {
       "bytes": 24377,
       "path": "harbor/tasks/dob100-035-port-close-backlog-issues/environment/world/spec.json",
-      "sha256": "ad4ed44410713da3a41985fcc09ba6275fbde4ae1aab70c6869557b4ff7d7e6b"
+      "sha256": "56a1faca536c0a69d38a42f1c6fcc2dee31365f3e2e6f1c912d13418211fb97d"
     },
     {
       "bytes": 94315,
@@ -2777,9 +2777,9 @@
       "sha256": "6f2b5ac2366ffb9f832bb87b791b8ed71d48c2d7a4e5135b70bbb865077e377c"
     },
     {
-      "bytes": 789,
+      "bytes": 817,
       "path": "harbor/tasks/dob100-035-port-close-backlog-issues/instruction.md",
-      "sha256": "1b9dcf24c3005cb694abc183719a05b93a52d911244c7dc879bec1bb2e830988"
+      "sha256": "a9cb56b3f1cf0a34535b51fd6ae16e40dd2330de0b66b8152ba82be84b09e5a5"
     },
     {
       "bytes": 61881,
@@ -2799,7 +2799,7 @@
     {
       "bytes": 1287,
       "path": "harbor/tasks/dob100-035-port-close-backlog-issues/task.toml",
-      "sha256": "6307bd13d3293ea7bd2cef66f9c3ec2b6a128a84419d285ed6e2ba1e32ebf63b"
+      "sha256": "0b56e438eadf94fb740a40952ecf8f0a4eba79e5772fef26ab8de51962dd743b"
     },
     {
       "bytes": 1443,
@@ -2829,7 +2829,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-036-port-close-blocked-issues/environment/world/environment.db",
-      "sha256": "7886815f0ceb7eda59cf89bebc8905ef3e98fa1cf9bed2b3aaa5ecd2201bd4cb"
+      "sha256": "6ee24fcb03b050664bc6b7e8d706392f3cfce9777aa2c48aeeb259e5e6445460"
     },
     {
       "bytes": 12612,
@@ -2839,7 +2839,7 @@
     {
       "bytes": 24099,
       "path": "harbor/tasks/dob100-036-port-close-blocked-issues/environment/world/spec.json",
-      "sha256": "e1428dac26d8c696d0bf381766aec87361cfc1132eac494abff45762c568e0d1"
+      "sha256": "090a73b366537bb4b3a4ceab70581ebf60e4019965d3953fe0de214154051b51"
     },
     {
       "bytes": 94315,
@@ -2879,7 +2879,7 @@
     {
       "bytes": 1273,
       "path": "harbor/tasks/dob100-036-port-close-blocked-issues/task.toml",
-      "sha256": "c37c5c0dcf450bb28505681093694950c6c1f7f4adf7303f1970be8e8f04fc11"
+      "sha256": "f376fb29bd77eb829213bf9990d27c775e03f03d06b8031684bf9ad24a92bda1"
     },
     {
       "bytes": 1443,
@@ -2909,7 +2909,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-037-port-copy-priority-issues/environment/world/environment.db",
-      "sha256": "bf600abe9f2607ea129e0f54c4cf94d903a117758b917853000361019b6196d1"
+      "sha256": "d5f717f9a891cd509e79720d24a36895e7117fdd5d712fb974ff5e60086bbdaa"
     },
     {
       "bytes": 12612,
@@ -2919,7 +2919,7 @@
     {
       "bytes": 24416,
       "path": "harbor/tasks/dob100-037-port-copy-priority-issues/environment/world/spec.json",
-      "sha256": "70d39d05af2771051d991eb6901aea742192cfd6fedd8eb44c4b08f2f074e432"
+      "sha256": "60b1ba790d9e6860d4c864d1920676735423b70bbe13e6d31cf847dbee9dca35"
     },
     {
       "bytes": 94315,
@@ -2959,7 +2959,7 @@
     {
       "bytes": 1293,
       "path": "harbor/tasks/dob100-037-port-copy-priority-issues/task.toml",
-      "sha256": "dd0840ed3d9367669d75f8d99cf41cf2d79de7a9e79d0ab2a75f054ecf7f294b"
+      "sha256": "4ebdb9ed26a4343acbd5d5527460c29fec358301ffee7205264e760a98886963"
     },
     {
       "bytes": 1443,
@@ -2989,7 +2989,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-038-port-count-inflight-work/environment/world/environment.db",
-      "sha256": "ea8d53a25b57e749a4980daa0380c8e9852a6991dea8d7424c62af0ebe0d989d"
+      "sha256": "063d3e4829a94f7b5cec0b8f9aee232af681232d649f2a146bdef1ea64e1e1ec"
     },
     {
       "bytes": 12612,
@@ -2999,7 +2999,7 @@
     {
       "bytes": 23692,
       "path": "harbor/tasks/dob100-038-port-count-inflight-work/environment/world/spec.json",
-      "sha256": "c1238c1b9781b1416b807b9de33a060eb4119934a9dd4deeb9153dca3b4475d3"
+      "sha256": "061548bb4c2139354922fc51a35ce699c373cf1f7998aeb7b7ceade7e9fd5422"
     },
     {
       "bytes": 94315,
@@ -3039,7 +3039,7 @@
     {
       "bytes": 1284,
       "path": "harbor/tasks/dob100-038-port-count-inflight-work/task.toml",
-      "sha256": "ea2527da74736b7dd3c83fc41662b397d5cd638a253be77b9732fc1cf09791aa"
+      "sha256": "697fb7ffe68236d7fd44d17bdc675437879928da3e47967124ffed3f4855ea08"
     },
     {
       "bytes": 1443,
@@ -3069,7 +3069,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-039-port-count-unowned-work/environment/world/environment.db",
-      "sha256": "e1353e4474f09baaa003d8e6483617b18f19f71395d3ea04194159dad6914bc1"
+      "sha256": "aa10a345f4f9f5bb2713a072143214b30873d6e37fdfb16faabee1968eea65e7"
     },
     {
       "bytes": 12612,
@@ -3079,7 +3079,7 @@
     {
       "bytes": 23703,
       "path": "harbor/tasks/dob100-039-port-count-unowned-work/environment/world/spec.json",
-      "sha256": "1b835d80b82d9fac9b5344aef37c564b9a41a42302e2f449eced0bb63f438316"
+      "sha256": "60f5eeb0c62cd54dee7118a887bee1f17e6acc4c0f417ba7db87fc98501edc78"
     },
     {
       "bytes": 94315,
@@ -3119,7 +3119,7 @@
     {
       "bytes": 1281,
       "path": "harbor/tasks/dob100-039-port-count-unowned-work/task.toml",
-      "sha256": "ec9a6e7ca5419104c39177199775850006d19a375c44953e8c3f9c910b5f4595"
+      "sha256": "6bbb1ed6be28b34c15085b11bb9469550f06005253ba083b29a64038964b9290"
     },
     {
       "bytes": 1443,
@@ -3149,7 +3149,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-040-port-dedupe-linked-issues/environment/world/environment.db",
-      "sha256": "d17f43ed3889d8d00103a1aa86ac7196f6f4bdc850f68f0927d598ea60b853cd"
+      "sha256": "66fcfc1883df69f28c9b2434f91dde879c1b8c31d1394ea956b90b7e38c5f710"
     },
     {
       "bytes": 12612,
@@ -3159,7 +3159,7 @@
     {
       "bytes": 24547,
       "path": "harbor/tasks/dob100-040-port-dedupe-linked-issues/environment/world/spec.json",
-      "sha256": "da101ae6f4acd3d6c8a89935eecbe9c84844d315066ac03fa9dbbef007eb3af9"
+      "sha256": "9589977a3be1b61e6311f49aaa5bc7eb824182f8a7dbc79389f5e19671519145"
     },
     {
       "bytes": 94315,
@@ -3199,7 +3199,7 @@
     {
       "bytes": 1296,
       "path": "harbor/tasks/dob100-040-port-dedupe-linked-issues/task.toml",
-      "sha256": "cc0d7956914a1ae99ded94a8e13cd83468a65fe0853c1cd32a85818117a42cfa"
+      "sha256": "858e6b408cdfb5cd7314c8e9e3180c966ebf54b42192261bc45a384e1079f158"
     },
     {
       "bytes": 1443,
@@ -3229,7 +3229,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-041-port-escalate-to-gateway-oncall/environment/world/environment.db",
-      "sha256": "d0c4ea5b971e50d91bd364aed6d64d0b70ecdf77ddeb2f8cc777c1ff4738b6c7"
+      "sha256": "a035a8eac0012c03f592b5361e4b48325a163d98c1977404ecb4ced09ddf887c"
     },
     {
       "bytes": 12612,
@@ -3239,7 +3239,7 @@
     {
       "bytes": 23725,
       "path": "harbor/tasks/dob100-041-port-escalate-to-gateway-oncall/environment/world/spec.json",
-      "sha256": "e8cf9be2d55ec1a7020e997aced2f0abd5a966b3367cc82a753f73febc4dc417"
+      "sha256": "71aa29b08767de8ada1e1234e05bd724d972280e90d53ad83a985b25c0aaec67"
     },
     {
       "bytes": 94315,
@@ -3279,7 +3279,7 @@
     {
       "bytes": 1307,
       "path": "harbor/tasks/dob100-041-port-escalate-to-gateway-oncall/task.toml",
-      "sha256": "329b7ea6798a2c224983fe9d2012ced51393f4a35ca655466ee9cd8f7ad08b15"
+      "sha256": "d61a9590f92aa1193791678a7b7fe3cdc1d48b1acedf5c1be25072e7b09186fd"
     },
     {
       "bytes": 1443,
@@ -3309,7 +3309,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-042-port-high-priority-since/environment/world/environment.db",
-      "sha256": "b2458e586155c5ae05c0d1974135e7e19bd973e319b91acc92cf9a5ac8532db8"
+      "sha256": "2723e2b48dd16870e0d0f80ce8e222a3dea1bdce20ce17cd41c0721599027cf4"
     },
     {
       "bytes": 12612,
@@ -3319,7 +3319,7 @@
     {
       "bytes": 24432,
       "path": "harbor/tasks/dob100-042-port-high-priority-since/environment/world/spec.json",
-      "sha256": "aefd7de64cff9443c425ad4bfce4fbe7f267824f0593e73a0f92a71eac0dfa47"
+      "sha256": "a76f94d1ee97c1c3e3fd1f5f16db52003a0d20ba9ed023fd90cd9183a329e9a4"
     },
     {
       "bytes": 94315,
@@ -3359,7 +3359,7 @@
     {
       "bytes": 1289,
       "path": "harbor/tasks/dob100-042-port-high-priority-since/task.toml",
-      "sha256": "443026f470e2e73b9e5f4ec8525649f065c433ba0f4d6d6fba37bd94c39b02ac"
+      "sha256": "a4e60473e34c89b7001efffe2795d603dba99d4fcfb9e4355994ac9b65f2c344"
     },
     {
       "bytes": 1443,
@@ -3389,7 +3389,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-043-analytics-batch-size/environment/world/environment.db",
-      "sha256": "8d63b37fbe82215ce714e039fc65b44256d35b28219756eff091ef2d508c7078"
+      "sha256": "5430d5b87925f43244ec7d9583fafe427ce5295c4b7fd7f5c6700ac3b68d4c86"
     },
     {
       "bytes": 12612,
@@ -3399,7 +3399,7 @@
     {
       "bytes": 25897,
       "path": "harbor/tasks/dob100-043-analytics-batch-size/environment/world/spec.json",
-      "sha256": "6e34ccc190e25f2e897599032cfa2a1150519bcd682525839591cb2f3fa5f788"
+      "sha256": "935d5fe592b8f95891abff5b62ed0e2626f84fdd53215973c3b6432dc04faf01"
     },
     {
       "bytes": 94315,
@@ -3439,7 +3439,7 @@
     {
       "bytes": 1318,
       "path": "harbor/tasks/dob100-043-analytics-batch-size/task.toml",
-      "sha256": "30bf39bc3d4a008b81c2fc33930b39a100e2fdf2720a3b65a6e7c858b3981073"
+      "sha256": "88b8cd8e7af425d9440ea1f56fddc032b930ee058109d5fb31c3625478a4713c"
     },
     {
       "bytes": 1443,
@@ -3469,7 +3469,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-044-analytics-prefetch/environment/world/environment.db",
-      "sha256": "d71348721b5db2e56189319978d5ff12d29ed641b20f2a4d0947d52aafdf9939"
+      "sha256": "cbf08aa6a499e7cd3d7429996c9cadf88bb26bafa8e14b699698cc28df38527e"
     },
     {
       "bytes": 12612,
@@ -3479,7 +3479,7 @@
     {
       "bytes": 26787,
       "path": "harbor/tasks/dob100-044-analytics-prefetch/environment/world/spec.json",
-      "sha256": "9c77447c3e48ec24898c8edd8bf0777d437c52ee57406fb5e635ec3d1ea23bcf"
+      "sha256": "9f9f018016db927a73229cfaa48449e280a44e8304fbd14abf03efea3f8f0d7d"
     },
     {
       "bytes": 94315,
@@ -3519,7 +3519,7 @@
     {
       "bytes": 1284,
       "path": "harbor/tasks/dob100-044-analytics-prefetch/task.toml",
-      "sha256": "496b29027c67102310963ba47ce8c4e9244f4dcc97b99ad005e51c6bfd247793"
+      "sha256": "1ae388b85799f3d13893d1883523ce0744b0ec12c958e63aa20751f7f5d51bf8"
     },
     {
       "bytes": 1443,
@@ -3549,7 +3549,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-045-checkout-payments-timeout/environment/world/environment.db",
-      "sha256": "a1566280eb9e943cc2abdb0fb063a312b22aaea13d0d2d6b72a6ddf62bf6c2c0"
+      "sha256": "e106d066e58682e431d0c093e43d0353d9a6f659b66a4d83ed99c287397c4264"
     },
     {
       "bytes": 12612,
@@ -3559,7 +3559,7 @@
     {
       "bytes": 25668,
       "path": "harbor/tasks/dob100-045-checkout-payments-timeout/environment/world/spec.json",
-      "sha256": "c939a141057b572e26e90a7405cd37a0dfc395ffb83a6333209b2d64d2c9e91a"
+      "sha256": "9986803fddf49e74a5eed41656f9b4d47fd3d07926afdb611ecd875936c07163"
     },
     {
       "bytes": 94315,
@@ -3599,7 +3599,7 @@
     {
       "bytes": 1299,
       "path": "harbor/tasks/dob100-045-checkout-payments-timeout/task.toml",
-      "sha256": "a10928c1e5a9d7824421cc6b2790b1a1b5549096e813200911f2d7b0b94f9eec"
+      "sha256": "96914ec8727e565ba7d53605fb01b87d51d4296a8d8adacff3b40a6d69af8f25"
     },
     {
       "bytes": 1443,
@@ -3629,7 +3629,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-046-inventory-pool/environment/world/environment.db",
-      "sha256": "1fcb975dffbf909772e9df29225901f5dd1ce0d9e0486a591cb4c30dcdf812f9"
+      "sha256": "8482fb45e5d408f72938296483d4721541a2c1ed5f58579ac5a17edae85f17b2"
     },
     {
       "bytes": 12612,
@@ -3637,9 +3637,9 @@
       "sha256": "158171d29ad2c5084b1bbf89fcebcc7c33ec04dc714bcae219ae955580ff1ac1"
     },
     {
-      "bytes": 26977,
+      "bytes": 28529,
       "path": "harbor/tasks/dob100-046-inventory-pool/environment/world/spec.json",
-      "sha256": "e8b6a939a2aa658cb34762074bd3e9f4ef917f5ba2a828fea80f7bb50ab235f2"
+      "sha256": "0f9986ee0322f6ef88b2ebb4cc83b181dce123d343d63cb8fb7df2e2a5ff2f13"
     },
     {
       "bytes": 94315,
@@ -3652,14 +3652,14 @@
       "sha256": "a23259280428bc7a7cd7c735879bd26ef503e3ebbcf57c92a536eb7709b00639"
     },
     {
-      "bytes": 73858,
+      "bytes": 75410,
       "path": "harbor/tasks/dob100-046-inventory-pool/environment/world/verify_task.py",
-      "sha256": "b09ba87d7b0a9ac02d0efbd053b010a6ed507e1061f945ba9efcc6688f6dc4f1"
+      "sha256": "0a6bc6b300882267cfed3bd3423cc7677d6e523a08114d4affa193c55531a512"
     },
     {
-      "bytes": 842,
+      "bytes": 645,
       "path": "harbor/tasks/dob100-046-inventory-pool/instruction.md",
-      "sha256": "129b0b04e3e1e6b0fd9033301eae396008a4d201fba49c3497de8ef6a052850c"
+      "sha256": "cc5ac1d7a5237ba0408288634144593fb1874e7140cdec24d821662c88d5800a"
     },
     {
       "bytes": 71868,
@@ -3677,9 +3677,9 @@
       "sha256": "1075ee8c6c5583e145b8709772502e5adcf13084cdc1250292138d322900a8ed"
     },
     {
-      "bytes": 1277,
+      "bytes": 1374,
       "path": "harbor/tasks/dob100-046-inventory-pool/task.toml",
-      "sha256": "eb8a88e680dbc8e749a1869d9e68ba991f7623045c39776c602fb1c463edc66a"
+      "sha256": "d72ae392bf12616395a3303daa1aa183ac99d9d073e2a769fd657aa18f1b4b25"
     },
     {
       "bytes": 1443,
@@ -3709,7 +3709,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-047-notifications-timeout/environment/world/environment.db",
-      "sha256": "9296eef2446c9fdb3f30c53e367750b177237f01e203ae8e71f0218919349232"
+      "sha256": "74b45e912ec81cae03636a8ad9ae6038e27b0198c6cf0a645b0a565d323e8e58"
     },
     {
       "bytes": 12612,
@@ -3719,7 +3719,7 @@
     {
       "bytes": 26857,
       "path": "harbor/tasks/dob100-047-notifications-timeout/environment/world/spec.json",
-      "sha256": "deedc379150119b8d476908b7fb377ab863c1ec413a8081efba9ce4c1156fbcc"
+      "sha256": "1404acc8f9fc79c8782f5a855e83bcb4add7d483c88ab85d1799ce8335a01bd7"
     },
     {
       "bytes": 94315,
@@ -3759,7 +3759,7 @@
     {
       "bytes": 1300,
       "path": "harbor/tasks/dob100-047-notifications-timeout/task.toml",
-      "sha256": "fefff8946721557507ec84b1da07480cd939da6432e85851324234d38d933718"
+      "sha256": "46ee05a6582cc8ce5ba65b988059587b0f854b6929ffaa064d3cf8c882d0311a"
     },
     {
       "bytes": 1443,
@@ -3789,7 +3789,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-048-port-count-open-priority/environment/world/environment.db",
-      "sha256": "7e36b89021edf5e0da0d473cd4e455f498b4feb3a2c1b29f903bcb20ce6effe7"
+      "sha256": "01f167f19d2fbe97aeb3a1106c12ae605dae76ef76172d203609a49c1eb7441b"
     },
     {
       "bytes": 12612,
@@ -3799,7 +3799,7 @@
     {
       "bytes": 23713,
       "path": "harbor/tasks/dob100-048-port-count-open-priority/environment/world/spec.json",
-      "sha256": "005b65c0070819a0ffe14e5bdb27db30192b9844970ea69e0922f48e61cb7ff1"
+      "sha256": "f599f86443dd15968bdd76834361001ac9b51e98a12ec70530a604c462dae549"
     },
     {
       "bytes": 94315,
@@ -3839,7 +3839,7 @@
     {
       "bytes": 1285,
       "path": "harbor/tasks/dob100-048-port-count-open-priority/task.toml",
-      "sha256": "e74d7d85009861e122440a10ccfdc4511884216cd93cdcdc75ebd269a7b61c03"
+      "sha256": "3a4e9580b97d3525845987abf6921ce748d6427aec4efe4c58c7128619ca59c7"
     },
     {
       "bytes": 1443,
@@ -3869,7 +3869,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-049-payments-retry/environment/world/environment.db",
-      "sha256": "e550670248f9d00e9e64ff096d1e3a3d654c36432c47ac3b96946f81a7dee887"
+      "sha256": "5d80346d2b726e51faa09c7d3ed63c0a7f60be1b50307a957aa0c1470afc35b9"
     },
     {
       "bytes": 12612,
@@ -3879,7 +3879,7 @@
     {
       "bytes": 26879,
       "path": "harbor/tasks/dob100-049-payments-retry/environment/world/spec.json",
-      "sha256": "0d097c515e5ed5777b345a8d67e0ee1fa7d71bf7098fdfd3399ab4645a4db30b"
+      "sha256": "63871365042514b7b7ec817cdde47107e939314b4e6633113091b61bab07ce20"
     },
     {
       "bytes": 94315,
@@ -3919,7 +3919,7 @@
     {
       "bytes": 1266,
       "path": "harbor/tasks/dob100-049-payments-retry/task.toml",
-      "sha256": "eae4adb5ca5f86fc99e8d9a861c33f73e90b56e7c7df16cf2ac0c5b73d284527"
+      "sha256": "1dcadd1bedf15f86445e6fa7dc54b7c09c750a2d05953a49cc9efc4939038561"
     },
     {
       "bytes": 1443,
@@ -3949,7 +3949,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-050-payments-retry-from-code/environment/world/environment.db",
-      "sha256": "680ddd028937ce4b6aeddc36ee395119443de2dea85aa8e8e08c3a731e715e47"
+      "sha256": "e010c370c9e083c0f26d15807596e1f3349ed19a289b8905bfaf135a8aa3c1c4"
     },
     {
       "bytes": 12612,
@@ -3959,7 +3959,7 @@
     {
       "bytes": 27560,
       "path": "harbor/tasks/dob100-050-payments-retry-from-code/environment/world/spec.json",
-      "sha256": "6f8e57adb4c259036021c03235a9c79dfe94a8f08ca0ffcd658c85e4877aae21"
+      "sha256": "f1cf28a928803671b963333451c723e76aa22d997684df1ef15785bab1df92fa"
     },
     {
       "bytes": 94315,
@@ -3999,7 +3999,7 @@
     {
       "bytes": 1331,
       "path": "harbor/tasks/dob100-050-payments-retry-from-code/task.toml",
-      "sha256": "e72548945c90ca0ca679c17c66c3876a3a8eba587c321f3a909f5925b69ff551"
+      "sha256": "619a950c461ff66cfa168e3d4c01d70fbe37b2a5a31409902708f22760b44d60"
     },
     {
       "bytes": 1443,
@@ -4029,7 +4029,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-051-checkout-v2-layout-cleanup/environment/world/environment.db",
-      "sha256": "4b5185ce3399e31e2681af7ce1549bc2709bc66b2890e6fc679b7284701ee60a"
+      "sha256": "3884d7b7094d6d02282038efc5a3bb35e362eb022e2a6bf9a57f90cf40516452"
     },
     {
       "bytes": 12612,
@@ -4039,7 +4039,7 @@
     {
       "bytes": 26021,
       "path": "harbor/tasks/dob100-051-checkout-v2-layout-cleanup/environment/world/spec.json",
-      "sha256": "cd58a0e6623754527bd5e18058f599ec3af18c1d484471ed3dd786e1dd0aa78b"
+      "sha256": "872e96fb64cc52f9dcbc8dbd0046da1308e9ce94901b51fba2d0fc3aad939e4c"
     },
     {
       "bytes": 94315,
@@ -4079,7 +4079,7 @@
     {
       "bytes": 1302,
       "path": "harbor/tasks/dob100-051-checkout-v2-layout-cleanup/task.toml",
-      "sha256": "03151db2a0f07ccfe62994b267af750dc45af51ced068fb23a846c5a877cbe77"
+      "sha256": "bff4113b0d89ca65d12048fb6da67183d5afb6e5597c88828362e6e37b020fc6"
     },
     {
       "bytes": 1443,
@@ -4109,7 +4109,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-052-express-checkout/environment/world/environment.db",
-      "sha256": "c022dd165fd1965cb9c596609c88c2065d1843d2bd01bc8860af98c0520262c2"
+      "sha256": "be4d1f7b62c1682d6f61c4d04af4e4c775d516c5e5c839e5f809f9c67b66411e"
     },
     {
       "bytes": 12612,
@@ -4119,7 +4119,7 @@
     {
       "bytes": 26884,
       "path": "harbor/tasks/dob100-052-express-checkout/environment/world/spec.json",
-      "sha256": "dd440ee39f3ac92bb87ace2575eba1846383b50517a141a6a2ec6269811f85f6"
+      "sha256": "65c832010da09ee2674e5e4de48c99447f9a7755ec149f0a535ef6567789c781"
     },
     {
       "bytes": 94315,
@@ -4159,7 +4159,7 @@
     {
       "bytes": 1265,
       "path": "harbor/tasks/dob100-052-express-checkout/task.toml",
-      "sha256": "1ac04bbef649360dc36a02ba41b50f827e8ba1abb930a7a328273a9353929b99"
+      "sha256": "9790e9907b85e9cf8a63a585dd83b9c582b48caa83fc464e7e2d5f1203579148"
     },
     {
       "bytes": 1443,
@@ -4189,7 +4189,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-053-instant-refunds-killswitch/environment/world/environment.db",
-      "sha256": "225154f357ea609849fb0ceaef98a5180e2e44347961ed7bfbd95b424b546186"
+      "sha256": "62d18ed79cf3f4bf7d718c4af4347bf40aa97f398422656daa64890ac0a186d2"
     },
     {
       "bytes": 12612,
@@ -4199,7 +4199,7 @@
     {
       "bytes": 26246,
       "path": "harbor/tasks/dob100-053-instant-refunds-killswitch/environment/world/spec.json",
-      "sha256": "8cccd674e0cb0f6ecff5a921c871f3d32522b419cb90a79273135d2ba489cb98"
+      "sha256": "5e098069d7be190d933f1279fdabb293d341f5d878712f7418ef4cd8ddb41783"
     },
     {
       "bytes": 94315,
@@ -4239,7 +4239,7 @@
     {
       "bytes": 1298,
       "path": "harbor/tasks/dob100-053-instant-refunds-killswitch/task.toml",
-      "sha256": "65c88b09b8f9f324ab963e6f2a76662e37df0718bf6d5cdd55d172b668bf2082"
+      "sha256": "709ca04f0b257e3e844652123197132bb2f75112c9033609ad87cf059e0805b7"
     },
     {
       "bytes": 1443,
@@ -4269,7 +4269,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-054-legacy-price-rounding-cleanup/environment/world/environment.db",
-      "sha256": "70b2979ed70327b414787f8c940e0e20376dbec71a3ebd91ebf6491de1d62881"
+      "sha256": "ed3ab96f9389a5a0f5f19d16ce522290555f8b00adef2a3fdf44ef5a19b0ca2b"
     },
     {
       "bytes": 12612,
@@ -4279,7 +4279,7 @@
     {
       "bytes": 25747,
       "path": "harbor/tasks/dob100-054-legacy-price-rounding-cleanup/environment/world/spec.json",
-      "sha256": "d25df22ddbe723218c69a22d05c67359d808d9dafde3fafbb807980faaef69c9"
+      "sha256": "f64c51c8af6b931e3e6c59165920862060b08000283dd7c813ed736d1cc10a41"
     },
     {
       "bytes": 94315,
@@ -4319,7 +4319,7 @@
     {
       "bytes": 1316,
       "path": "harbor/tasks/dob100-054-legacy-price-rounding-cleanup/task.toml",
-      "sha256": "217e5609a5ff3178775b0e3326500cb565129d61bff754125d3ae7ccc763e359"
+      "sha256": "22711a33d62d32b7366301c22d04b36234cb32362158eb28062fc73ea9cf112e"
     },
     {
       "bytes": 1443,
@@ -4349,7 +4349,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-055-media-webp/environment/world/environment.db",
-      "sha256": "f4033f238585734b19506e75e63f1973ccab54912f95897e9df9257dd10cd218"
+      "sha256": "d26ea8c8fcb92c8d2798dbc33aa1bc23b33bfcefbc8018b4097301c1891aac06"
     },
     {
       "bytes": 12612,
@@ -4359,7 +4359,7 @@
     {
       "bytes": 26481,
       "path": "harbor/tasks/dob100-055-media-webp/environment/world/spec.json",
-      "sha256": "9833b171416edf2b8061f116d3d51f3e9ab536b065ead833b2f2ba32771f4ee8"
+      "sha256": "1406ab36b6480d5bea02c60b6e3512d8a381d81485277121346adf0a127be63b"
     },
     {
       "bytes": 94315,
@@ -4399,7 +4399,7 @@
     {
       "bytes": 1239,
       "path": "harbor/tasks/dob100-055-media-webp/task.toml",
-      "sha256": "6fdbeb8bc0555fb15580d2e667b0d0ecd6f4606bac2aa54bb7e0fa89db76029e"
+      "sha256": "39baf092071c7c4cb32c236013edc5c247f5b8f92746913f511ce5234cd2eb2c"
     },
     {
       "bytes": 1443,
@@ -4429,7 +4429,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-056-saved-carts/environment/world/environment.db",
-      "sha256": "8407fc28e8e7d80635bb24224895181431a733070d2308efdfeb56fe28f3e252"
+      "sha256": "ef7e38efc54f1eab42c397d4537fc2cf2aeba2ec500950043e13e92c142208f6"
     },
     {
       "bytes": 12612,
@@ -4439,7 +4439,7 @@
     {
       "bytes": 27643,
       "path": "harbor/tasks/dob100-056-saved-carts/environment/world/spec.json",
-      "sha256": "3953739772e06215000373139424420fcb2ab724de8dd53a09ee28ad4b9286d7"
+      "sha256": "152e946f82646b43d1ccb137b7093d380c8c5a96b864ab83160bae8b304bbf13"
     },
     {
       "bytes": 94315,
@@ -4479,7 +4479,7 @@
     {
       "bytes": 1256,
       "path": "harbor/tasks/dob100-056-saved-carts/task.toml",
-      "sha256": "6dc715f0bdafa99744edc48ecde3b0553512ca42c11ba329f35d9e7d1142eb9b"
+      "sha256": "71daa55a5fb0d764d2349a163b1e66dab91bc4e5dd6d07987f6f012076631b2b"
     },
     {
       "bytes": 1443,
@@ -4509,7 +4509,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-057-search-autocomplete/environment/world/environment.db",
-      "sha256": "66ba5cc6be18d8565d0cbfab3bc55becdf3c55b1ba97f8384af5baca4864233b"
+      "sha256": "16bd1037db479758d4a8fe27e51772fb754307993d45533074586e2d69d1b61c"
     },
     {
       "bytes": 12612,
@@ -4517,9 +4517,9 @@
       "sha256": "158171d29ad2c5084b1bbf89fcebcc7c33ec04dc714bcae219ae955580ff1ac1"
     },
     {
-      "bytes": 26484,
+      "bytes": 28612,
       "path": "harbor/tasks/dob100-057-search-autocomplete/environment/world/spec.json",
-      "sha256": "31ae2dd08723dfade9fb1882f25bd0fbae102fe46898d5f666cceff7f962c0d5"
+      "sha256": "f226c5d981603e21526f357faee3d0db01c2557c8dffffa844198893b4a4c169"
     },
     {
       "bytes": 94315,
@@ -4532,14 +4532,14 @@
       "sha256": "a23259280428bc7a7cd7c735879bd26ef503e3ebbcf57c92a536eb7709b00639"
     },
     {
-      "bytes": 72803,
+      "bytes": 74931,
       "path": "harbor/tasks/dob100-057-search-autocomplete/environment/world/verify_task.py",
-      "sha256": "ce918f50648137e8aa964b4c3be97299610d73cf86698f3e4dd80b22b8d0d289"
+      "sha256": "c51345164d6f21d25ec05d48d86d3607dc31802a5b7aad57068a001886f81e9a"
     },
     {
-      "bytes": 788,
+      "bytes": 648,
       "path": "harbor/tasks/dob100-057-search-autocomplete/instruction.md",
-      "sha256": "1301d6681ad9f19b24e759325b9e878b4d1bf0616511a26398e86e335d247265"
+      "sha256": "20baf7bd19c45d89f1b819a5fe438e05e8cb99709dfaa4d6e746da653e9308bb"
     },
     {
       "bytes": 68599,
@@ -4557,9 +4557,9 @@
       "sha256": "1075ee8c6c5583e145b8709772502e5adcf13084cdc1250292138d322900a8ed"
     },
     {
-      "bytes": 1272,
+      "bytes": 1405,
       "path": "harbor/tasks/dob100-057-search-autocomplete/task.toml",
-      "sha256": "19c740daaac13742de140612f8e49a803870ea6c9fc68b881584d0f0493eca20"
+      "sha256": "5cd566f8650fde77bd052fbeec9b264108cd74f68915e3546674b7ff0792ffb6"
     },
     {
       "bytes": 1443,
@@ -4589,7 +4589,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-058-flaky-analytics-rollup/environment/world/environment.db",
-      "sha256": "3fd0b84f9c2a891268277b532c4e1b776eb2b5f89d5f704ef7dee28cd0c9901e"
+      "sha256": "4d70d2f064a59b20b482e9c4e698f42800c709b6370b9856e27c5a7b348a718d"
     },
     {
       "bytes": 12612,
@@ -4599,7 +4599,7 @@
     {
       "bytes": 25597,
       "path": "harbor/tasks/dob100-058-flaky-analytics-rollup/environment/world/spec.json",
-      "sha256": "be962b2aeb5479393ebdb58c537dbb2dd6c2dd2e13df968108457da167f4f136"
+      "sha256": "0f14130c2df82d3a855f451c5bb4b28e66bc32dacb3e94144353e05c69c5cd8e"
     },
     {
       "bytes": 94315,
@@ -4639,7 +4639,7 @@
     {
       "bytes": 1259,
       "path": "harbor/tasks/dob100-058-flaky-analytics-rollup/task.toml",
-      "sha256": "7422fafd26b65bb52f1e21ecaefb60ec5c51f42402e8da6fd65fe7bb72033599"
+      "sha256": "fdaba770145952c160b48587e651471a521b3b2b020f51f450e0d46423c18e52"
     },
     {
       "bytes": 1443,
@@ -4669,7 +4669,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-059-flaky-catalog-rounding/environment/world/environment.db",
-      "sha256": "e54d84b9124af03d82861c4a9709cfcae4504b4a10eaa1471158d8cc4c6babb9"
+      "sha256": "682cdb260667dd796bc516b5809d99925ad1b4254f1ddae224fc7f7fb5acd972"
     },
     {
       "bytes": 12612,
@@ -4679,7 +4679,7 @@
     {
       "bytes": 25342,
       "path": "harbor/tasks/dob100-059-flaky-catalog-rounding/environment/world/spec.json",
-      "sha256": "71491231b1c0ca9e67f5e75cc99c9b80ade1d7f4891a8a112b9cddbc849ac468"
+      "sha256": "78c5af254dcb2cd74630de48d42c38a13160d37ff3841db7906e3a19cfe50088"
     },
     {
       "bytes": 94315,
@@ -4719,7 +4719,7 @@
     {
       "bytes": 1260,
       "path": "harbor/tasks/dob100-059-flaky-catalog-rounding/task.toml",
-      "sha256": "79b8fc5e1982ffbde650e157d214c2eb890947947efa88b04d5d1cff07907c79"
+      "sha256": "79fc522583e443e22b3ff67619009998cd45b6e501100a935012d20d0ea70385"
     },
     {
       "bytes": 1443,
@@ -4749,7 +4749,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-060-flaky-checkout-idempotency/environment/world/environment.db",
-      "sha256": "ae2a77871177e3877734515e553b8cd18b6f44b3d1d98daa6c6c1b17d9a0e67c"
+      "sha256": "18e05dca15c7a56fabab02d5d46564bbe9aa361ae33d641ecf2de45ed59b6370"
     },
     {
       "bytes": 12612,
@@ -4759,7 +4759,7 @@
     {
       "bytes": 25535,
       "path": "harbor/tasks/dob100-060-flaky-checkout-idempotency/environment/world/spec.json",
-      "sha256": "92314cf404467ba64196c42152b34404d7535ecabafd3878567148ad54ad70d2"
+      "sha256": "b6452957f78920849f18692714af7edb785d44332ce8cdc2a39b5c4da1675fc6"
     },
     {
       "bytes": 94315,
@@ -4799,7 +4799,7 @@
     {
       "bytes": 1276,
       "path": "harbor/tasks/dob100-060-flaky-checkout-idempotency/task.toml",
-      "sha256": "dcc8995308708d81a8855fa053107cf93ba82b98c16a086ec633478faba6757a"
+      "sha256": "226a7cb1ba9484544a881fe51b135cf0fed56f42d33b3dce4a6bcde4942fe7e6"
     },
     {
       "bytes": 1443,
@@ -4829,7 +4829,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-061-flaky-gateway-timeout/environment/world/environment.db",
-      "sha256": "877554f62b70a5e48356b6a015a990120a9e357eb164520e791612fd86193122"
+      "sha256": "a4f81a114df5a56e2ac407986f7ea0efc221ac6755be96cffb40b3c79c61b109"
     },
     {
       "bytes": 12612,
@@ -4839,7 +4839,7 @@
     {
       "bytes": 25484,
       "path": "harbor/tasks/dob100-061-flaky-gateway-timeout/environment/world/spec.json",
-      "sha256": "5377c126ddeecfa5abdd64869e7be996dcacdc6ab2ec283993bd0d70e00bd01e"
+      "sha256": "514d064495da517a2f64a1dc3f53b1c80823689fe00f4577dac41ea3145b2211"
     },
     {
       "bytes": 94315,
@@ -4879,7 +4879,7 @@
     {
       "bytes": 1261,
       "path": "harbor/tasks/dob100-061-flaky-gateway-timeout/task.toml",
-      "sha256": "ed5fa987295d5509f60bccad501f61d50843151291a977bd158d7d21800e5f51"
+      "sha256": "359b0a81d946db5b366ed4a832adbf120a0e9a9d5449cd770273315319546718"
     },
     {
       "bytes": 1443,
@@ -4909,7 +4909,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-062-w6-copy-13/environment/world/environment.db",
-      "sha256": "a286b4c7226e8700dee3cd3066bf826c964d94359e4e0bcf08edba7751831f38"
+      "sha256": "095b24712e74b1ef090f4f945c2511d072f9bd8d38443a14936c7a89ee52d1f3"
     },
     {
       "bytes": 12612,
@@ -4919,7 +4919,7 @@
     {
       "bytes": 24821,
       "path": "harbor/tasks/dob100-062-w6-copy-13/environment/world/spec.json",
-      "sha256": "29f11adab87629889bda21b466b1c2680f37bdd1f79d51517c021e61b268b17a"
+      "sha256": "d9caf6fab84b4c391b9f915929ea74cad0fac6de200f0b92cbaa6c8fafb3df46"
     },
     {
       "bytes": 94315,
@@ -4959,7 +4959,7 @@
     {
       "bytes": 1266,
       "path": "harbor/tasks/dob100-062-w6-copy-13/task.toml",
-      "sha256": "7aa70386ce33d74b41fc6def59117b4276d92610298ac656ece5c9a97f6e8e9e"
+      "sha256": "e22d36acb9bde365db85226a2e0e1e4be7add69a5c67b7b4fdf4a407d0f0db60"
     },
     {
       "bytes": 1443,
@@ -4989,7 +4989,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-063-flaky-search-index/environment/world/environment.db",
-      "sha256": "eb833d9201b85a7e981f1730e5aad4d11965a17cde23222298026116b8ff7bef"
+      "sha256": "70ef9988118c6f358561627c2c78e5bb65bdcfa03832a050b0c6edef37e85862"
     },
     {
       "bytes": 12612,
@@ -4999,7 +4999,7 @@
     {
       "bytes": 25357,
       "path": "harbor/tasks/dob100-063-flaky-search-index/environment/world/spec.json",
-      "sha256": "43876ee8f6e597ddca7cd6027f853b5500a7fa7261e621a1a4297df956375685"
+      "sha256": "6f8bbec80cb535c8f92486dcd74cfb123f2143927494cfbc2bbad3664401b93d"
     },
     {
       "bytes": 94315,
@@ -5039,7 +5039,7 @@
     {
       "bytes": 1247,
       "path": "harbor/tasks/dob100-063-flaky-search-index/task.toml",
-      "sha256": "755ef8f5399152d235cc8d6ec2ee74fc0f61cb2a60d84f338425310736639563"
+      "sha256": "08569683c4d534e8d74ac567b4dab59b183bbd7cce1c812ca4035dc9afda2b21"
     },
     {
       "bytes": 1443,
@@ -5069,7 +5069,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-064-hand-cluster-runbook/environment/world/environment.db",
-      "sha256": "0715dce626d649f98da1bd4ef6500137c129d663ceea80dd898ab51da93c459b"
+      "sha256": "10955ea4b9fedb22c7ad0d59fc4c749ed951fa93189270d688ddd5334a352168"
     },
     {
       "bytes": 12612,
@@ -5079,7 +5079,7 @@
     {
       "bytes": 25057,
       "path": "harbor/tasks/dob100-064-hand-cluster-runbook/environment/world/spec.json",
-      "sha256": "d77b8a810281595af77b1b26c7a4bf3912a6e5844eb7df1028d75ed61a7d96de"
+      "sha256": "4312ee66d30ab056d795a9172fcbe432c4aaf7e18d837fc1007c2ee25a98e233"
     },
     {
       "bytes": 94315,
@@ -5119,7 +5119,7 @@
     {
       "bytes": 1246,
       "path": "harbor/tasks/dob100-064-hand-cluster-runbook/task.toml",
-      "sha256": "7be3199b2f50bdef90d7d78c06ec41a9102136167fd7c2e5de1a5abc8aa9e154"
+      "sha256": "6824647b83b201f0796c8ebd7c22ac88a1c25d5ea6fce0b7301fdfc03824340f"
     },
     {
       "bytes": 1443,
@@ -5149,7 +5149,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-065-hand-gateway-runbook/environment/world/environment.db",
-      "sha256": "15fd78ae40024b24bac0f620416bc37eb797984071632c10f711df33baf2ab1b"
+      "sha256": "d0e714b5095255fc9f0aa782eed486699fcd6bcc6c16ae74ba575818f058f7cb"
     },
     {
       "bytes": 12612,
@@ -5159,7 +5159,7 @@
     {
       "bytes": 25203,
       "path": "harbor/tasks/dob100-065-hand-gateway-runbook/environment/world/spec.json",
-      "sha256": "3221e914c2de34f0b3dee13b19a08703478199a6d8cd5b70b1cedc363e3756ce"
+      "sha256": "60c4020ff84c0efe0dd143d2a347f772f79e01201297bb8456be993c6136f6a3"
     },
     {
       "bytes": 94315,
@@ -5199,7 +5199,7 @@
     {
       "bytes": 1246,
       "path": "harbor/tasks/dob100-065-hand-gateway-runbook/task.toml",
-      "sha256": "b5044e7ef5875bc0cec5d72405a81e35c2f255f6a43bafc93a429ae25d124426"
+      "sha256": "c346c825fd8fada219180f9b8280c8fad32aa49ac705ff6f99040d4877ad5f33"
     },
     {
       "bytes": 1443,
@@ -5229,7 +5229,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-066-hz-checkout-flag-kill/environment/world/environment.db",
-      "sha256": "bdc70b9724fe927cfc8afe7149209c7d6eda77b19a1cb89846231895e4ed14b2"
+      "sha256": "bfb5057d0d6268310c3a5e1ef039c454abcee1470ffa42c6cf3f9b55260f2193"
     },
     {
       "bytes": 12612,
@@ -5239,7 +5239,7 @@
     {
       "bytes": 24979,
       "path": "harbor/tasks/dob100-066-hz-checkout-flag-kill/environment/world/spec.json",
-      "sha256": "1cfb5acdf1050a497572367ee6b47eef0db120c7ec838c9b3cbf917a22277e3a"
+      "sha256": "d8bb15250b924553042e93bcb10c72019071977517369955bc4a04e861a7e990"
     },
     {
       "bytes": 94315,
@@ -5279,7 +5279,7 @@
     {
       "bytes": 1254,
       "path": "harbor/tasks/dob100-066-hz-checkout-flag-kill/task.toml",
-      "sha256": "8c0b1b84a63d001959c6f664698e5c089eb12854a3a8a473c6be7e5351472440"
+      "sha256": "ec0782e584bc3099cf4fc31de495ee51adbe57e25d5f15be07103645d1c78a8d"
     },
     {
       "bytes": 1443,
@@ -5309,7 +5309,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-067-hz-gateway-leak-rollback/environment/world/environment.db",
-      "sha256": "7b492cafb6a22cb9e2679a9eb8e6e2012f822f70176a3d9dae3d591640c351e2"
+      "sha256": "20373b15eaa1bffd733c3a42d4992ca9f005dc226e8cf2da60cee7b2b9affa3d"
     },
     {
       "bytes": 12612,
@@ -5319,7 +5319,7 @@
     {
       "bytes": 25127,
       "path": "harbor/tasks/dob100-067-hz-gateway-leak-rollback/environment/world/spec.json",
-      "sha256": "0c51a5532bb732c87f16fc5333a49d57ad75824f98c41300cca790338cc100f9"
+      "sha256": "253e4a4552aa4cfb685773f19b1b148f153164fae1cef2fbea8003e29ff0852e"
     },
     {
       "bytes": 94315,
@@ -5359,7 +5359,7 @@
     {
       "bytes": 1265,
       "path": "harbor/tasks/dob100-067-hz-gateway-leak-rollback/task.toml",
-      "sha256": "f1a7d420ccbdedaa2f8036eff04db4af43d07e8964a850c914753b4cdc913830"
+      "sha256": "baae094f1fbeccd74b03679e641678ac5e7ea6e7de060fded59c1aaee9a51321"
     },
     {
       "bytes": 1443,
@@ -5389,7 +5389,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-068-gated-rotate-partner-credential/environment/world/environment.db",
-      "sha256": "711857e0ece046d19a5d03914ac929a89b9235765c78f0ebcbc9b603c5042715"
+      "sha256": "23ff7ab6c34316d934c7b6e72e71e6d89db16650e56c4677007d326757fc994d"
     },
     {
       "bytes": 12612,
@@ -5399,7 +5399,7 @@
     {
       "bytes": 25646,
       "path": "harbor/tasks/dob100-068-gated-rotate-partner-credential/environment/world/spec.json",
-      "sha256": "72b64498d97e93e0752202b961bbe300a96ad25b4e2faa75dda9294a320604e5"
+      "sha256": "5ec072ef07a4b61eebb09035420ba61bb20ddd27765cf7cab2b68bad696346fd"
     },
     {
       "bytes": 94315,
@@ -5417,9 +5417,9 @@
       "sha256": "2bbfbe119fa2b839c72f463460804cc4d1ffc0cbc1bcef1072de6845caa1125d"
     },
     {
-      "bytes": 1043,
+      "bytes": 1075,
       "path": "harbor/tasks/dob100-068-gated-rotate-partner-credential/instruction.md",
-      "sha256": "0b1b2ff2f55abbcfe9447a3a50124306c90c16138344a60325b7d6699c24da8a"
+      "sha256": "16e2c767b99263b5bc64e452e69a41420ed267a51c802598ab86f5857095fd0f"
     },
     {
       "bytes": 69398,
@@ -5439,7 +5439,7 @@
     {
       "bytes": 1306,
       "path": "harbor/tasks/dob100-068-gated-rotate-partner-credential/task.toml",
-      "sha256": "22a740f4b419d4cdaa16832eae8caa1a777a873ba08b198ba168d5cace382a25"
+      "sha256": "0cbfc7a9115fa982b66cd5f615057eb21b0cd916226bc65723ee5e1ba072da43"
     },
     {
       "bytes": 1443,
@@ -5469,7 +5469,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-069-judge-analytics-oom/environment/world/environment.db",
-      "sha256": "9b87e55499125433fa40829fae69790977f8aec712cec1aed2d1a3c039a3e079"
+      "sha256": "dfbf1264e98da47546401b85ee0e7c5e69478e37d3cf53a9ce70e831f0eb11f5"
     },
     {
       "bytes": 12612,
@@ -5479,7 +5479,7 @@
     {
       "bytes": 25043,
       "path": "harbor/tasks/dob100-069-judge-analytics-oom/environment/world/spec.json",
-      "sha256": "fd5e1402fe894e790a5ddc1d1426d1da44e511abd218923bf72b8c1add336ae0"
+      "sha256": "8f673d20fea0060ca6a59369e274a27375e5807692f254bce3c2e5304d88a873"
     },
     {
       "bytes": 94315,
@@ -5519,7 +5519,7 @@
     {
       "bytes": 1281,
       "path": "harbor/tasks/dob100-069-judge-analytics-oom/task.toml",
-      "sha256": "25b8a3f06081308fe7bfef5f0ce77c658117e210bbc30aa3bc1efbc7b864a03e"
+      "sha256": "79cc714c9a6d7348bfe21ca359d70b0754c0b140c6816a8ef07e54b4c578f2cf"
     },
     {
       "bytes": 1443,
@@ -5549,7 +5549,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-070-judge-checkout-flag/environment/world/environment.db",
-      "sha256": "3158b027049c8a875e6a8984c5b5e882d6b8f45864f11f794d226861cab4946c"
+      "sha256": "9d13550b5606b02f0498010c17daa2f7d1beeb1324c7de4539bdf58b70fb03a4"
     },
     {
       "bytes": 12612,
@@ -5559,7 +5559,7 @@
     {
       "bytes": 25102,
       "path": "harbor/tasks/dob100-070-judge-checkout-flag/environment/world/spec.json",
-      "sha256": "21605c11224ad7b1f6b62470cba2a08003eca9b835b30c9815ccbe2a3a83c166"
+      "sha256": "eeca39c30de48e8baf15bc51d1a4f62d8f4f3736ac726fcf10021e9e77fbc7e9"
     },
     {
       "bytes": 94315,
@@ -5599,7 +5599,7 @@
     {
       "bytes": 1280,
       "path": "harbor/tasks/dob100-070-judge-checkout-flag/task.toml",
-      "sha256": "0871f312a6f6558a2cab90ee60660ff4e809e7f87147c2cd9c5b89abff6de88a"
+      "sha256": "8453306574f7953f33d654b8e5972ffdac4aa3507a93a26317c9d788472a795c"
     },
     {
       "bytes": 1443,
@@ -5629,7 +5629,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-071-judge-gateway-latency/environment/world/environment.db",
-      "sha256": "b71b829cbdfe004daa6bd6c6746b44fa3b947df1d8b521f8a82bd0084d70c9e7"
+      "sha256": "6f9a997bdd81d61c6644016a3bb791a1227853e89b4004bcedf324fa21921ece"
     },
     {
       "bytes": 12612,
@@ -5639,7 +5639,7 @@
     {
       "bytes": 25009,
       "path": "harbor/tasks/dob100-071-judge-gateway-latency/environment/world/spec.json",
-      "sha256": "c5554f1d0ca0502615b73c0b2194d8228b3ef26b1f002c421a08affe7888434d"
+      "sha256": "f8ec18e5a05271a40608a1ae63994ef708d20907655666e90e188e7757b598a4"
     },
     {
       "bytes": 94315,
@@ -5679,7 +5679,7 @@
     {
       "bytes": 1289,
       "path": "harbor/tasks/dob100-071-judge-gateway-latency/task.toml",
-      "sha256": "18b9760747f61b97404ae9de3c4afda653e7d0ba977fbad27926b7b880c60994"
+      "sha256": "c04845c257d952eec1df58c7b213f46ddc3f99f90e95827295955643cc500e62"
     },
     {
       "bytes": 1443,
@@ -5709,7 +5709,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-072-judge-payments-retry/environment/world/environment.db",
-      "sha256": "e3427b7ce4b252afc3302116086508d41619f1cb686e85d19aa03ed2c11e60ad"
+      "sha256": "557a8e4821e7151d7a472aa8bf050c060b82e5ce4e900d7360e31247c12684f7"
     },
     {
       "bytes": 12612,
@@ -5719,7 +5719,7 @@
     {
       "bytes": 25089,
       "path": "harbor/tasks/dob100-072-judge-payments-retry/environment/world/spec.json",
-      "sha256": "df5c584d98216035d9398a5c29c889cc2c26f30efe73ac156bc29365119dcc1f"
+      "sha256": "d914a360e24a4deb7f73ba106e11ae2ea2e89898e4ed658639a0dfc76c6c7ff3"
     },
     {
       "bytes": 94315,
@@ -5759,7 +5759,7 @@
     {
       "bytes": 1284,
       "path": "harbor/tasks/dob100-072-judge-payments-retry/task.toml",
-      "sha256": "e516d5c9921ee2323543de4059dbbcfa62b7256164e4c70d27718bc7b9668547"
+      "sha256": "e83584d3b60bbb43f79fa6f2c1d194930879eb976caf8bcd39d1aba8086967ef"
     },
     {
       "bytes": 1443,
@@ -5789,7 +5789,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-073-catalog-batch-pricing/environment/world/environment.db",
-      "sha256": "3041582857dff8b0eb3ea40fa425e8660f9c34c9f6b85fa271a6fa666f00a45b"
+      "sha256": "dcde59ad758e100aaa9e1bc116dd144f4c2fd69c2069c04af07a904087c88809"
     },
     {
       "bytes": 12612,
@@ -5799,7 +5799,7 @@
     {
       "bytes": 26305,
       "path": "harbor/tasks/dob100-073-catalog-batch-pricing/environment/world/spec.json",
-      "sha256": "abf4e9848ebf5966f03624977a8a4be2431df1c85f4396268931e49b6361f03c"
+      "sha256": "d8f0c8b78cdb4129f950a1f0fafc5424de8d04381d7a86c28be025ef161959e5"
     },
     {
       "bytes": 94315,
@@ -5839,7 +5839,7 @@
     {
       "bytes": 1274,
       "path": "harbor/tasks/dob100-073-catalog-batch-pricing/task.toml",
-      "sha256": "bb45c549f38f18e93e1c155d78a8be431a75fa185c723af6a1f2084541cf4fb9"
+      "sha256": "4771f6a8437d64830e622d4a3c9f0f2b390e8f94e3e94e7448df9968cdf1dfd8"
     },
     {
       "bytes": 1443,
@@ -5869,7 +5869,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-074-catalog-cache-ttl/environment/world/environment.db",
-      "sha256": "8b7508e3c9bf1ead77bac4079a3b4a2587423b9526a5b3b3029fe4a117b0fec5"
+      "sha256": "f1f5ad6bc247ff931153b4db3e3e87e9e5dc70c30cbf2fe75fd0a0deacc4244c"
     },
     {
       "bytes": 12612,
@@ -5879,7 +5879,7 @@
     {
       "bytes": 25525,
       "path": "harbor/tasks/dob100-074-catalog-cache-ttl/environment/world/spec.json",
-      "sha256": "03cda5acff4a96431857bb8e324e70364d2c0e01454a5559ba3ed26b821380fb"
+      "sha256": "b33454f3c0d15379ec0ed2b2ed4f8c0a63278043b9590c395c556fca2d763ba1"
     },
     {
       "bytes": 94315,
@@ -5919,7 +5919,7 @@
     {
       "bytes": 1294,
       "path": "harbor/tasks/dob100-074-catalog-cache-ttl/task.toml",
-      "sha256": "9084291f793f3b27f6bef7a1ff0131fdf06b29e0aaca4fb895c19f3c1b42abbc"
+      "sha256": "7796e8c1ff36afde2800d11c105380aabb3115f21a91910749169d9e3a112766"
     },
     {
       "bytes": 1443,
@@ -5949,7 +5949,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-075-catalog-pricing-from-code/environment/world/environment.db",
-      "sha256": "703ff52d95fe5466fd129a1cf08880a4bb0beaebbd959f739f0bfe3ac072d0ca"
+      "sha256": "86ef448991f95092645be7845d2c5bd601789709518b3a84d330034c38e57ea0"
     },
     {
       "bytes": 12612,
@@ -5959,7 +5959,7 @@
     {
       "bytes": 26415,
       "path": "harbor/tasks/dob100-075-catalog-pricing-from-code/environment/world/spec.json",
-      "sha256": "d69831c1f6b110f56301b5a68302fa54e9bb2539986f32b2b851e5a30debe670"
+      "sha256": "508f511808b0c0f011e3984567da8c0e7350248096469ed1390d9ece5caf7829"
     },
     {
       "bytes": 94315,
@@ -5999,7 +5999,7 @@
     {
       "bytes": 1313,
       "path": "harbor/tasks/dob100-075-catalog-pricing-from-code/task.toml",
-      "sha256": "28a2f24a28cf7df96902323513cd3984ed70ba24609c46d045cc5c44866c664f"
+      "sha256": "fb332a292281702287c667102ad198b25a76e91342f3445849421fc8d9a2deea"
     },
     {
       "bytes": 1443,
@@ -6029,7 +6029,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-076-gateway-pool-reuse/environment/world/environment.db",
-      "sha256": "9e0eba4db965951174de102af41c1a95adff756ea1164341b00ee27e4d3dc5fe"
+      "sha256": "39306e77d5a75ba367255bfbc66c7eca6efc4841f77e2206b74eda30d26efc7d"
     },
     {
       "bytes": 12612,
@@ -6039,7 +6039,7 @@
     {
       "bytes": 25893,
       "path": "harbor/tasks/dob100-076-gateway-pool-reuse/environment/world/spec.json",
-      "sha256": "744a3563a0f9a02e693fe774b2d6ee1911cd8fb747ce96be227582805d3cabaa"
+      "sha256": "2f26cc129bbe788bf6a7a0f4fbb85759f2985825b18d0ae449a2f8a594938536"
     },
     {
       "bytes": 94315,
@@ -6079,7 +6079,7 @@
     {
       "bytes": 1292,
       "path": "harbor/tasks/dob100-076-gateway-pool-reuse/task.toml",
-      "sha256": "d2c7e0e937d9ec98781958475aac7bfe6c96eae93265a082c78f42b1b72dc08b"
+      "sha256": "d3417bce4b04a3163677414adb2eb40c11f8aa216096ab4d7556f5f069fcc3e5"
     },
     {
       "bytes": 1443,
@@ -6109,7 +6109,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-077-gateway-v510-rollback/environment/world/environment.db",
-      "sha256": "65ee105abb81bf22b32408a0841a53de25f0f6e0c45de7658d6718ff54137164"
+      "sha256": "c95547fab52d0222a3816d809fe81032a8648089da9dc53d440aaf50e2489e8a"
     },
     {
       "bytes": 12612,
@@ -6119,7 +6119,7 @@
     {
       "bytes": 27002,
       "path": "harbor/tasks/dob100-077-gateway-v510-rollback/environment/world/spec.json",
-      "sha256": "6c9756865caba3e925ca9b1bf25e7a3d62229066829f1a2ac8640c7465f05c85"
+      "sha256": "654abaab667da4bcd7ac82f8f2216df304bba47ad2b810f8c393ecaeebea9b9a"
     },
     {
       "bytes": 94315,
@@ -6159,7 +6159,7 @@
     {
       "bytes": 1300,
       "path": "harbor/tasks/dob100-077-gateway-v510-rollback/task.toml",
-      "sha256": "4d051cd6214f7f440b5e8359f777e7fd9bfb90629e8463d90bf81da2e37e92bf"
+      "sha256": "30db0d9908dc169ac3788fb3573a7d05f16d54b6d24ba9fa33a5a6b318494600"
     },
     {
       "bytes": 1443,
@@ -6189,7 +6189,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-078-media-cdn/environment/world/environment.db",
-      "sha256": "5f758effd7101f41ff1daf27db85947d1f40bc1d1836425b86345ec9313f03fe"
+      "sha256": "b595173dac4846109eca2b61624c05316aff213a0ef7a643e582aa3102e45c38"
     },
     {
       "bytes": 12612,
@@ -6199,7 +6199,7 @@
     {
       "bytes": 26792,
       "path": "harbor/tasks/dob100-078-media-cdn/environment/world/spec.json",
-      "sha256": "ca8fa644a2b0e76a0dfb54aa289fffb80d2256af6614b9d59c45a31e88ecceee"
+      "sha256": "c6bf420df48e1fc9cbc25e3bdbfd25cfdd72139687ce458f87636464495c51c8"
     },
     {
       "bytes": 94315,
@@ -6239,7 +6239,7 @@
     {
       "bytes": 1260,
       "path": "harbor/tasks/dob100-078-media-cdn/task.toml",
-      "sha256": "a718bcd5cc1cd7b99e7562d9f6ec6e570094fcb1d825cc1955804736fcc3b684"
+      "sha256": "0089a782cd73339751cc8d80afe7e58a11292d25ff4ca7f4b3045f1f13da1479"
     },
     {
       "bytes": 1443,
@@ -6269,7 +6269,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-079-port-collect-open-issues/environment/world/environment.db",
-      "sha256": "35ff8897bf1e7628dbfc4a8352e0605560db45d84464b1c9490569920bcbe710"
+      "sha256": "3feb8f300d17f77a90418e0315440227d37d5e3000c824f5bacaad6458187323"
     },
     {
       "bytes": 12612,
@@ -6279,7 +6279,7 @@
     {
       "bytes": 24724,
       "path": "harbor/tasks/dob100-079-port-collect-open-issues/environment/world/spec.json",
-      "sha256": "0d19d1eeb3877d7f147f10fc7f489281268ae0d2fb28d0c75508bbff8f394bdd"
+      "sha256": "9bc39699ebe597b75880b62536fa1f429168c9cae31cb72b91f80db1a06c3fda"
     },
     {
       "bytes": 94315,
@@ -6297,9 +6297,9 @@
       "sha256": "7e4b8b910e3d184e2f71b9fbf36952e5e9eb68a0007150073aacec0681ee7013"
     },
     {
-      "bytes": 808,
+      "bytes": 836,
       "path": "harbor/tasks/dob100-079-port-collect-open-issues/instruction.md",
-      "sha256": "f1cd7ddbc5dd889fc9960a61d9d3ac6ba9bd16bdbbdb61c711629115570a60fc"
+      "sha256": "3c01dcf548c7d63a2b9c62ddbfcac4c2b8ff0ff4f0461ab47f2e3fff2b9e976f"
     },
     {
       "bytes": 64349,
@@ -6319,7 +6319,7 @@
     {
       "bytes": 1286,
       "path": "harbor/tasks/dob100-079-port-collect-open-issues/task.toml",
-      "sha256": "33cc3dd3bd58fbdb2e857d7c360d9bcfc01800089bf852d1671d0081b413ed28"
+      "sha256": "d26ae0fb7ca48897c6905873316af3a923a430f3526e1b87bbef574137244af9"
     },
     {
       "bytes": 1443,
@@ -6349,7 +6349,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-080-port-report-customer-reports/environment/world/environment.db",
-      "sha256": "bafe286bcbb65e45c434e9b957e2c77a73bed2c4989df6a10d78c4df63f17986"
+      "sha256": "7290bf4e1efc3c6d775d6a77d9bf27b15c3f252461c6528fa18ca07e70c10fd2"
     },
     {
       "bytes": 12612,
@@ -6359,7 +6359,7 @@
     {
       "bytes": 24642,
       "path": "harbor/tasks/dob100-080-port-report-customer-reports/environment/world/spec.json",
-      "sha256": "e8b84cfa171711fb220010cd63e3f88b92247a4830f9aee42ea2d3d27bdafe0c"
+      "sha256": "9957dbacb39d463ab8c68b531c2e089e03d9a80060b542fffa94f6ba674733ad"
     },
     {
       "bytes": 94315,
@@ -6399,7 +6399,7 @@
     {
       "bytes": 1310,
       "path": "harbor/tasks/dob100-080-port-report-customer-reports/task.toml",
-      "sha256": "07baa1c0525087bb69d26c4af8c953d13aa97d790fb1eb6303c346dfa41f93db"
+      "sha256": "b884015dc4f91d71f4715d7fd5baa996977a4ad868d9243c86353016ce2137a5"
     },
     {
       "bytes": 1443,
@@ -6429,7 +6429,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-081-backorders/environment/world/environment.db",
-      "sha256": "3f13731db5f2176c9796bdb03b75a67acab101bc5b8f451acb01052bd0a02e06"
+      "sha256": "c77869ee0849f29dc9c569b4afbe3a9cd53c7c335e3da0d511f321fe78f735ae"
     },
     {
       "bytes": 12612,
@@ -6439,7 +6439,7 @@
     {
       "bytes": 29384,
       "path": "harbor/tasks/dob100-081-backorders/environment/world/spec.json",
-      "sha256": "c62585cd445676afb397e74dc5eec0ae69577c948cc20e9e9ec7c0d965635222"
+      "sha256": "4937948474d898d6213921d0b5a9024ea550071194df616dec5f49706830456f"
     },
     {
       "bytes": 94315,
@@ -6479,7 +6479,7 @@
     {
       "bytes": 1281,
       "path": "harbor/tasks/dob100-081-backorders/task.toml",
-      "sha256": "0af24a03916c52beeb94a6b5e233654d1e9c0aaf109d29e73c3f08dd9e34db42"
+      "sha256": "d8294ab7b74d0f481be1bf9cadb200160020c1d600fab8320d666d22317043bf"
     },
     {
       "bytes": 1443,
@@ -6509,7 +6509,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-082-checkout-upsell/environment/world/environment.db",
-      "sha256": "02d9b4ed767e6afdecdd43801dd515fc1006693f87aeecda7c4c4b8e16561517"
+      "sha256": "cb050a74a9de4dbcc27d0048abf5c091f280e6594d661bbffb2c78167beaa9a0"
     },
     {
       "bytes": 12612,
@@ -6519,7 +6519,7 @@
     {
       "bytes": 28921,
       "path": "harbor/tasks/dob100-082-checkout-upsell/environment/world/spec.json",
-      "sha256": "f80199fceb45f4340ee2212db2eb2e37856b9038416ef53fcbeeb5b44a73d3be"
+      "sha256": "5ca63f0827a0aa591920101db774b67187234f970cd46fa835451f6b0daaab4a"
     },
     {
       "bytes": 94315,
@@ -6559,7 +6559,7 @@
     {
       "bytes": 1299,
       "path": "harbor/tasks/dob100-082-checkout-upsell/task.toml",
-      "sha256": "d9d87066f9a333498f325b9cd72862622461ca3f9761c74452e2eb12009ab37f"
+      "sha256": "81fe638a3fd90583c71e8b2a0e012ffafb1d31c8db1e2c86d4a893380a920fa7"
     },
     {
       "bytes": 1443,
@@ -6589,7 +6589,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-083-loyalty-points/environment/world/environment.db",
-      "sha256": "e980ac3b89cbea77c3315234e6303b6dd4c019237b5068a718a55ed2158e9da4"
+      "sha256": "b5ae0114c1340d6ccd83ee4d32df9bea3ad6af030070c0e9505d3b191fd8d61c"
     },
     {
       "bytes": 12612,
@@ -6599,7 +6599,7 @@
     {
       "bytes": 29941,
       "path": "harbor/tasks/dob100-083-loyalty-points/environment/world/spec.json",
-      "sha256": "3a4eb16d0985454d32c274b4c5af2fa41f444cd9669f03b189e82a4ca8dfe740"
+      "sha256": "e329915b33ba96e6fef349fd675fda4b0c3b7f0467cd31666ad462377bda535d"
     },
     {
       "bytes": 94315,
@@ -6639,7 +6639,7 @@
     {
       "bytes": 1295,
       "path": "harbor/tasks/dob100-083-loyalty-points/task.toml",
-      "sha256": "9b77b5724f510c22d1e61f28626293189fa0cc603ddfe9ed1911186adbbea784"
+      "sha256": "06700e6766f5ce889b5e45b60cc591c2027c53efb38b361d4bb339eae2e08afb"
     },
     {
       "bytes": 1443,
@@ -6669,7 +6669,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-084-media-pipeline/environment/world/environment.db",
-      "sha256": "9a25361ec3510e3e892913b24af8dd6e34af05a8b0c22cfaa1fed5cf8ca41705"
+      "sha256": "96e6b1c72c22b0b1f2e2cb2576f3bfac35b93ab8ba12113b7998bea42b6bac36"
     },
     {
       "bytes": 12612,
@@ -6679,7 +6679,7 @@
     {
       "bytes": 28894,
       "path": "harbor/tasks/dob100-084-media-pipeline/environment/world/spec.json",
-      "sha256": "ff7c43260379303ec279b0b2dc7983bf7cad7e2a1c36b4e02f42507913d197f7"
+      "sha256": "a8fab5f005776e0bf0a67f1edb961822f3531083dbfbf087c3d0e032a987d8eb"
     },
     {
       "bytes": 94315,
@@ -6719,7 +6719,7 @@
     {
       "bytes": 1308,
       "path": "harbor/tasks/dob100-084-media-pipeline/task.toml",
-      "sha256": "bef13420456b44c1ff8fe33bc55972182da3ddf775c92149e053980d0af9e0ad"
+      "sha256": "436cc4dd1ca1838a0cc264197b34ea5b33b2d18c82516bcf80479f82ca1c7df6"
     },
     {
       "bytes": 1443,
@@ -6749,7 +6749,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-085-notification-templates/environment/world/environment.db",
-      "sha256": "ebc9d17f66b74bab46cd7253fa9c784ae2f9af157e1e8dd609fb7291d209077d"
+      "sha256": "2aacb63d74ab5ab4e11b0dd8ec8277460c3abe46e232582bcc44dcfbd24e3c17"
     },
     {
       "bytes": 12612,
@@ -6759,7 +6759,7 @@
     {
       "bytes": 26999,
       "path": "harbor/tasks/dob100-085-notification-templates/environment/world/spec.json",
-      "sha256": "5e77b464af1198a3adc092b2574b3de20fde639cbea49c4060c5339ddd424c68"
+      "sha256": "8da56f47495fda34388fb7e55b376a61dbcd9efe576ecc9582ad65e2172cf8bb"
     },
     {
       "bytes": 94315,
@@ -6799,7 +6799,7 @@
     {
       "bytes": 1311,
       "path": "harbor/tasks/dob100-085-notification-templates/task.toml",
-      "sha256": "199c9e72304a3fd9c838120eaee9eb14ae4921d196a77bfe9c982533616c261c"
+      "sha256": "7222db49a209fe3595121223e5d5c7fd736cfd2761158a2b99f74f0b6b88d239"
     },
     {
       "bytes": 1443,
@@ -6829,7 +6829,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-086-search-relevance/environment/world/environment.db",
-      "sha256": "64748a59febc267e13bd4f5cf02ad61463523b7914988ee5219bb43a91301735"
+      "sha256": "1b207cb6eafd35fff704124391cda072f2f0d967aa5b023d39acd5ad3b0b341d"
     },
     {
       "bytes": 12612,
@@ -6839,7 +6839,7 @@
     {
       "bytes": 26354,
       "path": "harbor/tasks/dob100-086-search-relevance/environment/world/spec.json",
-      "sha256": "a66cfb2f9382b93687d9a78c8d8623376e5f48a27fb21d22e6382e0620636fad"
+      "sha256": "ffcf118edbef254f20bf879f546f72fa69153edbfe3b629218d3dc546d25a76e"
     },
     {
       "bytes": 94315,
@@ -6879,7 +6879,7 @@
     {
       "bytes": 1284,
       "path": "harbor/tasks/dob100-086-search-relevance/task.toml",
-      "sha256": "b00fa48bd782cb767c3d00eb9d7f3aa7b62527f237a3d83b66afbe1b21c5afbe"
+      "sha256": "a2e5c14d19492c4a8c73a42eeb02b9294c9ef03b40a6040caf027c5e8dbd2df8"
     },
     {
       "bytes": 1443,
@@ -6909,7 +6909,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-087-split-settlement/environment/world/environment.db",
-      "sha256": "9ec66211f4557fae97afc3d3198f7bbca7d48bff28aa686a5bef6545c2bdaeb8"
+      "sha256": "44083c2bdafa18849513ad2ef57eae33b56fbf4fa99524449ff8469fa6a2eda4"
     },
     {
       "bytes": 12612,
@@ -6919,7 +6919,7 @@
     {
       "bytes": 27654,
       "path": "harbor/tasks/dob100-087-split-settlement/environment/world/spec.json",
-      "sha256": "20dd8080ce527a77dafc449d6534396bf997a1273fd72a6db625b6e1b12bc98f"
+      "sha256": "3bc554b4ac97b3db111b4a9b2933dfbae28a617a3bdd36136b5d30c40b408541"
     },
     {
       "bytes": 94315,
@@ -6959,7 +6959,7 @@
     {
       "bytes": 1288,
       "path": "harbor/tasks/dob100-087-split-settlement/task.toml",
-      "sha256": "556c692bed5012a8ca6e2d0b6e2daf5540d8ad3efbac38852a900ee40aba229d"
+      "sha256": "a85f3515d99d6de273d4c2f4623f3d61dd568cde90b9d4aaccd32ea66c1d655e"
     },
     {
       "bytes": 1443,
@@ -6989,7 +6989,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-088-rcn-alerts-for-incident/environment/world/environment.db",
-      "sha256": "61d465294a2023017e4f588db765046046da4c4a21050c77a628a12b7f281a88"
+      "sha256": "82339dc012c93721351f1a350680df1221b1e35f19450c1213539aafcd62bec1"
     },
     {
       "bytes": 12612,
@@ -6999,7 +6999,7 @@
     {
       "bytes": 25837,
       "path": "harbor/tasks/dob100-088-rcn-alerts-for-incident/environment/world/spec.json",
-      "sha256": "1d8223d832458749c071ef1f8e1cd29bfede5e751eba580c5e850d08da717d0d"
+      "sha256": "b4018a54285cb80118cbbaf8c448250350bc32e81e74a37ff95034e06d8ddac0"
     },
     {
       "bytes": 94315,
@@ -7039,7 +7039,7 @@
     {
       "bytes": 1302,
       "path": "harbor/tasks/dob100-088-rcn-alerts-for-incident/task.toml",
-      "sha256": "7968247da4b1f5ba9a1b17bb3288a0b82f3f29d7fab05594989ad02f862fb3e5"
+      "sha256": "4c47f159b804eb29497a6f0459c34e9574f07a020b04b5f40c063948d0875b61"
     },
     {
       "bytes": 1443,
@@ -7069,7 +7069,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-089-rcn-customer-facing-incidents/environment/world/environment.db",
-      "sha256": "85f8639e3bd58cb217ca5866e8028b429ff29b16a007e4e9975457c716ffb256"
+      "sha256": "958e5fdef8f7f75487f3492b072b36fdc27b299c38628c3063a46261e01943cd"
     },
     {
       "bytes": 12612,
@@ -7079,7 +7079,7 @@
     {
       "bytes": 25538,
       "path": "harbor/tasks/dob100-089-rcn-customer-facing-incidents/environment/world/spec.json",
-      "sha256": "231a08e00a8d55efe4202e433370e0a10373bc714e0d7deb0d88b78f5abd756e"
+      "sha256": "a37328ef836250d81574732155fa091aafcfd8ebfbd3c3943f64859299df9050"
     },
     {
       "bytes": 94315,
@@ -7119,7 +7119,7 @@
     {
       "bytes": 1318,
       "path": "harbor/tasks/dob100-089-rcn-customer-facing-incidents/task.toml",
-      "sha256": "1057f9a6c165e244cc568ab378edc680e3f5f8ce59905e9852728f1bfdd8dd84"
+      "sha256": "3201f699e04998bf1a77af90f8c94f6aed98cc4afa6487989ef846d278b50602"
     },
     {
       "bytes": 1443,
@@ -7149,7 +7149,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-090-rcn-gateway-owner/environment/world/environment.db",
-      "sha256": "67eb7f721196f872a774b0d35b683a23bd7eff34eec3de0562506bc02128d5d2"
+      "sha256": "c08d3d769e7d56c76395da0232f935fe17c4d363d39fa63157bcf116772ebd17"
     },
     {
       "bytes": 12612,
@@ -7157,9 +7157,9 @@
       "sha256": "158171d29ad2c5084b1bbf89fcebcc7c33ec04dc714bcae219ae955580ff1ac1"
     },
     {
-      "bytes": 25552,
+      "bytes": 26288,
       "path": "harbor/tasks/dob100-090-rcn-gateway-owner/environment/world/spec.json",
-      "sha256": "f112bd2f44dc0b9760921cf6c45fc4afb73be64f02bd6386075db475530b223d"
+      "sha256": "01e359ffa567f07c5150029cdd9f4db0a2e7dd52d49c0d3235686bd5fb02dfe4"
     },
     {
       "bytes": 94315,
@@ -7172,14 +7172,14 @@
       "sha256": "a23259280428bc7a7cd7c735879bd26ef503e3ebbcf57c92a536eb7709b00639"
     },
     {
-      "bytes": 70719,
+      "bytes": 71455,
       "path": "harbor/tasks/dob100-090-rcn-gateway-owner/environment/world/verify_task.py",
-      "sha256": "1d52c7b8c58dff905c969e5d465365314509e89e3099ebe2a78d2ed286f8d4d4"
+      "sha256": "1708d59868a7e32034df419a3a797bf0a35c5b4da1e7fea60fd797c093ec8364"
     },
     {
-      "bytes": 1004,
+      "bytes": 673,
       "path": "harbor/tasks/dob100-090-rcn-gateway-owner/instruction.md",
-      "sha256": "08f231c3233c6599b0bcc8e57dfca958d17ede06028511a7549a5b5c36938807"
+      "sha256": "2e31b8e527b098681707c0bb114900b380750ddbc7fdcc0b5005f589d54aa8ed"
     },
     {
       "bytes": 61869,
@@ -7197,9 +7197,9 @@
       "sha256": "1075ee8c6c5583e145b8709772502e5adcf13084cdc1250292138d322900a8ed"
     },
     {
-      "bytes": 1261,
+      "bytes": 1307,
       "path": "harbor/tasks/dob100-090-rcn-gateway-owner/task.toml",
-      "sha256": "24ebf22a88fc0dfcbf58f588113aae93a9b4cafb7aa6e959d57313f0b9789727"
+      "sha256": "6c3a24dee201ee7122dddcb348da95db47be021830ec7db5ac1998744efcacc4"
     },
     {
       "bytes": 1443,
@@ -7229,7 +7229,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-091-rcn-production-deploys/environment/world/environment.db",
-      "sha256": "cb750e1d9ef13384c128c12e35e90a11b1e2ca3a05658f64fb87d9d2282f5dfb"
+      "sha256": "0e50fd1066369ad7e61f102212c54ec86a8184910c9c674c4e8280bc5ee94ca3"
     },
     {
       "bytes": 12612,
@@ -7239,7 +7239,7 @@
     {
       "bytes": 25232,
       "path": "harbor/tasks/dob100-091-rcn-production-deploys/environment/world/spec.json",
-      "sha256": "fe6ec9391768fd4e4bdcc8671b49b692f51cbe3a5e8dd567b4a1b4e1e6583f70"
+      "sha256": "6d360037b23d37cf572c687f7cc13036a8c377ff3dc7999319a0d3941ae2a6cd"
     },
     {
       "bytes": 94315,
@@ -7279,7 +7279,7 @@
     {
       "bytes": 1292,
       "path": "harbor/tasks/dob100-091-rcn-production-deploys/task.toml",
-      "sha256": "a1d4a52b8aab32bd48effc19d4e74609fc18b8b54cb94affb36b55b951d51ad4"
+      "sha256": "f02954974572131bbb89e1f2aabc46ca0a2675aac64eaea84d9b407ab4c1580c"
     },
     {
       "bytes": 1443,
@@ -7309,7 +7309,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-092-rcn-running-version/environment/world/environment.db",
-      "sha256": "2e468b418e6d2d8deb178ea4d69370cf126f9c97284c815b486b17195c6ac935"
+      "sha256": "0cc44a92eeb6d108246417adad65848fb3d127a5935fb8681523a2ab1bd480ad"
     },
     {
       "bytes": 12612,
@@ -7319,7 +7319,7 @@
     {
       "bytes": 25481,
       "path": "harbor/tasks/dob100-092-rcn-running-version/environment/world/spec.json",
-      "sha256": "6408ffd2fb3515d344aa78607f1dc1092e807b488dbc600439b86d332bf1b9b6"
+      "sha256": "12c3bdf164e0b7f577db1aa1c68d300a09f37e166a8f6259e8c05917344ec068"
     },
     {
       "bytes": 94315,
@@ -7359,7 +7359,7 @@
     {
       "bytes": 1286,
       "path": "harbor/tasks/dob100-092-rcn-running-version/task.toml",
-      "sha256": "c6be6caa1f64b081a7e757429d84c6fb038da7b8a0c771d020410089861ee31a"
+      "sha256": "94025e2eba48b04d61ea01dfaae9c4fdd775ff8d207fe0ac9ad71338dba657fb"
     },
     {
       "bytes": 1443,
@@ -7389,7 +7389,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-093-checkout-hardcoded-secret/environment/world/environment.db",
-      "sha256": "f4323453493488cdb20937b3ac009bd5964346a97c20d409bd364b0674489ce8"
+      "sha256": "8da8fdf5dfb96056a462d73d2bad33934f87d4975f74f8711f0bc1918ac57e07"
     },
     {
       "bytes": 12612,
@@ -7399,7 +7399,7 @@
     {
       "bytes": 26114,
       "path": "harbor/tasks/dob100-093-checkout-hardcoded-secret/environment/world/spec.json",
-      "sha256": "9753e608480e935882efbe3549c3954eedd79a27a943a4f62f166fb56c83466e"
+      "sha256": "c814e3e38e0935147f033a651d8eb9e68d2c4e619c681eeb08b359f3149461fb"
     },
     {
       "bytes": 94315,
@@ -7439,7 +7439,7 @@
     {
       "bytes": 1308,
       "path": "harbor/tasks/dob100-093-checkout-hardcoded-secret/task.toml",
-      "sha256": "bc825b8fd7219b538346deea4b75d2d2d38f91afae004c842e190eb9e49e191d"
+      "sha256": "a5947268260edda5c98f7a6160e9cf4d6a5f8a178d41e438bbc4332825798d65"
     },
     {
       "bytes": 1443,
@@ -7469,7 +7469,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-094-cve-libpayproc/environment/world/environment.db",
-      "sha256": "26b469ea8e4f9fd5a04c8e7d1aa99d0bf0d54c61713107c730b07d4011411dd8"
+      "sha256": "30bf416ec40c17e35727c85d762d8a633c00c778b7dac830afe52f8f5378513f"
     },
     {
       "bytes": 12612,
@@ -7479,7 +7479,7 @@
     {
       "bytes": 31294,
       "path": "harbor/tasks/dob100-094-cve-libpayproc/environment/world/spec.json",
-      "sha256": "8a2854d55e964bccb6554ec2fea9b8638e807013df00f0dcb30156d1d5578654"
+      "sha256": "52e2d9a5eb329b662b5b1ad9557f248559b15718a22125beb5c33198067f9645"
     },
     {
       "bytes": 94315,
@@ -7519,7 +7519,7 @@
     {
       "bytes": 1268,
       "path": "harbor/tasks/dob100-094-cve-libpayproc/task.toml",
-      "sha256": "a90a58bf25819fe3a5dba8c461e8e5b02e8720d25423cc53e9bd48121b15d3a4"
+      "sha256": "a8282a1ebd1c2d255b3ab377d2c8a63b84cb29812ac92e92c55b8938870c7ec6"
     },
     {
       "bytes": 1443,
@@ -7549,7 +7549,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-095-cve-pydantic/environment/world/environment.db",
-      "sha256": "b72534163b0e9c5ce083f3af2697826e417dd8ca3e498dfca190ec626457138e"
+      "sha256": "bbd6c7829b7246b005104328eefe73ee7a27d488f3d3ca784247ef416774af38"
     },
     {
       "bytes": 12612,
@@ -7559,7 +7559,7 @@
     {
       "bytes": 29982,
       "path": "harbor/tasks/dob100-095-cve-pydantic/environment/world/spec.json",
-      "sha256": "a513b5eac0d2dc2eb6c4205a02ca0f3e138f018bdbcbd8072f15ea9a5e667c56"
+      "sha256": "d8c5728ab1896dabfd9fcfa8527e60363aeb17cdb85684136b1a23972a8e9718"
     },
     {
       "bytes": 94315,
@@ -7599,7 +7599,7 @@
     {
       "bytes": 1261,
       "path": "harbor/tasks/dob100-095-cve-pydantic/task.toml",
-      "sha256": "e1eddcfeaf49e6cce2f326825e03c28c926ea92337699510aecd578849e754af"
+      "sha256": "2cca46c12af5c8ec96d426cec79e0872cc176720132e1a3083b111525dfc5946"
     },
     {
       "bytes": 1443,
@@ -7629,7 +7629,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-096-cve-requests/environment/world/environment.db",
-      "sha256": "40f26aad2bd099b458ed37e1c06197477a08c2016ca38b5391bb456a22bc6da3"
+      "sha256": "02ea8044233ff02b655390c4954d4b05c43ddab88593e76539a82411ac13b802"
     },
     {
       "bytes": 12612,
@@ -7639,7 +7639,7 @@
     {
       "bytes": 30893,
       "path": "harbor/tasks/dob100-096-cve-requests/environment/world/spec.json",
-      "sha256": "7e379a2b5985142e82af648c281fae68306ad654ae8542c0c02d9e45dbaefcf1"
+      "sha256": "6cbaab9559d0b3521e7dafeaff5e0a8dcb8f5a7c6983f51499841931e27708ff"
     },
     {
       "bytes": 94315,
@@ -7679,7 +7679,7 @@
     {
       "bytes": 1264,
       "path": "harbor/tasks/dob100-096-cve-requests/task.toml",
-      "sha256": "a8b30cd913bbb5a776021e692dcc50aaa846a0f509968ee36000ef95092c398a"
+      "sha256": "b1e53ba767c50b17b76dce785bf28f33aaf03c793c75de714dae41e45d68e46b"
     },
     {
       "bytes": 1443,
@@ -7709,7 +7709,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-097-cve-stripe-sdk/environment/world/environment.db",
-      "sha256": "799da9637236c69e7a0613fc620ff707910d35b75bbe2b428d2d7546d8a11b31"
+      "sha256": "01ea97bed5ad579945a3257e1c3b0858e02bf257cc64d9c07effead2682d6d9f"
     },
     {
       "bytes": 12612,
@@ -7719,7 +7719,7 @@
     {
       "bytes": 25987,
       "path": "harbor/tasks/dob100-097-cve-stripe-sdk/environment/world/spec.json",
-      "sha256": "6f9e90c8e259fc06fa145878726f97f358a798259ee2c25ea847d9d1a5323be4"
+      "sha256": "8c5e15aec2690b6934ea79ceb0f50c2045f6b9107387569038faa8851f2df11e"
     },
     {
       "bytes": 94315,
@@ -7759,7 +7759,7 @@
     {
       "bytes": 1270,
       "path": "harbor/tasks/dob100-097-cve-stripe-sdk/task.toml",
-      "sha256": "56e8a955541028300d90b199ddb3320b01e0137d03dd33458d785da06f7b3256"
+      "sha256": "b36c5249e6c2d29f97c276751c2d9d60e12758dd5e2b6bc96aa28a0010770235"
     },
     {
       "bytes": 1443,
@@ -7789,7 +7789,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-098-retire-debug-endpoint/environment/world/environment.db",
-      "sha256": "6c45629c015d3dfbe2eb5d66cf153185afd6362241fecdb46937b9dccf59197c"
+      "sha256": "54f9b6ebf36fde0926a7a69223886181bf6280065590f9696e2b6cc67cbf27e0"
     },
     {
       "bytes": 12612,
@@ -7799,7 +7799,7 @@
     {
       "bytes": 25384,
       "path": "harbor/tasks/dob100-098-retire-debug-endpoint/environment/world/spec.json",
-      "sha256": "5a95fad3af74320eb0f68f1197cba245d5c20aa02cb7edcdbf254f2f4469930b"
+      "sha256": "b04776128642fd4234c1acbcca37335443beac15beb66f109075e2b4826aa958"
     },
     {
       "bytes": 94315,
@@ -7839,7 +7839,7 @@
     {
       "bytes": 1289,
       "path": "harbor/tasks/dob100-098-retire-debug-endpoint/task.toml",
-      "sha256": "aed7c13b120c2befd7397fd0021c88e46f68b9683910e4a08c48d22c07eff570"
+      "sha256": "a877ffb3b2c728fc971f0acc0cbafaca9e6b50214e8a8e352a77c69ead09b56a"
     },
     {
       "bytes": 1443,
@@ -7869,7 +7869,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-099-port-count-gateway-surface/environment/world/environment.db",
-      "sha256": "70e68201b21f34ff52618b17d5c514cbebc4063f904cfce39703f76c2f985953"
+      "sha256": "0348c14851de6739a8bb05b1c953d16c21b8dd8b2e417fbcec6614427f9e42c0"
     },
     {
       "bytes": 12612,
@@ -7879,7 +7879,7 @@
     {
       "bytes": 23760,
       "path": "harbor/tasks/dob100-099-port-count-gateway-surface/environment/world/spec.json",
-      "sha256": "dfbe83f4769680502b77fc112cfa5b6f9fb82e2173b0114a18f08b9b6e23b945"
+      "sha256": "785a50413cf8b51a47829d11064162774dc15b758d060fae3546708e06c660c2"
     },
     {
       "bytes": 94315,
@@ -7919,7 +7919,7 @@
     {
       "bytes": 1291,
       "path": "harbor/tasks/dob100-099-port-count-gateway-surface/task.toml",
-      "sha256": "61d238eab276b9797b219ae923f628d1f59d7f5c4952c56daecf30279579526f"
+      "sha256": "e93c8d24ba7a440ba97600831757a1f4966a8752b91fb452387d711e49efaa7a"
     },
     {
       "bytes": 1443,
@@ -7949,7 +7949,7 @@
     {
       "bytes": 827392,
       "path": "harbor/tasks/dob100-100-ws-ledger-missing-account/environment/world/environment.db",
-      "sha256": "9f9d384f745fd65fbea281dc21de5bac8886006cccc6224f2c46cd834d927775"
+      "sha256": "c928d22e74491aacf5bada76b63bb6c6ccd3f219e883e71b93f86f6c30df0b70"
     },
     {
       "bytes": 12612,
@@ -7959,7 +7959,7 @@
     {
       "bytes": 24683,
       "path": "harbor/tasks/dob100-100-ws-ledger-missing-account/environment/world/spec.json",
-      "sha256": "e2d5fd6b268ebdc81a1f9ac9d847e4372f5f6ad2d7a556ad1f1ce6aa2394c5c2"
+      "sha256": "3ebc0c80df2450624f812e794b316706ecc66a949de4575b888b8bcc73352f1f"
     },
     {
       "bytes": 94315,
@@ -7999,7 +7999,7 @@
     {
       "bytes": 1277,
       "path": "harbor/tasks/dob100-100-ws-ledger-missing-account/task.toml",
-      "sha256": "2a29e4b32155d9bb1c9c46e7ce1310439999c5e5e3d5808008b50d8d505da989"
+      "sha256": "2da2e2e4ce8f4c1e793d2f8d7fe542d8fae5f29af442e5db673143732e8b81d8"
     },
     {
       "bytes": 1443,
@@ -8022,19 +8022,19 @@
       "sha256": "97d9fd702b3dee3ab7869748a72cb91cd342db5f8a1c572f4b75af72af639afb"
     },
     {
-      "bytes": 10003427,
+      "bytes": 10022123,
       "path": "huggingface/data/tasks.jsonl",
-      "sha256": "98d7cb5591fa0caeb6032e2798c19b5a62e2b585daa4ab141a5c6eba5bc1261b"
+      "sha256": "96fe62a612d400767638bae31fdf9aa493df350775f61074fa94db1ac53b71de"
     },
     {
-      "bytes": 4847,
+      "bytes": 4943,
       "path": "huggingface/reports/build.json",
-      "sha256": "a58efa26cc9f36f692259e9478b365270f82a262971096d73477cfecee249c5f"
+      "sha256": "fcea43ba95c81b2700bdd4d4dd6d7042ed117e948dee7ff14605a4ee8f1c1664"
     },
     {
       "bytes": 1008116,
       "path": "huggingface/reports/qualification.json",
-      "sha256": "11460de35fceb3b7f0b3cca6cf1a54697ec9e6f3c03f889cc06e1424563271e8"
+      "sha256": "5ab00b55a7d809265fabeb8272b5d27c4801d774a5983152f715000ae8b9ad90"
     },
     {
       "bytes": 927,
@@ -10952,9 +10952,9 @@
       "sha256": "dd5c996d68b86532c4bf16d2e357ba17fa22640dddfa0fd862a9cb591e92eb33"
     },
     {
-      "bytes": 839,
+      "bytes": 633,
       "path": "huggingface/task_files/dob100-012-localize-analytics-crashloop/01-employee-request.md",
-      "sha256": "c74fd7a7636456d52e36db134a24f66073d51736f95c626fd604fe0f55677cbe"
+      "sha256": "de50af67b61bdece62973480047a5f7a8059ca466dd8000529e098856c2527c0"
     },
     {
       "bytes": 213,
@@ -11114,7 +11114,7 @@
     {
       "bytes": 18332,
       "path": "huggingface/task_files/dob100-012-localize-analytics-crashloop/51-agent-visible-asset-manifest.json",
-      "sha256": "c331dda55a29faa6f4fc7f91801e8b28d8ecc60b634f86a581125765a5955d4c"
+      "sha256": "434ecaef69dee82f27dbeb3421cd5099022626a5e2904c90e128eb9034550588"
     },
     {
       "bytes": 690,
@@ -13867,9 +13867,9 @@
       "sha256": "5289f88e731119b3c82a1b14ba6779fcec6305017e0d91b8f7df312875d79399"
     },
     {
-      "bytes": 718,
+      "bytes": 644,
       "path": "huggingface/task_files/dob100-023-rca-inventory-missing-role/01-employee-request.md",
-      "sha256": "f37bddb26788a20dc4be4b9d75735d50d17e898a04f7cc3940e7f61b56b90eac"
+      "sha256": "869749236cc8fda7cb970e90776c581230f924748f08c57cc33df04a16033e9f"
     },
     {
       "bytes": 206,
@@ -14029,7 +14029,7 @@
     {
       "bytes": 18272,
       "path": "huggingface/task_files/dob100-023-rca-inventory-missing-role/51-agent-visible-asset-manifest.json",
-      "sha256": "a53af77596161fbb95aea42e3b4e010b4808822bab4cb704c19d564c344fa105"
+      "sha256": "4cf8a32b3143c645678d79b545268cd4053c2a04dc5b5a87b57181c8108244a1"
     },
     {
       "bytes": 683,
@@ -17047,9 +17047,9 @@
       "sha256": "302812d862e9b5502eb65813bcaba4d8a2cc0994c2634dd8ce291f9fc199d38d"
     },
     {
-      "bytes": 789,
+      "bytes": 817,
       "path": "huggingface/task_files/dob100-035-port-close-backlog-issues/01-employee-request.md",
-      "sha256": "1b9dcf24c3005cb694abc183719a05b93a52d911244c7dc879bec1bb2e830988"
+      "sha256": "a9cb56b3f1cf0a34535b51fd6ae16e40dd2330de0b66b8152ba82be84b09e5a5"
     },
     {
       "bytes": 342,
@@ -17209,7 +17209,7 @@
     {
       "bytes": 18259,
       "path": "huggingface/task_files/dob100-035-port-close-backlog-issues/51-agent-visible-asset-manifest.json",
-      "sha256": "aba329beccc96b3514c686ba84775d452454a5d43d625b80077060d6e617ea9d"
+      "sha256": "46b96b3e52bf1356f997aab883102dbbfd5e2437f8d3a700e7761aee29fa0875"
     },
     {
       "bytes": 821,
@@ -19962,9 +19962,9 @@
       "sha256": "60b88aa5c28e713707d6e5bf49f747b3c889f6908b5b1efe6ee860b7289ca921"
     },
     {
-      "bytes": 842,
+      "bytes": 645,
       "path": "huggingface/task_files/dob100-046-inventory-pool/01-employee-request.md",
-      "sha256": "129b0b04e3e1e6b0fd9033301eae396008a4d201fba49c3497de8ef6a052850c"
+      "sha256": "cc5ac1d7a5237ba0408288634144593fb1874e7140cdec24d821662c88d5800a"
     },
     {
       "bytes": 319,
@@ -20124,7 +20124,7 @@
     {
       "bytes": 18318,
       "path": "huggingface/task_files/dob100-046-inventory-pool/51-agent-visible-asset-manifest.json",
-      "sha256": "53318cba064a37e3a58937ec71a734ddff9b874ec10a49c4b0b3ea2e176b2981"
+      "sha256": "fbe22f210c6ce832f17fa9910f9c0554329c0cecd804a94982fd6581db8055af"
     },
     {
       "bytes": 798,
@@ -22877,9 +22877,9 @@
       "sha256": "49e32e2125880637a6c1457198fad59c5018766ac309e817d75ed3fa5ee73449"
     },
     {
-      "bytes": 788,
+      "bytes": 648,
       "path": "huggingface/task_files/dob100-057-search-autocomplete/01-employee-request.md",
-      "sha256": "1301d6681ad9f19b24e759325b9e878b4d1bf0616511a26398e86e335d247265"
+      "sha256": "20baf7bd19c45d89f1b819a5fe438e05e8cb99709dfaa4d6e746da653e9308bb"
     },
     {
       "bytes": 348,
@@ -23039,7 +23039,7 @@
     {
       "bytes": 18279,
       "path": "huggingface/task_files/dob100-057-search-autocomplete/51-agent-visible-asset-manifest.json",
-      "sha256": "577ac4e16000ac11e5c515b8da5767a91a210c6bf4f154b74c0ea629cb305566"
+      "sha256": "22a669f24c9adf19b19e9b8e877ebdf5dfb1cb6ffe7d98ae910128221957c01f"
     },
     {
       "bytes": 825,
@@ -25792,9 +25792,9 @@
       "sha256": "4413555c97dd62285c419723b9f0a02aa18c3c6b17617f2139f007fe02e54600"
     },
     {
-      "bytes": 1043,
+      "bytes": 1075,
       "path": "huggingface/task_files/dob100-068-gated-rotate-partner-credential/01-employee-request.md",
-      "sha256": "0b1b2ff2f55abbcfe9447a3a50124306c90c16138344a60325b7d6699c24da8a"
+      "sha256": "16e2c767b99263b5bc64e452e69a41420ed267a51c802598ab86f5857095fd0f"
     },
     {
       "bytes": 334,
@@ -25954,7 +25954,7 @@
     {
       "bytes": 18297,
       "path": "huggingface/task_files/dob100-068-gated-rotate-partner-credential/51-agent-visible-asset-manifest.json",
-      "sha256": "6447fdebc6f0c9c1a284c2da69c3ae31c7de6c926be11d3617dfe9b8f350f02e"
+      "sha256": "ffdf47bae693102fcf8678a4d9cabb15fd927b52d49180c1d309210a437c54cf"
     },
     {
       "bytes": 811,
@@ -28707,9 +28707,9 @@
       "sha256": "1e5df6b61cfe3f150ad21fe4c10d22830b1856ca65b65c76bace1b49a1a30447"
     },
     {
-      "bytes": 808,
+      "bytes": 836,
       "path": "huggingface/task_files/dob100-079-port-collect-open-issues/01-employee-request.md",
-      "sha256": "f1cd7ddbc5dd889fc9960a61d9d3ac6ba9bd16bdbbdb61c711629115570a60fc"
+      "sha256": "3c01dcf548c7d63a2b9c62ddbfcac4c2b8ff0ff4f0461ab47f2e3fff2b9e976f"
     },
     {
       "bytes": 341,
@@ -28869,7 +28869,7 @@
     {
       "bytes": 18276,
       "path": "huggingface/task_files/dob100-079-port-collect-open-issues/51-agent-visible-asset-manifest.json",
-      "sha256": "e8216858ad625f73af7ad9cbd662951ffc35b4e37aaaeb6a0dd2f8e2a62cc144"
+      "sha256": "4b1809809c09e46990424b9b926cc135ae86ad3f2fb0e08ab46ac063f5a037d1"
     },
     {
       "bytes": 818,
@@ -31622,9 +31622,9 @@
       "sha256": "aa063e8ff60a1404df46de4b5136c471f7a1348f152455cb07a2525ac8e30638"
     },
     {
-      "bytes": 1004,
+      "bytes": 673,
       "path": "huggingface/task_files/dob100-090-rcn-gateway-owner/01-employee-request.md",
-      "sha256": "08f231c3233c6599b0bcc8e57dfca958d17ede06028511a7549a5b5c36938807"
+      "sha256": "2e31b8e527b098681707c0bb114900b380750ddbc7fdcc0b5005f589d54aa8ed"
     },
     {
       "bytes": 208,
@@ -31782,9 +31782,9 @@
       "sha256": "86398b862bf3d5f13840b335600f9fb5dcadae76222100a3ce2162e24fde194f"
     },
     {
-      "bytes": 18254,
+      "bytes": 18253,
       "path": "huggingface/task_files/dob100-090-rcn-gateway-owner/51-agent-visible-asset-manifest.json",
-      "sha256": "7cfadeb79616996b3cb259dc155d56dc16293c9ec5b6030ac6eb57f41fa76b11"
+      "sha256": "fc3f637ecb65f9702fafc00358bf42450bdbee7936c4b8ad1528ef2a15877d4e"
     },
     {
       "bytes": 685,
@@ -34539,502 +34539,502 @@
     {
       "bytes": 119940,
       "path": "huggingface/tasks/dob100-001-rca-analytics-egress-blocked.json",
-      "sha256": "4eaecb846d0464cc8cffbbd3ca7a53db0bf9e889ab04bb7b83e312c78617f963"
+      "sha256": "c545a820cbd137d2908ebc976061e6ff85f2ebc1d0ee735282d2f5f86b85fc09"
     },
     {
       "bytes": 119885,
       "path": "huggingface/tasks/dob100-002-rca-analytics-revoked-grant.json",
-      "sha256": "af3605a1abf182ae69a4b39774365bd323d3d90467e552df770e279b62300892"
+      "sha256": "8fe70dfc2f423ee15dc645b2bec931c15e5aaf7015a5da9177dfbe3acbf81e33"
     },
     {
       "bytes": 120776,
       "path": "huggingface/tasks/dob100-003-rca-checkout-unschedulable-replicas.json",
-      "sha256": "b5b160851bb2519067210fdef77c231b0114550b36c57695364bace386192e6a"
+      "sha256": "b281bb6d8873f4343939a192d9ea61e11dabff93a629cc58366ceaca1371a98d"
     },
     {
       "bytes": 117296,
       "path": "huggingface/tasks/dob100-004-rca-media-disk-pressure.json",
-      "sha256": "b6e67c4fc33b37a9715e101bfe771a3bf28aa99fe0d6c942bf091b86732675f4"
+      "sha256": "50a2a34b3f7703f797dd04983b35ba9638ff7ae79e7e8f22351619a375c67ea6"
     },
     {
       "bytes": 119889,
       "path": "huggingface/tasks/dob100-005-rca-notifications-node-deadlock.json",
-      "sha256": "6d80384e81bc029b1dcc00cb368d88611a2d97ddca2f617b192c722b741d8c96"
+      "sha256": "a86cf0fadeb372844b9850994d4e51022a0e37292b89962738d73eb5397055c9"
     },
     {
       "bytes": 118717,
       "path": "huggingface/tasks/dob100-006-rca-search-unscheduled-reindex.json",
-      "sha256": "41a19118b3716e172ad0674cd082a7a54b267a83eef46261f5cb456ab42adcc9"
+      "sha256": "95326cb22641fd242c8cc99443afee9484929f92dc1cfbb06c4a326c4348ae2c"
     },
     {
       "bytes": 116443,
       "path": "huggingface/tasks/dob100-007-detect-checkout-errors.json",
-      "sha256": "b04342552de83f08ba005caace2f5a949a0e02d605a3f4bd54a3e234d68db665"
+      "sha256": "d31ecdc1b16f689428930b0f325151df5eaff356c5821a3fad2ab93b12aa31bd"
     },
     {
       "bytes": 125737,
       "path": "huggingface/tasks/dob100-008-detect-inventory.json",
-      "sha256": "8da4ba524361ec091c39f9544613311e021aa457ace38398540fd4ef8a67baac"
+      "sha256": "7829e52ca16b174b18b8f9e408ce7fc882b9ea27635efe51c9b9026b802ea1d4"
     },
     {
       "bytes": 117765,
       "path": "huggingface/tasks/dob100-009-rcn-checkout-error-rate.json",
-      "sha256": "0fe8d41713e6101f4105e22a8296cd39e8709f0f7212fa38c55dcef4e0927699"
+      "sha256": "74edd643c9282879a75ffd1422d40399dd2ca184942ebce79f5e0e8ac7fcd350"
     },
     {
       "bytes": 119590,
       "path": "huggingface/tasks/dob100-010-detect-status-page-recurrence.json",
-      "sha256": "1cfedfe625d64c62f5b1fb44977de23d284d13cc879e6ec962acd2c4dd531832"
+      "sha256": "accca571d375b2caba6d85fc719ae403896ef0a7971e4c12cdca135649dd2455"
     },
     {
       "bytes": 117430,
       "path": "huggingface/tasks/dob100-011-detect-storefront-healthy.json",
-      "sha256": "e4f128e32b4e5567a7a010b644a0604539cd46c4263b321c66f052694a72b3c4"
+      "sha256": "2b599bc1c6f64db03b7b588afe0f2e8d60563dfe1e5b6e5f650a32e397e43216"
     },
     {
-      "bytes": 119149,
+      "bytes": 122346,
       "path": "huggingface/tasks/dob100-012-localize-analytics-crashloop.json",
-      "sha256": "f61a828cc31be1804d09b9e41f41a2bb1a8b493f0f316aaee22da1552d0d4085"
+      "sha256": "feb73fa0cee1adc82f1a5b63e5e95a71d6d8c6cb95f5be4400f7cf61a3560d4b"
     },
     {
       "bytes": 118062,
       "path": "huggingface/tasks/dob100-013-localize-analytics-errors.json",
-      "sha256": "67ec81ea317cdfec102cbadd8e98b74929732024168a2912a813cb3f5ca5e01e"
+      "sha256": "21c6e1c59e96109ff0221e41774fb11511f6bf90d11cf85040ea41aceb0de3a1"
     },
     {
       "bytes": 117815,
       "path": "huggingface/tasks/dob100-014-localize-checkout-latency.json",
-      "sha256": "24b511fa9dff9a63b6f6c106484e672e0d66c7de4800d5ac71cb8a6e52ae0c38"
+      "sha256": "6ad1c56da9eda978fe720e581887179dc33862cec0f50b6328ba364707de9cbe"
     },
     {
       "bytes": 117219,
       "path": "huggingface/tasks/dob100-015-localize-gateway-latency.json",
-      "sha256": "398cd9573f51c88e161f17482391ee38b527457d3687c65f9822be7a688c4ade"
+      "sha256": "703c2b132a2f24c7a07ab656ad9961eb443d4df04eb8c6c6a45b727c4db9a4e8"
     },
     {
       "bytes": 117418,
       "path": "huggingface/tasks/dob100-016-localize-media-latency.json",
-      "sha256": "31dc328ac4d044adaf508dff5f8e5260151685f5f0c682f224e64134bc70d339"
+      "sha256": "1fd92696ee30f00e18532d8c4884155170fcc614fa469280093a42db306b4486"
     },
     {
       "bytes": 124319,
       "path": "huggingface/tasks/dob100-017-auth-v1-to-v2.json",
-      "sha256": "a4a78f83c8307219b021a40e5aff4cb76a747d51adc98e715e256c7ad6453a62"
+      "sha256": "68607aa70bbcc4f9e066078908160853231e9373b8f21c433f3977814016195a"
     },
     {
       "bytes": 116159,
       "path": "huggingface/tasks/dob100-018-rca-payments-retry.json",
-      "sha256": "e9a2d033a9ce55157806a3875e62e66943ed072d5b55938a1b820fd55b9501c9"
+      "sha256": "2f3445fef950176b729d52f4aff12a97c5e1080d90251191374b3bce2b89eab2"
     },
     {
       "bytes": 116736,
       "path": "huggingface/tasks/dob100-019-rca-catalog-n-plus-one.json",
-      "sha256": "dfcc82b3c1e9ac819cc008ca0d964963908e9b9ff787040f4819cf8ddb5e51b7"
+      "sha256": "83e85c292b6c104d4b8b55eb4f239bd72bd0c67691535c1d789d01ea87070216"
     },
     {
       "bytes": 118619,
       "path": "huggingface/tasks/dob100-020-rca-notifications-timeout.json",
-      "sha256": "7c589aa52f6ee311b679d9c0383612d33ce4053fe93256459e3b7c8b22f518fb"
+      "sha256": "765ff15b49fb8025804ea0aee078676ca6a42c7b403ad372e928950d9b4b5af8"
     },
     {
       "bytes": 116546,
       "path": "huggingface/tasks/dob100-021-rca-inventory-pool.json",
-      "sha256": "1db0c10d14fd8c56ae228bca7f89227db7083ca47eff06747360e0dc0d2e4b71"
+      "sha256": "dfa14889b2955dddea723413669e8e2bb77f401fa80e5b8869c92e9b10b601ba"
     },
     {
       "bytes": 121339,
       "path": "huggingface/tasks/dob100-022-rca-inventory-migrator-security-context.json",
-      "sha256": "cc8adee850f5b8562882cb2d2852c6b8af11399e579c2bcaff875767e780bb1b"
+      "sha256": "3de3c2751ee4a4b6d6c23357db551740d9a5b973cfef69a523ed06d88da298b8"
     },
     {
-      "bytes": 118807,
+      "bytes": 123571,
       "path": "huggingface/tasks/dob100-023-rca-inventory-missing-role.json",
-      "sha256": "93787046a72e5995e624ac43caa4ef874c0acce2220e980cb3c3adabd795f454"
+      "sha256": "46b26dd3863f4a761db393c6c49c298685e5e9beb6f879585c50ebd21babedcd"
     },
     {
       "bytes": 123337,
       "path": "huggingface/tasks/dob100-024-attr-three-at-once.json",
-      "sha256": "cb9610d1fa5782598e8b403cbb99bd16a14d80cfb6596a133606b0169a6448e6"
+      "sha256": "80bd58aed568662c0e9c4bb480e70e80ce07c8ee1bcec03f7a39d1c9ad2dfa52"
     },
     {
       "bytes": 117397,
       "path": "huggingface/tasks/dob100-025-rca-catalog-gc-thrash.json",
-      "sha256": "f0ceed37ed40fb40a72c50ea7af1a26052ea167375f4297a7754e91c9bfb307b"
+      "sha256": "36544140dd6642ad5376865271cd2903712b5f0a149e54738bde6ef9b7bbc9d8"
     },
     {
       "bytes": 119314,
       "path": "huggingface/tasks/dob100-026-rca-storefront-traffic-flood.json",
-      "sha256": "e488cf55ccd107405690908795517a6e8c1d45f03da2b32d348eec4eed9e0af3"
+      "sha256": "bbf7f5a703dd934c1d72983bfd9b32847834da233528491c08a56ded9a9a7f87"
     },
     {
       "bytes": 120319,
       "path": "huggingface/tasks/dob100-027-rca-analytics-untolerated-taint.json",
-      "sha256": "818f28b98c40258f8cc5f31ddb7063e47f63d7f69ff3665a90bff87290757ecc"
+      "sha256": "741671035d5d51ed2162ad4fedcd58a1177d6e275ef29535c16a7b4b5c74f53a"
     },
     {
       "bytes": 119723,
       "path": "huggingface/tasks/dob100-028-rca-media-recreate-strategy.json",
-      "sha256": "93bd8480ec5bdddd0ea25f1f428f8685c7e9440155f35f5cb1b84ca095a5195b"
+      "sha256": "9d9a395a1c1209bc8bf4bb532f129fe55064b70408b7e2a01a0204a2cc952ff9"
     },
     {
       "bytes": 119052,
       "path": "huggingface/tasks/dob100-029-rca-inventory-unbound-storage.json",
-      "sha256": "00045c5c378f5ea5c86e8a6c14df9b90baf974074edf3e58a80c97ad5b9c2809"
+      "sha256": "ea83472715e5110f5d488fa0904755213edd3e455c434b7c6fa63a0f4115b1f2"
     },
     {
       "bytes": 119377,
       "path": "huggingface/tasks/dob100-030-rcn-distinct-checkout-bugs.json",
-      "sha256": "035afe88f5558ede180f7e8c60a3617e5198565319017f132d13f828820918fd"
+      "sha256": "c927561912409db22961d68997d66c26daf926e5b43b0ef243d2f6229b395333"
     },
     {
       "bytes": 114932,
       "path": "huggingface/tasks/dob100-031-impl-backoff.json",
-      "sha256": "ba5f0d5b1f9be12296ee1a64f6aab6939c09e08c71fd8c46b7c5b27d4cd90aa9"
+      "sha256": "957dcb497cc300f736841cec7b58812c83426ecd08187a4b0431bb24a06a3370"
     },
     {
       "bytes": 114576,
       "path": "huggingface/tasks/dob100-032-impl-cachekey.json",
-      "sha256": "37b0328129f1ad9ce1047d328625291b3d931cb71d37c5b90275df3f8f4d24eb"
+      "sha256": "0a5801e798c8846e03a30a15fe5f800e65467a0a905fac1bb946bfc725841efb"
     },
     {
       "bytes": 115032,
       "path": "huggingface/tasks/dob100-033-impl-chunk.json",
-      "sha256": "41e271d6c2e85e86c84cebbb827dc5bbd17218333022fd0a6d9afe1f784249a4"
+      "sha256": "b0ba82d78131e591e8fd498f44202a842ccd0a11e7ffd7b41496548b0ce5afa8"
     },
     {
       "bytes": 116548,
       "path": "huggingface/tasks/dob100-034-impl-ratelimit.json",
-      "sha256": "905bd67dd02793adc950e7233354e393d0fe73d6006451c3ff53520b3b6422b5"
+      "sha256": "7ba2e10dc099d89fdc2ad80c5d62278efe9a35728667281625a4c76cc981ffe4"
     },
     {
-      "bytes": 116925,
+      "bytes": 116953,
       "path": "huggingface/tasks/dob100-035-port-close-backlog-issues.json",
-      "sha256": "2d7ebcb2d26759fd4590faf32cbd077fbc303bec169955a66675551c757c99fd"
+      "sha256": "0a91e4e7b63db16a36d4a74f2044508f85e36930acbaa3fbb49ff4d6946216e3"
     },
     {
       "bytes": 115729,
       "path": "huggingface/tasks/dob100-036-port-close-blocked-issues.json",
-      "sha256": "170fb9e964a11eddc1298c68d8cc92f914db182e2e445592757bf27662ca84c9"
+      "sha256": "6205995f5dc5b9e2f9a7546ed7cf13cf2429e13727213cbce151634a907f0f2e"
     },
     {
       "bytes": 117426,
       "path": "huggingface/tasks/dob100-037-port-copy-priority-issues.json",
-      "sha256": "75d785848a02647affa1ac9f344ad4cb5217fd7302946ff90ed58f0c6066e88e"
+      "sha256": "8f2db17df37e12dd633d06ac2f63bbfb268c46ec87029f1b94736672e0601335"
     },
     {
       "bytes": 114803,
       "path": "huggingface/tasks/dob100-038-port-count-inflight-work.json",
-      "sha256": "5d25e75d088255ee761b7c10b082c39c93b5517b5ef7047e4fae771e83c695b0"
+      "sha256": "f85b16698fff4bbaa1296650618ce4388e110e694962afd7d9730c15dec47520"
     },
     {
       "bytes": 115135,
       "path": "huggingface/tasks/dob100-039-port-count-unowned-work.json",
-      "sha256": "9e47285c81b9bbb2d69e7378dadeb5522e39a4b0dfc71f5778b1721fcdd399bb"
+      "sha256": "d4708b6cc1212df250a3a65990820116e379e6a05b0ca839d6849696c40dbe58"
     },
     {
       "bytes": 117616,
       "path": "huggingface/tasks/dob100-040-port-dedupe-linked-issues.json",
-      "sha256": "df377601a84160ff29e0c2b18769282cd786ad303d8cb54c75a7349598abe781"
+      "sha256": "7b7500eda8e8634475818e33b5b54b47391893b722f9029a5f6a9e390cb9fb50"
     },
     {
       "bytes": 116769,
       "path": "huggingface/tasks/dob100-041-port-escalate-to-gateway-oncall.json",
-      "sha256": "dd21cffb21e69f89b8cff952d36fdb86fbb842034d637732a462fc3dfda68b65"
+      "sha256": "bc9a3e88ea83db7d9d73370f515af9b1c6047c2c3d6d68722b05583cc10cb61f"
     },
     {
       "bytes": 116834,
       "path": "huggingface/tasks/dob100-042-port-high-priority-since.json",
-      "sha256": "dffc8a687dfadb38d0efaf3c6cb258b721ebe1d0372d3acd41d81ed47cdeea03"
+      "sha256": "e921e13fd1c02c5b1d476c7ab54b5a98a896af75695e59280fe7a048647e7149"
     },
     {
       "bytes": 120133,
       "path": "huggingface/tasks/dob100-043-analytics-batch-size.json",
-      "sha256": "d7981fb07e120a9a2ac838ca1f54e8a81fc50ec694c3290e7b4e63cd45f4ab8e"
+      "sha256": "2626c5cd743003787a3bb43439531702f135e0e9bca7cf653dc48db44a44dc8b"
     },
     {
       "bytes": 122216,
       "path": "huggingface/tasks/dob100-044-analytics-prefetch.json",
-      "sha256": "b23164fc1518053403fd2c1ba7656b932c5386982e4e8ca91cc2b1d098ad7ce4"
+      "sha256": "b4ccba073efa6d76882234f31e4f90f828b1fe6e7310ec13b65e57107314c0fe"
     },
     {
       "bytes": 120592,
       "path": "huggingface/tasks/dob100-045-checkout-payments-timeout.json",
-      "sha256": "47c73a2b8d61bfb8d6b2c9c1eac11d6e367139b0e3d8230b8a52f9c989569b36"
+      "sha256": "e6b907c2fd47386be646259ab680e1d7efeec600e7300738bd48243313fa76b4"
     },
     {
-      "bytes": 122063,
+      "bytes": 125843,
       "path": "huggingface/tasks/dob100-046-inventory-pool.json",
-      "sha256": "0f717183b7a4731989f1873a821f5c66d4ffb2f44d37c3120a3b1566e3eb4ad5"
+      "sha256": "eb17f8a0da49f2890c627e68685a0945337f0b2b52b0ef4b707806d457ba6e98"
     },
     {
       "bytes": 123038,
       "path": "huggingface/tasks/dob100-047-notifications-timeout.json",
-      "sha256": "a9636e3d738623bc0a200dc301424c31ab3576a105cfe40fc5dc1c6e77bf7c68"
+      "sha256": "6cda514497160c75f0a2576300b6bbc4f39bc908da2493abc7a19fdc84c0df9f"
     },
     {
       "bytes": 114988,
       "path": "huggingface/tasks/dob100-048-port-count-open-priority.json",
-      "sha256": "bb7411bb8497e0815a55f3fd3c75acdb1d34029eb23ffae019385087303fcde9"
+      "sha256": "3bad00b94db1dd253e4571ea2a2b9bf8c5ffc858ef70b575d10cfebf100c53c0"
     },
     {
       "bytes": 120979,
       "path": "huggingface/tasks/dob100-049-payments-retry.json",
-      "sha256": "7d5b35ae670c25d599138a09397ff6ab9615e30730fbf0c761d233f1e3f576e4"
+      "sha256": "6be2986b5cd8900d9d83d6f0554d3c1a04875ff8d19b432739aadf694f5834ec"
     },
     {
       "bytes": 125161,
       "path": "huggingface/tasks/dob100-050-payments-retry-from-code.json",
-      "sha256": "12db7eccfb0d821a43a9af895b28cfd2dea3fdd59ecfc2d8cc354fda8e89d7d9"
+      "sha256": "f6dc307365bba83e821b164e5183f07fa46e15c1a4ffd714b011d84ac7b99f6b"
     },
     {
       "bytes": 120602,
       "path": "huggingface/tasks/dob100-051-checkout-v2-layout-cleanup.json",
-      "sha256": "bfb43dc157a7a42c01699d408b52f94782e82245ae4f235f6422fd398461b537"
+      "sha256": "3949cd6d2b7cd03d3584b48982baa18446380039f5b6a99c3299682502ab4346"
     },
     {
       "bytes": 121096,
       "path": "huggingface/tasks/dob100-052-express-checkout.json",
-      "sha256": "eea72de1a46fa54421897b862e90d84066cb97f2b6a7c80089ee34d770a5882a"
+      "sha256": "e9332cabf0810b209033f3b0ac114abd8cab985affa700e34322fffa8ddccba9"
     },
     {
       "bytes": 122764,
       "path": "huggingface/tasks/dob100-053-instant-refunds-killswitch.json",
-      "sha256": "a2dcc3c63aab4c3dc1d742964e81d08221b9f501d3f797f0abd150ca63b56a08"
+      "sha256": "800f695bf29900a3a6de1a1fcb83f1bcd6d2ec4d3622e62501ad32aae3af218f"
     },
     {
       "bytes": 120720,
       "path": "huggingface/tasks/dob100-054-legacy-price-rounding-cleanup.json",
-      "sha256": "5e99592fbcb404ee0df099330bd5a6ed07bb53b5d6a3c7fbb17ae02a8e063dcc"
+      "sha256": "c907508836664c736138f007e89bd204fc28532704267bd1e5b976afad55ac36"
     },
     {
       "bytes": 119234,
       "path": "huggingface/tasks/dob100-055-media-webp.json",
-      "sha256": "2a58b4c2a1856727f0e5b36cc5eed53ea308568579068881d057bc2ba88b5372"
+      "sha256": "31373dcb0027714ca2e3d1712034d2ad1dd8e5ffed6ba74c7062e014df7c2df7"
     },
     {
       "bytes": 122082,
       "path": "huggingface/tasks/dob100-056-saved-carts.json",
-      "sha256": "952ff2430b46f2acea4a28d0e7160d811635f06d906ba00d24050a00b57c9b48"
+      "sha256": "45071870924b34c34e12b9ba45bd04867536fdc4c45564a0ca024c767b65f692"
     },
     {
-      "bytes": 120858,
+      "bytes": 126171,
       "path": "huggingface/tasks/dob100-057-search-autocomplete.json",
-      "sha256": "93f346b637699cfa11d8616c437a046d05dbb7c4052e2428de617a8273b8b424"
+      "sha256": "1ab399c653b30df46c8f51935c1b08657cd9be90a5c1b3a507058c982149ddce"
     },
     {
       "bytes": 119171,
       "path": "huggingface/tasks/dob100-058-flaky-analytics-rollup.json",
-      "sha256": "19a6a3702e04e66953c631221d4ecf9b61ded519f96d4c73660efa6f61f11687"
+      "sha256": "b22521cfd80a233abfe56bcc28292fc5113e099099d5104ed555300a116f1196"
     },
     {
       "bytes": 118029,
       "path": "huggingface/tasks/dob100-059-flaky-catalog-rounding.json",
-      "sha256": "61a32a96959ad8f4dd8d277ac838fc7918cbbbdccf0d35555352e3c3b9cec41f"
+      "sha256": "77126cb7c531447b9025cd87d748f8627bc3a6274bdefebab9d3558fad08178f"
     },
     {
       "bytes": 119547,
       "path": "huggingface/tasks/dob100-060-flaky-checkout-idempotency.json",
-      "sha256": "0852692fbe3d50d941663af390e6fd97a5dc832fcec2a2eb357203501cf40bbb"
+      "sha256": "eacda481c4a5958ca70aa590d46ce81d6364d983b5a9cc5c1cc3e140468eeafa"
     },
     {
       "bytes": 118791,
       "path": "huggingface/tasks/dob100-061-flaky-gateway-timeout.json",
-      "sha256": "5217726cebec97c7fa806af37dae6cbc84681a19debf17f53a21005b133f6186"
+      "sha256": "5756a571f3af76f02fbec57e76a479585b6940081d5d8e0aaae05ec01a5465b4"
     },
     {
       "bytes": 115399,
       "path": "huggingface/tasks/dob100-062-w6-copy-13.json",
-      "sha256": "5d9b0ebf446ec06227b2959bc599a898b0a3fc2293ceab0a1e9c01074e38aaaf"
+      "sha256": "461de442914f5810105a07d5d40706504da2380a241b09d157855af511e5633e"
     },
     {
       "bytes": 117646,
       "path": "huggingface/tasks/dob100-063-flaky-search-index.json",
-      "sha256": "e09c17e0e6ce9e426a357238e632bb2d04fafed35fd096c33d0d4b944636422a"
+      "sha256": "edecd1e5ef1edcf478cf4d88b2295dd895145800a597a16ef31060f898b4aa42"
     },
     {
       "bytes": 117681,
       "path": "huggingface/tasks/dob100-064-hand-cluster-runbook.json",
-      "sha256": "63dce28c370894ad46c66e9aff1280571d7e698814130096af8b4e5d4a99412b"
+      "sha256": "3bcbbaad6b59aedbd1cc25ebaa13dd1cd9a9c1ac856597d586731cfe7d307a95"
     },
     {
       "bytes": 118072,
       "path": "huggingface/tasks/dob100-065-hand-gateway-runbook.json",
-      "sha256": "3124c723d01e061da1b224ebe413c34aad7bd186a86c83d8184b669df86fe5a6"
+      "sha256": "f9b41e51dacc671b0b9fcb7a098133ec3656a89087ea5870a21945bf8b9b1576"
     },
     {
       "bytes": 118387,
       "path": "huggingface/tasks/dob100-066-hz-checkout-flag-kill.json",
-      "sha256": "b6cec34be8e0041813025fb447839833cdc1913aa479272b1aecb0f362cf3751"
+      "sha256": "84cbb4f962efa0c0877e802113ad1d0cfaded2d0506bf8ab9cced1969ccfa10e"
     },
     {
       "bytes": 119680,
       "path": "huggingface/tasks/dob100-067-hz-gateway-leak-rollback.json",
-      "sha256": "beff369de5a64f16974345f314860bad912eb7c409ec74b5360654da9cbc5d86"
+      "sha256": "e62c38abdda0b7b2cd2a0f17eca9a0f92777d970a8b9e9c0f769215d6e74ae5f"
     },
     {
-      "bytes": 121448,
+      "bytes": 121480,
       "path": "huggingface/tasks/dob100-068-gated-rotate-partner-credential.json",
-      "sha256": "6d6f965e4be278b68e760d4460f2c61b3bc79bb9673a7f8afa487eb02f559217"
+      "sha256": "8f1fa6d78f18ed974afc2a89436fb5e904ca22fd754fb4b9718462d9996656e8"
     },
     {
       "bytes": 117634,
       "path": "huggingface/tasks/dob100-069-judge-analytics-oom.json",
-      "sha256": "d013e18029882c7f68aaf442d547b8fe058966e2c20be98a7e93532785a74f3b"
+      "sha256": "47a76976ec21f6b6f3559238415e7d9972add292e4c350fda457ca1098dd4061"
     },
     {
       "bytes": 117569,
       "path": "huggingface/tasks/dob100-070-judge-checkout-flag.json",
-      "sha256": "a43538b5e3dc9edc09e08fe2d1ef2d5312b4c81e4a015b29db15ed68ebe6a6d5"
+      "sha256": "e15cbc6dddb1cd648d4202e0b1d8849f38b041bbbdafbb455e67b3d9e6508db7"
     },
     {
       "bytes": 117950,
       "path": "huggingface/tasks/dob100-071-judge-gateway-latency.json",
-      "sha256": "cac59b69bd18d3e68d60ac9575034d6b5e0462636488a6cf8a32588164b7c681"
+      "sha256": "fa4f865a27e239616c08328878afc51aaadad885595df671e8c5cdc1f1aedf17"
     },
     {
       "bytes": 117838,
       "path": "huggingface/tasks/dob100-072-judge-payments-retry.json",
-      "sha256": "b1f56cb69ba6d6fb17ffb8f6ef9dfd14d11ff3c08f22357dbbea7da42b36c98e"
+      "sha256": "066c9915c646514d54c5578d993cb93231d42d35d7eb2d1756121993cdeea0d0"
     },
     {
       "bytes": 121153,
       "path": "huggingface/tasks/dob100-073-catalog-batch-pricing.json",
-      "sha256": "5f1c1035bfb522202a8ab459e5bfd3a5271e459a79a003806a2657d7b3f70f4a"
+      "sha256": "580fcaaf644e574d264c5f5e93f09ddc6221ab9317b87e856055b2ef6558b942"
     },
     {
       "bytes": 118448,
       "path": "huggingface/tasks/dob100-074-catalog-cache-ttl.json",
-      "sha256": "e0fdcc4101e1ffbba27a830491f3dace662032affb5710f16dfcd13a638f6ecf"
+      "sha256": "51f3129f1e31fa2d705f07378349802ef04488d7f8c7a5813d2df64f4889729b"
     },
     {
       "bytes": 122129,
       "path": "huggingface/tasks/dob100-075-catalog-pricing-from-code.json",
-      "sha256": "556e595794873f4339fb1b8afce23a112c0ea1fe770954c134680a664280b8bb"
+      "sha256": "25815ebe146f4c603ec127f2528464ed27e0f7588b9561d85c4d6f2e1b5fe64c"
     },
     {
       "bytes": 119263,
       "path": "huggingface/tasks/dob100-076-gateway-pool-reuse.json",
-      "sha256": "292adf8100f99f1f87f389444007123e71e7fc7617fe656b5d193ecf1651c65e"
+      "sha256": "83dbfd9d3c1e7497c7e57fada4d358c37122fd4930ff476e999e71b02642df41"
     },
     {
       "bytes": 124551,
       "path": "huggingface/tasks/dob100-077-gateway-v510-rollback.json",
-      "sha256": "8644113facfd0336b773d81304cbbe84dfe385a55b75c82856b802a884170ed0"
+      "sha256": "c8d4c690976a4bb4c943bc3088f5d8451bbb347d7062c539be8a97a43bb4ef76"
     },
     {
       "bytes": 120350,
       "path": "huggingface/tasks/dob100-078-media-cdn.json",
-      "sha256": "157bc1d11c50d6dd990c02950dd505dcd3750e0c17eeb59fd27082b2ac17a3e4"
+      "sha256": "adf9f9a28b5527953e2368231ae50f43a7a57633f71e17b9a7bd4ce0918baa3b"
     },
     {
-      "bytes": 117517,
+      "bytes": 117545,
       "path": "huggingface/tasks/dob100-079-port-collect-open-issues.json",
-      "sha256": "f5f008795994f7c4c1e365f27e05f5f621e057367e02d5f93cf5ead9814caf9c"
+      "sha256": "2cafd161431493c065b0a3d5980366ef2dc4dc48bd9c96370a33f5f008e340c9"
     },
     {
       "bytes": 117824,
       "path": "huggingface/tasks/dob100-080-port-report-customer-reports.json",
-      "sha256": "ddb127db579fe7a8f36ace5abd5d7fa672add94d95a01deb8bb5b073314bc7af"
+      "sha256": "137ad7f816b67ca4648ab7e326119d3577fb679ad63776f7db963d2aaf92a3c8"
     },
     {
       "bytes": 126403,
       "path": "huggingface/tasks/dob100-081-backorders.json",
-      "sha256": "7ce1045ea5a6f8082f2f13a27f6c13df579f0a4c48660d039df41b3ae9d4ca33"
+      "sha256": "34ec28bd9484dac71a23674ee4a5ab2a2101bd3491f1cf0f6a44aa189b0bee2f"
     },
     {
       "bytes": 125806,
       "path": "huggingface/tasks/dob100-082-checkout-upsell.json",
-      "sha256": "0305c4c912887f1f223da6797ffe4dd9397e29f9c701c80f6eca21b468466cb8"
+      "sha256": "6a4154609400ec0fada83cbf097d535be59a1544a79ec4adc1ccd35f15dc6939"
     },
     {
       "bytes": 128951,
       "path": "huggingface/tasks/dob100-083-loyalty-points.json",
-      "sha256": "97988f50c2bf7b6b724ff4c77ce5c23d0aa9025a85d825b8bbdace05ddbf3a33"
+      "sha256": "f10fd6d741315952fcc5fdc0c9a47e91d711742ca462333186f0c7e0eea56a0a"
     },
     {
       "bytes": 126065,
       "path": "huggingface/tasks/dob100-084-media-pipeline.json",
-      "sha256": "35a40e571cd94709b3260cc6ddcc7558abd395f3b1036296f7f23447e278e2e0"
+      "sha256": "2f227b1e3a6a30810d846f64e987dcf1c29e99f27466167e2f7d69bb447f6f5e"
     },
     {
       "bytes": 122762,
       "path": "huggingface/tasks/dob100-085-notification-templates.json",
-      "sha256": "501a284fcad0223d9121da309bf00d7aaedfd1ba6eaffd2c44895033b8b3b51b"
+      "sha256": "8ebac7442d8abdffff89e594526c48fe4426ad3dd80d4eb2b6453e0e7d761f0b"
     },
     {
       "bytes": 120360,
       "path": "huggingface/tasks/dob100-086-search-relevance.json",
-      "sha256": "17f314ce4fb046e2119e2d9c57546606b7642d07d0bb005d19e0e1a0cc46b571"
+      "sha256": "3de60b18d69013407916c285849263ffc82fdb4abb81b621ab230856039fc429"
     },
     {
       "bytes": 123464,
       "path": "huggingface/tasks/dob100-087-split-settlement.json",
-      "sha256": "ea8115705a7ba2d9d68de8c3e7acfd31db22ba76c360d8a92cdd10639351de8b"
+      "sha256": "32060ae32c74acb289589b7b202283693ba7e42ad1c610a84b90a6b177cc9b87"
     },
     {
       "bytes": 119921,
       "path": "huggingface/tasks/dob100-088-rcn-alerts-for-incident.json",
-      "sha256": "6ee2b10662b28976399669ed8a4087ff1beb0ba230b1835878bbbb30f2e53260"
+      "sha256": "67aad8f078193c42f24ed8d2f445f18a6323cda895b53aab314c7d3ae96434f0"
     },
     {
       "bytes": 120193,
       "path": "huggingface/tasks/dob100-089-rcn-customer-facing-incidents.json",
-      "sha256": "96e1f4350fb6fc4b3aeefef21cde16d0ae68dd0e345b45667b39fd5ddb630184"
+      "sha256": "e5b74076a8faca357dfb826edd43364f91c678a22898db7ead696181d05e2df5"
     },
     {
-      "bytes": 117732,
+      "bytes": 119286,
       "path": "huggingface/tasks/dob100-090-rcn-gateway-owner.json",
-      "sha256": "9c574621ad73372f3cdd732665b0329cba11335024383bad8b6a3f88e59a41e3"
+      "sha256": "f0820e84ca4756b0ef4d2357bdc3af607837086b5da2c1f63e4b52da9d19d7d0"
     },
     {
       "bytes": 118466,
       "path": "huggingface/tasks/dob100-091-rcn-production-deploys.json",
-      "sha256": "fc6368c64f4365b470d68fc8297ddcab961ad9e216be754bbafc6b60fd50af03"
+      "sha256": "95cdfd7f3def367fc3b6f96b283590e76d900bf324c8f91517dd7ae8fa69143d"
     },
     {
       "bytes": 118358,
       "path": "huggingface/tasks/dob100-092-rcn-running-version.json",
-      "sha256": "dd68b4392bae714cc7efe76ac54db635f2cdd5fe8b2b94a09d03adc0cc4ba53c"
+      "sha256": "e649d38e0661f5e1613f182c719f7fe19ef091bd23da8176df3683350f126066"
     },
     {
       "bytes": 121791,
       "path": "huggingface/tasks/dob100-093-checkout-hardcoded-secret.json",
-      "sha256": "730d19148838ce052b6603468d367e47a993f78596d6e03c0f96285127b4b752"
+      "sha256": "e80c8aa000ce724693febce447cff48d45f47a0e419d5efd7a5680a5e6caa1e6"
     },
     {
       "bytes": 129443,
       "path": "huggingface/tasks/dob100-094-cve-libpayproc.json",
-      "sha256": "47d620c866a82cc9bc9c9f4a8e39686ab4c4fa5c1c5df06232c8da80c62d70a3"
+      "sha256": "ed1135f63a4465c9ab7a0a839dd7d0ae23d44fbfee728cf598cd15cbe1deec65"
     },
     {
       "bytes": 125999,
       "path": "huggingface/tasks/dob100-095-cve-pydantic.json",
-      "sha256": "5504bf076d74348c866c5ae3a9d26e014b0e243a013a7770e10c305d53850584"
+      "sha256": "b3e448e62815d703dd8bf142fa2813dab77d0141b1b51bb4647746ea119c2a88"
     },
     {
       "bytes": 128426,
       "path": "huggingface/tasks/dob100-096-cve-requests.json",
-      "sha256": "2b0b3015af3618e08ea4c2c8e6cf4b3e0ecd261c324066b08e939e619e0ef648"
+      "sha256": "84d2647ecf65db5a6d0bd504034b86560d094e7826cfe901c941928b31674b8f"
     },
     {
       "bytes": 119146,
       "path": "huggingface/tasks/dob100-097-cve-stripe-sdk.json",
-      "sha256": "c9a7f44dd27bb83933bf5597d4a68647ca9c5b8886cc0fc0155542bdc2c10969"
+      "sha256": "7fd8ac57be6da59c8e5883439aacc551dd716f2e1166341a1487f98f12635bad"
     },
     {
       "bytes": 118539,
       "path": "huggingface/tasks/dob100-098-retire-debug-endpoint.json",
-      "sha256": "6a0fabb7fcccd56d207be55bf299e57f3f787b116464759d7273863b48f96075"
+      "sha256": "136cc930793b3c852cc012b7d60a333c06e7e4fca23d0c61f0d1597302f5b16e"
     },
     {
       "bytes": 115646,
       "path": "huggingface/tasks/dob100-099-port-count-gateway-surface.json",
-      "sha256": "f57dec39ff2f1e7b390ee735b6af5901b8eb5b2443009406253ce32a79ccc00a"
+      "sha256": "215e071e2a2bc0fa36d4ccbaa6722535dc30b7c7967ab42e328717102aa7bee5"
     },
     {
       "bytes": 117611,
       "path": "huggingface/tasks/dob100-100-ws-ledger-missing-account.json",
-      "sha256": "ee13ff03c8b5452b4607bf6563a1ddf8daa7edf969e5047c9af2a25f0cd1e1c6"
+      "sha256": "9f3c33a8d271a6c04edf8466cdb6a07d3ab73ab1e056c584bb4329cc4f508b42"
     },
     {
       "bytes": 23196,
@@ -35592,9 +35592,9 @@
       "sha256": "04debedf154c7ed5e8b3a58b9df77ede530f1dfe67e76db0750c520a5e445098"
     },
     {
-      "bytes": 70114,
+      "bytes": 71442,
       "path": "huggingface/verifiers/verify_dob100-012-localize-analytics-crashloop.py",
-      "sha256": "dd6928f82d7e8b41823a33ea42cd6bc22f797f5c55813d192d848b20557f9f59"
+      "sha256": "535e9a48516c898511ccaf757a9a0e05eb1811eba8c9a17772dbfb481c390d16"
     },
     {
       "bytes": 69824,
@@ -35647,9 +35647,9 @@
       "sha256": "26c350087be83e2b6ed3552f6acc6c8ed370c8e24dc9f64364150c3c310c3754"
     },
     {
-      "bytes": 70385,
+      "bytes": 72273,
       "path": "huggingface/verifiers/verify_dob100-023-rca-inventory-missing-role.py",
-      "sha256": "fd548bb5cb317f67baec53bdb40d08cfcd6c569022e5c3c54f1eb839e64cefa9"
+      "sha256": "aa32ec09f29a6bddae37bae75dd437401fd436ce4922658ba2965d749650df95"
     },
     {
       "bytes": 73889,
@@ -35762,9 +35762,9 @@
       "sha256": "a193454315fb76be8bc8079a52262fc960f3b83a3ddb6c86759242fdbc11df81"
     },
     {
-      "bytes": 73858,
+      "bytes": 75410,
       "path": "huggingface/verifiers/verify_dob100-046-inventory-pool.py",
-      "sha256": "b09ba87d7b0a9ac02d0efbd053b010a6ed507e1061f945ba9efcc6688f6dc4f1"
+      "sha256": "0a6bc6b300882267cfed3bd3423cc7677d6e523a08114d4affa193c55531a512"
     },
     {
       "bytes": 73596,
@@ -35817,9 +35817,9 @@
       "sha256": "894102295c7315a2df47923553c7d7abf6c39609c5fd0f7c1d7e3a502c7816d0"
     },
     {
-      "bytes": 72803,
+      "bytes": 74931,
       "path": "huggingface/verifiers/verify_dob100-057-search-autocomplete.py",
-      "sha256": "ce918f50648137e8aa964b4c3be97299610d73cf86698f3e4dd80b22b8d0d289"
+      "sha256": "c51345164d6f21d25ec05d48d86d3607dc31802a5b7aad57068a001886f81e9a"
     },
     {
       "bytes": 71488,
@@ -35982,9 +35982,9 @@
       "sha256": "60d4651e0305ff1536bccee54c70a849951e8a231558ac0ff4fd941a205a470e"
     },
     {
-      "bytes": 70719,
+      "bytes": 71455,
       "path": "huggingface/verifiers/verify_dob100-090-rcn-gateway-owner.py",
-      "sha256": "1d52c7b8c58dff905c969e5d465365314509e89e3099ebe2a78d2ed286f8d4d4"
+      "sha256": "1708d59868a7e32034df419a3a797bf0a35c5b4da1e7fea60fd797c093ec8364"
     },
     {
       "bytes": 70414,
@@ -36067,17 +36067,17 @@
       "sha256": "a23259280428bc7a7cd7c735879bd26ef503e3ebbcf57c92a536eb7709b00639"
     },
     {
-      "bytes": 4847,
+      "bytes": 4943,
       "path": "reports/build.json",
-      "sha256": "a58efa26cc9f36f692259e9478b365270f82a262971096d73477cfecee249c5f"
+      "sha256": "fcea43ba95c81b2700bdd4d4dd6d7042ed117e948dee7ff14605a4ee8f1c1664"
     },
     {
       "bytes": 1008116,
       "path": "reports/qualification.json",
-      "sha256": "11460de35fceb3b7f0b3cca6cf1a54697ec9e6f3c03f889cc06e1424563271e8"
+      "sha256": "5ab00b55a7d809265fabeb8272b5d27c4801d774a5983152f715000ae8b9ad90"
     }
   ],
-  "manifest_sha256": "127999370fc660e618a70bed9a562891983e7b53cf3672a71efec548ffab7d77",
+  "manifest_sha256": "9b7170aedf78c9cb28d7a8dd1b80b296bba6e22304df03a52a1047106fef0c0d",
   "qualification": {
     "determinism_matches": 100,
     "executions": 1600,
@@ -36088,5 +36088,5 @@
     "release_passed": true
   },
   "schema_version": "3.0",
-  "version": "3.2.6"
+  "version": "3.2.7"
 }

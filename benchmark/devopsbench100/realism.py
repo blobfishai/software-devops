@@ -1,4 +1,4 @@
-"""Causal-evidence release layer for DevOpsBench-100 v3.2.6.
+"""Causal-evidence release layer for DevOpsBench-100 v3.2.7.
 
 The source world already contains the task-specific operational transitions.
 This module adds the part a real employee has to do around those transitions:
@@ -31,7 +31,7 @@ from xml.sax.saxutils import escape
 from benchmark.devopsbench100 import decision
 
 
-RELEASE_VERSION = "3.2.6"
+RELEASE_VERSION = "3.2.7"
 SEMANTIC_MILESTONE_WEIGHTS = {
     "investigation.scope": 5,
     "investigation.authority": 5,
@@ -60,6 +60,132 @@ CURRENT_CONTROL = "OPS-CONTROL-2026.03"
 RETIRED_CONTROL = "OPS-CONTROL-2025.11"
 SNAPSHOT_DAY = 420
 ACTIVE_ONCALL_DAY = 419
+
+# Keep this outcome-level authority contract in lockstep with the portfolio's
+# benchmark/request_contract.py. A prompt must preserve the employee's
+# decision uncertainty while still authorizing every state transition the
+# deterministic verifier grades. Merely mentioning a record or a change is not
+# authority to perform it.
+STATEFUL_IMPERATIVE = (
+    r"add|apply|approve|assign|attach|brief|cancel|certify|change|close|commit|"
+    r"complete|contain|correct|create|defer|document|draft|enter|escalate|execute|fix|generate|"
+    r"implement|link|mark|move|notify|open|pause|place|post|preserve|progress|"
+    r"protect|qualify|quarantine|record|release|remove|repair|replace|repost|reroute|reschedule|restrict|"
+    r"resolve|return|reverse|revise|route|save|schedule|send|stop|submit|suspend|"
+    r"transfer|update|validate|invalidate|write"
+)
+AUTHORITY_PREFIX = (
+    r"(?:^|[.!?]\s+|[,;]\s+(?:(?:and|then|so)\s+)?|\band\s+|"
+    r"\bplease\s+|\b(?:can|could|would)\s+you\s+|"
+    r"\b(?:need|needs|want|wants|ask|asks|asked)\s+(?:you\s+)?to\s+)"
+)
+EXPLICIT_NON_EXECUTION_PATTERN = re.compile(
+    r"\b(?:read[- ]only|"
+    r"without\s+(?:intervening|making\s+(?:a\s+)?change|changing\s+(?:the\s+)?state)|"
+    r"analysis\s+only|do\s+not\s+make\s+(?:any\s+)?changes?)\b",
+    re.IGNORECASE,
+)
+EXECUTION_AUTHORITY_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "bounded-operational-imperative",
+        re.compile(
+            rf"{AUTHORITY_PREFIX}(?:please\s+|finally\s+)?(?:{STATEFUL_IMPERATIVE})\b"
+            r"[^.!?\n]{0,180}",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "make-supported-change",
+        re.compile(
+            rf"{AUTHORITY_PREFIX}make\s+(?:only\s+)?(?:the\s+)?(?:supported\s+)?"
+            r"(?:(?:supported|justified|approved|authorized|bounded)\s+)?"
+            r"(?:changes?|updates?|corrections?)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "commit-or-persist-outcome",
+        re.compile(
+            rf"{AUTHORITY_PREFIX}(?:commit|persist|record|update|save|saving|capture|write|apply|"
+            r"remove|delete|revert|return|mark|set|finalize|finish)\b"
+            r"[^.!?\n]{0,120}\b(?:result|outcome|decision|recommendation|plan|"
+            r"review|record|state|status|workspace|workflow|row|model|deal|"
+            r"invoice|order|ticket|case|handoff|update|message|position|choice|answer|"
+            r"recommendation|finding|conclusion|commitment|movement|usage|operation|"
+            r"requirement|schedule|transaction|work|scope|forecast|task|note|manifest)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "operational-closeout",
+        re.compile(
+            rf"{AUTHORITY_PREFIX}(?:close\s+out|bring|put|carry|take|leave|turn)\b"
+            r"[^.!?\n]{0,140}\b(?:record|state|status|workspace|workflow|"
+            r"closeout|up\s+to\s+date|review|handoff|working\s+position|schedule|"
+            r"recommendation|answer|decision|finding|conclusion)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "outcome-by-state-change",
+        re.compile(
+            r"\b(?:make|bring|leave|keep|turn)\b[^.!?\n]{0,120}\bby\s+"
+            r"(?:updating|recording|saving|applying|correcting|creating|posting|"
+            r"circulating|sending|notifying|preserving)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "carry-supported-scope-through",
+        re.compile(
+            r"\bcarry\s+(?:the\s+supported\s+(?:scope|records?|cases?)|"
+            r"those|them|it)\s+through\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "required-operating-state",
+        re.compile(
+            r"\bneeds?\b[^.!?\n]{0,100}\b(?:supported|approved|authorized)\b"
+            r"[^.!?\n]{0,80}\b(?:corrections?|changes?|updates?|records?|"
+            r"outcomes?|plans?)\b[^.!?\n]{0,50}\b(?:in\s+place|recorded|"
+            r"applied|completed|current)\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "stakeholder-delivery",
+        re.compile(
+            rf"{AUTHORITY_PREFIX}(?:send|notify|post|circulate|tell|give|let)\b"
+            r"[^.!?\n]{0,120}\b(?:team|lead|head|reviewer|controls?|operations|"
+            r"manager|partner|client|working\s+group|stakeholder|security|"
+            r"procurement|scientist|finance|owner|director|vp|counsel|controller|"
+            r"shift|management)\b",
+            re.IGNORECASE,
+        ),
+    ),
+)
+
+
+def task_scoped_execution_authority(prompt: str) -> dict[str, Any]:
+    """Return deterministic evidence that the employee authorized execution."""
+
+    matches = [
+        {
+            "kind": identifier,
+            "text": " ".join(match.group(0).split()),
+        }
+        for identifier, pattern in EXECUTION_AUTHORITY_PATTERNS
+        if (match := pattern.search(prompt)) is not None
+    ]
+    conflict = EXPLICIT_NON_EXECUTION_PATTERN.search(prompt)
+    return {
+        "authorized": bool(matches) and conflict is None,
+        "matches": matches,
+        "explicitNonExecutionConflict": (
+            " ".join(conflict.group(0).split()) if conflict is not None else None
+        ),
+    }
 EVIDENCE_WINDOW_START = SNAPSHOT_DAY - 90
 SERVICE_NAMES = (
     "analytics-worker",
@@ -584,6 +710,65 @@ SYNTHETIC_APPENDAGE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+# These cases need language written around their actual employee decision, not
+# a mechanically composed stack of otherwise valid outcome clauses. Each
+# request leaves discovery to the agent, authorizes only the supported result,
+# and makes the readiness question a consequence of that same operational
+# outcome.
+AUTHORED_RELEASE_PROMPTS = {
+    "dob100-012-localize-analytics-crashloop": (
+        "Alarm 9609 is still firing, yet the error tracker is empty and the label may point "
+        "to a symptom rather than the failing component. Establish the most defensible "
+        "diagnosis from the current operating evidence, preserve any genuine uncertainty, "
+        "and record the finding in the existing incident work item without changing "
+        "production controls. The incident owner is using this finding to set the 2026-03-06 "
+        "recovery plan for analytics worker. Tell them whether staffed capacity can meet that "
+        "date, what paid acceleration changes, and which faster option still needs separate "
+        "approval without taking capacity reserved for another incident."
+    ),
+    "dob100-023-rca-inventory-missing-role": (
+        "The inventory report has never produced output, and the incident record does not "
+        "establish whether the owner, a dependency, or deployed configuration is responsible. "
+        "Settle the root cause as far as the live evidence allows and record the supported "
+        "finding in the incident work item, keeping production unchanged and genuine "
+        "uncertainties visible. This diagnosis will decide whether inventory enters recovery "
+        "on 2026-03-08. Give the next shift a defensible date, the binding capacity or "
+        "change-window constraint, the cost of sanctioned acceleration, and the exception "
+        "route that remains unapproved without displacing another team's reservation."
+    ),
+    "dob100-046-inventory-pool": (
+        "Inventory reservations are failing under peak traffic: error rate is 4.7% against a "
+        "1.0% SLO, alarm 9606 is firing, and incident 9703 remains open. Restore the "
+        "customer-facing objective with the smallest production repair the current evidence "
+        "and approval actually support, and leave unrelated service state untouched. The "
+        "supported change is supposed to take inventory through its 2026-03-07 release window. "
+        "Give the release owner an honest go-or-no-go with the earliest defensible completion, "
+        "the binding constraint and acceleration cost, and any faster option that still needs "
+        "separate authority rather than another team's reserved capacity."
+    ),
+    "dob100-057-search-autocomplete": (
+        "The product team wants search autocomplete launched behind a guarded flag, but "
+        "ownership, prerequisites, implementation readiness, and safe exposure are scattered "
+        "across current records. Decide whether a 10% production start is supportable and, if "
+        "it is within recorded approval, apply only the supported change without touching "
+        "unrelated flags. Customers are expecting the result from search in the 2026-03-09 "
+        "window, so the change is not complete until that promise is credible. Give the "
+        "release owner the earliest defensible date, its cost and schedule variance, the "
+        "binding constraint, and any faster route that still needs separate authority."
+    ),
+    "dob100-090-rcn-gateway-owner": (
+        "An API gateway alarm needs an owner, but the wiki and owner spreadsheet disagree. "
+        "Determine who should actually be paged and what the escalation policy's current "
+        "on-call day is, with the identity assumptions and material exclusions made clear. "
+        "Record the supported answer in the existing work item so the incident lead has one "
+        "auditable source of truth. Management expects the result from API gateway in the "
+        "2026-03-04 reporting window, including an honest delivery date if the target will "
+        "slip. Give them the earliest reliable publication date after current refreshes and "
+        "protected work, the cost of approved acceleration, and the faster route that still "
+        "lacks authority."
+    ),
+}
+
 
 def prompt_has_coherent_readiness(
     row: dict[str, Any], contract: dict[str, Any], prompt: str
@@ -608,6 +793,18 @@ def release_prompt(
 ) -> str:
     """Wrap the authored outcome in a natural workplace request, not a recipe."""
 
+    authored = AUTHORED_RELEASE_PROMPTS.get(str(row["bench_id"]))
+    if authored is not None:
+        prompt = re.sub(r"\s+", " ", authored).strip()
+        if (
+            len(prompt.split()) <= MAX_PROMPT_WORDS
+            and prompt_has_coherent_readiness(row, contract, prompt)
+        ):
+            return prompt
+        raise ValueError(
+            f"{row['bench_id']} authored request violates its readiness contract"
+        )
+
     investigation_closes = (
         "Explain which conclusion survives cross-checking, record it in the existing incident work item, and leave the live evidence that lets the incoming engineer reproduce it; production controls should remain unchanged.",
         "Resolve the disagreement far enough for the incident lead to act, keep production unchanged, and record both the supported conclusion and any uncertainty the evidence cannot settle.",
@@ -620,10 +817,10 @@ def release_prompt(
         "Work through the conflicting records, preserve genuine uncertainty, and state the supported operational conclusion in ordinary language.",
         "Find the narrowest explanation that fits every material signal and leave the incident record ready for independent verification.",
         "Test the apparent explanation against the live state, distinguish correlation from cause, keep production unchanged, and record the sourced finding in the existing incident work item.",
-        "Use the current evidence to settle what can be settled, flag what remains ambiguous, and make the reasoning auditable for the next review.",
+        "Use the current evidence to settle what can be settled, flag what remains ambiguous, and record the supported finding in the existing incident work item for the next review.",
     )
     delivery_closes = (
-        "Decide the safest supported path, respect the current approval boundary, and verify the customer-visible result before handing it back.",
+        "Decide the safest supported path, respect the current approval boundary, make only the supported change, and verify the customer-visible result before handing it back.",
         "Carry the remediation through only where live conditions permit it, then reopen the affected state to prove the intended outcome actually holds.",
         "Distinguish urgent containment from durable repair, account for rollback safety, and leave an auditable completion record for the next owner.",
         "Reconcile the proposed change with current policy and runtime evidence, make the scoped transition, and confirm that dependent behavior remains healthy.",
@@ -651,7 +848,7 @@ def release_prompt(
         "Close the engineering request at the behavior level, not merely the visible assertion, and leave a concise explanation of what changed and why.",
     )
     coordination_closes = (
-        "Use the current records to decide what genuinely belongs in scope, carry the request through, and leave a result that can be independently audited.",
+        "Use the current records to decide what genuinely belongs in scope, record the supported answer in the existing work item, and leave a result that can be independently audited.",
         "Resolve the cross-system disagreement before acting, protect unrelated work, and confirm the final record from its authoritative source.",
         "Determine the supported answer or transition from the live evidence, then communicate it at the level the requesting team needs.",
         "Treat duplicate, stale, and in-flight records carefully, make only the scoped update, and verify that the intended population changed.",
